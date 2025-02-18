@@ -34,9 +34,8 @@ export namespace PERMISSION_QUERY {
         const object = Permission.From(txb, query.permission_object);
         object.query_permissions_all(query.address);
 
-
         const res = await Protocol.Client().devInspectTransactionBlock({sender:query.address, transactionBlock:txb});
-        if (res.results && res.results[0].returnValues && res.results[0].returnValues.length !== 3 )  {
+        if (res.results && res.results[0].returnValues && res.results[0].returnValues.length !== 2 )  {
             ERROR(Errors.Fail, 'permission.retValues')
         }
 

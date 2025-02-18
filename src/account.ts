@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { Ed25519Keypair, fromHEX } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey } from 'wowok';
 
 export interface AccountData {
     name: string; 
@@ -28,6 +28,8 @@ export class Account {
 
     private _add(buffer:string | null | undefined, name:string, bDefault?: boolean) : AccountData[] {
         var data : AccountData[] | undefined;
+        var key = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+
         try {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
@@ -42,10 +44,10 @@ export class Account {
                 if (bDefault) {
                     data.forEach(v => v.default = false)
                 }
-                data.push({name:name, key:Ed25519Keypair.generate().getSecretKey(), default:bDefault})
+                data.push({name:name, key:key, default:bDefault})
             }
         } else {
-            data = [{name:name, key:Ed25519Keypair.generate().getSecretKey(), default:bDefault}];
+            data = [{name:name, key:key, default:bDefault}];
         }
         return data
     }
@@ -180,5 +182,17 @@ export class Account {
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key))
         }
+    }
+    
+    list() : AccountData[] {
+        try {
+            if (this.storage === 'File') {
+                const filePath = path.join(os.homedir(), Account_FileName);
+                return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AccountData[]
+            } else if (this.storage === 'Explorer') {
+                return JSON.parse(localStorage.getItem(Account_Key) ?? '') as AccountData[];
+            }            
+        } catch (e) { console.log(e) }
+        return []
     }
 }
