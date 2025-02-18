@@ -32,7 +32,7 @@ export class Account {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
             }
-        } catch(_) {}
+        } catch(e) { console.log(e) }
 
         if (data) {
             const f = data.find(v => v.name === name);
@@ -56,7 +56,7 @@ export class Account {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
             }
-        } catch(_) {}
+        } catch(e) { console.log(e) }
 
         if (data) {
             const f = data.find(v => v.default);
@@ -71,7 +71,7 @@ export class Account {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
             }
-        } catch(_) {}
+        } catch(e) { console.log(e) }
 
         if (data) {
             const f = data.find(v => v.name === name);
@@ -83,31 +83,31 @@ export class Account {
             }
         } 
     }
-    private _rename(buffer:string | null | undefined, oldName:string, newName:string, bSwapIfExisted:boolean=true) : boolean {
+    private _rename(buffer:string | null | undefined, oldName:string, newName:string, bSwapIfExisted:boolean=true) : AccountData[] | undefined {
         var data : AccountData[] | undefined;
         try {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
             }
-        } catch(_) {}
+        } catch(e) { console.log(e) }
 
         if (data) {
             const f1 = data.find(v => v.name === oldName);
-            if (!f1) return false;
+            if (!f1) return undefined;
 
             const f2 = data.find(v => v.name === newName);
             if (f2) {
                 if (bSwapIfExisted) {
                     f1.name = newName;
                     f2.name = oldName;
-                    return true
+                    return data
                 } 
             } else {
                 f1.name = newName;
-                return true;
+                return data;
             }
         } 
-        return false
+        return undefined
     }
     
     set_storage(storage: 'File' | 'Explorer' = 'File') {
@@ -118,13 +118,15 @@ export class Account {
         try {
             if (this.storage === 'File') {
                 const filePath = path.join(os.homedir(), Account_FileName);
-                const data = this._add(fs.readFileSync(filePath, 'utf-8'), name, bDefault);
-                fs.writeFileSync(filePath, JSON.stringify(data), 'utf8')
+                fs.readFile(filePath, 'utf-8', (err, d) => {
+                    const data = this._add(d, name, bDefault);
+                    fs.writeFileSync(filePath, JSON.stringify(data), 'utf-8')                    
+                });
             } else if (this.storage === 'Explorer') {
                 const data = this._add(localStorage.getItem(Account_Key), name, bDefault);
                 localStorage.setItem(Account_Key, JSON.stringify(data))
             }            
-        } catch (_) {}
+        } catch (e) { console.log(e) }
     }
     default() : AccountData | undefined {
         try {
@@ -134,7 +136,7 @@ export class Account {
             } else if (this.storage === 'Explorer') {
                 return this._default(localStorage.getItem(Account_Key));
             }            
-        } catch (_) {}
+        } catch (e) { console.log(e) }
     }
     get(name?: string, bNotFoundReturnDefault:boolean=true) : AccountData | undefined {  
         try {
@@ -144,18 +146,21 @@ export class Account {
             } else if (this.storage === 'Explorer') {
                 return this._get(localStorage.getItem(Account_Key), name, bNotFoundReturnDefault);
             }            
-        } catch (_) {}
+        } catch (e) { console.log(e) }
     }
     rename(oldName:string, newName:string, bSwapIfExisted:boolean=true) : boolean {
+        var res : AccountData[] | undefined;
         try {
             if (this.storage === 'File') {
                 const filePath = path.join(os.homedir(), Account_FileName);
-                return this._rename(fs.readFileSync(filePath, 'utf-8'), oldName, newName, bSwapIfExisted);
+                res = this._rename(fs.readFileSync(filePath, 'utf-8'), oldName, newName, bSwapIfExisted);
+                if (res) {fs.writeFileSync(filePath, JSON.stringify(res), 'utf-8') }
             } else if (this.storage === 'Explorer') {
-                return this._rename(localStorage.getItem(Account_Key), oldName, newName, bSwapIfExisted);
+                res = this._rename(localStorage.getItem(Account_Key), oldName, newName, bSwapIfExisted);
+                if (res) localStorage.setItem(Account_Key, JSON.stringify(res));
             }            
-        } catch (_) {}
-        return false
+        } catch (e) { console.log(e) }
+        return res ? true : false
     }
 
     get_address(name?:string, bNotFoundReturnDefault=true) : string | undefined {
