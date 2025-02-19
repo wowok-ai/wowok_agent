@@ -17,7 +17,7 @@ export interface GuardConst {
 
 // parameters: Child nodes arranged in parameter order, with each child node providing the type and data for that parameter
 export type GuardNode = { identifier: number; } // Data from GuardConst
-    | {query: number, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
+    | {query: number | string, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
     | {logic: OperatorType.TYPE_LOGIC_AS_U256_GREATER | OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL
         | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL 
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
@@ -107,7 +107,13 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             ERROR(Errors.InvalidParam, 'node identifier - ' + node.toString());
         }
     } else if (node?.query !== undefined) {
-        const q = GUARD_QUERIES.find(v=>v[2] === node.query);
+        var q: any[] | undefined;
+        if (typeof(node.query === 'string')) {
+            q = GUARD_QUERIES.find(v=>v[1] === node.query);
+        } else if (typeof(node.query === 'number')) {
+            q = GUARD_QUERIES.find(v=>v[2] === node.query);
+        }
+        
         if (q) {
             checkType(q[4], type_required, node); // Return type checking
             if ((q[3]).length === node.parameters.length) {
