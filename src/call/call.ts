@@ -17,6 +17,19 @@ export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
 } 
 
+export function ResponseData(response: CallResponse | undefined ) : ResponseData[] {
+    const res : ResponseData[] = [];
+    response?.objectChanges?.forEach(v => {
+        const type_raw: string | undefined = (v as any)?.objectType;
+        const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
+        if (type) {
+            res.push({type:type, type_raw:type_raw, object:(v as any)?.objectId, version:(v as any)?.version,
+                owner:(v as any)?.owner, change:v.type
+            })
+        }
+    })
+    return res;
+}
 export class CallBase {
     object: string | 'new' ;
     permission?: string;
@@ -115,19 +128,5 @@ export class CallBase {
             signer: pair!,
             options:{showObjectChanges:true},
         });
-    }
-
-    static ResponseData(response: CallResponse | undefined ) : ResponseData[] {
-        const res : ResponseData[] = [];
-        response?.objectChanges?.forEach(v => {
-            const type_raw: string | undefined = (v as any)?.objectType;
-            const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
-            if (type) {
-                res.push({type:type, type_raw:type_raw, object:(v as any)?.objectId, version:(v as any)?.version,
-                    owner:(v as any)?.owner, change:v.type
-                })
-            }
-        })
-        return res;
     }
 }

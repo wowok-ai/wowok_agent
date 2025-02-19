@@ -2,11 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey } from 'wowok';
-
+import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
 export interface AccountData {
     name: string; 
     default?: boolean;
     key: string;
+}
+
+export interface AccountData_Show {
+    name: string;
+    default?: boolean;
+    address: string;
 }
 
 const Account_FileName = 'wowok.dat';
@@ -184,15 +190,31 @@ export class Account {
         }
     }
     
-    list() : AccountData[] {
+    list() : AccountData_Show[] {
         try {
             if (this.storage === 'File') {
                 const filePath = path.join(os.homedir(), Account_FileName);
-                return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AccountData[]
+                const a = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AccountData[];
+                return a.map(v => {
+                    return {name:v.name, default:v?.default, address:Ed25519Keypair.fromSecretKey(fromHEX(v.key)).getPublicKey().toSuiAddress()}
+                })
             } else if (this.storage === 'Explorer') {
-                return JSON.parse(localStorage.getItem(Account_Key) ?? '') as AccountData[];
+                const a = JSON.parse(localStorage.getItem(Account_Key) ?? '') as AccountData[];
+                return a.map(v => {
+                    return {name:v.name, default:v?.default, address:Ed25519Keypair.fromSecretKey(fromHEX(v.key)).getPublicKey().toSuiAddress()}
+                })
             }            
         } catch (e) { console.log(e) }
         return []
+    }
+    
+    faucet(name?:string) {
+        const address = this.get_address(name, true);
+        if (address) {
+            requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {
+                console.log(e)
+                requestSuiFromFaucetV1({host:getFaucetHost('testnet'), recipient:address}).catch(e => console.log(e));
+            })
+        }
     }
 }
