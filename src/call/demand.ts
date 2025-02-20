@@ -4,6 +4,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_E
 } from 'wowok';
 import { query_objects, ObjectDemand } from '../objects';
 import { CallBase, CallResult } from "./base";
+import { Account } from '../account';
 
 export interface CallDemand_Data {
     object?: string; // undefined for creating a new object
@@ -13,7 +14,7 @@ export interface CallDemand_Data {
     guard?: {address:string; service_id_in_guard?:number};
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
-    bounty?: {op:'add'; object?:string; balance:string} | {op:'refund'} | {op:'reward'; service:string};
+    bounty?: {op:'add'; balance:string} | {op:'refund'} | {op:'reward'; service:string};
     present?: {service: string | number; recommend_words:string; service_pay_type:string, guard?:string | 'fetch'}; // guard is the present guard of Demand
     reward?: string; // rerward the service
     refund?: boolean;
@@ -77,7 +78,7 @@ export class CallDemand extends CallBase {
         }
         return this.exec(account);
     }
-    protected async operate(txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Demand | undefined ; let permission: any;
 
         if (!this.data.object) {
@@ -109,15 +110,11 @@ export class CallDemand extends CallBase {
             }
             if (this.data?.bounty !== undefined) {
                 if (this.data.bounty.op === 'add') {
-                    let deposit : any | undefined; let b = BigInt(this.data.bounty.balance);
+                    let b = BigInt(this.data.bounty.balance);
                     if (b > BigInt(0)) {
-                        if (this.data.type_parameter === '0x2::sui::SUI' || this.data.type_parameter === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
-                            deposit = txb.splitCoins(txb.gas, [b])[0];
-                        } else if (this.data?.bounty?.object) {
-                            deposit = txb.splitCoins(this.data.bounty.object, [b])[0];
-                        }
-                        if (deposit) {
-                            obj?.deposit(deposit);                              
+                        const coin = await Account.Instance().get_coin_object(txb, this.data.bounty.balance, account, this.data.type_parameter);
+                        if (coin) {
+                            obj?.deposit(coin);    
                         }
                     }
                 } else if (this.data.bounty.op === 'refund') {

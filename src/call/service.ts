@@ -5,6 +5,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 } from 'wowok';
 import { query_objects, ObjectService } from '../objects';
 import { CallBase, CallResult } from "./base";
+import { Account } from '../account';
 
 export interface CallService_Data {
     object?: string; // undefined for creating a new object
@@ -31,7 +32,7 @@ export interface CallService_Data {
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
-    order_new?: {buy_items:Service_Buy[], coin_object?:string, discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch'}
+    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch'}
     order_required_info?: {order:string; info:Customer_RequiredInfo};
     order_refund?: {order:string; guard?:string;} | {order:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order:string; data:WithdrawPayee}; // guard address
@@ -146,7 +147,7 @@ export class CallService extends CallBase {
         }
         return this.exec(account);
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Service | undefined ; let permission: any;  let payee: any;
 
         if (!this.data.object) {
@@ -300,16 +301,12 @@ export class CallService extends CallBase {
                     b += BigInt(v.max_price) * BigInt(v.count)
                 })
                 if (b > BigInt(0)) {
-                    if (this.data?.type_parameter === '0x2::sui::SUI' || this.data?.type_parameter === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
-                        coin = txb.splitCoins(txb.gas, [b])[0];
-                    } else if (this.data?.order_new.coin_object) {
-                        coin = txb.splitCoins(this.data.order_new.coin_object, [b])[0];
-                    }                    
-                }
-
-                if (coin) {
-                    //@ crypto tools support
-                    obj?.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport)                    
+                    const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    if (coin) {
+                        //@ crypto tools support
+                        obj?.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
+                            this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport)                    
+                    }                 
                 }
             }
             if (this.data?.order_payer !== undefined && obj) {

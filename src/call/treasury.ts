@@ -4,6 +4,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 } from 'wowok';
 import { query_objects, ObjectTreasury } from '../objects';
 import { CallBase, CallResult } from "./base";
+import { Account } from '../account';
 
 export interface CallTreasury_Data {
     object?: string; // undefined for creating a new object
@@ -14,7 +15,7 @@ export interface CallTreasury_Data {
     withdraw_mode?: Treasury_WithdrawMode;
     withdraw_guard?: {op:'add' | 'set'; data:{guard:string, amount:string}[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     deposit_guard?: string;
-    deposit?: {data:DepositParam, guard?:string | 'fetch'};
+    deposit?: {data:{balance:string; index?:number; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
     receive?: {payment:string; received_object:string};
     withdraw?:WithdrawParam;
 }
@@ -102,7 +103,7 @@ export class CallTreasury extends CallBase {
         }
         return this.exec(account);
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Treasury | undefined ; let permission: any; 
         if (!this.data.object) {
             if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
@@ -149,7 +150,14 @@ export class CallTreasury extends CallBase {
                 obj?.receive(this.data.receive.payment, this.data.receive.received_object, passport); 
             }
             if (this.data.deposit !== undefined) {
-                obj?.deposit(this.data.deposit.data, passport)
+                const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.data.balance, account, this.data.type_parameter);
+                if (coin) {
+                    const index = this.data.deposit.data?.index ?? 0;
+                    obj?.deposit({coin:coin, index:BigInt(index), remark:this.data.deposit.data.remark ??'', 
+                        for_guard:this.data.deposit.data?.for_guard,
+                        for_object: this.data.deposit.data?.for_object
+                    })
+                }
             }
             if (this.data?.permission_new !== undefined) {
                 obj?.change_permission(this.data.permission_new);

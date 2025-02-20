@@ -39,7 +39,7 @@ export function ResponseData(response: CallResponse | undefined ) : ResponseData
 }
 export class CallBase {
     // operation implementation for a call
-    protected async operate(txb:TransactionBlock, passport?:PassportObject) {};
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
     // return ResponseData when the call has completed; 
@@ -56,7 +56,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    this.operate(new TransactionBlock(), passport?.get_object())
+                    this.operate(new TransactionBlock(), passport?.get_object(), param?.account)
                     passport.destroy();
 
                     return await Protocol.Client().signAndExecuteTransaction({
@@ -103,7 +103,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    this.operate(new TransactionBlock(), passport?.get_object())
+                    this.operate(new TransactionBlock(), passport?.get_object(), account)
                     passport.destroy();
 
                     return await Protocol.Client().signAndExecuteTransaction({
@@ -124,7 +124,7 @@ export class CallBase {
         if (!pair) ERROR(Errors.Fail, 'account invalid')
 
         const txb = new TransactionBlock();
-        this.operate(txb);
+        this.operate(txb, undefined, account);
         return await Protocol.Client().signAndExecuteTransaction({
             transaction: txb, 
             signer: pair!,

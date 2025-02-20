@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TxbObject, TransactionBlock } from 'wowok';
 import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
 export interface AccountData {
     name: string; 
@@ -217,4 +217,50 @@ export class Account {
             })
         }
     }
+
+    // token_type is 0x2::sui::SUI, if not specified.
+    balance = async (name?:string, token_type?:string) : Promise<CoinBalance | undefined> => {
+        const addr = this.get_address(name);
+        if (addr) {
+            return await Protocol.Client().getBalance({owner: addr, coinType:token_type});
+        }
+    }
+
+    // token_type is 0x2::sui::SUI, if not specified.
+    coin = async (name?:string, token_type?:string) : Promise<CoinStruct[] | undefined> => {
+        const addr = this.get_address(name);
+        if (addr) {
+            return (await Protocol.Client().getCoins({owner: addr, coinType:token_type})).data;
+        }
+    }
+
+    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint, name?:string, token_type?:string) : Promise<TxbObject | undefined> => {
+        const addr = this.get_address(name);
+        const b = BigInt(balance_required);
+
+        if (addr && b > BigInt(0)) {
+            if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
+                return txb.splitCoins(txb.gas, [balance_required])[0];
+            } else {
+                const r = await Protocol.Client().getCoins({owner: addr, coinType:token_type});
+                const objects : string[] = []; var current = BigInt(0);
+                for (let i = 0; i < r.data.length; ++ i) {
+                    current += BigInt(r.data[i].balance);
+                    objects.push(r.data[i].coinObjectId);
+                    if (current >= b) {
+                        break;
+                    }
+                }
+
+                if (objects.length === 1) {
+                    return txb.splitCoins(objects[0], [b])[0];
+                } else {
+                    const ret = objects.pop()!;
+                    txb.mergeCoins(ret, objects);
+                    return txb.splitCoins(ret, [b])[0]
+                }
+            }
+        }
+    }
 }
+
