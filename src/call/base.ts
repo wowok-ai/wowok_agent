@@ -1,14 +1,10 @@
-/**
- * Provide a this interface for AI
- * Operation sequence Priority: common operation > Guard change > permission change
- * Recommended: Changes to guard and permission are committed on-chain separately to avoid permission dependencies for other operations.
- */
 
-import { Protocol, TransactionBlock, CallResponse} from 'wowok';
+
+import { Protocol, TransactionBlock, CallResponse, Guard} from 'wowok';
 import { PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
-import { PERMISSION_QUERY } from '../permission';
+import { query_permission } from '../permission';
 import { Account } from '../account';
 import { ObjectBase } from '../objects';
 
@@ -16,6 +12,17 @@ import { ObjectBase } from '../objects';
 export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
 } 
+
+export interface GuardInfo_forCall {
+    guard: string[];
+    witness: WitnessFill[];
+}
+
+export interface CallWithWitnessParam {
+    info: GuardInfo_forCall;
+    account?:string;
+}
+export type CallResult = GuardInfo_forCall | CallResponse | undefined;
 
 export function ResponseData(response: CallResponse | undefined ) : ResponseData[] {
     const res : ResponseData[] = [];
@@ -31,26 +38,21 @@ export function ResponseData(response: CallResponse | undefined ) : ResponseData
     return res;
 }
 export class CallBase {
-    object: string | 'new' ;
-    permission?: string;
-    constructor(object: string | 'new' = 'new') {
-        this.object = object;
-    }
     // operation implementation for a call
     protected async operate(txb:TransactionBlock, passport?:PassportObject) {};
-    
+    constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
     // return ResponseData when the call has completed; 
     // throw an exception when errors.
-    async call(account?:string) : Promise<WitnessFill[] | CallResponse | undefined>  { return undefined };
-    async call_with_witness (guards: string[], fill?: WitnessFill[], account?:string) : Promise<CallResponse | undefined> {
-        if (guards.length > 0) {         // prepare passport
-            const p: GuardParser | undefined = await GuardParser.Create([...guards]);
-            const pair = Account.Instance().get_pair(account, true);
+    async call(account?:string) : Promise<CallResult>  { return undefined };
+    async call_with_witness (param: CallWithWitnessParam) : Promise<CallResponse | undefined> {
+        if (param.info.guard.length > 0) {         // prepare passport
+            const p: GuardParser | undefined = await GuardParser.Create([...param.info.guard]);
+            const pair = Account.Instance().get_pair(param.account, true);
             if (!pair) ERROR(Errors.Fail, 'account invalid')
 
             if (p) {
-                const query = await p.done(fill);
+                const query = await p.done(param.info.witness);
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
@@ -70,13 +72,13 @@ export class CallBase {
     }
 
     protected async check_permission_and_call (permission:string, permIndex: PermissionIndexType[], guards_needed: string[],
-        checkOwner?:boolean, checkAdmin?:boolean, account?:string) : Promise<WitnessFill[] | CallResponse>  {
+        checkOwner?:boolean, checkAdmin?:boolean, account?:string) : Promise<CallResult>  {
         var guards : string[] = [];
         const pair = Account.Instance().get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
 
         if (permIndex.length > 0 || checkOwner) {
-            const p = await PERMISSION_QUERY.permission({permission_object:permission, address:pair!.toSuiAddress()});
+            const p = await query_permission({permission_object:permission, address:pair!.toSuiAddress()});
             if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
@@ -112,7 +114,7 @@ export class CallBase {
                 }
             } 
             
-            return p!.future_fills();
+            return {guard:[...guards], witness:p!.future_fills()};
         } else { // no passport needed
             return this.exec()
         }

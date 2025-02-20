@@ -1,13 +1,15 @@
-import { TransactionBlock, CallResponse} from 'wowok';
+import { TransactionBlock, CallResponse, IsValidArgType} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, PermissionIndex, UserDefinedIndex,
     PermissionIndexType, Demand,  WitnessFill
 } from 'wowok';
-import { OBJECT_QUERY, ObjectDemand } from '../objects';
-import { CallBase } from "./call";
+import { query_objects, ObjectDemand } from '../objects';
+import { CallBase, CallResult } from "./base";
 
-export class CallDemand extends CallBase {
+export interface CallDemand_Data {
+    object?: string; // undefined for creating a new object
+    permission?: string; 
     permission_new?: string;
-    type_parameter: string;
+    type_parameter?: string;
     guard?: {address:string; service_id_in_guard?:number};
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
@@ -15,117 +17,129 @@ export class CallDemand extends CallBase {
     present?: {service: string | number; recommend_words:string; service_pay_type:string, guard?:string | 'fetch'}; // guard is the present guard of Demand
     reward?: string; // rerward the service
     refund?: boolean;
-    constructor(type_parameter:string, object: string | 'new' = 'new') { 
-        super(object)
-        this.type_parameter = type_parameter 
+}
+export class CallDemand extends CallBase {
+    data: CallDemand_Data;
+    constructor(data: CallDemand_Data) {
+        super();
+        this.data = data;
     }
-    async call(account?:string) : Promise<WitnessFill[] | CallResponse | undefined>   {
-        if (!this.type_parameter) ERROR(Errors.InvalidParam, 'type_parameter')
+    async call(account?:string) : Promise<CallResult> {
+        if (!this.data?.type_parameter || !IsValidArgType(this.data.type_parameter)) {
+            ERROR(Errors.IsValidArgType, 'demand.type_parameter')
+        }
+
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
 
-        if (this?.permission && IsValidAddress(this.permission)) {
-            if (this?.object === 'new') {
+        if (this.data?.permission && IsValidAddress(this.data.permission)) {
+            if (!this.data?.object) {
                 perms.push(PermissionIndex.demand)
             }
-            if (this?.permission_new !== undefined) {
+            if (this.data?.permission_new !== undefined) {
                 checkOwner = true;
             }
-            if (this?.description !== undefined && this.object !== 'new') {
+            if (this.data?.description !== undefined && this.data.object) {
                 perms.push(PermissionIndex.demand_description)
             }
-            if (this?.time_expire !== undefined && this.object !== 'new') {
+            if (this.data?.time_expire !== undefined && this.data.object) {
                 perms.push(PermissionIndex.demand_expand_time)
             }
-            if (this?.guard !== undefined) {
+            if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.demand_guard)
             }
-            if (this?.reward !== undefined) {
+            if (this.data?.reward !== undefined) {
                 perms.push(PermissionIndex.demand_yes)
             }
-            if (this?.refund) {
+            if (this.data?.refund) {
                 perms.push(PermissionIndex.demand_refund)
             }
-            if (this?.present?.guard !== undefined) {
-                if (IsValidAddress(this.present.guard)) {
-                    guards.push(this.present.guard)
-                } else if (IsValidAddress(this?.object)) {
-                    const r = await OBJECT_QUERY.objects({objects:[this.object], showContent:true});
-                    if (r?.objects && r?.objects[0]?.type === 'Demand') {
-                        const obj = (r?.objects[0] as ObjectDemand);
-                        if (obj?.guard) {
-                            guards.push(obj?.guard.object);
+            if (this.data?.present?.guard !== undefined) {
+                if (IsValidAddress(this.data.present.guard)) {
+                    guards.push(this.data.present.guard)
+                } else {
+                    if (!this.data.object) { // new
+                        if (this.data?.guard?.address && IsValidAddress(this.data?.guard.address)) {
+                            guards.push(this.data.guard.address)
+                        }
+                    } else {
+                        const r = await query_objects({objects:[this.data.object], showContent:true});
+                        if (r?.objects && r?.objects[0]?.type === 'Demand') {
+                            const obj = (r?.objects[0] as ObjectDemand);
+                            if (obj?.guard) {
+                                guards.push(obj?.guard.object);
+                            }
                         }
                     }
                 }
             }
-            return await this.check_permission_and_call(this.permission, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
         return this.exec(account);
     }
     protected async operate(txb:TransactionBlock, passport?:PassportObject) {
         let obj : Demand | undefined ; let permission: any;
 
-        if (this.object === 'new') {
-            if (!this?.permission || !IsValidAddress(this?.permission)) {
+        if (!this.data.object) {
+            if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
                 permission = Permission.New(txb, '');
             }
             
-            if (this.time_expire !== undefined) {
-                obj = Demand.New(txb, this.type_parameter, this.time_expire?.op === 'duration' ? true : false, 
-                    this.time_expire?.op === 'duration' ? this.time_expire.minutes : this.time_expire?.time,
-                    permission ? permission.get_object(): this?.permission, this?.description??'', permission?undefined:passport)
+            if (this.data.time_expire !== undefined) {
+                obj = Demand.New(txb, this.data.type_parameter!, this.data.time_expire?.op === 'duration' ? true : false, 
+                    this.data.time_expire?.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire?.time,
+                    permission ? permission.get_object(): this.data?.permission, this.data?.description??'', permission?undefined:passport)
             } else {
-                obj = Demand.New(txb, this.type_parameter, true, 30*24*60, // 30days default
-                    permission ? permission.get_object(): this?.permission, this?.description??'', permission?undefined:passport)       
+                obj = Demand.New(txb, this.data.type_parameter!, true, 30*24*60, // 30days default
+                    permission ? permission.get_object(): this.data?.permission, this.data?.description??'', permission?undefined:passport)       
             }
         } else {
-            if (IsValidAddress(this.object) && this.type_parameter && this.permission && IsValidAddress(this?.permission)) {
-                obj = Demand.From(txb, this.type_parameter, this.permission, this.object)
+            if (IsValidAddress(this.data.object) && this.data.type_parameter && this.data.permission && IsValidAddress(this.data?.permission)) {
+                obj = Demand.From(txb, this.data.type_parameter, this.data.permission, this.data.object)
             }
         }
 
         if (obj) {
-            if (this?.description !== undefined && this.object !== 'new') {
-                obj?.set_description(this.description, passport);
+            if (this.data?.description !== undefined && this.data.object) {
+                obj?.set_description(this.data.description, passport);
             }
-            if (this?.time_expire !== undefined && this.object !== 'new') {
-                obj?.expand_time(this.time_expire.op === 'duration' ? true : false, 
-                    this.time_expire.op === 'duration' ? this.time_expire.minutes : this.time_expire.time, passport)
+            if (this.data?.time_expire !== undefined && this.data.object) {
+                obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, 
+                    this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, passport)
             }
-            if (this?.bounty !== undefined) {
-                if (this.bounty.op === 'add') {
-                    let deposit : any | undefined; let b = BigInt(this.bounty.balance);
+            if (this.data?.bounty !== undefined) {
+                if (this.data.bounty.op === 'add') {
+                    let deposit : any | undefined; let b = BigInt(this.data.bounty.balance);
                     if (b > BigInt(0)) {
-                        if (this.type_parameter === '0x2::sui::SUI' || this.type_parameter === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
+                        if (this.data.type_parameter === '0x2::sui::SUI' || this.data.type_parameter === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
                             deposit = txb.splitCoins(txb.gas, [b])[0];
-                        } else if (this?.bounty?.object) {
-                            deposit = txb.splitCoins(this.bounty.object, [b])[0];
+                        } else if (this.data?.bounty?.object) {
+                            deposit = txb.splitCoins(this.data.bounty.object, [b])[0];
                         }
                         if (deposit) {
                             obj?.deposit(deposit);                              
                         }
                     }
-                } else if (this.bounty.op === 'refund') {
+                } else if (this.data.bounty.op === 'refund') {
                     obj?.refund(passport);
-                } else if (this.bounty.op === 'reward') {
-                    obj?.yes(this.bounty.service, passport);
+                } else if (this.data.bounty.op === 'reward') {
+                    obj?.yes(this.data.bounty.service, passport);
                 }
             }
-            if (this?.present !== undefined) {
+            if (this.data?.present !== undefined) {
                 //@ demand guard and its passport, if set
-                obj?.present(this.present.service, this.present.service_pay_type, this.present.recommend_words, passport);
+                obj?.present(this.data.present.service, this.data.present.service_pay_type, this.data.present.recommend_words, passport);
             }
-            if (this?.guard !== undefined) {
-                obj?.set_guard(this.guard.address, this.guard?.service_id_in_guard ?? undefined, passport)
+            if (this.data?.guard !== undefined) {
+                obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, passport)
             }
-            if (this?.permission_new !== undefined ) {
-                obj?.change_permission(this.permission_new);
+            if (this.data?.permission_new !== undefined ) {
+                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();
             }
-            if (this.object === 'new') {
+            if (!this.data.object) {
                 obj?.launch();
             }
         }

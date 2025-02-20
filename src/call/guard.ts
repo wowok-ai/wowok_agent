@@ -7,6 +7,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
     IsValidDesription} from "wowok";
 import { Account } from "../account";
+import { CallBase, CallResult } from "./base";
 
 export interface GuardConst {
     identifier: number; // 1-255, the same identifier to represent the same data in different nodes
@@ -28,70 +29,79 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
     | {value_type: ValueType; value:any; } // Data 
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
 
-export interface GuardData {
+export interface CallGuard_Data {
     description: string;
     table: GuardConst[]; //  data used by multiple logical guard nodes
-    root: GuardNode; // root must return ValueType.TYPE_BOOL 
-};
+    root: GuardNode; // root must return ValueType.TYPE_BOOL     
+}
+export class CallGuard extends CallBase {
+    data: CallGuard_Data;
+    constructor(data: CallGuard_Data) {
+        super();
+        this.data = data;
+    }
+    async call(account?:string) : Promise<CallResult> {
+        if (!this.data?.root) {
+            ERROR(Errors.InvalidParam, 'guard root node invalid')
+        }
+        if (!IsValidDesription(this.data?.description)) {
+            ERROR(Errors.IsValidDesription, 'build_guard - '+this.data.description)
+        }
+    
+        // check const
+        this.data.table.forEach(v => {
+            if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifer invalid');
+            if (!v.bWitness && v.value === undefined) ERROR(Errors.InvalidParam, 'table.value');
+        })
+    
+        if (hasDuplicates(this.data.table.map(v => v.identifier))) {
+            ERROR(Errors.InvalidParam, 'table.identifer duplicates')
+        }
+    
+        // check root
+        var output : Uint8Array[]= [];
+        buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data.table, output);
+        const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
+        const txb = new TransactionBlock();
+    
+        console.log(bytes)
+        const obj = txb.moveCall({
+            target: Protocol.Instance().guardFn('new') as FnCallType,
+            arguments: [txb.pure.string(this.data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
+        });
+        this.data.table.forEach((v) => {
+            if (v.bWitness) {
+                const n = new Uint8Array(1); n.set([v.value_type], 0);
+                txb.moveCall({
+                    target:Protocol.Instance().guardFn("constant_add") as FnCallType,
+                    arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                }) 
+            } else {
+                const tmp = Uint8Array.from(Bcs.getInstance().ser(v.value_type, v.value));
+                const n = insertAtHead(tmp, v.value_type);
+                txb.moveCall({
+                    target:Protocol.Instance().guardFn("constant_add") as FnCallType,
+                    arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false),  txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                }) 
+            }
+        })
+        txb.moveCall({
+            target:Protocol.Instance().guardFn("create") as FnCallType,
+            arguments:[txb.object(obj)]
+        });
+    
+        const pair = Account.Instance().get_pair(account, true);
+        if (!pair) ERROR(Errors.Fail, 'account invalid')
+    
+        return await Protocol.Client().signAndExecuteTransaction({
+            transaction: txb, 
+            signer: pair!,
+            options:{showObjectChanges:true},
+        });
+    }
+}
 
 //export const MAX_CHILD_NODE_COUNT = 6;
-
-export async function launch_guard(data: GuardData, account?:string) :  Promise<CallResponse | undefined>  {
-    if (!IsValidDesription(data.description)) {
-        ERROR(Errors.IsValidDesription, 'build_guard - '+data.description)
-    }
-
-    // check const
-    data.table.forEach(v => {
-        if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifer invalid');
-        if (!v.bWitness && v.value === undefined) ERROR(Errors.InvalidParam, 'table.value');
-    })
-
-    if (hasDuplicates(data.table.map(v => v.identifier))) {
-        ERROR(Errors.InvalidParam, 'table.identifer duplicates')
-    }
-
-    // check root
-    var output : Uint8Array[]= [];
-    buildNode(data.root, ValueType.TYPE_BOOL, data.table, output);
-    const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
-    const txb = new TransactionBlock();
-
-    console.log(bytes)
-    const obj = txb.moveCall({
-        target: Protocol.Instance().guardFn('new') as FnCallType,
-        arguments: [txb.pure.string(data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
-    });
-    data.table.forEach((v) => {
-        if (v.bWitness) {
-            const n = new Uint8Array(1); n.set([v.value_type], 0);
-            txb.moveCall({
-                target:Protocol.Instance().guardFn("constant_add") as FnCallType,
-                arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
-            }) 
-        } else {
-            const tmp = Uint8Array.from(Bcs.getInstance().ser(v.value_type, v.value));
-            const n = insertAtHead(tmp, v.value_type);
-            txb.moveCall({
-                target:Protocol.Instance().guardFn("constant_add") as FnCallType,
-                arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false),  txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
-            }) 
-        }
-    })
-    txb.moveCall({
-        target:Protocol.Instance().guardFn("create") as FnCallType,
-        arguments:[txb.object(obj)]
-    });
-
-    const pair = Account.Instance().get_pair(account, true);
-    if (!pair) ERROR(Errors.Fail, 'account invalid')
-
-    return await Protocol.Client().signAndExecuteTransaction({
-        transaction: txb, 
-        signer: pair!,
-        options:{showObjectChanges:true},
-    });
-} 
 
 const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'variable', table:GuardConst[], output:Uint8Array[]) => {
     const node: any = guard_node as any;
@@ -113,7 +123,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         } else if (typeof(node.query === 'number')) {
             q = GUARD_QUERIES.find(v=>v[2] === node.query);
         }
-        
+
         if (q) {
             checkType(q[4], type_required, node); // Return type checking
             if ((q[3]).length === node.parameters.length) {
