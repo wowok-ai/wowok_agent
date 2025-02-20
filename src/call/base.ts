@@ -1,6 +1,6 @@
 
 
-import { Protocol, TransactionBlock, CallResponse, Guard} from 'wowok';
+import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument} from 'wowok';
 import { PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
@@ -130,5 +130,23 @@ export class CallBase {
             signer: pair!,
             options:{showObjectChanges:true},
         });
+    }
+
+    static async coin_with_balance(balance_required:string | bigint | number, account?:string, token_type?:string) : Promise<string | undefined> {
+        const pair = Account.Instance().get_pair(account, true);
+        if (!pair) ERROR(Errors.Fail, 'account invalid')
+
+        const txb = new TransactionBlock();
+        const res = await Account.Instance().get_coin_object(txb, balance_required, account, token_type);
+        if (res) {
+            txb.transferObjects([(res as unknown) as TransactionArgument], pair?.toSuiAddress()!)
+            const r = await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb, 
+                signer: pair!,
+                options:{showObjectChanges:true},
+            });
+            const t = token_type ?? '0x2::sui::SUI';
+            return ((r as any)?.objectChanges.find((v:any) => v?.type === 'created' && (v?.objectType as string).includes(t)) as any)?.objectId;
+        }
     }
 }

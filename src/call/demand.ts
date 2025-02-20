@@ -1,7 +1,6 @@
-import { TransactionBlock, CallResponse, IsValidArgType} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, PermissionIndex, UserDefinedIndex,
-    PermissionIndexType, Demand,  WitnessFill
-} from 'wowok';
+import { TransactionBlock, IsValidArgType, IsValidCoinType } from 'wowok';
+import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
+    PermissionIndexType, Demand, } from 'wowok';
 import { query_objects, ObjectDemand } from '../objects';
 import { CallBase, CallResult } from "./base";
 import { Account } from '../account';
@@ -14,7 +13,7 @@ export interface CallDemand_Data {
     guard?: {address:string; service_id_in_guard?:number};
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
-    bounty?: {op:'add'; balance:string} | {op:'refund'} | {op:'reward'; service:string};
+    bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'refund'} | {op:'reward'; service:string};
     present?: {service: string | number; recommend_words:string; service_pay_type:string, guard?:string | 'fetch'}; // guard is the present guard of Demand
     reward?: string; // rerward the service
     refund?: boolean;
@@ -110,12 +109,14 @@ export class CallDemand extends CallBase {
             }
             if (this.data?.bounty !== undefined) {
                 if (this.data.bounty.op === 'add') {
-                    let b = BigInt(this.data.bounty.balance);
-                    if (b > BigInt(0)) {
-                        const coin = await Account.Instance().get_coin_object(txb, this.data.bounty.balance, account, this.data.type_parameter);
-                        if (coin) {
-                            obj?.deposit(coin);    
+                    if (IsValidAddress((this.data.bounty.object as any)?.address)) {
+                        obj.deposit((this.data.bounty.object as any)?.address)
+                    } else if ((this.data.bounty.object as any)?.balance !== undefined){
+                        if (!IsValidCoinType(this.data.type_parameter)) {
+                            ERROR(Errors.IsValidCoinType, 'demand bounty')
                         }
+                        const r = await Account.Instance().get_coin_object(txb, (this.data.bounty.object as any)?.balance, account, this.data.type_parameter);
+                        if (r) obj.deposit(r)
                     }
                 } else if (this.data.bounty.op === 'refund') {
                     obj?.refund(passport);

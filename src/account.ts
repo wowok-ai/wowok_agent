@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TxbObject, TransactionBlock } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TransactionResult, TransactionBlock } from 'wowok';
 import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
 export interface AccountData {
     name: string; 
@@ -234,13 +234,13 @@ export class Account {
         }
     }
 
-    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint, name?:string, token_type?:string) : Promise<TxbObject | undefined> => {
+    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, name?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
         const addr = this.get_address(name);
         const b = BigInt(balance_required);
 
         if (addr && b > BigInt(0)) {
             if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
-                return txb.splitCoins(txb.gas, [balance_required])[0];
+                return txb.splitCoins(txb.gas, [balance_required]);
             } else {
                 const r = await Protocol.Client().getCoins({owner: addr, coinType:token_type});
                 const objects : string[] = []; var current = BigInt(0);
@@ -253,11 +253,11 @@ export class Account {
                 }
 
                 if (objects.length === 1) {
-                    return txb.splitCoins(objects[0], [b])[0];
+                    return txb.splitCoins(objects[0], [b]);
                 } else {
                     const ret = objects.pop()!;
                     txb.mergeCoins(ret, objects);
-                    return txb.splitCoins(ret, [b])[0]
+                    return txb.splitCoins(ret, [b])
                 }
             }
         }
