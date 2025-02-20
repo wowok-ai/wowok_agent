@@ -8,6 +8,7 @@ import { CallBase, CallResult } from "./base";
 export interface CallArbitration_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
+    
     type_parameter?: string;
     permission_new?: string;
     description?: string;

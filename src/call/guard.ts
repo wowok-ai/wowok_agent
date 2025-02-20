@@ -64,7 +64,6 @@ export class CallGuard extends CallBase {
         const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
         const txb = new TransactionBlock();
     
-        console.log(bytes)
         const obj = txb.moveCall({
             target: Protocol.Instance().guardFn('new') as FnCallType,
             arguments: [txb.pure.string(this.data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
@@ -106,13 +105,11 @@ export class CallGuard extends CallBase {
 const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'variable', table:GuardConst[], output:Uint8Array[]) => {
     const node: any = guard_node as any;
     if (node?.identifier !== undefined) {
-        console.log(node)
         const f = table.find(v=>v.identifier === node.identifier);
         if (f) {
             checkType(f.value_type, type_required, node);
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT)); 
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier))
-            console.log(2)
         } else {
             ERROR(Errors.InvalidParam, 'node identifier - ' + node.toString());
         }

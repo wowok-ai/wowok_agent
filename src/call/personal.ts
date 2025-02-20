@@ -16,7 +16,7 @@ export interface CallPersonal_Data {
     close?: boolean; // close a personal resource
 }
 
-export class CallEntity extends CallBase {
+export class CallPersonal extends CallBase {
     data: CallPersonal_Data;
     constructor(data: CallPersonal_Data) {
         super();
