@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TransactionResult, TransactionBlock } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TransactionResult, TransactionBlock, TransactionArgument, ERROR, Errors } from 'wowok';
 import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
 export interface AccountData {
     name: string; 
@@ -260,6 +260,23 @@ export class Account {
                     return txb.splitCoins(ret, [b])
                 }
             }
+        }
+    }
+    coin_with_balance = async(balance_required:string | bigint | number, account?:string, token_type?:string) : Promise<string | undefined> => {
+        const pair = this.get_pair(account, true);
+        if (!pair) ERROR(Errors.Fail, 'account invalid')
+    
+        const txb = new TransactionBlock();
+        const res = await Account.Instance().get_coin_object(txb, balance_required, account, token_type);
+        if (res) {
+            txb.transferObjects([(res as unknown) as TransactionArgument], pair?.toSuiAddress()!)
+            const r = await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb, 
+                signer: pair!,
+                options:{showObjectChanges:true},
+            });
+            const t = token_type ?? '0x2::sui::SUI';
+            return ((r as any)?.objectChanges.find((v:any) => v?.type === 'created' && (v?.objectType as string).includes(t)) as any)?.objectId;
         }
     }
 }

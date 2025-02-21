@@ -4,7 +4,7 @@
  */
 
 import { TransactionBlock, } from 'wowok';
-import { Protocol, Bcs, IsValidAddress, Errors, ERROR, Permission, PermissionAnswerItem, PermissionAnswer, BCS} from 'wowok';
+import { Protocol, Bcs, IsValidAddress, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
 
 
 export interface PermissionQuery {

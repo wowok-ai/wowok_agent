@@ -1,18 +1,22 @@
 
 
-import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument} from 'wowok';
+import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult} from 'wowok';
 import { PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
-import { ObjectBase } from '../objects';
+import { ObjectBase} from '../objects';
+import { query_entity } from '../entity';
 
-
+export interface AddressMark {
+    nick_name?:string; 
+    tags:string[]; 
+    groups:string[];
+}
 export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
 } 
-
 export interface GuardInfo_forCall {
     guard: string[];
     witness: WitnessFill[];
@@ -132,21 +136,19 @@ export class CallBase {
         });
     }
 
-    static async coin_with_balance(balance_required:string | bigint | number, account?:string, token_type?:string) : Promise<string | undefined> {
-        const pair = Account.Instance().get_pair(account, true);
-        if (!pair) ERROR(Errors.Fail, 'account invalid')
-
-        const txb = new TransactionBlock();
-        const res = await Account.Instance().get_coin_object(txb, balance_required, account, token_type);
-        if (res) {
-            txb.transferObjects([(res as unknown) as TransactionArgument], pair?.toSuiAddress()!)
-            const r = await Protocol.Client().signAndExecuteTransaction({
-                transaction: txb, 
-                signer: pair!,
-                options:{showObjectChanges:true},
-            });
-            const t = token_type ?? '0x2::sui::SUI';
-            return ((r as any)?.objectChanges.find((v:any) => v?.type === 'created' && (v?.objectType as string).includes(t)) as any)?.objectId;
+    protected mark = async (txb:TransactionBlock, object: string | TransactionResult, mark:AddressMark, account?:string) => {
+        const addr = Account.Instance().get_address(account);
+        if (addr) {
+            const r = await query_entity(addr);
+            if (r?.resource) {
+                const resource = Resource.From(txb, r.resource);
+                resource.add_tags(object, mark.nick_name??'', mark.tags);
+                if (mark.groups.length > 0) {
+                    resource.add2(object, mark.groups);
+                }
+            }
+        } else {
+            ERROR(Errors.InvalidParam, 'account - ' + account)
         }
     }
 }

@@ -1,14 +1,14 @@
-import { TransactionBlock, CallResponse, IsValidArgType} from 'wowok';
+import { TransactionBlock, CallResponse, IsValidArgType, TransactionResult} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Treasury, 
     Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee, WitnessFill
 } from 'wowok';
 import { query_objects, ObjectArbitration, } from '../objects';
-import { CallBase, CallResult } from "./base";
+import { CallBase, CallResult, AddressMark } from "./base";
 
 export interface CallArbitration_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
-    
+    mark?:AddressMark;
     type_parameter?: string;
     permission_new?: string;
     description?: string;
@@ -102,7 +102,7 @@ export class CallArbitration extends CallBase {
         }
         return this.exec(account);
     }
-    protected async operate(txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Arbitration | undefined ; let permission: any; let withdraw_treasury:any;
         if (!this.data.object) {
             if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
@@ -177,8 +177,15 @@ export class CallArbitration extends CallBase {
             if (permission) {
                 permission.launch();
             }
+            var mark : TransactionResult | string | undefined ;
             if (!this.data.object) {
-                obj?.launch();
+                mark = obj?.launch();
+            } else {
+                mark = this.data.object;
+            }
+
+            if (this.data?.mark !== undefined) {
+                this.mark(txb, mark, this.data?.mark, account)
             }
         }
     }

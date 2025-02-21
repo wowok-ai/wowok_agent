@@ -1,5 +1,4 @@
-import { TransactionBlock, CallResponse} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, WitnessFill,
+import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock,
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
 } from 'wowok';
 import { CallBase, CallResult } from "./base";

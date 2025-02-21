@@ -1,17 +1,17 @@
-import { TransactionBlock, CallResponse} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, MarkName, Resource, WitnessFill} from 'wowok';
+import { TransactionBlock } from 'wowok';
+import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, GroupName, Resource, WitnessFill} from 'wowok';
 import { CallBase, CallResult } from "./base";
 
 export interface CallPersonal_Data {
     object?: string; // undefined for creating a new object
     information?: Entity_Info;
     transfer_to?: string;
-    marks?: {op:'add mark'; data:{mark_name:string; address:string[]}}
-        | {op:'add address'; data:{address:string; mark_name:string[]}} 
-        | {op:'remove mark'; data:{mark_name:string; address:string[]}}
-        | {op:'remove address'; data:{address:string; mark_name:string[]}}
-        | {op:'clear mark'; mark_name:string};
-    tags?: {op:'add'; data:{address:string; nick_name:string; tags:string[]}}
+    group?: {op:'add group'; data:{group_name:string | GroupName; address:string[]}}
+        | {op:'remove group'; data:{group_name:string | GroupName; address:string[]}}
+        | {op:'clear group'; group_name:string | GroupName}
+        | {op:'add address'; data:{address:string; group_name:(string | GroupName)[]}} 
+        | {op:'remove address'; data:{address:string; group_name:(string | GroupName)[]}};
+    tag?: {op:'add'; data:{address:string; nick_name:string; tags:string[]}}
         | {op:'remove'; address:string};
     close?: boolean; // close a personal resource
 }
@@ -44,42 +44,42 @@ export class CallPersonal extends CallBase {
         }
 
         if (obj && obj?.get_object()) {
-            if (this.data?.marks !== undefined) {
-                switch(this.data.marks.op) {
+            if (this.data?.group !== undefined) {
+                switch(this.data.group.op) {
                     case 'add address':
-                        obj?.add2(this.data.marks.data.address, this.data.marks.data.mark_name)
+                        obj?.add2(this.data.group.data.address, this.data.group.data.group_name)
                         break;
-                    case 'add mark':
-                        if (this.data.marks.data.mark_name === MarkName.DislikeName || this.data.marks.data.mark_name === MarkName.LikeName) {
-                            const n = this.data.marks.data.mark_name;
-                            this.data.marks.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
+                    case 'add group':
+                        if (this.data.group.data.group_name === GroupName.DislikeName || this.data.group.data.group_name === GroupName.LikeName) {
+                            const n = this.data.group.data.group_name;
+                            this.data.group.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
                         } else {
-                            obj?.add(this.data.marks.data.mark_name, this.data.marks.data.address)
+                            obj?.add(this.data.group.data.group_name, this.data.group.data.address)
                         }
                         break;
-                    case 'clear mark':
-                        obj?.remove(this.data.marks.mark_name, [], true)
+                    case 'clear group':
+                        obj?.remove(this.data.group.group_name, [], true)
                         break;
                     case 'remove address':
-                        obj?.remove2(this.data.marks.data.address, this.data.marks.data.mark_name)
+                        obj?.remove2(this.data.group.data.address, this.data.group.data.group_name)
                         break;
-                    case 'remove mark':
-                        if (this.data.marks.data.mark_name === MarkName.DislikeName || this.data.marks.data.mark_name === MarkName.LikeName) {
-                            const n = this.data.marks.data.mark_name;
-                            this.data.marks.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
+                    case 'remove group':
+                        if (this.data.group.data.group_name === GroupName.DislikeName || this.data.group.data.group_name === GroupName.LikeName) {
+                            const n = this.data.group.data.group_name;
+                            this.data.group.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
                         } else {
-                            obj?.remove(this.data.marks.data.mark_name, this.data.marks.data.address)
+                            obj?.remove(this.data.group.data.group_name, this.data.group.data.address)
                         }
                         break;
                 }
             }
-            if (this.data?.tags !== undefined) {
-                switch(this.data.tags.op) {
+            if (this.data?.tag !== undefined) {
+                switch(this.data.tag.op) {
                     case 'add':
-                        obj?.add_tags(this.data.tags.data.address, this.data.tags.data.nick_name, this.data.tags.data.tags)
+                        obj?.add_tags(this.data.tag.data.address, this.data.tag.data.nick_name, this.data.tag.data.tags)
                         break;
                     case 'remove':
-                        obj?.remove_tags(this.data.tags.address)
+                        obj?.remove_tags(this.data.tag.address)
                         break;
                 }
             }
