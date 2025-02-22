@@ -7,7 +7,6 @@ import { Account } from '../account';
 export interface CallMachine_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
-    permission_new?: string;
     bPaused?: boolean;
     bPublished?: boolean;
     consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
@@ -40,9 +39,6 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         if (this.data?.permission && IsValidAddress(this.data.permission)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine)
-            }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
             }
             if (this.data?.description !== undefined && this.data.object) {
                 perms.push(PermissionIndex.machine_description)
@@ -100,7 +96,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
 
             return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject) {
@@ -201,9 +197,6 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             }
             if (this.data?.progress_next !== undefined) {
                 Progress.From(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, passport)
-            }
-            if (this.data?.permission_new !== undefined ) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();

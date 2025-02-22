@@ -4,19 +4,19 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_E
     PermissionIndexType, WitnessFill
 } from 'wowok';
 
-export interface CallPermission_Data {
+export interface CallEntityPermission_Data {
     object?: string; // undefined for creating a new object
     builder?: string;
     admin?: {op:'add' | 'remove' | 'set', admins:string[]};
     description?: string;
-    entity?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
+    permission?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
         | {op:'remove entity'; addresses:string[]} | {op:'remove permission'; address:string; index:PermissionIndexType[]} 
         | {op:'transfer permission', from_address: string; to_address: string};
     biz_permission?: {op:'add'; data: UserDefinedIndex[]} | {op:'remove'; permissions: PermissionIndexType[]};
 }
-export class CallPermission extends CallBase {
-    data: CallPermission_Data;
-    constructor(data:CallPermission_Data) {
+export class CallEntityPermission extends CallBase {
+    data: CallEntityPermission_Data;
+    constructor(data:CallEntityPermission_Data) {
         super();
         this.data = data;
     }
@@ -27,7 +27,7 @@ export class CallPermission extends CallBase {
             if (this.data?.builder !== undefined || this.data?.admin !== undefined) {
                 checkOwner = true;
             }
-            if (this.data?.entity !== undefined || this.data?.biz_permission !== undefined) {
+            if (this.data?.permission !== undefined || this.data?.biz_permission !== undefined) {
                 checkAdmin = true;
             }
             if (this.data?.description !== undefined) {
@@ -35,7 +35,7 @@ export class CallPermission extends CallBase {
             }
             return await this.check_permission_and_call(this.data.object, [], [], checkOwner, checkAdmin, account)
         }
-        return this.exec(account)
+        return await this.exec(account)
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject) {
         let obj : Permission | undefined ; 
@@ -62,29 +62,7 @@ export class CallPermission extends CallBase {
                         break
                 }
             }
-            if (this.data?.description !== undefined && this.data.object) {
-                obj?.set_description(this.data.description)
-            }
-            if (this.data?.entity !== undefined) {
-                switch (this.data.entity.op) {
-                    case 'add entity':
-                        obj?.add_entity(this.data.entity.entities);
-                        break;
-                    case 'add permission':
-                        obj?.add_entity3(this.data.entity.permissions);
-                        break;
-                    case 'remove entity':
-                        obj?.remove_entity(this.data.entity.addresses);
-                        break;
-                    case 'remove permission':
-                        obj?.remove_index(this.data.entity.address, this.data.entity.index);
-                        break;
-                    case 'transfer permission':
-                        obj?.transfer_permission(this.data.entity.from_address, this.data.entity.to_address);
-                        break;
-                }
-            }
-            if (this.data?.biz_permission !== undefined) {
+            if (this.data?.biz_permission !== undefined) { // High priority operate
                 switch(this.data.biz_permission.op) {
                     case 'add':
                         this.data.biz_permission.data.forEach(v => {
@@ -98,6 +76,29 @@ export class CallPermission extends CallBase {
                         break;
                 }
             }
+            if (this.data?.description !== undefined && this.data.object) {
+                obj?.set_description(this.data.description)
+            }
+            if (this.data?.permission !== undefined) {
+                switch (this.data.permission.op) {
+                    case 'add entity':
+                        obj?.add_entity(this.data.permission.entities);
+                        break;
+                    case 'add permission':
+                        obj?.add_entity3(this.data.permission.permissions);
+                        break;
+                    case 'remove entity':
+                        obj?.remove_entity(this.data.permission.addresses);
+                        break;
+                    case 'remove permission':
+                        obj?.remove_index(this.data.permission.address, this.data.permission.index);
+                        break;
+                    case 'transfer permission':
+                        obj?.transfer_permission(this.data.permission.from_address, this.data.permission.to_address);
+                        break;
+                }
+            }
+
             if (this.data?.builder !== undefined ) {
                 obj?.change_owner(this.data.builder);
             }

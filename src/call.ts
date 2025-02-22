@@ -8,19 +8,20 @@
 import { CallArbitration, CallArbitration_Data } from "./call/arbitration";
 import { CallDemand, CallDemand_Data } from "./call/demand";
 import { CallMachine, CallMachine_Data } from "./call/machine";
-import { CallPermission, CallPermission_Data } from "./call/permission";
+import { CallEntityPermission, CallEntityPermission_Data } from "./call/entity_permission";
 import { CallPersonal, CallPersonal_Data } from "./call/personal";
 import { CallRepository, CallRepository_Data } from "./call/repository";
 import { CallService, CallService_Data } from "./call/service";
 import { CallTreasury, CallTreasury_Data } from "./call/treasury";
 import { CallBase, CallResult, CallWithWitnessParam } from "./call/base";
 import { CallGuard, CallGuard_Data } from "./call/guard";
+import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_permission";
 
  
 export interface CallObjectData {
-    type: 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'Permission';
-    data: CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallPermission_Data | CallPermission_Data
-    | CallTreasury_Data | CallService_Data | CallPermission_Data | CallRepository_Data;
+    type: 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'EntityPermission' | 'ObjectPermission';
+    data: CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallEntityPermission_Data | CallObjectPermission_Data
+    | CallTreasury_Data | CallService_Data  | CallRepository_Data;
     account?: string;
     witness?: CallWithWitnessParam;
 }
@@ -64,7 +65,9 @@ function call_object_new (call: CallObjectData) : CallBase | undefined {
             return new CallRepository(call.data as CallRepository_Data);
         case 'Personal':
             return new CallPersonal(call.data as CallPersonal_Data);
-        case 'Permission':
-            return new CallPermission(call.data as CallPermission_Data);
+        case 'EntityPermission':
+            return new CallEntityPermission(call.data as CallEntityPermission_Data);
+        case 'ObjectPermission':
+            return new CallObjectPermission(call.data as CallObjectPermission_Data);
     }
 }

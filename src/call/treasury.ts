@@ -10,7 +10,6 @@ export interface CallTreasury_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
     type_parameter?: string;
-    permission_new?: string;
     description?: string;
     withdraw_mode?: Treasury_WithdrawMode;
     withdraw_guard?: {op:'add' | 'set'; data:{guard:string, amount:string}[]} | {op:'remove', guards:string[]} | {op:'removeall'};
@@ -37,9 +36,6 @@ export class CallTreasury extends CallBase {
         if (this.data?.permission && IsValidAddress(this.data.permission)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.treasury)
-            }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
             }
             if (this.data?.description !== undefined && this.data.object) {
                 perms.push(PermissionIndex.treasury_descritption)
@@ -101,7 +97,7 @@ export class CallTreasury extends CallBase {
 
             return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Treasury | undefined ; let permission: any; 
@@ -158,9 +154,6 @@ export class CallTreasury extends CallBase {
                         for_object: this.data.deposit.data?.for_object
                     })
                 }
-            }
-            if (this.data?.permission_new !== undefined) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();

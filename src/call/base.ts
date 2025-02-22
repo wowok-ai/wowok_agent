@@ -120,7 +120,7 @@ export class CallBase {
             
             return {guard:[...guards], witness:p!.future_fills()};
         } else { // no passport needed
-            return this.exec()
+            return await this.exec()
         }
     }
     protected async exec (account?:string) : Promise<CallResponse> {

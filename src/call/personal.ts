@@ -11,7 +11,7 @@ export interface CallPersonal_Data {
         | {op:'clear group'; group_name:string | GroupName}
         | {op:'add address'; data:{address:string; group_name:(string | GroupName)[]}} 
         | {op:'remove address'; data:{address:string; group_name:(string | GroupName)[]}};
-    tag?: {op:'add'; data:{address:string; nick_name:string; tags:string[]}}
+    tag?: {op:'add'; data:{address:string; nick_name?:string; tags?:string[]}}
         | {op:'remove'; address:string};
     close?: boolean; // close a personal resource
 }
@@ -23,7 +23,7 @@ export class CallPersonal extends CallBase {
         this.data = data;
     }
     async call(account?:string) : Promise<CallResult> {
-        return this.exec(account)
+        return await this.exec(account)
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject) {
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);

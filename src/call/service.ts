@@ -11,7 +11,6 @@ export interface CallService_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
     type_parameter?: string;
-    permission_new?: string;
     bPaused?: boolean;
     bPublished?: boolean;
     description?: string;
@@ -56,9 +55,6 @@ export class CallService extends CallBase {
         if (this.data?.permission && IsValidAddress(this.data.permission)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.service)
-            }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
             }
             if (this.data?.description !== undefined && this.data.object) {
                 perms.push(PermissionIndex.service_description)
@@ -145,7 +141,7 @@ export class CallService extends CallBase {
 
             return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Service | undefined ; let permission: any;  let payee: any;
@@ -327,9 +323,6 @@ export class CallService extends CallBase {
             }
             if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
                 obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
-            }
-            if (this.data?.permission_new !== undefined) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();

@@ -100,7 +100,7 @@ export class CallArbitration extends CallBase {
 
             return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Arbitration | undefined ; let permission: any; let withdraw_treasury:any;

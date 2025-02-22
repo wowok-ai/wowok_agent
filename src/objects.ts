@@ -6,7 +6,7 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, IsValidAddress, Bcs,
-    Entity_Info, 
+    Entity_Info, Tags
  } from 'wowok';
 import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache'
 
@@ -15,7 +15,7 @@ export interface ObjectBase {
     type?: string | 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' |
         'Entity' | 'Permission' | 'Mark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
         'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
-        'TableItem_RepositoryData' | 'TableItem_MarkGroup';
+        'TableItem_RepositoryData' | 'TableItem_MarkGroup' | 'TableItem_MarkTag';
     type_raw?: string;
     owner?: any;
     version?: string;
@@ -226,20 +226,17 @@ export interface ObjectEntity extends ObjectBase {
     lastActive_digest?: string; 
 }
 
-export interface ObjectMark_Tag {
-    object: string;
-    nick_name: string;
-    tags: string[];
-}
-
 export interface ObjectMark extends ObjectBase {
     group_count: number;
-    tags: ObjectMark_Tag[];
+    tag_count: number;
 }
 
 export interface TableItem_MarkGroup extends ObjectBase {
     group_name: string;
-    objects: string[];
+    address: string[];
+}
+
+export interface TableItem_MarkTag extends ObjectBase, Tags {
 }
 
 export enum CacheType {
@@ -571,9 +568,7 @@ export function data2object(data?:any) : ObjectBase {
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 group_count:parseInt(content?.marks?.fields?.size),
-                tags:content?.tags?.map((v:any) => {
-                    return {object:v?.fields?.object, nick_name:v?.fields?.nick, tags:v?.fields?.tags}
-                })
+                tag_count:parseInt(content?.tags?.fields?.size)
             } as ObjectMark;   
         }
     } 
@@ -639,9 +634,13 @@ export function data2object(data?:any) : ObjectBase {
                 } as ObjectEntity;
             } else if (end.includes('::resource::Addresses>')) {
                 return {
-                    object:id, type:'Entity', type_raw:type_raw, owner:owner, version:version,
-                    group_name:content?.name, objects:content?.value?.fields?.addresses
+                    object:id, type:'TableItem_MarkGroup', type_raw:type_raw, owner:owner, version:version,
+                    group_name:content?.name, address:content?.value?.fields?.addresses
                 } as TableItem_MarkGroup;
+            } else if (end.includes('::resource::Tags>')) {
+                return {object:id, type:'TableItem_MarkTag', type_raw:type_raw, owner:owner, version:version,
+                    address:content?.name, nick:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
+                } as TableItem_MarkTag;
             }
         }
     }

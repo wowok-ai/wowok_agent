@@ -8,7 +8,6 @@ import { Account } from '../account';
 export interface CallDemand_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
-    permission_new?: string;
     type_parameter?: string;
     guard?: {address:string; service_id_in_guard?:number};
     description?: string;
@@ -35,9 +34,6 @@ export class CallDemand extends CallBase {
         if (this.data?.permission && IsValidAddress(this.data.permission)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.demand)
-            }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
             }
             if (this.data?.description !== undefined && this.data.object) {
                 perms.push(PermissionIndex.demand_description)
@@ -75,7 +71,7 @@ export class CallDemand extends CallBase {
             }
             return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Demand | undefined ; let permission: any;
@@ -130,9 +126,6 @@ export class CallDemand extends CallBase {
             }
             if (this.data?.guard !== undefined) {
                 obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, passport)
-            }
-            if (this.data?.permission_new !== undefined ) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();

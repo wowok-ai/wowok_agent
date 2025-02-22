@@ -8,7 +8,6 @@ import { CallBase, CallResult} from "./base";
 export interface CallRepository_Data {
     object?: string; // undefined for creating a new object
     permission?: string; 
-    permission_new?: string; // change permission 
     description?: string;
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
@@ -30,9 +29,6 @@ export class CallRepository extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.repository)
             }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
-            }
             if (this.data?.description !== undefined && this.data?.object) {
                 perms.push(PermissionIndex.repository_description)
             }
@@ -47,7 +43,7 @@ export class CallRepository extends CallBase {
             }
             return await this.check_permission_and_call(this.data.permission, perms, [], checkOwner, undefined, account)
         }
-        return this.exec(account);
+        return await this.exec(account);
     }
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject) {
@@ -123,9 +119,6 @@ export class CallRepository extends CallBase {
                         obj?.remove(this.data.data.data.address, this.data.data.data.key);
                         break;
                 }
-            }
-            if (this.data?.permission_new !== undefined ) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (permission) {
                 permission.launch();
