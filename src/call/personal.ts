@@ -1,18 +1,14 @@
 import { TransactionBlock } from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, GroupName, Resource, WitnessFill} from 'wowok';
+import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, TagName, Resource, WitnessFill} from 'wowok';
 import { CallBase, CallResult } from "./base";
 
 export interface CallPersonal_Data {
     object?: string; // undefined for creating a new object
     information?: Entity_Info;
     transfer_to?: string;
-    group?: {op:'add group'; data:{group_name:string | GroupName; address:string[]}}
-        | {op:'remove group'; data:{group_name:string | GroupName; address:string[]}}
-        | {op:'clear group'; group_name:string | GroupName}
-        | {op:'add address'; data:{address:string; group_name:(string | GroupName)[]}} 
-        | {op:'remove address'; data:{address:string; group_name:(string | GroupName)[]}};
-    tag?: {op:'add'; data:{address:string; nick_name?:string; tags?:string[]}}
-        | {op:'remove'; address:string};
+    tag?: {op:'add'; data:{address:string; name?:string; tags:string[]}[]}
+        | {op:'remove'; data:{address:string; tags:string[]}[]}
+        | {op:'removeall'; address:string[]};
     close?: boolean; // close a personal resource
 }
 
@@ -44,43 +40,23 @@ export class CallPersonal extends CallBase {
         }
 
         if (obj && obj?.get_object()) {
-            if (this.data?.group !== undefined) {
-                switch(this.data.group.op) {
-                    case 'add address':
-                        obj?.add2(this.data.group.data.address, this.data.group.data.group_name)
-                        break;
-                    case 'add group':
-                        if (this.data.group.data.group_name === GroupName.DislikeName || this.data.group.data.group_name === GroupName.LikeName) {
-                            const n = this.data.group.data.group_name;
-                            this.data.group.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
-                        } else {
-                            obj?.add(this.data.group.data.group_name, this.data.group.data.address)
-                        }
-                        break;
-                    case 'clear group':
-                        obj?.remove(this.data.group.group_name, [], true)
-                        break;
-                    case 'remove address':
-                        obj?.remove2(this.data.group.data.address, this.data.group.data.group_name)
-                        break;
-                    case 'remove group':
-                        if (this.data.group.data.group_name === GroupName.DislikeName || this.data.group.data.group_name === GroupName.LikeName) {
-                            const n = this.data.group.data.group_name;
-                            this.data.group.data.address.forEach(v => {if (obj) entity.mark(obj, v, n)})
-                        } else {
-                            obj?.remove(this.data.group.data.group_name, this.data.group.data.address)
-                        }
-                        break;
-                }
-            }
             if (this.data?.tag !== undefined) {
                 switch(this.data.tag.op) {
                     case 'add':
-                        obj?.add_tags(this.data.tag.data.address, this.data.tag.data.nick_name, this.data.tag.data.tags)
+                        this.data.tag.data.forEach(v => {
+                            obj?.add(v.address, v.tags, v.name)
+                        })
                         break;
                     case 'remove':
-                        obj?.remove_tags(this.data.tag.address)
+                        this.data.tag.data.forEach(v => {
+                            obj?.remove(v.address, v.tags)
+                        })                        
                         break;
+                    case 'removeall':
+                        this.data.tag.address.forEach(v => {
+                            obj?.removeall(v)
+                        })                        
+                        break;         
                 }
             }
             if (this.data?.transfer_to !== undefined && obj) {

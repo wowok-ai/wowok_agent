@@ -639,7 +639,7 @@ export function data2object(data?:any) : ObjectBase {
                 } as TableItem_MarkGroup;
             } else if (end.includes('::resource::Tags>')) {
                 return {object:id, type:'TableItem_MarkTag', type_raw:type_raw, owner:owner, version:version,
-                    address:content?.name, nick:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
+                    address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
                 } as TableItem_MarkTag;
             }
         }

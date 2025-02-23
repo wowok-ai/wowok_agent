@@ -10,9 +10,9 @@ import { ObjectBase} from '../objects';
 import { query_entity } from '../entity';
 
 export interface AddressMark {
-    nick_name?:string; 
+    address: string;
+    name?:string; 
     tags:string[]; 
-    groups:string[];
 }
 export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
@@ -139,13 +139,11 @@ export class CallBase {
     protected mark = async (txb:TransactionBlock, object: string | TransactionResult, mark:AddressMark, account?:string) => {
         const addr = Account.Instance().get_address(account);
         if (addr) {
-            const r = await query_entity(addr);
-            if (r?.resource) {
-                const resource = Resource.From(txb, r.resource);
-                resource.add_tags(object, mark.nick_name??'', mark.tags);
-                if (mark.groups.length > 0) {
-                    resource.add2(object, mark.groups);
-                }
+            const r = await query_entity({address:addr});
+            const resource = r?.resource ? Resource.From(txb, r.resource) : Resource.From(txb, Entity.From(txb).create_resource2());
+            resource.add(object, mark.tags, mark.name);
+            if (!r?.resource) {
+                resource.launch(); // launch new
             }
         } else {
             ERROR(Errors.InvalidParam, 'account - ' + account)
