@@ -7,7 +7,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
     IsValidDesription} from "wowok";
 import { Account } from "../account";
-import { CallBase, CallResult } from "./base";
+import { CallBase, CallResult, Namedbject } from "./base";
 
 export interface GuardConst {
     identifier: number; // 1-255, the same identifier to represent the same data in different nodes
@@ -30,6 +30,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
 
 export interface CallGuard_Data {
+    namedNew?: Namedbject;
     description: string;
     table: GuardConst[]; //  data used by multiple logical guard nodes
     root: GuardNode; // root must return ValueType.TYPE_BOOL     
@@ -84,11 +85,12 @@ export class CallGuard extends CallBase {
                 }) 
             }
         })
-        txb.moveCall({
+        const addr = txb.moveCall({
             target:Protocol.Instance().guardFn("create") as FnCallType,
             arguments:[txb.object(obj)]
         });
-    
+        this.new_with_mark(txb, addr, this.data?.namedNew, account);
+
         const pair = Account.Instance().get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
     

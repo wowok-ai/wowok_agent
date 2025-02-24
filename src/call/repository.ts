@@ -3,11 +3,11 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
     Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove,
     Repository_Policy_Mode, WitnessFill
 } from 'wowok';
-import { CallBase, CallResult} from "./base";
+import { CallBase, CallResult, Namedbject} from "./base";
 
 export interface CallRepository_Data {
-    object?: string; // undefined for creating a new object
-    permission?: string; 
+    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     description?: string;
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
@@ -24,15 +24,17 @@ export class CallRepository extends CallBase {
     async call(account?:string) : Promise<CallResult>   {
         var checkOwner = false;
         const perms : PermissionIndexType[] = []; 
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
 
-        if (this.data?.permission && IsValidAddress(this.data.permission)) {
+        if (permission_address && IsValidAddress(permission_address)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.repository)
             }
-            if (this.data?.description !== undefined && this.data?.object) {
+            if (this.data?.description !== undefined && object_address) {
                 perms.push(PermissionIndex.repository_description)
             }
-            if (this.data?.mode !== undefined && this.data?.object) {
+            if (this.data?.mode !== undefined && object_address) {
                 perms.push(PermissionIndex.repository_mode)
             }
             if (this.data?.reference !== undefined) {
@@ -41,30 +43,34 @@ export class CallRepository extends CallBase {
             if (this.data?.policy !== undefined) {
                 perms.push(PermissionIndex.repository_policies)
             }
-            return await this.check_permission_and_call(this.data.permission, perms, [], checkOwner, undefined, account)
+            return await this.check_permission_and_call(permission_address, perms, [], checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Repository | undefined ; let permission: any;
-        if (!this.data.object) {
-            if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
-                permission = Permission.New(txb, '');
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
+
+        if (!object_address) {
+            if (!permission_address || !IsValidAddress(permission_address)) {
+                const d = (this.data?.permission as any)?.description ?? '';
+                permission = Permission.New(txb, d);
             }
             
-            obj = Repository.New(txb, permission ?? this.data?.permission, this.data?.description??'', this.data?.mode, permission?undefined:passport)
+            obj = Repository.New(txb, permission ?? permission_address, this.data?.description??'', this.data?.mode, permission?undefined:passport)
         } else {
-            if (IsValidAddress(this.data.object) && this.data.permission && IsValidAddress(this.data?.permission)) {
-                obj = Repository.From(txb, this.data.permission, this.data.object)
+            if (IsValidAddress(object_address) && this.data.permission && IsValidAddress(permission_address)) {
+                obj = Repository.From(txb, permission_address, object_address)
             }
         }
 
         if (obj) {
-            if (this.data?.description !== undefined && this.data.object) {
+            if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
             }
-            if (this.data?.mode !== undefined && this.data.object) {
+            if (this.data?.mode !== undefined && object_address) { //@ priority??
                 obj?.set_policy_mode(this.data.mode, passport)
             }
             if (this.data?.reference !== undefined) {
@@ -121,10 +127,10 @@ export class CallRepository extends CallBase {
                 }
             }
             if (permission) {
-                permission.launch();
+                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                obj?.launch();
+                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     };

@@ -1,24 +1,25 @@
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock,
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
+    TxbAddress,
 } from 'wowok';
-import { CallBase, CallResult } from "./base";
+import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
 export interface CallMachine_Data {
-    object?: string; // undefined for creating a new object
-    permission?: string; 
+    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     bPaused?: boolean;
     bPublished?: boolean;
     consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     description?: string;
     endpoint?: string;
-    clone_new?: boolean;
+    clone_new?: {namedNew: Namedbject/*, description?:string*/};
     nodes?: {op: 'add'; data: Machine_Node[]} | {op: 'remove'; names: string[], bTransferMyself?:boolean} 
         | {op:'rename node'; data:{old:string; new:string}[]} | {op:'add from myself'; addresses: string[]}
         | {op:'remove pair'; pairs: {prior_node_name:string; node_name:string}[]}
         | {op:'add forward'; data: {prior_node_name:string; node_name:string; forward:Machine_Forward; threshold?:number; old_need_remove?:string}[]}
         | {op:'remove forward'; data:{prior_node_name:string; node_name:string; forward_name:string}[]}
-    progress_new?: {task_address?:string; };
+    progress_new?: {task_address?:string; namedNew?: Namedbject};
     progress_context_repository?: {progress:string; repository:string};
     progress_parent?: {progress:string, parent?:ParentProgress};
     progress_task?: {progress:string; task:string};
@@ -35,12 +36,14 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
 
-        if (this.data?.permission && IsValidAddress(this.data.permission)) {
+        if (permission_address && IsValidAddress(permission_address)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine)
             }
-            if (this.data?.description !== undefined && this.data.object) {
+            if (this.data?.description !== undefined && object_address) {
                 perms.push(PermissionIndex.machine_description)
             }
             if (this.data?.bPaused !== undefined) {
@@ -49,7 +52,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.machine_publish)
             }
-            if (this.data?.endpoint !== undefined && this.data.object) {
+            if (this.data?.endpoint !== undefined && object_address) {
                 perms.push(PermissionIndex.machine_endpoint)
             }
             if (this.data?.consensus_repository !== undefined) {
@@ -84,8 +87,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.progress_next?.guard !== undefined) {
                 if (IsValidAddress(this.data?.progress_next?.guard)) {
                     guards.push(this.data?.progress_next?.guard)
-                } else if (this.data?.object && IsValidAddress(this.data.object)) { // fetch guard
-                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, this.data.object, 
+                } else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
+                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, 
                         Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
                         this.data.progress_next.data.next_node_name, this.data.progress_next.data.forward);
                     if (guard) {
@@ -94,29 +97,33 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 }
             }
 
-            return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Machine | undefined ; let permission: any;
-        if (!this.data.object) {
-            if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
-                permission = Permission.New(txb, '');
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
+
+        if (!object_address) {
+            if (!permission_address || !IsValidAddress(permission_address)) {
+                const d = (this.data?.permission as any)?.description ?? '';
+                permission = Permission.New(txb, d);
             }
-            obj = Machine.New(txb, permission ?? this.data?.permission, this.data?.description??'', this.data?.endpoint ?? '', permission?undefined:passport);
+            obj = Machine.New(txb, permission ?? permission_address, this.data?.description??'', this.data?.endpoint ?? '', permission?undefined:passport);
         } else {
-            if (IsValidAddress(this.data.object) && this.data.permission && IsValidAddress(this.data?.permission)) {
-                obj = Machine.From(txb, this.data.permission, this.data.object)
+            if (IsValidAddress(object_address) &&permission_address && IsValidAddress(permission_address)) {
+                obj = Machine.From(txb, permission_address, object_address)
             }
         }
 
         if (obj) {
-            if (this.data?.description !== undefined && this.data.object) {
+            if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
             }
-            if (this.data?.endpoint !== undefined && this.data.object) {
+            if (this.data?.endpoint !== undefined && object_address) {
                 obj?.set_endpoint(this.data.endpoint, passport)
             }
             if (this.data?.bPaused !== undefined) {
@@ -125,9 +132,10 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPublished ) {
                 obj?.publish(passport)
             }
-            if (this.data?.clone_new) {
-                obj?.clone(true, passport)
+            if (this.data?.clone_new && obj) {
+                this.new_with_mark(txb, obj?.clone(true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
+
             if (this.data?.consensus_repository !== undefined) {
                 switch (this.data.consensus_repository.op) {
                     case 'add': 
@@ -168,7 +176,10 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     }
             }
             if (this.data?.progress_new !== undefined) {
-                Progress?.New(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_new.task_address, passport).launch();
+                const addr = Progress?.New(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_new.task_address, passport).launch();
+                if (addr) {
+                    this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
+                }
             }
             if (this.data?.progress_context_repository !== undefined) {
                 Progress.From(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_context_repository.progress)
@@ -199,10 +210,10 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 Progress.From(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, passport)
             }
             if (permission) {
-                permission.launch();
+                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                obj?.launch();
+                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

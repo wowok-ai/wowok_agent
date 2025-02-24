@@ -48,6 +48,10 @@ export interface PresentServiceEvent extends EventBase {
     recommendation: string,
 }
 
+export interface NewEntityEvent extends EventBase {
+    resource: string,
+    address: string,
+}
 export interface EventAnswer {
     data: EventBase[];
     hasNextPage: boolean;
@@ -91,7 +95,12 @@ export namespace EVENT_QUERY {
                         id: v?.id, time: v?.timestampMs, type_raw:v?.type, sender:v?.sender, type:'NewOrderEvent',
                         arb:v?.parsedJson?.object, arbitration:v?.parsedJson?.arbitration, order:v?.parsedJson?.order
                     } as NewArbEvent
-                } 
+                } else if (v?.type?.includes('::entity::NewEntityEvent')) {
+                    return {
+                        id: v?.id, time: v?.timestampMs, type_raw:v?.type, sender:v?.sender, type:'NewOrderEvent',
+                        resource:v?.parsedJson?.resource?.some, address:v?.parsedJson?.target, 
+                    } as NewEntityEvent
+                }
             }
             return {id: v?.id, time: v?.timestampMs, type_raw:v?.type, sender:v?.sender, type:'',}
         })

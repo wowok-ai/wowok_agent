@@ -1,18 +1,22 @@
 
 
-import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult} from 'wowok';
+import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult, TxbAddress, array_unique, TagName} from 'wowok';
 import { PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
-import { ObjectBase} from '../objects';
-import { query_entity } from '../entity';
+import { ObjectBase, queryTableItem_Personal} from '../objects';
+
+export interface Namedbject {
+    name: string;
+    tags?: string[];
+}
 
 export interface AddressMark {
-    address: string;
-    name?:string; 
-    tags:string[]; 
+    address: TxbAddress;
+    name?: string; 
+    tags: string[]; 
 }
 export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
@@ -28,7 +32,7 @@ export interface CallWithWitnessParam {
 }
 export type CallResult = GuardInfo_forCall | CallResponse | undefined;
 
-export function ResponseData(response: CallResponse | undefined ) : ResponseData[] {
+export function ResponseData(response: CallResponse | undefined) : ResponseData[] {
     const res : ResponseData[] = [];
     response?.objectChanges?.forEach(v => {
         const type_raw: string | undefined = (v as any)?.objectType;
@@ -40,6 +44,20 @@ export function ResponseData(response: CallResponse | undefined ) : ResponseData
         }
     })
     return res;
+}
+
+export const mark_address = async (txb:TransactionBlock, mark:AddressMark, account?:string) => {
+    const addr = Account.Instance().get_address(account);
+    if (addr) {
+        const r = await queryTableItem_Personal({address:addr}); //@ use cache
+        const resource = r?.mark_object ? Resource.From(txb, r.mark_object) : Resource.From(txb, Entity.From(txb).create_resource2());
+        resource.add(mark.address, mark.tags, mark.name);
+        if (!r?.mark_object) {
+            resource.launch(); // launch new
+        }
+    } else {
+        ERROR(Errors.InvalidParam, 'account - ' + account)
+    }
 }
 export class CallBase {
     // operation implementation for a call
@@ -136,17 +154,8 @@ export class CallBase {
         });
     }
 
-    protected mark = async (txb:TransactionBlock, object: string | TransactionResult, mark:AddressMark, account?:string) => {
-        const addr = Account.Instance().get_address(account);
-        if (addr) {
-            const r = await query_entity({address:addr});
-            const resource = r?.resource ? Resource.From(txb, r.resource) : Resource.From(txb, Entity.From(txb).create_resource2());
-            resource.add(object, mark.tags, mark.name);
-            if (!r?.resource) {
-                resource.launch(); // launch new
-            }
-        } else {
-            ERROR(Errors.InvalidParam, 'account - ' + account)
-        }
+    protected new_with_mark(txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
+        const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
+        mark_address(txb, {address:object, name:named_new?.name, tags:tags}, account)
     }
 }

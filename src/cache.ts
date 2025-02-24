@@ -19,15 +19,14 @@ export abstract class CacheData {
 
 export enum CacheName {
     object = 'OBJECT',
-    resource = 'RESOURCE',
+    personal = 'PERSONAL',
+    table = 'TABLE'
 }
 
-export const OBJECT_KEY = (object_address: string) : string => {
-    return object_address + Protocol.Instance().package('wowok_origin') + CacheName.object + '-V2';
+export const OBJECT_KEY = (object_address: string, name:CacheName) : string => {
+    return object_address + Protocol.Instance().package('wowok_origin') + name + '-V2';
 }
-export const PERSONAL_RESOURCE_KEY = (person_address: string) : string => {
-    return person_address + Protocol.Instance().package('wowok_origin') + CacheName.resource + '-V2';
-}
+
 
 export interface PersonalResouceCache {
     address: string;

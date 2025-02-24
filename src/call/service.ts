@@ -1,15 +1,15 @@
-import { TransactionBlock, CallResponse, IsValidArgType} from 'wowok';
+import { TransactionBlock, CallResponse, IsValidArgType, TxbAddress, TagName} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
     PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
     Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, WitnessFill
 } from 'wowok';
 import { query_objects, ObjectService } from '../objects';
-import { CallBase, CallResult } from "./base";
+import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
 export interface CallService_Data {
-    object?: string; // undefined for creating a new object
-    permission?: string; 
+    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     type_parameter?: string;
     bPaused?: boolean;
     bPublished?: boolean;
@@ -22,8 +22,8 @@ export interface CallService_Data {
     extern_withdraw_treasury?: {op:'set' | 'add'; treasuries:{address:string, token_type:string}[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     machine?: string;
-    payee_treasury?:string;
-    clone_new?: {token_type_new?:string};
+    payee_treasury?:{address:string} | {namedNew: Namedbject, description?:string}; 
+    clone_new?: {token_type_new?:string; namedNew?: Namedbject};
     repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
@@ -31,7 +31,7 @@ export interface CallService_Data {
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
-    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch'}
+    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch', namedNew?: Namedbject}
     order_required_info?: {order:string; info:Customer_RequiredInfo};
     order_refund?: {order:string; guard?:string;} | {order:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order:string; data:WithdrawPayee}; // guard address
@@ -51,12 +51,15 @@ export class CallService extends CallBase {
 
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = [];  var obj: ObjectService | undefined;
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
+        const treasury_address = (this.data?.payee_treasury as any)?.address;
 
-        if (this.data?.permission && IsValidAddress(this.data.permission)) {
+        if (permission_address && IsValidAddress(permission_address)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.service)
             }
-            if (this.data?.description !== undefined && this.data.object) {
+            if (this.data?.description !== undefined && object_address) {
                 perms.push(PermissionIndex.service_description)
             }
             if (this.data?.bPaused !== undefined) {
@@ -92,7 +95,7 @@ export class CallService extends CallBase {
             if (this.data?.machine !== undefined) {
                 perms.push(PermissionIndex.service_machine)
             }
-            if (this.data?.payee_treasury !== undefined && this.data.object) {
+            if (this.data?.payee_treasury !== undefined && object_address) {
                 perms.push(PermissionIndex.service_payee)
             }
             if (this.data?.withdraw_guard !== undefined) {
@@ -117,7 +120,7 @@ export class CallService extends CallBase {
                         }
                     } else {
                         if (!obj) {
-                            const r = await query_objects({objects:[this.data.object], showContent:true});
+                            const r = await query_objects({objects:[object_address], showContent:true});
                             if (r?.objects && r.objects[0].type === 'Service') {
                                 obj = r.objects[0] as ObjectService;
                             }                        
@@ -139,33 +142,38 @@ export class CallService extends CallBase {
                 guards.push(this.data?.order_withdrawl?.data?.withdraw_guard)
             }
 
-            return await this.check_permission_and_call(this.data.permission, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Service | undefined ; let permission: any;  let payee: any;
+        const permission_address = (this.data?.permission as any)?.address;
+        const object_address = (this.data?.object as any)?.address;
+        const treasury_address = (this.data?.payee_treasury as any)?.address;
 
-        if (!this.data.object) {
-            if (!this.data?.permission || !IsValidAddress(this.data?.permission)) {
-                permission = Permission.New(txb, '');
+        if (!object_address) {
+            if (!permission_address || !IsValidAddress(permission_address)) {
+                const d = (this.data?.permission as any)?.description ?? '';
+                permission = Permission.New(txb, d);
             }
-            if (!this.data?.payee_treasury || !IsValidAddress(this.data?.payee_treasury)) {
-                payee = Treasury.New(txb, this.data?.type_parameter!, permission ?? this.data?.permission, '', permission?undefined:passport);
+            if (!treasury_address || !IsValidAddress(treasury_address)) {
+                const d = (this.data?.payee_treasury as any)?.description ?? '';
+                payee = Treasury.New(txb, this.data?.type_parameter!, permission ?? permission_address, d, permission?undefined:passport);
             }
-            obj = Service.New(txb, this.data.type_parameter!, permission??this.data?.permission, this.data?.description??'', payee??this.data?.payee_treasury, permission?undefined:passport)
+            obj = Service.New(txb, this.data.type_parameter!, permission??permission_address, this.data?.description??'', payee??treasury_address, permission?undefined:passport)
         } else {
-            if (IsValidAddress(this.data.object) && this.data.type_parameter && this.data.permission && IsValidAddress(this.data?.permission)) {
-                obj = Service.From(txb, this.data.type_parameter, this.data.permission, this.data.object)
+            if (IsValidAddress(object_address) && this.data.type_parameter && permission_address && IsValidAddress(permission_address)) {
+                obj = Service.From(txb, this.data.type_parameter, permission_address, object_address)
             }
         }
 
         if (obj) {
-            if (this.data?.description !== undefined && this.data.object) {
+            if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
             }
-            if (this.data?.payee_treasury !== undefined && this.data.object) {
-                obj?.set_payee(this.data.payee_treasury, passport);
+            if (this.data?.payee_treasury !== undefined && object_address) {
+                obj?.set_payee(treasury_address, passport);
             }
             if (this.data?.endpoint !== undefined) {
                 obj?.set_endpoint(this.data.endpoint, passport)
@@ -179,8 +187,8 @@ export class CallService extends CallBase {
             if (this.data?.bPublished) {
                 obj?.publish(passport)
             }
-            if (this.data?.clone_new !== undefined) {
-                obj?.clone(this.data.clone_new?.token_type_new, true, passport)
+            if (this.data?.clone_new !== undefined && obj) {
+                this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (this.data?.machine !== undefined) {
                 obj?.set_machine(this.data.machine, passport)
@@ -300,8 +308,9 @@ export class CallService extends CallBase {
                     const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
                     if (coin) {
                         //@ crypto tools support
-                        obj?.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
-                            this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport)                    
+                        const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
+                            this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport) ;
+                        this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
                     }                 
                 }
             }
@@ -324,15 +333,15 @@ export class CallService extends CallBase {
             if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
                 obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
             }
-            if (permission) {
-                permission.launch();
-            }
             if (payee) {
-                payee.launch();
+                this.new_with_mark(txb, payee.launch(), (this.data?.payee_treasury as any)?.namedNew, account);
             }
-            if (!this.data.object) {
-                obj?.launch();
+            if (permission) {
+                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
+            if (!object_address) {
+                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+            } 
         }
     }
 }

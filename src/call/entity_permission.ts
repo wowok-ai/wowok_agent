@@ -1,11 +1,11 @@
-import { CallBase, CallResult } from "./base";
+import { CallBase, CallResult, Namedbject } from "./base";
 import { TransactionBlock, CallResponse} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, UserDefinedIndex,
     PermissionIndexType, WitnessFill
 } from 'wowok';
 
 export interface CallEntityPermission_Data {
-    object?: string; // undefined for creating a new object
+    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     builder?: string;
     admin?: {op:'add' | 'remove' | 'set', admins:string[]};
     description?: string;
@@ -23,7 +23,9 @@ export class CallEntityPermission extends CallBase {
 
     async call(account?:string) : Promise<CallResult>   {
         var checkOwner = false; var checkAdmin = false;
-        if (this.data?.object && IsValidAddress(this.data?.object)) {
+        const object_address = (this.data?.object as any)?.address;
+
+        if (object_address && IsValidAddress(object_address)) {
             if (this.data?.builder !== undefined || this.data?.admin !== undefined) {
                 checkOwner = true;
             }
@@ -33,18 +35,18 @@ export class CallEntityPermission extends CallBase {
             if (this.data?.description !== undefined) {
                 checkAdmin = true;
             }
-            return await this.check_permission_and_call(this.data.object, [], [], checkOwner, checkAdmin, account)
+            return await this.check_permission_and_call(object_address, [], [], checkOwner, checkAdmin, account)
         }
         return await this.exec(account)
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Permission | undefined ; 
-        if (!this.data.object) {
+        const object_address = (this.data?.object as any)?.address;
+
+        if (!object_address || !IsValidAddress(object_address)) {
             obj = Permission.New(txb, this.data?.description??'');
         } else {
-            if (IsValidAddress(this.data.object)) {
-                obj = Permission.From(txb, this.data.object)
-            }
+            obj = Permission.From(txb, object_address)
         }
 
         if (obj) {
@@ -102,8 +104,8 @@ export class CallEntityPermission extends CallBase {
             if (this.data?.builder !== undefined ) {
                 obj?.change_owner(this.data.builder);
             }
-            if (!this.data.object) {
-                obj?.launch();
+            if (!object_address) {
+                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

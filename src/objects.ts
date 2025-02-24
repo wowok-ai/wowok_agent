@@ -13,9 +13,9 @@ import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cach
 export interface ObjectBase {
     object: string;
     type?: string | 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' |
-        'Entity' | 'Permission' | 'Mark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
+        'Personal' | 'Permission' | 'Mark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
         'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
-        'TableItem_RepositoryData' | 'TableItem_MarkGroup' | 'TableItem_MarkTag';
+        'TableItem_RepositoryData' | 'TableItem_PersonalMark';
     type_raw?: string;
     owner?: any;
     version?: string;
@@ -217,23 +217,17 @@ export interface ObjectGuard extends ObjectBase {
     input: Uint8Array;
     identifier: {id:number; bWitness:boolean; value:Uint8Array}[];
 }
-export interface ObjectEntity extends ObjectBase {
+export interface ObjectPersonal extends ObjectBase {
     address: string; 
     like: number;
     dislike: number;
     info: Entity_Info;
-    resource_object?: string | null;
+    mark_object?: string | null; // ObjectMark & TableItem_MarkTag
     lastActive_digest?: string; 
 }
 
 export interface ObjectMark extends ObjectBase {
-    group_count: number;
     tag_count: number;
-}
-
-export interface TableItem_MarkGroup extends ObjectBase {
-    group_name: string;
-    address: string[];
 }
 
 export interface TableItem_MarkTag extends ObjectBase, Tags {
@@ -250,6 +244,11 @@ export interface ObjectsQuery {
     showType?: boolean;
     showContent?: boolean;
     showOwner?: boolean;
+    no_cache?: boolean;
+}
+
+export interface PersonalQuery {
+    address: string;
     no_cache?: boolean;
 }
 export interface ObjectsAnswer {
@@ -278,7 +277,7 @@ interface TableItemQuery {
     key: {type:string, value:unknown};
 }
 
-/* json: ObjectsQuery string */
+/* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json:string) : Promise<string> => {
     try {
         const q : ObjectsQuery = JSON.parse(json);
@@ -288,11 +287,21 @@ export const query_objects_json = async (json:string) : Promise<string> => {
     }
 }
 
-/* json: TableQuery string */
+/* json: TableQuery string; return TableAnswer */
 export const query_table_json = async (json:string) : Promise<string> => {
     try {
         const q : TableQuery = JSON.parse(json);
         return JSON.stringify({data:await query_table(q)});
+    } catch (e) {
+        return JSON.stringify({error:e?.toString()})
+    }
+}
+
+// query personal information; json: ObjectsAnswer; return ObjectPersonal | undefined .
+export const query_personal = async (json:string) : Promise<string> => {
+    try {
+        const q : PersonalQuery = JSON.parse(json);
+        return JSON.stringify({data:(await queryTableItem_Personal(q)) ?? ''});
     } catch (e) {
         return JSON.stringify({error:e?.toString()})
     }
@@ -305,7 +314,7 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
     if (cache) {
         for (let i = 0; i < query.objects.length; ++i) {
             try {
-                let data = cache.load(OBJECT_KEY(query.objects[i]))
+                let data = cache.load(OBJECT_KEY(query.objects[i], CacheName.object))
                 
                 if (data) {
                     const r:CachedData = JSON.parse(data);
@@ -339,7 +348,7 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
                         const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
                         const expire = (type === 'Guard' || type === 'Payment') ? 'INFINITE' : (cache.expire_time()+now); // guard & payment immutable
                         const r:CachedData = {expire:expire, data:JSON.stringify(i.data)}
-                        cache.save(OBJECT_KEY(i.data.objectId), JSON.stringify(r));
+                        cache.save(OBJECT_KEY(i.data.objectId, CacheName.object), JSON.stringify(r));
                     }                            
                 } catch(e) { console.log(e) }
             })                
@@ -349,10 +358,40 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
     return {objects:ret}
 }
 
-export const queryTableItem_Personal = async (address:string) : Promise<ObjectEntity> => {
-    if (!IsValidAddress(address))  ERROR(Errors.IsValidAddress, 'entity.address')
-    const res = await Protocol.Client().getDynamicFieldObject({parentId:Protocol.Instance().objectEntity(), name:{type:'address', value:address}});
-    return data2object(res?.data) as ObjectEntity
+export const queryTableItem_Personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
+    if (!IsValidAddress(query.address))  ERROR(Errors.IsValidAddress, 'entity.address')
+    const time = new Date().getTime();
+    const cache = WowokCache.Instance().get(CacheName.personal);
+    if (cache && !query.no_cache) {
+        try {
+            let data = cache.load(OBJECT_KEY(query.address, CacheName.personal))
+            
+            if (data) {
+                const r:CachedData = JSON.parse(data);
+
+                if (r?.expire === 'INFINITE' || r.expire <= time) { 
+                    const d = data2object(JSON.parse(r.data));
+                    d.cache_expire = r.expire;    
+                    return d as ObjectPersonal;                         
+                }
+            }                 
+        } catch (e) {
+            console.log(e)
+        }
+    } 
+    const res = await Protocol.Client().getDynamicFieldObject({parentId:Protocol.Instance().objectEntity(), name:{type:'address', value:query.address}});
+    if (res?.data) {
+        const ret = data2object(res?.data) as ObjectPersonal;
+        if (cache) {
+            try {
+                const expire = cache.expire_time()+((new Date()).getTime()); // guard & payment immutable
+                const r:CachedData = {expire:expire, data:JSON.stringify(res.data)}
+                cache.save(OBJECT_KEY(query.address, CacheName.personal), JSON.stringify(r));
+                ret.cache_expire = expire;
+            } catch(e) { console.log(e)}               
+        }
+        return ret
+    }
 }
 
 export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
@@ -391,17 +430,17 @@ export const tableItemQuery_RepositoryData = async (repository_object:string | O
     }
     return await tableItem({parent:repository_object, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:address, key:name}}})
 }
-export const tableItemQuery_ResourceGroup = async (resource_object:string | ObjectMark, name:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byString(resource_object, name))
+export const tableItemQuery_MarkTag = async (resource_object:string | ObjectMark, address:string) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byAddress(resource_object, address))
 }
 
-function tableItemQuery_byAddress(parent:string | ObjectDemand | ObjectPermission | ObjectArb, address:string) : TableItemQuery {
+function tableItemQuery_byAddress(parent:string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark, address:string) : TableItemQuery {
     if (typeof(parent) !== 'string') {
         parent = parent.object;
     }
     return {parent:parent, key:{type:'address', value:address}};
 }
-function tableItemQuery_byString(parent:string | ObjectMachine | ObjectService | ObjectMark, name:string) : TableItemQuery  {
+function tableItemQuery_byString(parent:string | ObjectMachine | ObjectService, name:string) : TableItemQuery  {
     if (typeof(parent) !== 'string') {
         parent = parent.object;
     }
@@ -567,7 +606,6 @@ export function data2object(data?:any) : ObjectBase {
         case 'Resource' :
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
-                group_count:parseInt(content?.marks?.fields?.size),
                 tag_count:parseInt(content?.tags?.fields?.size)
             } as ObjectMark;   
         }
@@ -628,15 +666,10 @@ export function data2object(data?:any) : ObjectBase {
                 return {
                     object:id, type:'Entity', type_raw:type_raw, owner:owner, version:version,
                     address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
-                    resource_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
+                    mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
                     info : {homepage:info?.homepage, name:info?.name, avatar:info?.avatar, twitter:info?.twitter, discord:info?.discord, 
                     description:info?.description}
-                } as ObjectEntity;
-            } else if (end.includes('::resource::Addresses>')) {
-                return {
-                    object:id, type:'TableItem_MarkGroup', type_raw:type_raw, owner:owner, version:version,
-                    group_name:content?.name, address:content?.value?.fields?.addresses
-                } as TableItem_MarkGroup;
+                } as ObjectPersonal;
             } else if (end.includes('::resource::Tags>')) {
                 return {object:id, type:'TableItem_MarkTag', type_raw:type_raw, owner:owner, version:version,
                     address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
