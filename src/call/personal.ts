@@ -65,7 +65,7 @@ export class CallPersonal extends CallBase {
             }
 
             if (!object_address && obj) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

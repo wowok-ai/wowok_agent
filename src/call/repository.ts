@@ -63,6 +63,8 @@ export class CallRepository extends CallBase {
         } else {
             if (IsValidAddress(object_address) && this.data.permission && IsValidAddress(permission_address)) {
                 obj = Repository.From(txb, permission_address, object_address)
+            } else {
+                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
             }
         }
 
@@ -84,6 +86,20 @@ export class CallRepository extends CallBase {
                         break;
                     case 'removeall':
                         obj?.remove_reference([], true, passport);
+                        break;
+                }
+            }
+            if (this.data?.data !== undefined) {
+                switch(this.data.data.op) {
+                    case 'add':
+                        if ((this.data.data?.data as any)?.key !== undefined) {
+                            obj?.add_data(this.data.data.data as Repository_Policy_Data);
+                        } else if ((this.data.data?.data as any)?.address !== undefined) {
+                            obj?.add_data2(this.data.data.data as Repository_Policy_Data2);
+                        }
+                        break;
+                    case 'remove':
+                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
                         break;
                 }
             }
@@ -109,28 +125,14 @@ export class CallRepository extends CallBase {
                         break;
                 }
             }
-            if (this.data?.data !== undefined) {
-                switch(this.data.data.op) {
-                    case 'add':
-                        if ((this.data.data?.data as any)?.key !== undefined) {
-                            obj?.add_data(this.data.data.data as Repository_Policy_Data);
-                        } else if ((this.data.data?.data as any)?.address !== undefined) {
-                            obj?.add_data2(this.data.data.data as Repository_Policy_Data2);
-                        }
-                        break;
-                    case 'remove':
-                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
-                        break;
-                }
-            }
             if (this.data?.mode !== undefined && object_address) { //@ priority??
                 obj?.set_policy_mode(this.data.mode, passport)
             }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     };

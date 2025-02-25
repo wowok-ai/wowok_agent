@@ -118,6 +118,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         } else {
             if (IsValidAddress(object_address) &&permission_address && IsValidAddress(permission_address)) {
                 obj = Machine.From(txb, permission_address, object_address)
+            } else {
+                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
             }
         }
 
@@ -127,15 +129,6 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             }
             if (this.data?.endpoint !== undefined && object_address) {
                 obj?.set_endpoint(this.data.endpoint, passport)
-            }
-            if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport)
-            }
-            if (this.data?.bPublished ) {
-                obj?.publish(passport)
-            }
-            if (this.data?.clone_new && obj) {
-                this.new_with_mark(txb, obj?.clone(true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
 
             if (this.data?.consensus_repository !== undefined) {
@@ -180,7 +173,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.progress_new !== undefined) {
                 const addr = Progress?.New(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_new.task_address, passport).launch();
                 if (addr) {
-                    this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
+                    await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
                 }
             }
             if (this.data?.progress_context_repository !== undefined) {
@@ -211,11 +204,20 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.progress_next !== undefined) {
                 Progress.From(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, passport)
             }
+            if (this.data?.bPaused !== undefined) {
+                obj?.pause(this.data.bPaused, passport)
+            }
+            if (this.data?.bPublished ) {
+                obj?.publish(passport)
+            }
+            if (this.data?.clone_new && obj) {
+                await this.new_with_mark(txb, obj?.clone(true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
+            }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

@@ -6,7 +6,7 @@ import { PassportObject, Errors, ERROR, Permission,
 } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
-import { ObjectBase, queryTableItem_Personal} from '../objects';
+import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects';
 
 export interface Namedbject {
     name: string;
@@ -36,7 +36,7 @@ export function ResponseData(response: CallResponse | undefined) : ResponseData[
     const res : ResponseData[] = [];
     response?.objectChanges?.forEach(v => {
         const type_raw: string | undefined = (v as any)?.objectType;
-        const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
+        const type = raw2type(type_raw);
         if (type) {
             res.push({type:type, type_raw:type_raw, object:(v as any)?.objectId, version:(v as any)?.version,
                 owner:(v as any)?.owner, change:v.type
@@ -135,25 +135,22 @@ export class CallBase {
                 const r = await queryTableItem_Personal({address:addr}); //@ use cache
                 if (!r?.mark_object) {
                     this.resouceObject = Entity.From(txb).create_resource2(); // new 
+                    Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
                 } else {
                     Resource.From(txb, r.mark_object).add(object, tags, named_new?.name);
-                    return
                 }
             } else {
                 ERROR(Errors.InvalidParam, 'account - ' + account)
             }
-        }
-        if (this.resouceObject) {
-            Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         } else {
-            ERROR(Errors.Fail, 'invalid personal mark')
+            Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         }
     }
 
     protected async sign_and_commit(txb: TransactionBlock, account?: string) : Promise<CallResponse> {
         const pair = Account.Instance().get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
-
+        
         if (this.resouceObject) {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;

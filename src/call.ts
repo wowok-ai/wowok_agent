@@ -7,7 +7,7 @@
 import { CallArbitration, CallArbitration_Data } from "./call/arbitration";
 import { CallDemand, CallDemand_Data } from "./call/demand";
 import { CallMachine, CallMachine_Data } from "./call/machine";
-import { CallEntityPermission, CallEntityPermission_Data } from "./call/entity_permission";
+import { CallPermission, CallPermission_Data } from "./call/permission";
 import { CallPersonal, CallPersonal_Data } from "./call/personal";
 import { CallRepository, CallRepository_Data } from "./call/repository";
 import { CallService, CallService_Data } from "./call/service";
@@ -18,8 +18,8 @@ import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_p
 
  
 export interface CallObjectData {
-    type: 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'EntityPermission' | 'ObjectPermission';
-    data: CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallEntityPermission_Data | CallObjectPermission_Data
+    type: 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'Permission' | 'ObjectPermission';
+    data: CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallPermission_Data | CallObjectPermission_Data
     | CallTreasury_Data | CallService_Data  | CallRepository_Data;
     account?: string;
     witness?: CallWithWitnessParam;
@@ -64,8 +64,8 @@ function call_object_new (call: CallObjectData) : CallBase | undefined {
             return new CallRepository(call.data as CallRepository_Data);
         case 'Personal':
             return new CallPersonal(call.data as CallPersonal_Data);
-        case 'EntityPermission':
-            return new CallEntityPermission(call.data as CallEntityPermission_Data);
+        case 'Permission':
+            return new CallPermission(call.data as CallPermission_Data);
         case 'ObjectPermission':
             return new CallObjectPermission(call.data as CallObjectPermission_Data);
     }

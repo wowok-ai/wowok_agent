@@ -10,7 +10,7 @@ import { Account } from '../account';
 export interface CallService_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    type_parameter?: string;
+    type_parameter: string;
     bPaused?: boolean;
     bPublished?: boolean;
     description?: string;
@@ -166,6 +166,8 @@ export class CallService extends CallBase {
         } else {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address && IsValidAddress(permission_address)) {
                 obj = Service.From(txb, this.data.type_parameter, permission_address, object_address)
+            } else {
+                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
             }
         }
 
@@ -178,18 +180,6 @@ export class CallService extends CallBase {
             }
             if (this.data?.endpoint !== undefined) {
                 obj?.set_endpoint(this.data.endpoint, passport)
-            }
-            if (this.data?.buy_guard !== undefined) {
-                obj?.set_buy_guard(this.data.buy_guard, passport)
-            }
-            if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport)
-            }
-            if (this.data?.bPublished) {
-                obj?.publish(passport)
-            }
-            if (this.data?.clone_new !== undefined && obj) {
-                this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (this.data?.machine !== undefined) {
                 obj?.set_machine(this.data.machine, passport)
@@ -245,51 +235,9 @@ export class CallService extends CallBase {
                         break;
                 }
             }
-            if (this.data?.customer_required_info !== undefined) {
-                if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
-                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, passport);
-                } else if (this.data.customer_required_info.pubkey) {
-                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, passport);
-                }
-            }
-            if (this.data?.refund_guard !== undefined) {
-                switch(this.data.refund_guard.op) {
-                    case 'add':
-                        obj?.add_refund_guards(this.data.refund_guard.guards, passport)
-                        break;
-                    case 'set':
-                        obj?.remove_refund_guards([], true, passport)
-                        obj?.add_refund_guards(this.data.refund_guard.guards, passport)
-                        break;
-                    case 'remove':
-                        obj?.remove_refund_guards(this.data.refund_guard.addresses, false, passport)
-                        break;
-                    case 'removeall':
-                        obj?.remove_refund_guards([], true, passport)
-                        break;
-                }
-            }
             if (this.data?.gen_discount !== undefined) {
                 obj?.discount_transfer(this.data.gen_discount, passport)
             }
-            if (this.data?.withdraw_guard !== undefined) {
-                switch(this.data.withdraw_guard.op) {
-                    case 'add':
-                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport)
-                        break;
-                    case 'set':
-                        obj?.remove_withdraw_guards([], true, passport)
-                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport)
-                        break;
-                    case 'remove':
-                        obj?.remove_withdraw_guards(this.data.withdraw_guard.addresses, false, passport)
-                        break;
-                    case 'removeall':
-                        obj?.remove_withdraw_guards([], true, passport)
-                        break;
-                }
-            }
-
             if (this.data?.sales !== undefined) {
                 switch(this.data.sales.op) {
                     case 'add':
@@ -311,7 +259,7 @@ export class CallService extends CallBase {
                         //@ crypto tools support
                         const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
                             this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport) ;
-                        this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
+                        await this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
                     }                 
                 }
             }
@@ -334,14 +282,67 @@ export class CallService extends CallBase {
             if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
                 obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
             }
+            if (this.data?.customer_required_info !== undefined) {
+                if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
+                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, passport);
+                } else if (this.data.customer_required_info.pubkey) {
+                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, passport);
+                }
+            }
+            if (this.data?.withdraw_guard !== undefined) {
+                switch(this.data.withdraw_guard.op) {
+                    case 'add':
+                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport)
+                        break;
+                    case 'set':
+                        obj?.remove_withdraw_guards([], true, passport)
+                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport)
+                        break;
+                    case 'remove':
+                        obj?.remove_withdraw_guards(this.data.withdraw_guard.addresses, false, passport)
+                        break;
+                    case 'removeall':
+                        obj?.remove_withdraw_guards([], true, passport)
+                        break;
+                }
+            }
+            if (this.data?.refund_guard !== undefined) {
+                switch(this.data.refund_guard.op) {
+                    case 'add':
+                        obj?.add_refund_guards(this.data.refund_guard.guards, passport)
+                        break;
+                    case 'set':
+                        obj?.remove_refund_guards([], true, passport)
+                        obj?.add_refund_guards(this.data.refund_guard.guards, passport)
+                        break;
+                    case 'remove':
+                        obj?.remove_refund_guards(this.data.refund_guard.addresses, false, passport)
+                        break;
+                    case 'removeall':
+                        obj?.remove_refund_guards([], true, passport)
+                        break;
+                }
+            }
+            if (this.data?.buy_guard !== undefined) {
+                obj?.set_buy_guard(this.data.buy_guard, passport)
+            }
+            if (this.data?.bPaused !== undefined) {
+                obj?.pause(this.data.bPaused, passport)
+            }
+            if (this.data?.bPublished) {
+                obj?.publish(passport)
+            }
+            if (this.data?.clone_new !== undefined && obj) {
+                await this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
+            }
             if (payee) {
-                this.new_with_mark(txb, payee.launch(), (this.data?.payee_treasury as any)?.namedNew, account);
+                await this.new_with_mark(txb, payee.launch(), (this.data?.payee_treasury as any)?.namedNew, account);
             }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!object_address) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
     }

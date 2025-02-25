@@ -5,11 +5,7 @@
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
-    IsValidDesription,
-    Resource,
-    ResourceObject,
-    PassportObject} from "wowok";
-import { Account } from "../account";
+    IsValidDesription, PassportObject} from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base";
 
 export interface GuardConst {
@@ -70,7 +66,7 @@ export class CallGuard extends CallBase {
         var output : Uint8Array[]= [];
         buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data?.table ?? [], output);
         const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
-    
+
         const obj = txb.moveCall({
             target: Protocol.Instance().guardFn('new') as FnCallType,
             arguments: [txb.pure.string(this.data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
@@ -78,6 +74,7 @@ export class CallGuard extends CallBase {
         this.data?.table?.forEach((v) => {
             if (v.bWitness) {
                 const n = new Uint8Array(1); n.set([v.value_type], 0);
+                console.log(n)
                 txb.moveCall({
                     target:Protocol.Instance().guardFn("constant_add") as FnCallType,
                     arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
@@ -95,7 +92,7 @@ export class CallGuard extends CallBase {
             target:Protocol.Instance().guardFn("create") as FnCallType,
             arguments:[txb.object(obj)]
         });
-        this.new_with_mark(txb, addr, this.data?.namedNew, account);
+        await this.new_with_mark(txb, addr, this.data?.namedNew, account);
     }
 }
 
@@ -119,20 +116,18 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         } else if (typeof(node.query === 'number')) {
             q = GUARD_QUERIES.find(v=>v[2] === node.query);
         }
-
-        if (q) {
-            checkType(q[4], type_required, node); // Return type checking
-            if ((q[3]).length === node.parameters.length) {
-                for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
-                    buildNode(node.parameters[i], q[3][i], table, output); // Recursive check
-                }
-            } else {
-                ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + node.toString())
+        if (!q) ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
+        
+        checkType(q![4], type_required, node); // Return type checking
+        if ((q![3]).length === node.parameters.length) {
+            for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
+                buildNode(node.parameters[i], q![3][i], table, output); // Recursive check
             }
         } else {
-            ERROR(Errors.InvalidParam, 'node query not found - ' + node.toString());
+            ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + node.toString())
         }
 
+        output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, OperatorType.TYPE_QUERY)); // QUERY TYPE + addr + cmd
         if (typeof(node.object) === 'string') {
             if (!IsValidAddress(node.object)) {
                 ERROR(Errors.InvalidParam, 'node object from address string - ' + node.toString())
@@ -149,6 +144,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + node.toString());
             }
         }
+        output.push(Bcs.getInstance().ser('u16', q![2])); // cmd(u16)
     } else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {
@@ -174,7 +170,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             case OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL:
             case OperatorType.TYPE_LOGIC_AS_U256_EQUAL:
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString());
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); 
+                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
@@ -187,7 +183,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 break;               
             case OperatorType.TYPE_LOGIC_HAS_SUBSTRING:
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString());
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); 
+                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_STRING, table, output)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
@@ -195,7 +191,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
     } else if (node?.calc !== undefined) {
         checkType(ValueType.TYPE_U256, type_required, node);
         if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ node.toString());
-        (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); 
+        (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
         output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
         output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
     } else if (node?.value_type !== undefined) {
@@ -255,6 +251,7 @@ const checkType = (type: ValueType | ContextType.TYPE_CLOCK | ContextType.TYPE_G
     if (type !== type_required) {
         var str = '';
         if (node) str = ' - ' + node.toString();
+        console.log(node)
         ERROR(Errors.InvalidParam, 'checkType: ' + type + ' require type: ' + type_required + str);
     }
 }

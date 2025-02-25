@@ -9,7 +9,7 @@ export interface CallArbitration_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     mark?:AddressMark;
-    type_parameter?: string;
+    type_parameter: string;
     permission_new?: string;
     description?: string;
     bPaused?: boolean;
@@ -127,6 +127,8 @@ export class CallArbitration extends CallBase {
         } else if (object_address) {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address) {
                 obj = Arbitration.From(txb, this.data.type_parameter, permission_address, object_address)
+            } else {
+                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
             }
         }
 
@@ -168,7 +170,7 @@ export class CallArbitration extends CallBase {
             }
             
             if (this.data?.arb_new !== undefined) {
-                this.new_with_mark(txb, obj?.dispute(this.data.arb_new.data, passport), (this.data?.arb_new as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj?.dispute(this.data.arb_new.data, passport), (this.data?.arb_new as any)?.namedNew, account);
             }
             if (this.data?.arb_arbitration !== undefined) {
                 obj?.arbitration(this.data.arb_arbitration, passport)
@@ -184,14 +186,14 @@ export class CallArbitration extends CallBase {
             }
 
             if (withdraw_treasury) {
-                this.new_with_mark(txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
+                await this.new_with_mark(txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
             }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
 
             if (!object_address) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
     }

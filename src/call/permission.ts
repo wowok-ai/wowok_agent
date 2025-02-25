@@ -1,10 +1,9 @@
 import { CallBase, CallResult, Namedbject } from "./base";
-import { TransactionBlock, CallResponse, Resource, ResourceObject} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, UserDefinedIndex,
-    PermissionIndexType, WitnessFill
+    PermissionIndexType, TransactionBlock
 } from 'wowok';
 
-export interface CallEntityPermission_Data {
+export interface CallPermission_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     builder?: string;
     admin?: {op:'add' | 'remove' | 'set', admins:string[]};
@@ -14,9 +13,9 @@ export interface CallEntityPermission_Data {
         | {op:'transfer permission', from_address: string; to_address: string};
     biz_permission?: {op:'add'; data: UserDefinedIndex[]} | {op:'remove'; permissions: PermissionIndexType[]};
 }
-export class CallEntityPermission extends CallBase {
-    data: CallEntityPermission_Data;
-    constructor(data:CallEntityPermission_Data) {
+export class CallPermission extends CallBase {
+    data: CallPermission_Data;
+    constructor(data:CallPermission_Data) {
         super();
         this.data = data;
     }
@@ -50,20 +49,6 @@ export class CallEntityPermission extends CallBase {
         }
 
         if (obj) {
-            if (this.data?.admin !== undefined) {
-                switch(this.data.admin.op) {
-                    case 'add':
-                        obj?.add_admin(this.data.admin.admins);
-                        break;
-                    case 'remove':
-                        obj?.remove_admin(this.data.admin.admins);
-                        break;
-                    case 'set':
-                        obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.admins);
-                        break
-                }
-            }
             if (this.data?.biz_permission !== undefined) { // High priority operate
                 switch(this.data.biz_permission.op) {
                     case 'add':
@@ -100,12 +85,25 @@ export class CallEntityPermission extends CallBase {
                         break;
                 }
             }
-
+            if (this.data?.admin !== undefined) {
+                switch(this.data.admin.op) {
+                    case 'add':
+                        obj?.add_admin(this.data.admin.admins);
+                        break;
+                    case 'remove':
+                        obj?.remove_admin(this.data.admin.admins);
+                        break;
+                    case 'set':
+                        obj?.remove_admin([], true);
+                        obj?.add_admin(this.data.admin.admins);
+                        break
+                }
+            }
             if (this.data?.builder !== undefined ) {
                 obj?.change_owner(this.data.builder);
             }
             if (!object_address) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

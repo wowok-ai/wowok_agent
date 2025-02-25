@@ -5,17 +5,17 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, IsValidAddress, Bcs,
-    Entity_Info, Tags
- } from 'wowok';
+    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags } from 'wowok';
 import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache'
+
+export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
+        'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
+        'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
+        'TableItem_RepositoryData' | 'TableItem_PersonalMark';
 
 export interface ObjectBase {
     object: string;
-    type?: string |  'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
-        'Personal' | 'EntityPermission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
-        'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
-        'TableItem_RepositoryData' | 'TableItem_PersonalMark';
+    type?: ObjectBaseType;
     type_raw?: string;
     owner?: any;
     version?: string;
@@ -456,18 +456,58 @@ const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
     return data2object(res?.data)
 }
 
+export function raw2type(type_raw:string | undefined) : ObjectBaseType | undefined {
+    if (!type_raw) return undefined;
+
+    const t = Protocol.Instance().object_name_from_type_repr(type_raw);
+    if (t === 'Permission' || t === 'Demand' || t === 'Machine' || t === 'Progress' || t === 'Order' || t === 'Service' || 
+        t === 'Treasury' || t === 'Arb' || t === 'Repository' || t === 'Payment' || t === 'Discount' || t === 'Guard') {
+        return t
+    } else if (t === 'Resource') {
+        return 'PersonalMark';
+    }
+    const start = type_raw?.indexOf('0x2::dynamic_field::Field<');
+    if (start === 0) {
+        const end = type_raw?.substring('0x2::dynamic_field::Field<'.length);
+        if(end && Protocol.Instance().hasPackage(end)) {
+            if (end.includes('::demand::Tips>')) {
+                return 'TableItem_DemandPresenter';
+            } else if (end.includes('::machine::NodePair>>>')) {
+                return 'TableItem_MachineNode';
+            } else if (end.includes('::progress::History>')) {
+                return 'TableItem_ProgressHistory';
+            } else if (end.includes('::service::Sale>')) {
+                return 'TableItem_ServiceSale';
+            } else if (end.includes('::treasury::Record>')) {
+                return 'TableItem_TreasuryHistory';
+            } else if (end.includes('::arb::Voted>')) {
+                return 'TableItem_ArbVote';
+            } else if (end.includes('::permission::Perm>>')) {
+                return 'TableItem_PermissionEntity';
+            } else if (end.includes('::repository::DataKey')) {
+                return 'TableItem_RepositoryData';
+            } else if (end.includes('::entity::Ent>')) {
+                return 'Personal';
+            } else if (end.includes('::resource::Tags>')) {
+                return 'TableItem_PersonalMark';
+            }
+        }
+    }
+    return undefined;
+}
+
 export function data2object(data?:any) : ObjectBase {
     const content = (data?.content as any)?.fields;
     const id = data?.objectId ?? (content?.id?.id ?? undefined);
     const type_raw:string | undefined = data?.type ?? (data?.content?.type ?? undefined);
     const version = data?.version ?? undefined;
     const owner = data?.owner ?? undefined;
-    const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
+    const type:string | undefined = raw2type(type_raw);
 
     if (type) {
         switch(type) {
         case 'Permission':
-            return {object:id, type:'EntityPermission', type_raw:type_raw, owner:owner, version:version,
+            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 builder: content?.builder ??'', admin:content?.admin, description:content?.description??'',
                 entity_count: parseInt(content?.table?.fields?.size), 
                 biz_permission:content?.user_define?.fields?.contents?.map((v:any) => {
@@ -602,80 +642,68 @@ export function data2object(data?:any) : ObjectBase {
                     return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, value:Uint8Array.from(v?.fields?.value)}
                 })
             } as ObjectGuard;  
-        case 'Resource' :
+        case 'PersonalMark' :
             return {
-                object:id, type:'PersonalMark', type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 tag_count:parseInt(content?.tags?.fields?.size)
             } as ObjectMark;   
+        case 'TableItem_DemandPresenter':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                service:content?.name, presenter:content?.value?.fields?.who, recommendation:content?.value?.fields?.tips
+            } as TableItem_DemandPresenter;
+        case 'TableItem_ProgressHistory':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                history:Progress.DeHistory(content)
+            } as TableItem_ProgressHistory;
+        case 'TableItem_ServiceSale':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                item:{item:content?.name, stock:content?.value?.fields?.stock, price:content?.value?.fields?.price,
+                    endpoint:content?.value?.fields?.endpoint
+                }
+            } as TableItem_ServiceSale;
+        case 'TableItem_TreasuryHistory':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                id: content?.name, payment:content?.value?.fields?.payment, signer:content?.value?.fields?.signer,
+                operation: content?.value?.fields?.op, amount: content?.value?.fields?.amount, time:content?.value?.fields?.time
+            } as TableItem_TreasuryHistory;
+        case 'TableItem_ArbVote':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                singer:content?.name, vote:content?.value?.fields?.agrees, time: content?.value?.fields?.time,
+                weight:content?.value?.fields?.weight
+            } as TableItem_ArbVote;
+        case 'TableItem_PermissionEntity':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                entity:content?.name, permission:content?.value?.map((v:any) => {
+                    return {id:v?.fields.index, guard:v?.fields.guard}
+                })
+            } as TableItem_PermissionEntity;
+        case 'TableItem_RepositoryData':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                address:content?.name?.fields?.id, key:content?.name?.fields?.key, data:Uint8Array.from(content?.value)
+            } as TableItem_RepositoryData;
+        case 'Personal':
+            const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
+                mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
+                info : {homepage:info?.homepage, name:info?.name, avatar:info?.avatar, twitter:info?.twitter, discord:info?.discord, 
+                description:info?.description}
+            } as ObjectPersonal;
+        case 'TableItem_PersonalMark':
+            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
+            } as TableItem_PersonalMark;
         }
     } 
-    
-    const start = type_raw?.indexOf('0x2::dynamic_field::Field<');
-    if (start === 0) {
-        const end = type_raw?.substring('0x2::dynamic_field::Field<'.length);
-        if(end && Protocol.Instance().hasPackage(end)) {
-            if (end.includes('::demand::Tips>')) {
-                return {
-                    object:id, type:'TableItem_DemandPresenter', type_raw:type_raw, owner:owner, version:version,
-                    service:content?.name, presenter:content?.value?.fields?.who, recommendation:content?.value?.fields?.tips
-                } as TableItem_DemandPresenter;
-            } else if (end.includes('::machine::NodePair>>>')) {
-                return {
-                    object:id, type:'TableItem_MachineNode', type_raw:type_raw, owner:owner, version:version,
-                    node:{name:content?.name, pairs:Machine.rpc_de_pair(content?.value)}
-                } as TableItem_MachineNode;
-            } else if (end.includes('::progress::History>')) {
-                return {
-                    object:id, type:'TableItem_ProgressHistory', type_raw:type_raw, owner:owner, version:version,
-                    history:Progress.DeHistory(content)
-                } as TableItem_ProgressHistory;
-            } else if (end.includes('::service::Sale>')) {
-                return {
-                    object:id, type:'TableItem_ServiceSale', type_raw:type_raw, owner:owner, version:version,
-                    item:{item:content?.name, stock:content?.value?.fields?.stock, price:content?.value?.fields?.price,
-                        endpoint:content?.value?.fields?.endpoint
-                    }
-                } as TableItem_ServiceSale;
-            } else if (end.includes('::treasury::Record>')) {
-                return {
-                    object:id, type:'TableItem_TreasuryHistory', type_raw:type_raw, owner:owner, version:version,
-                    id: content?.name, payment:content?.value?.fields?.payment, signer:content?.value?.fields?.signer,
-                    operation: content?.value?.fields?.op, amount: content?.value?.fields?.amount, time:content?.value?.fields?.time
-                } as TableItem_TreasuryHistory;
-            } else if (end.includes('::arb::Voted>')) {
-                return {
-                    object:id, type:'TableItem_ArbVote', type_raw:type_raw, owner:owner, version:version,
-                    singer:content?.name, vote:content?.value?.fields?.agrees, time: content?.value?.fields?.time,
-                    weight:content?.value?.fields?.weight
-                } as TableItem_ArbVote;
-            } else if (end.includes('::permission::Perm>>')) {
-                return {
-                    object:id, type:'TableItem_PermissionEntity', type_raw:type_raw, owner:owner, version:version,
-                    entity:content?.name, permission:content?.value?.map((v:any) => {
-                        return {id:v?.fields.index, guard:v?.fields.guard}
-                    })
-                } as TableItem_PermissionEntity;
-            } else if (end.includes('::repository::DataKey')) {
-                return {
-                    object:id, type:'TableItem_RepositoryData', type_raw:type_raw, owner:owner, version:version,
-                    address:content?.name?.fields?.id, key:content?.name?.fields?.key, data:Uint8Array.from(content?.value)
-                } as TableItem_RepositoryData;
-            } else if (end.includes('::entity::Ent>')) {
-                const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
-                return {
-                    object:id, type:'Personal', type_raw:type_raw, owner:owner, version:version,
-                    address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
-                    mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
-                    info : {homepage:info?.homepage, name:info?.name, avatar:info?.avatar, twitter:info?.twitter, discord:info?.discord, 
-                    description:info?.description}
-                } as ObjectPersonal;
-            } else if (end.includes('::resource::Tags>')) {
-                return {object:id, type:'TableItem_PersonalMark', type_raw:type_raw, owner:owner, version:version,
-                    address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
-                } as TableItem_PersonalMark;
-            }
-        }
-    }
-    return {object:id, type:type, type_raw:type_raw, owner:owner, version:version}
+
+    return {object:id, type:undefined, type_raw:type_raw, owner:owner, version:version}
 }
 

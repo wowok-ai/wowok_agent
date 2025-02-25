@@ -8,8 +8,7 @@ import { Account } from '../account';
 export interface CallDemand_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-
-    type_parameter?: string;
+    type_parameter: string;
     guard?: {address:string; service_id_in_guard?:number};
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
@@ -98,6 +97,8 @@ export class CallDemand extends CallBase {
         } else {
             if (IsValidAddress(object_address) && this.data.type_parameter && this.data.permission && IsValidAddress(permission_address)) {
                 obj = Demand.From(txb, this.data.type_parameter, permission_address, object_address)
+            } else {
+                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
             }
         }
 
@@ -134,10 +135,10 @@ export class CallDemand extends CallBase {
                 obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, passport)
             }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }
