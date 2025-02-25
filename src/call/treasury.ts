@@ -1,4 +1,4 @@
-import { TransactionBlock, CallResponse, IsValidArgType} from 'wowok';
+import { TransactionBlock, CallResponse, IsValidArgType, Resource, ResourceObject} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
     PermissionIndexType, DepositParam, Treasury, Treasury_WithdrawMode, WithdrawParam, WitnessFill
 } from 'wowok';
@@ -96,7 +96,6 @@ export class CallTreasury extends CallBase {
             } else {
                 perms.push(PermissionIndex.treasury_withdraw)
             }
-
             return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
@@ -111,7 +110,7 @@ export class CallTreasury extends CallBase {
                 const d = (this.data?.permission as any)?.description ?? '';
                 permission = Permission.New(txb, d);
             }
-            obj = Treasury.New(txb, this.data.type_parameter!, permission ?? permission_address, this.data?.description??'', permission?undefined:passport)
+            obj = Treasury.New(txb, this.data.type_parameter!, permission ? permission.get_object() : permission_address, this.data?.description??'', permission?undefined:passport)
         } else {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address && IsValidAddress(permission_address)) {
                 obj = Treasury.From(txb, this.data.type_parameter, permission_address, object_address)
@@ -162,11 +161,11 @@ export class CallTreasury extends CallBase {
                 }
             }
             if (permission) {
-                this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
 
             if (!object_address) {
-                this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
     }

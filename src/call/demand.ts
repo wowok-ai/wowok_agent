@@ -1,4 +1,4 @@
-import { TransactionBlock, IsValidArgType, IsValidCoinType } from 'wowok';
+import { TransactionBlock, IsValidArgType, IsValidCoinType, Resource, ResourceObject } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Demand, } from 'wowok';
 import { query_objects, ObjectDemand } from '../objects';

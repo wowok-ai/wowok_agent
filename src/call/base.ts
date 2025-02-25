@@ -1,6 +1,6 @@
 
 
-import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult, TxbAddress, array_unique, TagName} from 'wowok';
+import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult, TxbAddress, array_unique, TagName, ResourceObject} from 'wowok';
 import { PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
@@ -46,21 +46,9 @@ export function ResponseData(response: CallResponse | undefined) : ResponseData[
     return res;
 }
 
-export const mark_address = async (txb:TransactionBlock, mark:AddressMark, account?:string) => {
-    const addr = Account.Instance().get_address(account);
-    if (addr) {
-        const r = await queryTableItem_Personal({address:addr}); //@ use cache
-        const resource = r?.mark_object ? Resource.From(txb, r.mark_object) : Resource.From(txb, Entity.From(txb).create_resource2());
-        resource.add(mark.address, mark.tags, mark.name);
-        if (!r?.mark_object) {
-            resource.launch(); // launch new
-        }
-    } else {
-        ERROR(Errors.InvalidParam, 'account - ' + account)
-    }
-}
 export class CallBase {
     // operation implementation for a call
+    resouceObject:ResourceObject | undefined;
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
@@ -70,22 +58,16 @@ export class CallBase {
     async call_with_witness (param: CallWithWitnessParam) : Promise<CallResponse | undefined> {
         if (param.info.guard.length > 0) {         // prepare passport
             const p: GuardParser | undefined = await GuardParser.Create([...param.info.guard]);
-            const pair = Account.Instance().get_pair(param.account, true);
-            if (!pair) ERROR(Errors.Fail, 'account invalid')
 
             if (p) {
                 const query = await p.done(param.info.witness);
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    this.operate(new TransactionBlock(), passport?.get_object(), param?.account)
+                    await this.operate(new TransactionBlock(), passport?.get_object(), param?.account)
                     passport.destroy();
-
-                    return await Protocol.Client().signAndExecuteTransaction({
-                        transaction: txb, 
-                        signer: pair!,
-                        options:{showObjectChanges:true},
-                    });
+                    
+                    return await this.sign_and_commit(txb, param.account);
                 }
             } else {
                 ERROR(Errors.Fail, 'guard finish_passport')
@@ -96,11 +78,12 @@ export class CallBase {
     protected async check_permission_and_call (permission:string, permIndex: PermissionIndexType[], guards_needed: string[],
         checkOwner?:boolean, checkAdmin?:boolean, account?:string) : Promise<CallResult>  {
         var guards : string[] = [];
-        const pair = Account.Instance().get_pair(account, true);
-        if (!pair) ERROR(Errors.Fail, 'account invalid')
 
         if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({permission_object:permission, address:pair!.toSuiAddress()});
+            const addr = Account.Instance().get_address(account);
+            if (!addr) ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
+
+            const p = await query_permission({permission_object:permission, address:addr!});
             if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
@@ -125,14 +108,10 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    this.operate(new TransactionBlock(), passport?.get_object(), account)
+                    await this.operate(new TransactionBlock(), passport?.get_object(), account)
                     passport.destroy();
-
-                    return await Protocol.Client().signAndExecuteTransaction({
-                        transaction: txb, 
-                        signer: pair!,
-                        options:{showObjectChanges:true},
-                    });
+                    
+                    return await this.sign_and_commit(txb, account);
                 }
             } 
             
@@ -142,20 +121,48 @@ export class CallBase {
         }
     }
     protected async exec (account?:string) : Promise<CallResponse> {
+        const txb = new TransactionBlock();
+        await this.operate(txb, undefined, account);
+        return await this.sign_and_commit(txb, account);
+    }
+
+    protected async new_with_mark(txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
+        const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
+
+        if (!this.resouceObject) {
+            const addr = Account.Instance().get_address(account);
+            if (addr) {
+                const r = await queryTableItem_Personal({address:addr}); //@ use cache
+                if (!r?.mark_object) {
+                    this.resouceObject = Entity.From(txb).create_resource2(); // new 
+                } else {
+                    Resource.From(txb, r.mark_object).add(object, tags, named_new?.name);
+                    return
+                }
+            } else {
+                ERROR(Errors.InvalidParam, 'account - ' + account)
+            }
+        }
+        if (this.resouceObject) {
+            Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
+        } else {
+            ERROR(Errors.Fail, 'invalid personal mark')
+        }
+    }
+
+    protected async sign_and_commit(txb: TransactionBlock, account?: string) : Promise<CallResponse> {
         const pair = Account.Instance().get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
 
-        const txb = new TransactionBlock();
-        this.operate(txb, undefined, account);
+        if (this.resouceObject) {
+            Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
+            this.resouceObject = undefined;
+        }
+    
         return await Protocol.Client().signAndExecuteTransaction({
             transaction: txb, 
             signer: pair!,
             options:{showObjectChanges:true},
         });
-    }
-
-    protected new_with_mark(txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
-        const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
-        mark_address(txb, {address:object, name:named_new?.name, tags:tags}, account)
     }
 }

@@ -1,5 +1,5 @@
 import { CallBase, CallResult, Namedbject } from "./base";
-import { TransactionBlock, CallResponse} from 'wowok';
+import { TransactionBlock, CallResponse, Resource, ResourceObject} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, UserDefinedIndex,
     PermissionIndexType, WitnessFill
 } from 'wowok';

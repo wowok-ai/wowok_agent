@@ -1,4 +1,4 @@
-import { TransactionBlock, IsValidArgType, } from 'wowok';
+import { TransactionBlock, IsValidArgType, Resource, ResourceObject, } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Treasury, 
     Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee, WitnessFill
 } from 'wowok';
@@ -118,11 +118,12 @@ export class CallArbitration extends CallBase {
             }
             if (!treasury_address || !IsValidAddress(treasury_address)) {
                 const d = (this.data?.fee_treasury as any)?.description ?? '';
-                withdraw_treasury = Treasury.New(txb, this.data?.type_parameter!, permission ?? permission_address, d, permission?undefined:passport);
+                withdraw_treasury = Treasury.New(txb, this.data?.type_parameter!, permission ? permission.get_object() : permission_address, 
+                    d, permission?undefined:passport);
             }
 
-            obj = Arbitration.New(txb, this.data.type_parameter!, permission ?? permission_address, this.data?.description??'', 
-                BigInt(this.data?.fee ?? 0), withdraw_treasury??treasury_address, permission?undefined:passport);
+            obj = Arbitration.New(txb, this.data.type_parameter!, permission ? permission.get_object() : permission_address, this.data?.description??'', 
+                BigInt(this.data?.fee ?? 0), withdraw_treasury? withdraw_treasury.get_object() : treasury_address, permission?undefined:passport);
         } else if (object_address) {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address) {
                 obj = Arbitration.From(txb, this.data.type_parameter, permission_address, object_address)

@@ -1,4 +1,4 @@
-import { TransactionBlock, CallResponse} from 'wowok';
+import { TransactionBlock, CallResponse, Resource, ResourceObject} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Repository,
     Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove,
     Repository_Policy_Mode, WitnessFill
@@ -59,7 +59,7 @@ export class CallRepository extends CallBase {
                 permission = Permission.New(txb, d);
             }
             
-            obj = Repository.New(txb, permission ?? permission_address, this.data?.description??'', this.data?.mode, permission?undefined:passport)
+            obj = Repository.New(txb, permission ? permission.get_object() : permission_address, this.data?.description??'', this.data?.mode, permission?undefined:passport)
         } else {
             if (IsValidAddress(object_address) && this.data.permission && IsValidAddress(permission_address)) {
                 obj = Repository.From(txb, permission_address, object_address)
@@ -69,9 +69,6 @@ export class CallRepository extends CallBase {
         if (obj) {
             if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
-            }
-            if (this.data?.mode !== undefined && object_address) { //@ priority??
-                obj?.set_policy_mode(this.data.mode, passport)
             }
             if (this.data?.reference !== undefined) {
                 switch (this.data.reference.op) {
@@ -125,6 +122,9 @@ export class CallRepository extends CallBase {
                         obj?.remove(this.data.data.data.address, this.data.data.data.key);
                         break;
                 }
+            }
+            if (this.data?.mode !== undefined && object_address) { //@ priority??
+                obj?.set_policy_mode(this.data.mode, passport)
             }
             if (permission) {
                 this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);

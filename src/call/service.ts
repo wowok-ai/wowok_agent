@@ -1,4 +1,4 @@
-import { TransactionBlock, CallResponse, IsValidArgType, TxbAddress, TagName} from 'wowok';
+import { TransactionBlock, CallResponse, IsValidArgType, TxbAddress, TagName, Resource, ResourceObject} from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
     PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
     Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, WitnessFill
@@ -95,7 +95,7 @@ export class CallService extends CallBase {
             if (this.data?.machine !== undefined) {
                 perms.push(PermissionIndex.service_machine)
             }
-            if (this.data?.payee_treasury !== undefined && object_address) {
+            if (treasury_address !== undefined && object_address) {
                 perms.push(PermissionIndex.service_payee)
             }
             if (this.data?.withdraw_guard !== undefined) {
@@ -161,7 +161,8 @@ export class CallService extends CallBase {
                 const d = (this.data?.payee_treasury as any)?.description ?? '';
                 payee = Treasury.New(txb, this.data?.type_parameter!, permission ?? permission_address, d, permission?undefined:passport);
             }
-            obj = Service.New(txb, this.data.type_parameter!, permission??permission_address, this.data?.description??'', payee??treasury_address, permission?undefined:passport)
+            obj = Service.New(txb, this.data.type_parameter!, permission?permission.get_object():permission_address, 
+                this.data?.description??'', payee?payee.get_object():treasury_address, permission?undefined:passport)
         } else {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address && IsValidAddress(permission_address)) {
                 obj = Service.From(txb, this.data.type_parameter, permission_address, object_address)

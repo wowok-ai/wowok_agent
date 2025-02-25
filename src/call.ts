@@ -1,8 +1,7 @@
 
 /**
  * Provide a this interface for AI
- * Operation sequence Priority: common operation > Guard change > permission change
- * Recommended: Changes to guard and permission are committed on-chain separately to avoid permission dependencies for other operations.
+ * Restrictive prioritization, such as setting a deposit first and setting a deposit guard later (only subsequent deposits are affected).
  */
 
 import { CallArbitration, CallArbitration_Data } from "./call/arbitration";

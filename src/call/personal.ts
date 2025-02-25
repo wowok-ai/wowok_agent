@@ -1,4 +1,4 @@
-import { TransactionBlock } from 'wowok';
+import { ResourceObject, TransactionBlock } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, TagName, Resource} from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
 

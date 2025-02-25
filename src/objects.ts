@@ -12,8 +12,8 @@ import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cach
 
 export interface ObjectBase {
     object: string;
-    type?: string | 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' |
-        'Personal' | 'Permission' | 'Mark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
+    type?: string |  'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
+        'Personal' | 'EntityPermission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
         'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
         'TableItem_RepositoryData' | 'TableItem_PersonalMark';
     type_raw?: string;
@@ -230,7 +230,7 @@ export interface ObjectMark extends ObjectBase {
     tag_count: number;
 }
 
-export interface TableItem_MarkTag extends ObjectBase, Tags {
+export interface TableItem_PersonalMark extends ObjectBase, Tags {
 }
 
 export enum CacheType {
@@ -298,10 +298,10 @@ export const query_table_json = async (json:string) : Promise<string> => {
 }
 
 // query personal information; json: ObjectsAnswer; return ObjectPersonal | undefined .
-export const query_personal = async (json:string) : Promise<string> => {
+export const query_personal_json = async (json:string) : Promise<string> => {
     try {
         const q : PersonalQuery = JSON.parse(json);
-        return JSON.stringify({data:(await queryTableItem_Personal(q)) ?? ''});
+        return JSON.stringify({data:(await queryTableItem_Personal(q) ?? '')});
     } catch (e) {
         return JSON.stringify({error:e?.toString()})
     }
@@ -362,35 +362,34 @@ export const queryTableItem_Personal = async (query:PersonalQuery) : Promise<Obj
     if (!IsValidAddress(query.address))  ERROR(Errors.IsValidAddress, 'entity.address')
     const time = new Date().getTime();
     const cache = WowokCache.Instance().get(CacheName.personal);
+
     if (cache && !query.no_cache) {
         try {
             let data = cache.load(OBJECT_KEY(query.address, CacheName.personal))
             
             if (data) {
                 const r:CachedData = JSON.parse(data);
-
                 if (r?.expire === 'INFINITE' || r.expire <= time) { 
-                    const d = data2object(JSON.parse(r.data));
-                    d.cache_expire = r.expire;    
-                    return d as ObjectPersonal;                         
+                    const d = JSON.parse(r.data) as ObjectPersonal;
+                    d.cache_expire = r.expire;  
+                    return d;                         
                 }
             }                 
         } catch (e) {
             console.log(e)
         }
     } 
-    const res = await Protocol.Client().getDynamicFieldObject({parentId:Protocol.Instance().objectEntity(), name:{type:'address', value:query.address}});
-    if (res?.data) {
-        const ret = data2object(res?.data) as ObjectPersonal;
+    const res = await tableItem(tableItemQuery_byAddress(Protocol.Instance().objectEntity(), query.address));
+    if (res.type === 'Personal') {
         if (cache) {
             try {
                 const expire = cache.expire_time()+((new Date()).getTime()); // guard & payment immutable
-                const r:CachedData = {expire:expire, data:JSON.stringify(res.data)}
+                const r:CachedData = {expire:expire, data:JSON.stringify(res)}
                 cache.save(OBJECT_KEY(query.address, CacheName.personal), JSON.stringify(r));
-                ret.cache_expire = expire;
+                res.cache_expire = expire;
             } catch(e) { console.log(e)}               
         }
-        return ret
+        return res as ObjectPersonal;
     }
 }
 
@@ -468,7 +467,7 @@ export function data2object(data?:any) : ObjectBase {
     if (type) {
         switch(type) {
         case 'Permission':
-            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+            return {object:id, type:'EntityPermission', type_raw:type_raw, owner:owner, version:version,
                 builder: content?.builder ??'', admin:content?.admin, description:content?.description??'',
                 entity_count: parseInt(content?.table?.fields?.size), 
                 biz_permission:content?.user_define?.fields?.contents?.map((v:any) => {
@@ -605,7 +604,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectGuard;  
         case 'Resource' :
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:'PersonalMark', type_raw:type_raw, owner:owner, version:version,
                 tag_count:parseInt(content?.tags?.fields?.size)
             } as ObjectMark;   
         }
@@ -617,35 +616,35 @@ export function data2object(data?:any) : ObjectBase {
         if(end && Protocol.Instance().hasPackage(end)) {
             if (end.includes('::demand::Tips>')) {
                 return {
-                    object:id, type:'DemandTable_Presenter', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_DemandPresenter', type_raw:type_raw, owner:owner, version:version,
                     service:content?.name, presenter:content?.value?.fields?.who, recommendation:content?.value?.fields?.tips
                 } as TableItem_DemandPresenter;
             } else if (end.includes('::machine::NodePair>>>')) {
                 return {
-                    object:id, type:'MachineTable_Node', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_MachineNode', type_raw:type_raw, owner:owner, version:version,
                     node:{name:content?.name, pairs:Machine.rpc_de_pair(content?.value)}
                 } as TableItem_MachineNode;
             } else if (end.includes('::progress::History>')) {
                 return {
-                    object:id, type:'ProgressTable_History', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_ProgressHistory', type_raw:type_raw, owner:owner, version:version,
                     history:Progress.DeHistory(content)
                 } as TableItem_ProgressHistory;
             } else if (end.includes('::service::Sale>')) {
                 return {
-                    object:id, type:'ServiceTable_Sale', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_ServiceSale', type_raw:type_raw, owner:owner, version:version,
                     item:{item:content?.name, stock:content?.value?.fields?.stock, price:content?.value?.fields?.price,
                         endpoint:content?.value?.fields?.endpoint
                     }
                 } as TableItem_ServiceSale;
             } else if (end.includes('::treasury::Record>')) {
                 return {
-                    object:id, type:'TreasuryTable_History', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_TreasuryHistory', type_raw:type_raw, owner:owner, version:version,
                     id: content?.name, payment:content?.value?.fields?.payment, signer:content?.value?.fields?.signer,
                     operation: content?.value?.fields?.op, amount: content?.value?.fields?.amount, time:content?.value?.fields?.time
                 } as TableItem_TreasuryHistory;
             } else if (end.includes('::arb::Voted>')) {
                 return {
-                    object:id, type:'ArbTable_Vote', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'TableItem_ArbVote', type_raw:type_raw, owner:owner, version:version,
                     singer:content?.name, vote:content?.value?.fields?.agrees, time: content?.value?.fields?.time,
                     weight:content?.value?.fields?.weight
                 } as TableItem_ArbVote;
@@ -664,16 +663,16 @@ export function data2object(data?:any) : ObjectBase {
             } else if (end.includes('::entity::Ent>')) {
                 const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
                 return {
-                    object:id, type:'Entity', type_raw:type_raw, owner:owner, version:version,
+                    object:id, type:'Personal', type_raw:type_raw, owner:owner, version:version,
                     address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
                     mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
                     info : {homepage:info?.homepage, name:info?.name, avatar:info?.avatar, twitter:info?.twitter, discord:info?.discord, 
                     description:info?.description}
                 } as ObjectPersonal;
             } else if (end.includes('::resource::Tags>')) {
-                return {object:id, type:'TableItem_MarkTag', type_raw:type_raw, owner:owner, version:version,
+                return {object:id, type:'TableItem_PersonalMark', type_raw:type_raw, owner:owner, version:version,
                     address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
-                } as TableItem_MarkTag;
+                } as TableItem_PersonalMark;
             }
         }
     }

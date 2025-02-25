@@ -1,6 +1,8 @@
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock,
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
     TxbAddress,
+    Resource,
+    ResourceObject,
 } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
@@ -112,7 +114,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 const d = (this.data?.permission as any)?.description ?? '';
                 permission = Permission.New(txb, d);
             }
-            obj = Machine.New(txb, permission ?? permission_address, this.data?.description??'', this.data?.endpoint ?? '', permission?undefined:passport);
+            obj = Machine.New(txb, permission ? permission.get_object() : permission_address, this.data?.description??'', this.data?.endpoint ?? '', permission?undefined:passport);
         } else {
             if (IsValidAddress(object_address) &&permission_address && IsValidAddress(permission_address)) {
                 obj = Machine.From(txb, permission_address, object_address)

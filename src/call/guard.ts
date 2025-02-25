@@ -5,7 +5,10 @@
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
-    IsValidDesription} from "wowok";
+    IsValidDesription,
+    Resource,
+    ResourceObject,
+    PassportObject} from "wowok";
 import { Account } from "../account";
 import { CallBase, CallResult, Namedbject } from "./base";
 
@@ -32,7 +35,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
 export interface CallGuard_Data {
     namedNew?: Namedbject;
     description: string;
-    table: GuardConst[]; //  data used by multiple logical guard nodes
+    table?: GuardConst[]; //  data used by multiple logical guard nodes
     root: GuardNode; // root must return ValueType.TYPE_BOOL     
 }
 export class CallGuard extends CallBase {
@@ -42,6 +45,10 @@ export class CallGuard extends CallBase {
         this.data = data;
     }
     async call(account?:string) : Promise<CallResult> {
+        return await this.exec(account)
+    }
+    
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         if (!this.data?.root) {
             ERROR(Errors.InvalidParam, 'guard root node invalid')
         }
@@ -50,26 +57,25 @@ export class CallGuard extends CallBase {
         }
     
         // check const
-        this.data.table.forEach(v => {
+        this.data?.table?.forEach(v => {
             if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifer invalid');
             if (!v.bWitness && v.value === undefined) ERROR(Errors.InvalidParam, 'table.value');
         })
     
-        if (hasDuplicates(this.data.table.map(v => v.identifier))) {
+        if (this.data?.table && hasDuplicates(this.data?.table?.map(v => v.identifier))) {
             ERROR(Errors.InvalidParam, 'table.identifer duplicates')
         }
     
         // check root
         var output : Uint8Array[]= [];
-        buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data.table, output);
+        buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data?.table ?? [], output);
         const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
-        const txb = new TransactionBlock();
     
         const obj = txb.moveCall({
             target: Protocol.Instance().guardFn('new') as FnCallType,
             arguments: [txb.pure.string(this.data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
         });
-        this.data.table.forEach((v) => {
+        this.data?.table?.forEach((v) => {
             if (v.bWitness) {
                 const n = new Uint8Array(1); n.set([v.value_type], 0);
                 txb.moveCall({
@@ -90,15 +96,6 @@ export class CallGuard extends CallBase {
             arguments:[txb.object(obj)]
         });
         this.new_with_mark(txb, addr, this.data?.namedNew, account);
-
-        const pair = Account.Instance().get_pair(account, true);
-        if (!pair) ERROR(Errors.Fail, 'account invalid')
-    
-        return await Protocol.Client().signAndExecuteTransaction({
-            transaction: txb, 
-            signer: pair!,
-            options:{showObjectChanges:true},
-        });
     }
 }
 
