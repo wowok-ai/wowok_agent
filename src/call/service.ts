@@ -15,7 +15,7 @@ export interface CallService_Data {
     bPublished?: boolean;
     description?: string;
     gen_discount?: DicountDispatch[];
-    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, token_type:string}[]} 
+    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, type_parameter:string}[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     buy_guard?: string;
     endpoint?: string;
@@ -184,6 +184,9 @@ export class CallService extends CallBase {
             if (this.data?.machine !== undefined) {
                 obj?.set_machine(this.data.machine, passport)
             }
+            if (this.data?.gen_discount !== undefined) {
+                obj?.discount_transfer(this.data.gen_discount, passport)
+            }
             if (this.data?.repository !== undefined) {
                 switch (this.data.repository.op) {
                     case 'add':
@@ -221,11 +224,11 @@ export class CallService extends CallBase {
             if (this.data?.arbitration !== undefined) {
                 switch(this.data.arbitration.op) {
                     case 'add':
-                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.token_type, passport))
+                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.type_parameter, passport))
                         break;
                     case 'set':
                         obj?.remove_arbitration([], true, passport)
-                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.token_type, passport))
+                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.type_parameter, passport))
                         break;
                     case 'remove':
                         obj?.remove_arbitration(this.data.arbitration.addresses, false, passport)
@@ -234,9 +237,6 @@ export class CallService extends CallBase {
                         obj?.remove_arbitration([], false, passport)
                         break;
                 }
-            }
-            if (this.data?.gen_discount !== undefined) {
-                obj?.discount_transfer(this.data.gen_discount, passport)
             }
             if (this.data?.sales !== undefined) {
                 switch(this.data.sales.op) {

@@ -5,7 +5,8 @@
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
-    IsValidDesription, PassportObject} from "wowok";
+    IsValidDesription, PassportObject,
+    IsValidGuardIdentifier} from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base";
 
 export interface GuardConst {
@@ -26,6 +27,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
     | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD 
         | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
+    | {identifier: number} // data from GuardConst
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
 
 export interface CallGuard_Data {
@@ -74,7 +76,6 @@ export class CallGuard extends CallBase {
         this.data?.table?.forEach((v) => {
             if (v.bWitness) {
                 const n = new Uint8Array(1); n.set([v.value_type], 0);
-                console.log(n)
                 txb.moveCall({
                     target:Protocol.Instance().guardFn("constant_add") as FnCallType,
                     arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
@@ -107,13 +108,13 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT)); 
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier))
         } else {
-            ERROR(Errors.InvalidParam, 'node identifier - ' + node.toString());
+            ERROR(Errors.InvalidParam, 'node identifier - ' + JSON.stringify(node));
         }
     } else if (node?.query !== undefined) {
         var q: any[] | undefined;
-        if (typeof(node.query === 'string')) {
+        if (typeof(node.query) === 'string') {
             q = GUARD_QUERIES.find(v=>v[1] === node.query);
-        } else if (typeof(node.query === 'number')) {
+        } else if (typeof(node.query) === 'number') {
             q = GUARD_QUERIES.find(v=>v[2] === node.query);
         }
         if (!q) ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
@@ -124,13 +125,13 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 buildNode(node.parameters[i], q![3][i], table, output); // Recursive check
             }
         } else {
-            ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + node.toString())
+            ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + JSON.stringify(node))
         }
 
         output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, OperatorType.TYPE_QUERY)); // QUERY TYPE + addr + cmd
         if (typeof(node.object) === 'string') {
             if (!IsValidAddress(node.object)) {
-                ERROR(Errors.InvalidParam, 'node object from address string - ' + node.toString())
+                ERROR(Errors.InvalidParam, 'node object from address string - ' + JSON.stringify(node))
             }
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_ADDRESS)); 
             output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, node.object)); // object address             
@@ -141,7 +142,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.object)); // object id
             } else {
-                ERROR(Errors.InvalidParam, 'node object from identifier - ' + node.toString());
+                ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
             }
         }
         output.push(Bcs.getInstance().ser('u16', q![2])); // cmd(u16)
@@ -149,18 +150,18 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {
             case OperatorType.TYPE_LOGIC_ALWAYS_TRUE:
-                if (node.parameters.length !== 0) ERROR(Errors.InvalidParam, 'node logic parameters length must be 0'+ node.toString());
+                if (node.parameters.length !== 0) ERROR(Errors.InvalidParam, 'node logic parameters length must be 0'+ JSON.stringify(node));
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 break;
             case OperatorType.TYPE_LOGIC_AND:
             case OperatorType.TYPE_LOGIC_OR:
-                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString()); 
+                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node)); 
                 (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); // reserve
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
             case OperatorType.TYPE_LOGIC_NOT:
-                if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node logic parameters length must be 1'+ node.toString());
+                if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node logic parameters length must be 1'+ JSON.stringify(node));
                 (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); // reserve
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 break;
@@ -169,20 +170,20 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             case OperatorType.TYPE_LOGIC_AS_U256_LESSER:
             case OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL:
             case OperatorType.TYPE_LOGIC_AS_U256_EQUAL:
-                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString());
+                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
                 (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
             case OperatorType.TYPE_LOGIC_EQUAL:
-                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString());
+                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
                 var any_type: any = 'variable';
                 (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, any_type, table, output)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;               
             case OperatorType.TYPE_LOGIC_HAS_SUBSTRING:
-                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ node.toString());
+                if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
                 (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_STRING, table, output)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
@@ -190,13 +191,13 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         }
     } else if (node?.calc !== undefined) {
         checkType(ValueType.TYPE_U256, type_required, node);
-        if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ node.toString());
+        if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ JSON.stringify(node));
         (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
         output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
         output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
     } else if (node?.value_type !== undefined) {
         checkType(node?.value_type, type_required, node);
-        if (node?.value === undefined) ERROR(Errors.InvalidParam, 'node value undefined - ' + node.toString());
+        if (node?.value === undefined) ERROR(Errors.InvalidParam, 'node value undefined - ' + JSON.stringify(node));
         output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.value_type)); // TYPE
 
         if (node.value_type == ValueType.TYPE_STRING || node.value_type === ValueType.TYPE_VEC_U8) {
@@ -219,8 +220,15 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 checkType(ValueType.TYPE_ADDRESS, type_required, node);
                 break;
         }
+    } else if (node?.identifier !== undefined) {
+        if (!IsValidGuardIdentifier(node.identifier)) ERROR(Errors.IsValidGuardIdentifier, 'node - '+JSON.stringify(node));
+        const i = table.find(v => v.identifier === node.identifier);
+        if (!i) ERROR(Errors.InvalidParam, 'identifier not found. node - '+JSON.stringify(node));
+        checkType(i!.value_type, type_required, node);
+        output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT)); 
+        output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier)); 
     } else {
-        ERROR(Errors.InvalidParam, 'node - ' + node.toString())
+        ERROR(Errors.InvalidParam, 'node - ' + JSON.stringify(node))
     }
 }
 
@@ -250,8 +258,7 @@ const checkType = (type: ValueType | ContextType.TYPE_CLOCK | ContextType.TYPE_G
 
     if (type !== type_required) {
         var str = '';
-        if (node) str = ' - ' + node.toString();
-        console.log(node)
+        if (node) str = ' - ' + JSON.stringify(node);
         ERROR(Errors.InvalidParam, 'checkType: ' + type + ' require type: ' + type_required + str);
     }
 }

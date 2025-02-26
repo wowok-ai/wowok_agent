@@ -1,8 +1,5 @@
 import { CallBase, CallResult } from "./base";
-import { TransactionBlock, CallResponse, Protocol, Demand, DemandObject, Machine, Service, Treasury, Arbitration, Repository} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, UserDefinedIndex,
-    PermissionIndexType, WitnessFill
-} from 'wowok';
+import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR,  Demand, Machine, Service, Treasury, Arbitration, Repository} from 'wowok';
 import { ObjectArbitration, ObjectDemand, ObjectMachine, ObjectRepository, ObjectService, ObjectTreasury, query_objects } from "../objects";
 
 export interface CallObjectPermission_Data {

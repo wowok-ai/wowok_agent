@@ -16,25 +16,26 @@ import { CallBase, CallResult, CallWithWitnessParam } from "./call/base";
 import { CallGuard, CallGuard_Data } from "./call/guard";
 import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_permission";
 
- 
-export interface CallObjectData {
-    type: 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'Permission' | 'ObjectPermission';
-    data: CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallPermission_Data | CallObjectPermission_Data
-    | CallTreasury_Data | CallService_Data  | CallRepository_Data;
+export type CallObjectType = 'Demand' | 'Service' | 'Machine' | 'Treasury' | 'Arbitration' | 'Guard' | 'Repository' | 'Personal' | 'Permission' | 'ObjectPermission';
+export type CallObjectData = CallDemand_Data | CallMachine_Data | CallArbitration_Data | CallPermission_Data | CallObjectPermission_Data
+| CallTreasury_Data | CallService_Data  | CallRepository_Data;
+export interface CallObject {
+    type: CallObjectType;
+    data: CallObjectData;
     account?: string;
     witness?: CallWithWitnessParam;
 }
 
 export const call_object_json = async (json: string) : Promise<string> => {
     try {
-        const c : CallObjectData = JSON.parse(json);
+        const c : CallObject = JSON.parse(json);
         return JSON.stringify({data:await call_object(c)});
     } catch (e) {
         return JSON.stringify({error:e?.toString()})
     }
 }
 
-export const call_object = async (call: CallObjectData) : Promise<CallResult> => {
+export const call_object = async (call: CallObject) : Promise<CallResult> => {
     var obj = call_object_new(call);
 
     if (obj) {
@@ -46,7 +47,7 @@ export const call_object = async (call: CallObjectData) : Promise<CallResult> =>
     }
 }
 
-function call_object_new (call: CallObjectData) : CallBase | undefined {
+function call_object_new (call: CallObject) : CallBase | undefined {
     switch (call.type) {
         case 'Demand':
             return new CallDemand(call.data as CallDemand_Data);

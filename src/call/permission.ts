@@ -1,17 +1,17 @@
 import { CallBase, CallResult, Namedbject } from "./base";
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, UserDefinedIndex,
+import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, BizPermission,
     PermissionIndexType, TransactionBlock
 } from 'wowok';
 
 export interface CallPermission_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     builder?: string;
-    admin?: {op:'add' | 'remove' | 'set', admins:string[]};
+    admin?: {op:'add' | 'remove' | 'set', address:string[]};
     description?: string;
     permission?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
         | {op:'remove entity'; addresses:string[]} | {op:'remove permission'; address:string; index:PermissionIndexType[]} 
         | {op:'transfer permission', from_address: string; to_address: string};
-    biz_permission?: {op:'add'; data: UserDefinedIndex[]} | {op:'remove'; permissions: PermissionIndexType[]};
+    biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};
 }
 export class CallPermission extends CallBase {
     data: CallPermission_Data;
@@ -53,12 +53,12 @@ export class CallPermission extends CallBase {
                 switch(this.data.biz_permission.op) {
                     case 'add':
                         this.data.biz_permission.data.forEach(v => {
-                            obj?.add_userdefine(v.index, v.name);
+                            obj?.add_bizPermission(v.index, v.name);
                         })
                         break;
                     case 'remove':
                         this.data.biz_permission.permissions.forEach(v => {
-                            obj?.remove_userdefine(v);
+                            obj?.remove_bizPermission(v);
                         })
                         break;
                 }
@@ -88,14 +88,14 @@ export class CallPermission extends CallBase {
             if (this.data?.admin !== undefined) {
                 switch(this.data.admin.op) {
                     case 'add':
-                        obj?.add_admin(this.data.admin.admins);
+                        obj?.add_admin(this.data.admin.address);
                         break;
                     case 'remove':
-                        obj?.remove_admin(this.data.admin.admins);
+                        obj?.remove_admin(this.data.admin.address);
                         break;
                     case 'set':
                         obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.admins);
+                        obj?.add_admin(this.data.admin.address);
                         break
                 }
             }

@@ -30,7 +30,7 @@ export interface CallMachine_Data {
     progress_next?: {progress:string; data:ProgressNext; deliverable:Deliverable; guard?:string | 'fetch'};
 }
 export class CallMachine extends CallBase { //@ todo self-owned node operate
-    data: CallMachine_Data
+    data: CallMachine_Data;
     constructor(data:CallMachine_Data) {
         super();
         this.data = data;
@@ -210,13 +210,13 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPublished ) {
                 obj?.publish(passport)
             }
-            if (this.data?.clone_new && obj) {
+            if (this.data?.clone_new !== undefined && obj) {
                 await this.new_with_mark(txb, obj?.clone(true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (permission) {
                 await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
-            if (!this.data.object) {
+            if (!object_address) {
                 await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }

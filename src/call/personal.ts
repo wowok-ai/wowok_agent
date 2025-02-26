@@ -5,11 +5,12 @@ import { CallBase, CallResult, Namedbject } from "./base";
 export interface CallPersonal_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     information?: Entity_Info;
-    transfer_to?: string;
     mark?: {op:'add'; data:{address:string; name?:string; tags:string[]}[]}
         | {op:'remove'; data:{address:string; tags:string[]}[]}
-        | {op:'removeall'; address:string[]};
-    close?: boolean; // close a personal resource
+        | {op:'removeall'; address:string[],}
+        | {op:'transfer'; address: string}
+        | {op:'destroy';}
+        | {op:'replace'; address: string};
 }
 
 export class CallPersonal extends CallBase {
@@ -31,7 +32,7 @@ export class CallPersonal extends CallBase {
             obj = Resource.From(txb, object_address)
         }
 
-        if (this.data?.close) {
+        if (this.data?.mark?.op === 'destroy') {
             entity.destroy_resource(obj)
             return ; //@ return 
         }
@@ -60,8 +61,11 @@ export class CallPersonal extends CallBase {
                         break;         
                 }
             }
-            if (this.data?.transfer_to !== undefined && obj) {
-                entity.transfer_resource(obj, this.data.transfer_to);
+            if (this.data?.mark?.op === 'transfer' && obj && IsValidAddress(this.data.mark.address)) {
+                entity.transfer_resource(obj, this.data.mark.address);
+            }
+            if (this.data?.mark?.op === 'replace' && IsValidAddress(this.data.mark.address)) {
+                entity.use_resource(Resource.From(txb, this.data.mark.address));
             }
 
             if (!object_address && obj) {

@@ -8,7 +8,6 @@ import { CallBase, CallResult, AddressMark, Namedbject} from "./base";
 export interface CallArbitration_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    mark?:AddressMark;
     type_parameter: string;
     permission_new?: string;
     description?: string;
@@ -121,10 +120,9 @@ export class CallArbitration extends CallBase {
                 withdraw_treasury = Treasury.New(txb, this.data?.type_parameter!, permission ? permission.get_object() : permission_address, 
                     d, permission?undefined:passport);
             }
-
             obj = Arbitration.New(txb, this.data.type_parameter!, permission ? permission.get_object() : permission_address, this.data?.description??'', 
                 BigInt(this.data?.fee ?? 0), withdraw_treasury? withdraw_treasury.get_object() : treasury_address, permission?undefined:passport);
-        } else if (object_address) {
+        } else {
             if (IsValidAddress(object_address) && this.data.type_parameter && permission_address) {
                 obj = Arbitration.From(txb, this.data.type_parameter, permission_address, object_address)
             } else {
@@ -136,9 +134,6 @@ export class CallArbitration extends CallBase {
             if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
             }
-            if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport);
-            }
             if (this.data?.endpoint !== undefined) {
                 obj?.set_endpoint(this.data.endpoint, passport)
             }
@@ -148,8 +143,20 @@ export class CallArbitration extends CallBase {
             if (treasury_address !== undefined && object_address) {
                 obj?.set_withdrawTreasury(treasury_address, passport)
             }
-            if (this.data.usage_guard !== undefined) {
-                obj?.set_guard(this.data.usage_guard, passport)
+            if (this.data?.arb_new !== undefined) {
+                await this.new_with_mark(txb, obj?.dispute(this.data.arb_new.data, passport), (this.data?.arb_new as any)?.namedNew, account);
+            }
+            if (this.data?.arb_arbitration !== undefined) {
+                obj?.arbitration(this.data.arb_arbitration, passport)
+            }
+            if (this.data?.arb_vote !== undefined) {
+                obj?.vote(this.data.arb_vote, passport)
+            }
+            if (this.data?.arb_withdraw_fee !== undefined) {
+                obj?.withdraw_fee(this.data.arb_withdraw_fee.arb, this.data.arb_withdraw_fee.data, passport)
+            }
+            if (this.data?.permission_new !== undefined) {
+                obj?.change_permission(this.data.permission_new);
             }
             if (this.data?.voting_guard !== undefined) {
                 switch (this.data.voting_guard.op) {
@@ -168,23 +175,12 @@ export class CallArbitration extends CallBase {
                         break;
                 }
             }
-            
-            if (this.data?.arb_new !== undefined) {
-                await this.new_with_mark(txb, obj?.dispute(this.data.arb_new.data, passport), (this.data?.arb_new as any)?.namedNew, account);
+            if (this.data.usage_guard !== undefined) {
+                obj?.set_guard(this.data.usage_guard, passport)
             }
-            if (this.data?.arb_arbitration !== undefined) {
-                obj?.arbitration(this.data.arb_arbitration, passport)
+            if (this.data?.bPaused !== undefined) {
+                obj?.pause(this.data.bPaused, passport);
             }
-            if (this.data?.arb_vote !== undefined) {
-                obj?.vote(this.data.arb_vote, passport)
-            }
-            if (this.data?.arb_withdraw_fee !== undefined) {
-                obj?.withdraw_fee(this.data.arb_withdraw_fee.arb, this.data.arb_withdraw_fee.data, passport)
-            }
-            if (this.data?.permission_new !== undefined) {
-                obj?.change_permission(this.data.permission_new);
-            }
-
             if (withdraw_treasury) {
                 await this.new_with_mark(txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
             }

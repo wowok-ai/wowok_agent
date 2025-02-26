@@ -9,7 +9,7 @@ import { Account } from '../account';
 import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects';
 
 export interface Namedbject {
-    name: string;
+    name?: string;
     tags?: string[];
 }
 
@@ -31,6 +31,7 @@ export interface CallWithWitnessParam {
     account?:string;
 }
 export type CallResult = GuardInfo_forCall | CallResponse | undefined;
+
 
 export function ResponseData(response: CallResponse | undefined) : ResponseData[] {
     const res : ResponseData[] = [];
