@@ -1,6 +1,6 @@
 
 /**
- * Provide a this interface for AI
+ * Provide an operate interface for AI
  * Restrictive prioritization, such as setting a deposit first and setting a deposit guard later (only subsequent deposits are affected).
  */
 

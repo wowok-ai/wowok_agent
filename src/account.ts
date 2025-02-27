@@ -15,8 +15,8 @@ export interface AccountData_Show {
     address: string;
 }
 
-const Account_FileName = 'wowok.dat';
-const Account_Key = 'wowok-data-v1';
+const Account_FileName = 'wowok.acc.dat';
+const Account_Key = 'wowok-acc-v1';
 
 export class Account {
     constructor(storage: 'File' | 'Explorer' = 'File') {
@@ -32,64 +32,61 @@ export class Account {
 
     private storage: 'File' | 'Explorer' = 'File';
 
-    private _add(buffer:string | null | undefined, name:string, bDefault?: boolean) : AccountData[] {
+    private _add(buffer:string | null | undefined, name:string, bDefault?: boolean) : AccountData[] | undefined {
         var data : AccountData[] | undefined;
         var key = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
 
         try {
             if (buffer) {
-                data = JSON.parse(buffer) as AccountData[];            
+                data = JSON.parse(buffer) as AccountData[];       
+                if (data) {
+                    const f = data.find(v => v.name === name);
+                    if (f) {
+                        f.default = bDefault;
+                    } else {
+                        if (bDefault) {
+                            data.forEach(v => v.default = false)
+                        }
+                        data.push({name:name, key:key, default:bDefault})
+                    }
+                } else {
+                    data = [{name:name, key:key, default:bDefault}];
+                }
+                return data     
             }
         } catch(e) { console.log(e) }
-
-        if (data) {
-            const f = data.find(v => v.name === name);
-            if (f) {
-                f.default = bDefault;
-            } else {
-                if (bDefault) {
-                    data.forEach(v => v.default = false)
-                }
-                data.push({name:name, key:key, default:bDefault})
-            }
-        } else {
-            data = [{name:name, key:key, default:bDefault}];
-        }
-        return data
     }
 
     private _default(buffer:string | null | undefined) : AccountData | undefined {
         var data : AccountData[] | undefined;
         try {
             if (buffer) {
-                data = JSON.parse(buffer) as AccountData[];            
+                data = JSON.parse(buffer) as AccountData[];    
+                if (data) {
+                    const f = data.find(v => v.default);
+                    if (f) {
+                        return f
+                    } 
+                }         
             }
         } catch(e) { console.log(e) }
-
-        if (data) {
-            const f = data.find(v => v.default);
-            if (f) {
-                return f
-            } 
-        } 
     }
     private _get(buffer:string | null | undefined, name?:string, bNotFoundReturnDefault?:boolean) : AccountData | undefined {
         var data : AccountData[] | undefined;
         try {
             if (buffer) {
-                data = JSON.parse(buffer) as AccountData[];            
+                data = JSON.parse(buffer) as AccountData[];
+                if (data) {
+                    const f = data.find(v => v.name === name);
+                    if (f) {
+                        return f
+                    } 
+                    if (bNotFoundReturnDefault) {
+                        return data.find(v => v.default)
+                    }
+                }             
             }
         } catch(e) { console.log(e) }
-
-        if (data) {
-            const f = data.find(v => v.name === name);
-            if (f) {
-                return f
-            } 
-            if (bNotFoundReturnDefault) {
-                return data.find(v => v.default)
-            }
-        } 
     }
     private _rename(buffer:string | null | undefined, oldName:string, newName:string, bSwapIfExisted:boolean=true) : AccountData[] | undefined {
         var data : AccountData[] | undefined;
@@ -97,25 +94,24 @@ export class Account {
             if (buffer) {
                 data = JSON.parse(buffer) as AccountData[];            
             }
-        } catch(e) { console.log(e) }
 
-        if (data) {
-            const f1 = data.find(v => v.name === oldName);
-            if (!f1) return undefined;
-
-            const f2 = data.find(v => v.name === newName);
-            if (f2) {
-                if (bSwapIfExisted) {
+            if (data) {
+                const f1 = data.find(v => v.name === oldName);
+                if (!f1) return undefined;
+    
+                const f2 = data.find(v => v.name === newName);
+                if (f2) {
+                    if (bSwapIfExisted) {
+                        f1.name = newName;
+                        f2.name = oldName;
+                        return data
+                    } 
+                } else {
                     f1.name = newName;
-                    f2.name = oldName;
-                    return data
-                } 
-            } else {
-                f1.name = newName;
-                return data;
-            }
-        } 
-        return undefined
+                    return data;
+                }
+            } 
+        } catch(e) { console.log(e) }
     }
     
     set_storage(storage: 'File' | 'Explorer' = 'File') {

@@ -3,9 +3,7 @@
  * not only the permission table, but also the administrator or Builder identity.
  */
 
-import { TransactionBlock, } from 'wowok';
-import { Protocol, Bcs, IsValidAddress, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
-
+import { TransactionBlock, Protocol, Bcs, IsValidAddress, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
 
 export interface PermissionQuery {
     permission_object: string;
