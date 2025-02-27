@@ -1,43 +1,44 @@
-import { TransactionBlock, CallResponse, IsValidArgType, TxbAddress, TagName, Resource, ResourceObject} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
-    PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
-    Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, WitnessFill
+import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, IsValidAddress, Errors, ERROR, Permission, 
+    PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
+    Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, 
 } from 'wowok';
 import { query_objects, ObjectService } from '../objects';
 import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
+    type_parameter: string;
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    type_parameter: string;
-    bPaused?: boolean;
-    bPublished?: boolean;
     description?: string;
-    gen_discount?: DicountDispatch[];
-    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, type_parameter:string}[]} 
-        | {op:'removeall'} | {op:'remove', addresses:string[]};
-    buy_guard?: string;
     endpoint?: string;
+    payee_treasury?:{address:string} | {namedNew: Namedbject, description?:string}; 
+    gen_discount?: DicountDispatch[];
+    repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     extern_withdraw_treasury?: {op:'set' | 'add'; treasuries:{address:string, token_type:string}[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     machine?: string;
-    payee_treasury?:{address:string} | {namedNew: Namedbject, description?:string}; 
-    clone_new?: {token_type_new?:string; namedNew?: Namedbject};
-    repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
+    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, type_parameter:string}[]} 
+        | {op:'removeall'} | {op:'remove', addresses:string[]};
+    customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
+    sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
     withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
-    customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
-    sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
+    bPublished?: boolean;
     order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch', namedNew?: Namedbject}
+    order_agent?: {order:string; agents: string[]; progress?:string};
     order_required_info?: {order:string; info:Customer_RequiredInfo};
     order_refund?: {order:string; guard?:string;} | {order:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order:string; data:WithdrawPayee}; // guard address
     order_payer?: {order:string; payer_new: string}; // transfer the order payer permission to someaddress
-    order_agent?: {order:string; agents: string[]; progress?:string};
+    buy_guard?: string;
+    bPaused?: boolean;
+    clone_new?: {token_type_new?:string; namedNew?: Namedbject};
 }
+
 export class CallService extends CallBase {
     data: CallService_Data;
     constructor(data: CallService_Data) {
@@ -175,14 +176,11 @@ export class CallService extends CallBase {
             if (this.data?.description !== undefined && object_address) {
                 obj?.set_description(this.data.description, passport);
             }
-            if (this.data?.payee_treasury !== undefined && object_address) {
-                obj?.set_payee(treasury_address, passport);
-            }
             if (this.data?.endpoint !== undefined) {
                 obj?.set_endpoint(this.data.endpoint, passport)
             }
-            if (this.data?.machine !== undefined) {
-                obj?.set_machine(this.data.machine, passport)
+            if (this.data?.payee_treasury !== undefined && object_address) {
+                obj?.set_payee(treasury_address, passport);
             }
             if (this.data?.gen_discount !== undefined) {
                 obj?.discount_transfer(this.data.gen_discount, passport)
@@ -221,6 +219,9 @@ export class CallService extends CallBase {
                         break;
                 }
             }
+            if (this.data?.machine !== undefined) {
+                obj?.set_machine(this.data.machine, passport)
+            }
             if (this.data?.arbitration !== undefined) {
                 switch(this.data.arbitration.op) {
                     case 'add':
@@ -238,6 +239,13 @@ export class CallService extends CallBase {
                         break;
                 }
             }
+            if (this.data?.customer_required_info !== undefined) {
+                if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
+                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, passport);
+                } else if (this.data.customer_required_info.pubkey) {
+                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, passport);
+                }
+            }
             if (this.data?.sales !== undefined) {
                 switch(this.data.sales.op) {
                     case 'add':
@@ -246,47 +254,6 @@ export class CallService extends CallBase {
                     case 'remove':
                         obj?.remove_sales(this.data.sales.sales_name, passport)
                         break;
-                }
-            }
-            if (this.data?.order_new !== undefined) {
-                let b = BigInt(0); let coin : any;
-                this.data.order_new.buy_items.forEach(v => {
-                    b += BigInt(v.max_price) * BigInt(v.count)
-                })
-                if (b > BigInt(0)) {
-                    const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
-                    if (coin) {
-                        //@ crypto tools support
-                        const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
-                            this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport) ;
-                        await this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
-                    }                 
-                }
-            }
-            if (this.data?.order_payer !== undefined && obj) {
-                obj?.change_order_payer(this.data?.order_payer.order, this.data.order_payer.payer_new)
-            }
-            if (this.data?.order_agent !== undefined) {
-                obj?.set_order_agent(this.data.order_agent.order, this.data.order_agent.agents, this.data.order_agent.progress)
-            }
-            if (this.data?.order_required_info !== undefined) {
-                obj?.update_order_required_info(this.data.order_required_info.order, this.data.order_required_info.info)
-            }
-            if (this.data?.order_refund !== undefined) {
-                if ((this.data?.order_refund as any)?.arb && (this.data?.order_refund as any)?.arb_token_type) {
-                    obj?.refund_withArb(this.data.order_refund.order, (this.data?.order_refund as any)?.arb, (this.data?.order_refund as any)?.arb_token_type)
-                } else {
-                    obj?.refund(this.data.order_refund.order, (this.data?.order_refund as any)?.guard, passport)
-                }
-            }
-            if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
-                obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
-            }
-            if (this.data?.customer_required_info !== undefined) {
-                if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
-                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, passport);
-                } else if (this.data.customer_required_info.pubkey) {
-                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, passport);
                 }
             }
             if (this.data?.withdraw_guard !== undefined) {
@@ -323,14 +290,48 @@ export class CallService extends CallBase {
                         break;
                 }
             }
+            if (this.data?.bPublished) {
+                obj?.publish(passport)
+            }
+            if (this.data?.order_new !== undefined) {
+                let b = BigInt(0); let coin : any;
+                this.data.order_new.buy_items.forEach(v => {
+                    b += BigInt(v.max_price) * BigInt(v.count)
+                })
+                if (b > BigInt(0)) {
+                    const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    if (coin) {
+                        //@ crypto tools support
+                        const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
+                            this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport) ;
+                        await this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
+                    }                 
+                }
+            }
+            if (this.data?.order_agent !== undefined) {
+                obj?.set_order_agent(this.data.order_agent.order, this.data.order_agent.agents, this.data.order_agent.progress)
+            }
+            if (this.data?.order_required_info !== undefined) {
+                obj?.update_order_required_info(this.data.order_required_info.order, this.data.order_required_info.info)
+            }
+            if (this.data?.order_refund !== undefined) {
+                if ((this.data?.order_refund as any)?.arb && (this.data?.order_refund as any)?.arb_token_type) {
+                    obj?.refund_withArb(this.data.order_refund.order, (this.data?.order_refund as any)?.arb, (this.data?.order_refund as any)?.arb_token_type)
+                } else {
+                    obj?.refund(this.data.order_refund.order, (this.data?.order_refund as any)?.guard, passport)
+                }
+            }
+            if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
+                obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
+            }
+            if (this.data?.order_payer !== undefined && obj) {
+                obj?.change_order_payer(this.data?.order_payer.order, this.data.order_payer.payer_new)
+            }
             if (this.data?.buy_guard !== undefined) {
                 obj?.set_buy_guard(this.data.buy_guard, passport)
             }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, passport)
-            }
-            if (this.data?.bPublished) {
-                obj?.publish(passport)
             }
             if (this.data?.clone_new !== undefined && obj) {
                 await this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);

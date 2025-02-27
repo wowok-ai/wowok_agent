@@ -3,15 +3,16 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_E
     PermissionIndexType, TransactionBlock
 } from 'wowok';
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPermission_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    builder?: string;
-    admin?: {op:'add' | 'remove' | 'set', address:string[]};
     description?: string;
+    admin?: {op:'add' | 'remove' | 'set', address:string[]};
+    biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};
     permission?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
         | {op:'remove entity'; addresses:string[]} | {op:'remove permission'; address:string; index:PermissionIndexType[]} 
         | {op:'transfer permission', from_address: string; to_address: string};
-    biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};
+    builder?: string;
 }
 export class CallPermission extends CallBase {
     data: CallPermission_Data;
@@ -49,6 +50,23 @@ export class CallPermission extends CallBase {
         }
 
         if (obj) {
+            if (this.data?.description !== undefined && this.data.object) {
+                obj?.set_description(this.data.description)
+            }
+            if (this.data?.admin !== undefined) {
+                switch(this.data.admin.op) {
+                    case 'add':
+                        obj?.add_admin(this.data.admin.address);
+                        break;
+                    case 'remove':
+                        obj?.remove_admin(this.data.admin.address);
+                        break;
+                    case 'set':
+                        obj?.remove_admin([], true);
+                        obj?.add_admin(this.data.admin.address);
+                        break
+                }
+            }
             if (this.data?.biz_permission !== undefined) { // High priority operate
                 switch(this.data.biz_permission.op) {
                     case 'add':
@@ -62,9 +80,6 @@ export class CallPermission extends CallBase {
                         })
                         break;
                 }
-            }
-            if (this.data?.description !== undefined && this.data.object) {
-                obj?.set_description(this.data.description)
             }
             if (this.data?.permission !== undefined) {
                 switch (this.data.permission.op) {
@@ -83,20 +98,6 @@ export class CallPermission extends CallBase {
                     case 'transfer permission':
                         obj?.transfer_permission(this.data.permission.from_address, this.data.permission.to_address);
                         break;
-                }
-            }
-            if (this.data?.admin !== undefined) {
-                switch(this.data.admin.op) {
-                    case 'add':
-                        obj?.add_admin(this.data.admin.address);
-                        break;
-                    case 'remove':
-                        obj?.remove_admin(this.data.admin.address);
-                        break;
-                    case 'set':
-                        obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.address);
-                        break
                 }
             }
             if (this.data?.builder !== undefined ) {

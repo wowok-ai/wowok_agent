@@ -5,18 +5,18 @@ import { query_objects, ObjectDemand } from '../objects';
 import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallDemand_Data {
+    type_parameter: string;
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    type_parameter: string;
-    guard?: {address:string; service_id_in_guard?:number};
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
-    bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'refund'} | {op:'reward'; service:string};
+    bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'reward'; service:string} | {op:'refund'} ;
     present?: {service: string | number; recommend_words:string; service_pay_type:string, guard?:string | 'fetch'}; // guard is the present guard of Demand
-    reward?: string; // rerward the service
-    refund?: boolean;
+    guard?: {address:string; service_id_in_guard?:number};
 }
+
 export class CallDemand extends CallBase {
     data: CallDemand_Data;
     constructor(data: CallDemand_Data) {
@@ -46,10 +46,10 @@ export class CallDemand extends CallBase {
             if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.demand_guard)
             }
-            if (this.data?.reward !== undefined) {
+            if (this.data?.bounty?.op === 'reward') {
                 perms.push(PermissionIndex.demand_yes)
             }
-            if (this.data?.refund) {
+            if (this.data?.bounty?.op === 'refund') {
                 perms.push(PermissionIndex.demand_refund)
             }
             if (this.data?.present?.guard !== undefined) {
@@ -121,11 +121,11 @@ export class CallDemand extends CallBase {
                         const r = await Account.Instance().get_coin_object(txb, (this.data.bounty.object as any)?.balance, account, this.data.type_parameter);
                         if (r) obj.deposit(r)
                     }
-                } else if (this.data.bounty.op === 'refund') {
-                    obj?.refund(passport);
                 } else if (this.data.bounty.op === 'reward') {
                     obj?.yes(this.data.bounty.service, passport);
-                }
+                } else if (this.data.bounty.op === 'refund') {
+                    obj?.refund(passport);
+                } 
             }
             if (this.data?.present !== undefined) {
                 //@ demand guard and its passport, if set

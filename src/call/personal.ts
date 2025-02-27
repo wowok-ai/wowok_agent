@@ -2,6 +2,7 @@ import { ResourceObject, TransactionBlock } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, TagName, Resource} from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     information?: Entity_Info;

@@ -1,27 +1,26 @@
-import { TransactionBlock, IsValidArgType, Resource, ResourceObject, } from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Treasury, 
-    Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee, WitnessFill
+import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
+    PermissionIndexType, Treasury, Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee, 
 } from 'wowok';
 import { query_objects, ObjectArbitration, } from '../objects';
-import { CallBase, CallResult, AddressMark, Namedbject} from "./base";
+import { CallBase, CallResult, Namedbject} from "./base";
 
 export interface CallArbitration_Data {
+    type_parameter: string;
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    type_parameter: string;
-    permission_new?: string;
     description?: string;
-    bPaused?: boolean;
     endpoint?: string;
     fee?: string;
     fee_treasury?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    usage_guard?: string;
-    voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     arb_new?: {data: Dispute; guard?:string | 'fetch'; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
     arb_withdraw_fee?: {arb:string; data:WithdrawFee};
     arb_vote?: Vote;
     arb_arbitration?: Feedback;
+    usage_guard?: string;
+    voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
+    bPaused?: boolean;
 }
+
 export class CallArbitration extends CallBase {
     data: CallArbitration_Data;
     constructor (data: CallArbitration_Data) {
@@ -43,9 +42,6 @@ export class CallArbitration extends CallBase {
         if (permission_address && IsValidAddress(permission_address)) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.arbitration)
-            }
-            if (this.data?.permission_new !== undefined) {
-                checkOwner = true;
             }
             if (this.data?.description !== undefined && object_address) {
                 perms.push(PermissionIndex.arbitration_description)
@@ -154,9 +150,6 @@ export class CallArbitration extends CallBase {
             }
             if (this.data?.arb_withdraw_fee !== undefined) {
                 obj?.withdraw_fee(this.data.arb_withdraw_fee.arb, this.data.arb_withdraw_fee.data, passport)
-            }
-            if (this.data?.permission_new !== undefined) {
-                obj?.change_permission(this.data.permission_new);
             }
             if (this.data?.voting_guard !== undefined) {
                 switch (this.data.voting_guard.op) {

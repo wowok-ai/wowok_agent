@@ -1,33 +1,31 @@
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock,
+import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
-    TxbAddress,
-    Resource,
-    ResourceObject,
 } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    bPaused?: boolean;
-    bPublished?: boolean;
-    consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     description?: string;
     endpoint?: string;
-    clone_new?: {namedNew: Namedbject/*, description?:string*/};
+    consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     nodes?: {op: 'add'; data: Machine_Node[]} | {op: 'remove'; names: string[], bTransferMyself?:boolean} 
-        | {op:'rename node'; data:{old:string; new:string}[]} | {op:'add from myself'; addresses: string[]}
-        | {op:'remove pair'; pairs: {prior_node_name:string; node_name:string}[]}
-        | {op:'add forward'; data: {prior_node_name:string; node_name:string; forward:Machine_Forward; threshold?:number; old_need_remove?:string}[]}
-        | {op:'remove forward'; data:{prior_node_name:string; node_name:string; forward_name:string}[]}
+    | {op:'rename node'; data:{old:string; new:string}[]} | {op:'add from myself'; addresses: string[]}
+    | {op:'remove pair'; pairs: {prior_node_name:string; node_name:string}[]}
+    | {op:'add forward'; data: {prior_node_name:string; node_name:string; forward:Machine_Forward; threshold?:number; old_need_remove?:string}[]}
+    | {op:'remove forward'; data:{prior_node_name:string; node_name:string; forward_name:string}[]}
+    bPublished?: boolean;
     progress_new?: {task_address?:string; namedNew?: Namedbject};
     progress_context_repository?: {progress:string; repository:string};
+    progress_namedOperator?: {progress:string; data:{name:string, operator:string[]}[]};
     progress_parent?: {progress:string, parent?:ParentProgress};
     progress_task?: {progress:string; task:string};
-    progress_namedOperator?: {progress:string; data:{name:string, operator:string[]}[]};
     progress_hold?: {progress:string; data:ProgressNext; bHold:boolean; adminUnhold?:boolean};
     progress_next?: {progress:string; data:ProgressNext; deliverable:Deliverable; guard?:string | 'fetch'};
+    bPaused?: boolean;
+    clone_new?: {namedNew: Namedbject/*, description?:string*/};
 }
 export class CallMachine extends CallBase { //@ todo self-owned node operate
     data: CallMachine_Data;
@@ -48,23 +46,17 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.description !== undefined && object_address) {
                 perms.push(PermissionIndex.machine_description)
             }
-            if (this.data?.bPaused !== undefined) {
-                perms.push(PermissionIndex.machine_pause)
-            }
-            if (this.data?.bPublished) { // publish is an irreversible one-time operation 
-                perms.push(PermissionIndex.machine_publish)
-            }
             if (this.data?.endpoint !== undefined && object_address) {
                 perms.push(PermissionIndex.machine_endpoint)
             }
             if (this.data?.consensus_repository !== undefined) {
                 perms.push(PermissionIndex.machine_repository)
             }
-            if (this.data?.clone_new !== undefined) {
-                perms.push(PermissionIndex.machine_clone)
-            }
             if (this.data?.nodes !== undefined) {
                 perms.push(PermissionIndex.machine_node)
+            }
+            if (this.data?.bPublished) { // publish is an irreversible one-time operation 
+                perms.push(PermissionIndex.machine_publish)
             }
             if (this.data?.progress_new !== undefined) {
                 perms.push(PermissionIndex.progress)
@@ -85,6 +77,9 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 if (this.data.progress_hold.adminUnhold) {
                     perms.push(PermissionIndex.progress_unhold)
                 } 
+            }
+            if (this.data?.bPaused !== undefined) {
+                perms.push(PermissionIndex.machine_pause)
             }
             if (this.data?.progress_next?.guard !== undefined) {
                 if (IsValidAddress(this.data?.progress_next?.guard)) {
@@ -170,6 +165,9 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                         break;
                     }
             }
+            if (this.data?.bPublished ) {
+                obj?.publish(passport)
+            }
             if (this.data?.progress_new !== undefined) {
                 const addr = Progress?.New(txb, obj?.get_object(), permission??this.data?.permission, this.data?.progress_new.task_address, passport).launch();
                 if (addr) {
@@ -206,9 +204,6 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, passport)
-            }
-            if (this.data?.bPublished ) {
-                obj?.publish(passport)
             }
             if (this.data?.clone_new !== undefined && obj) {
                 await this.new_with_mark(txb, obj?.clone(true, passport) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);

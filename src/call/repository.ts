@@ -5,12 +5,13 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 } from 'wowok';
 import { CallBase, CallResult, Namedbject} from "./base";
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     description?: string;
-    mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
+    mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; data:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
     data?: {op:'add', data: Repository_Policy_Data | Repository_Policy_Data2} | {op:'remove'; data: Repository_Policy_Data_Remove};
 }
@@ -89,19 +90,8 @@ export class CallRepository extends CallBase {
                         break;
                 }
             }
-            if (this.data?.data !== undefined) {
-                switch(this.data.data.op) {
-                    case 'add':
-                        if ((this.data.data?.data as any)?.key !== undefined) {
-                            obj?.add_data(this.data.data.data as Repository_Policy_Data);
-                        } else if ((this.data.data?.data as any)?.address !== undefined) {
-                            obj?.add_data2(this.data.data.data as Repository_Policy_Data2);
-                        }
-                        break;
-                    case 'remove':
-                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
-                        break;
-                }
+            if (this.data?.mode !== undefined && object_address) { //@ priority??
+                obj?.set_policy_mode(this.data.mode, passport)
             }
             if (this.data?.policy !== undefined) {
                 switch(this.data.policy.op) {
@@ -125,9 +115,21 @@ export class CallRepository extends CallBase {
                         break;
                 }
             }
-            if (this.data?.mode !== undefined && object_address) { //@ priority??
-                obj?.set_policy_mode(this.data.mode, passport)
+            if (this.data?.data !== undefined) {
+                switch(this.data.data.op) {
+                    case 'add':
+                        if ((this.data.data?.data as any)?.key !== undefined) {
+                            obj?.add_data(this.data.data.data as Repository_Policy_Data);
+                        } else if ((this.data.data?.data as any)?.address !== undefined) {
+                            obj?.add_data2(this.data.data.data as Repository_Policy_Data2);
+                        }
+                        break;
+                    case 'remove':
+                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
+                        break;
+                }
             }
+
             if (permission) {
                 await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }

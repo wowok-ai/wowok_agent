@@ -1,22 +1,22 @@
-import { TransactionBlock, CallResponse, IsValidArgType, Resource, ResourceObject} from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
-    PermissionIndexType, DepositParam, Treasury, Treasury_WithdrawMode, WithdrawParam, WitnessFill
+import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
+    PermissionIndexType, Treasury, Treasury_WithdrawMode, WithdrawParam, 
 } from 'wowok';
 import { query_objects, ObjectTreasury } from '../objects';
 import { CallBase, CallResult, Namedbject } from "./base";
 import { Account } from '../account';
 
+/// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {
+    type_parameter: string;
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    type_parameter: string;
     description?: string;
-    withdraw_mode?: Treasury_WithdrawMode;
-    withdraw_guard?: {op:'add' | 'set'; data:{guard:string, amount:string|number}[]} | {op:'remove', guards:string[]} | {op:'removeall'};
-    deposit_guard?: string;
     deposit?: {data:{balance:string|number; index?:number; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
     receive?: {payment:string; received_object:string};
     withdraw?:WithdrawParam;
+    deposit_guard?: string;
+    withdraw_guard?: {op:'add' | 'set'; data:{guard:string, amount:string|number}[]} | {op:'remove', guards:string[]} | {op:'removeall'};
+    withdraw_mode?: Treasury_WithdrawMode;
 }
 export class CallTreasury extends CallBase {
     data: CallTreasury_Data;
@@ -120,6 +120,9 @@ export class CallTreasury extends CallBase {
         }
 
         if (obj) {
+            if (this.data?.description !== undefined && object_address) {
+                obj?.set_description(this.data.description, passport);
+            }
             if (this.data.deposit !== undefined) {
                 const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.data.balance, account, this.data.type_parameter);
                 if (coin) {
@@ -130,15 +133,13 @@ export class CallTreasury extends CallBase {
                     })
                 }
             }
-            if (this.data?.withdraw !== undefined) {
-                obj?.withdraw(this.data.withdraw, passport)
-            }
             if (this.data?.receive !== undefined) {
                 obj?.receive(this.data.receive.payment, this.data.receive.received_object, passport); 
             }
-            if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+            if (this.data?.withdraw !== undefined) {
+                obj?.withdraw(this.data.withdraw, passport)
             }
+
             if (this.data?.deposit_guard !== undefined) {
                 obj?.set_deposit_guard(this.data.deposit_guard, passport);
             }
