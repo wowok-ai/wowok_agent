@@ -22,8 +22,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
     | {logic: OperatorType.TYPE_LOGIC_AS_U256_GREATER | OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL
         | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL 
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
-        | OperatorType.TYPE_LOGIC_ALWAYS_TRUE | OperatorType.TYPE_LOGIC_NOT 
-        | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;  parameters: GuardNode[];}
+        | OperatorType.TYPE_LOGIC_NOT | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;  parameters: GuardNode[];}
     | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD 
         | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
@@ -149,10 +148,6 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
     } else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {
-            case OperatorType.TYPE_LOGIC_ALWAYS_TRUE:
-                if (node.parameters.length !== 0) ERROR(Errors.InvalidParam, 'node logic parameters length must be 0'+ JSON.stringify(node));
-                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
-                break;
             case OperatorType.TYPE_LOGIC_AND:
             case OperatorType.TYPE_LOGIC_OR:
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node)); 

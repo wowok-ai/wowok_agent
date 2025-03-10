@@ -49,12 +49,11 @@ export class Account {
                         }
                         data.push({name:name, key:key, default:bDefault})
                     }
-                } else {
-                    data = [{name:name, key:key, default:bDefault}];
+                    return data
                 }
-                return data     
             }
-        } catch(e) { console.log(e) }
+        } catch(e) {  /*console.log(e)*/  }
+        return [{name:name, key:key, default:bDefault}]     
     }
 
     private _default(buffer:string | null | undefined) : AccountData | undefined {
@@ -69,7 +68,7 @@ export class Account {
                     } 
                 }         
             }
-        } catch(e) { console.log(e) }
+        } catch(e) {  /*console.log(e)*/  }
     }
     private _get(buffer:string | null | undefined, name?:string, bNotFoundReturnDefault?:boolean) : AccountData | undefined {
         var data : AccountData[] | undefined;
@@ -86,7 +85,7 @@ export class Account {
                     }
                 }             
             }
-        } catch(e) { console.log(e) }
+        } catch(e) {  /*console.log(e)*/  }
     }
     private _rename(buffer:string | null | undefined, oldName:string, newName:string, bSwapIfExisted:boolean=true) : AccountData[] | undefined {
         var data : AccountData[] | undefined;
@@ -111,7 +110,7 @@ export class Account {
                     return data;
                 }
             } 
-        } catch(e) { console.log(e) }
+        } catch(e) {  /*console.log(e)*/  }
     }
     
     set_storage(storage: 'File' | 'Explorer' = 'File') {
@@ -130,7 +129,7 @@ export class Account {
                 const data = this._add(localStorage.getItem(Account_Key), name, bDefault);
                 localStorage.setItem(Account_Key, JSON.stringify(data))
             }            
-        } catch (e) { console.log(e) }
+        } catch (e) { /*console.log(e)*/ }
     }
     default() : AccountData | undefined {
         try {
@@ -140,7 +139,7 @@ export class Account {
             } else if (this.storage === 'Explorer') {
                 return this._default(localStorage.getItem(Account_Key));
             }            
-        } catch (e) { console.log(e) }
+        } catch (e) {  /*console.log(e)*/  }
     }
     get(name?: string, bNotFoundReturnDefault:boolean=true) : AccountData | undefined {  
         try {
@@ -150,7 +149,7 @@ export class Account {
             } else if (this.storage === 'Explorer') {
                 return this._get(localStorage.getItem(Account_Key), name, bNotFoundReturnDefault);
             }            
-        } catch (e) { console.log(e) }
+        } catch (e) {  /*console.log(e)*/  }
     }
     rename(oldName:string, newName:string, bSwapIfExisted:boolean=true) : boolean {
         var res : AccountData[] | undefined;
@@ -163,7 +162,7 @@ export class Account {
                 res = this._rename(localStorage.getItem(Account_Key), oldName, newName, bSwapIfExisted);
                 if (res) localStorage.setItem(Account_Key, JSON.stringify(res));
             }            
-        } catch (e) { console.log(e) }
+        } catch (e) { /*console.log(e)*/ }
         return res ? true : false
     }
 
@@ -200,16 +199,15 @@ export class Account {
                     return {name:v.name, default:v?.default, address:Ed25519Keypair.fromSecretKey(fromHEX(v.key)).getPublicKey().toSuiAddress()}
                 })
             }            
-        } catch (e) { console.log(e) }
+        } catch (e) { /*console.log(e)*/ }
         return []
     }
     
-    faucet(name?:string) {
+    async faucet(name?:string) {
         const address = this.get_address(name, true);
         if (address) {
-            requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {
-                console.log(e)
-                requestSuiFromFaucetV1({host:getFaucetHost('testnet'), recipient:address}).catch(e => console.log(e));
+            await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {
+                //console.log(e)
             })
         }
     }

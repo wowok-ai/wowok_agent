@@ -71,7 +71,7 @@ export class CallBase {
                     return await this.sign_and_commit(txb, param.account);
                 }
             } else {
-                ERROR(Errors.Fail, 'guard finish_passport')
+                ERROR(Errors.Fail, 'guard verify')
             }
         } 
     }
