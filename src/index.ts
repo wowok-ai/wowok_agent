@@ -15,4 +15,4 @@ export * from './call/guard'
 export * from './call/personal'
 export * from './account'
 export * from './call'
-export * as WOWOK from 'wowok';
+export * as WOWOK from 'wowok'

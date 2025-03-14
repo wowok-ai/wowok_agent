@@ -4,7 +4,7 @@
  */
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
-    concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead, CallResponse, 
+    concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
     IsValidDesription, PassportObject,
     IsValidGuardIdentifier} from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base";

@@ -1,9 +1,10 @@
-import { TransactionBlock, CallResponse, Resource, ResourceObject} from 'wowok';
+import { TransactionBlock } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Repository,
     Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove,
-    Repository_Policy_Mode, WitnessFill
+    Repository_Policy_Mode, 
 } from 'wowok';
 import { CallBase, CallResult, Namedbject} from "./base";
+
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {

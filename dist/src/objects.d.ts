@@ -1,0 +1,308 @@
+/**
+ * Provide a query interface for AI
+ *
+ */
+import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Entity_Info, Tags } from 'wowok';
+import { CacheExpire } from './cache';
+export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark';
+export interface ObjectBase {
+    object: string;
+    type?: ObjectBaseType;
+    type_raw?: string;
+    owner?: any;
+    version?: string;
+    cache_expire?: CacheExpire;
+}
+export interface ObjectPermission extends ObjectBase {
+    builder: string;
+    admin: string[];
+    description: string;
+    entity_count: number;
+    biz_permission: {
+        id: number;
+        name: string;
+    }[];
+}
+export interface TableItem_PermissionEntity extends ObjectBase {
+    entity: string;
+    permission: {
+        id: number;
+        guard?: string | null;
+    }[];
+}
+export interface ObjectDemand extends ObjectBase {
+    permission: string;
+    guard?: {
+        object: string;
+        service_id_in_guard?: number | null;
+    } | null;
+    description: string;
+    time_expire: string;
+    yes?: string | null;
+    presenter_count: number;
+    bounty: {
+        object: string;
+        balance: string;
+        type: string;
+    }[];
+}
+export interface TableItem_DemandPresenter extends ObjectBase {
+    service: string;
+    presenter: string;
+    recommendation: string;
+}
+export interface ObjectMachine extends ObjectBase {
+    permission: string;
+    bPaused: boolean;
+    bPublished: boolean;
+    consensus_repository: string[];
+    description: string;
+    endpoint?: string | null;
+    node_count: number;
+}
+export interface TableItem_MachineNode extends ObjectBase {
+    node: Machine_Node;
+}
+export interface ObjectProgressHolder {
+    forward_name: string;
+    holder?: string | null;
+    orders: string[];
+    msg: string;
+    accomplished: boolean;
+    time: string;
+}
+export interface ObjectProgressSession {
+    forward: ObjectProgressHolder[];
+    weights: number;
+    threshold: number;
+    next_node: string;
+}
+export interface ObjectProgress extends ObjectBase {
+    machine: string;
+    current: string;
+    context_repository?: string | null;
+    parent?: string | null;
+    task?: string | null;
+    session: ObjectProgressSession[];
+    history_count: number;
+    namedOperator: {
+        name: string;
+        operator: string[];
+    }[];
+}
+export interface TableItem_ProgressHistory extends ObjectBase {
+    history: History;
+}
+export interface ObjectService extends ObjectBase {
+    permission: string;
+    bPaused: boolean;
+    bPublished: boolean;
+    description: string;
+    arbitration: string[];
+    buy_guard?: string | null;
+    endpoint?: string | null;
+    extern_withdraw_treasury: string[];
+    machine?: string | null;
+    payee: string;
+    repository: string[];
+    sales_count: number;
+    withdraw_guard: {
+        guard: string;
+        percent: number;
+    }[];
+    refund_guard: {
+        guard: string;
+        percent: number;
+    }[];
+    customer_required_info?: {
+        pubkey: string;
+        required_info: string[];
+    };
+}
+export interface TableItem_ServiceSale extends ObjectBase {
+    item: Service_Sale;
+}
+export interface ObjectOrder extends ObjectBase {
+    service: string;
+    amount: string;
+    balance: string;
+    payer: string;
+    arb: string[];
+    agent: string[];
+    progress?: string | null;
+    discount?: string | null;
+    required_info?: {
+        pubkey: string;
+        msg_encrypted: string;
+    };
+    item: Service_Sale[];
+}
+export interface ObjectTreasury extends ObjectBase {
+    permission: string;
+    description: string;
+    inflow: string;
+    outflow: string;
+    withdraw_mode: Treasury_WithdrawMode;
+    withdraw_guard: {
+        guard: string;
+        percent: number;
+    }[];
+    deposit_guard?: string | null;
+    balance: string;
+    history_count: number;
+}
+export interface TableItem_TreasuryHistory extends ObjectBase {
+    id: number;
+    operation: Treasury_Operation;
+    signer: string;
+    payment: string;
+    amount: string;
+    time: string;
+}
+export interface ObjectArbitration extends ObjectBase {
+    permission: string;
+    description: string;
+    bPaused: boolean;
+    endpoint?: string | null;
+    fee: string;
+    fee_treasury: string;
+    usage_guard?: string | null;
+    voting_guard: {
+        guard: string;
+        weights: number;
+    }[];
+}
+export interface ObjectArb extends ObjectBase {
+    arbitration: string;
+    order: string;
+    description: string;
+    bWithdrawn: boolean;
+    fee: string;
+    feedback: string;
+    indemnity?: string | null;
+    proposition: {
+        proposition: string;
+        votes: string;
+    };
+    voted_count: number;
+}
+export interface TableItem_ArbVote extends ObjectBase {
+    singer: string;
+    vote: number[];
+    weight: string;
+    time: string;
+}
+export interface ObjectRepository extends ObjectBase {
+    permission: string;
+    description: string;
+    policy_mode: Repository_Policy_Mode;
+    rep_type: Repository_Type;
+    reference: string[];
+    policy: Repository_Policy[];
+    data_count: number;
+}
+export interface TableItem_RepositoryData extends ObjectBase {
+    address: string;
+    key: string;
+    data: Uint8Array;
+}
+export interface ObjectPayment extends ObjectBase {
+    amount: string;
+    for_guard?: string | null;
+    for_object?: string | null;
+    from?: string | null;
+    biz_id: string;
+    remark: string;
+    signer: string;
+    time: string;
+    record: {
+        recipient: string;
+        amount: string;
+    }[];
+}
+export interface ObjectDiscount extends ObjectBase {
+    service: string;
+    name: string;
+    off_type: Service_Discount_Type;
+    price_greater?: string | null;
+    off: string;
+    time_start: string;
+    time_end: string;
+}
+export interface ObjectGuard extends ObjectBase {
+    description: string;
+    input: Uint8Array;
+    identifier: {
+        id: number;
+        bWitness: boolean;
+        value: Uint8Array;
+    }[];
+}
+export interface ObjectPersonal extends ObjectBase {
+    address: string;
+    like: number;
+    dislike: number;
+    info: Entity_Info;
+    mark_object?: string | null;
+    lastActive_digest?: string;
+}
+export interface ObjectMark extends ObjectBase {
+    tag_count: number;
+}
+export interface TableItem_PersonalMark extends ObjectBase, Tags {
+}
+export declare enum CacheType {
+    localStorage = "localStorage",
+    memoryStorage = "memoryStorage"
+}
+export interface ObjectsQuery {
+    objects: string[];
+    showType?: boolean;
+    showContent?: boolean;
+    showOwner?: boolean;
+    no_cache?: boolean;
+}
+export interface PersonalQuery {
+    address: string;
+    no_cache?: boolean;
+}
+export interface ObjectsAnswer {
+    objects?: ObjectBase[];
+    error?: string;
+}
+export interface TableQuery {
+    parent: string;
+    cursor?: string | null | undefined;
+    limit?: number | null | undefined;
+}
+export interface TableAnswerItem {
+    key: {
+        type: string;
+        value: unknown;
+    };
+    object: string;
+    version: string;
+}
+export interface TableAnswer {
+    items: TableAnswerItem[];
+    nextCursor: string | null;
+    hasNextPage: boolean;
+}
+export declare const query_objects_json: (json: string) => Promise<string>;
+export declare const query_table_json: (json: string) => Promise<string>;
+export declare const query_personal_json: (json: string) => Promise<string>;
+export declare const query_objects: (query: ObjectsQuery) => Promise<ObjectsAnswer>;
+export declare const queryTableItem_Personal: (query: PersonalQuery) => Promise<ObjectPersonal | undefined>;
+export declare const query_table: (query: TableQuery) => Promise<TableAnswer>;
+export declare const queryTableItem_DemandPresenter: (demand_object: string | ObjectDemand, address: string) => Promise<ObjectBase>;
+export declare const queryTableItem_PermissionEntity: (permission_object: string | ObjectDemand, address: string) => Promise<ObjectBase>;
+export declare const queryTableItem_ArbVote: (arb_object: string | ObjectDemand, address: string) => Promise<ObjectBase>;
+export declare const tableItemQuery_MachineNode: (machine_object: string | ObjectMachine, name: string) => Promise<ObjectBase>;
+export declare const tableItemQuery_ServiceSale: (service_object: string | ObjectService, name: string) => Promise<ObjectBase>;
+export declare const tableItemQuery_ProgressHistory: (progress_object: string | ObjectProgress, index: BigInt) => Promise<ObjectBase>;
+export declare const tableItemQuery_TreasuryHistory: (treasury_object: string | ObjectTreasury, index: BigInt) => Promise<ObjectBase>;
+export declare const tableItemQuery_RepositoryData: (repository_object: string | ObjectRepository, address: string, name: string) => Promise<ObjectBase>;
+export declare const tableItemQuery_MarkTag: (resource_object: string | ObjectMark, address: string) => Promise<ObjectBase>;
+export declare function raw2type(type_raw: string | undefined): ObjectBaseType | undefined;
+export declare function data2object(data?: any): ObjectBase;
+//# sourceMappingURL=objects.d.ts.map

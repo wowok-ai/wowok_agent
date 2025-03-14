@@ -1,12 +1,14 @@
 
 
-import { Protocol, TransactionBlock, CallResponse, Guard, TransactionArgument, Entity, IsValidAddress, Resource, TxbObject, TransactionResult, TxbAddress, array_unique, TagName, ResourceObject} from 'wowok';
-import { PassportObject, Errors, ERROR, Permission, 
+import { Protocol, Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill
 } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
 import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects';
+import { Transaction as TransactionBlock} from '@mysten/sui/transactions';
+import { type SuiTransactionBlockResponse as CallResponse} from '@mysten/sui/client'; 
+
 
 export interface Namedbject {
     name?: string;
@@ -81,7 +83,7 @@ export class CallBase {
         var guards : string[] = [];
 
         if (permIndex.length > 0 || checkOwner) {
-            const addr = Account.Instance().get_address(account);
+            const addr = await Account.Instance().get_address(account);
             if (!addr) ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
 
             const p = await query_permission({permission_object:permission, address:addr!});
@@ -131,7 +133,7 @@ export class CallBase {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
 
         if (!this.resouceObject) {
-            const addr = Account.Instance().get_address(account);
+            const addr = await Account.Instance().get_address(account);
             if (addr) {
                 const r = await queryTableItem_Personal({address:addr}); //@ use cache
                 if (!r?.mark_object) {
@@ -149,7 +151,7 @@ export class CallBase {
     }
 
     protected async sign_and_commit(txb: TransactionBlock, account?: string) : Promise<CallResponse> {
-        const pair = Account.Instance().get_pair(account, true);
+        const pair = await Account.Instance().get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
         
         if (this.resouceObject) {

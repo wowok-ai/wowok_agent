@@ -86,7 +86,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     guards.push(this.data?.progress_next?.guard)
                 } else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
                     const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, 
-                        Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
+                        await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
                         this.data.progress_next.data.next_node_name, this.data.progress_next.data.forward);
                     if (guard) {
                         guards.push(guard)

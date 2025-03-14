@@ -1,8 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, CoinBalance, CoinStruct, TransactionResult, TransactionBlock, TransactionArgument, ERROR, Errors } from 'wowok';
+
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, ERROR, Errors,  } from 'wowok';
 import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
+import { type CoinBalance, type CoinStruct } from '@mysten/sui/client';
+import { type TransactionArgument, type TransactionResult } from '@mysten/sui/transactions';
 export interface AccountData {
     name: string; 
     default?: boolean;
@@ -117,13 +117,14 @@ export class Account {
         this.storage = storage
     }
 
-    gen(name:string, bDefault?: boolean) {       
+    async gen(name:string, bDefault?: boolean) {       
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 fs.readFile(filePath, 'utf-8', (err, d) => {
                     const data = this._add(d, name, bDefault);
-                    fs.writeFileSync(filePath, JSON.stringify(data), 'utf-8')                    
+                    fs.writeFileSync(filePath, JSON.stringify(data), 'utf-8')                 
                 });
             } else if (this.storage === 'Explorer') {
                 const data = this._add(localStorage.getItem(Account_Key), name, bDefault);
@@ -131,9 +132,10 @@ export class Account {
             }            
         } catch (e) { /*console.log(e)*/ }
     }
-    default() : AccountData | undefined {
+    async default() : Promise<AccountData | undefined> {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 return this._default(fs.readFileSync(filePath, 'utf-8'));
             } else if (this.storage === 'Explorer') {
@@ -141,9 +143,10 @@ export class Account {
             }            
         } catch (e) {  /*console.log(e)*/  }
     }
-    get(name?: string, bNotFoundReturnDefault:boolean=true) : AccountData | undefined {  
+    async get(name?: string, bNotFoundReturnDefault:boolean=true) : Promise<AccountData | undefined> {  
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 return this._get(fs.readFileSync(filePath, 'utf-8'), name, bNotFoundReturnDefault);
             } else if (this.storage === 'Explorer') {
@@ -151,10 +154,11 @@ export class Account {
             }            
         } catch (e) {  /*console.log(e)*/  }
     }
-    rename(oldName:string, newName:string, bSwapIfExisted:boolean=true) : boolean {
+    async rename(oldName:string, newName:string, bSwapIfExisted:boolean=true) : Promise<boolean> {
         var res : AccountData[] | undefined;
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 res = this._rename(fs.readFileSync(filePath, 'utf-8'), oldName, newName, bSwapIfExisted);
                 if (res) {fs.writeFileSync(filePath, JSON.stringify(res), 'utf-8') }
@@ -166,28 +170,29 @@ export class Account {
         return res ? true : false
     }
 
-    get_address(name?:string, bNotFoundReturnDefault=true) : string | undefined {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_address(name?:string, bNotFoundReturnDefault=true) : Promise<string | undefined> {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key)).getPublicKey().toSuiAddress()
         }
     }
-    get_pubkey(name?:string, bNotFoundReturnDefault=true) : string | undefined {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_pubkey(name?:string, bNotFoundReturnDefault=true) : Promise<string | undefined> {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key)).getPublicKey().toSuiPublicKey()
         }
     }
-    get_pair(name?:string, bNotFoundReturnDefault=true) : Ed25519Keypair | undefined {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_pair(name?:string, bNotFoundReturnDefault=true) : Promise<Ed25519Keypair | undefined> {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key))
         }
     }
     
-    list() : AccountData_Show[] {
+    async list() : Promise<AccountData_Show[]> {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 const a = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AccountData[];
                 return a.map(v => {
@@ -204,7 +209,7 @@ export class Account {
     }
     
     async faucet(name?:string) {
-        const address = this.get_address(name, true);
+        const address = await this.get_address(name, true);
         if (address) {
             await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {
                 //console.log(e)
@@ -214,7 +219,7 @@ export class Account {
 
     // token_type is 0x2::sui::SUI, if not specified.
     balance = async (name?:string, token_type?:string) : Promise<CoinBalance | undefined> => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         if (addr) {
             return await Protocol.Client().getBalance({owner: addr, coinType:token_type});
         }
@@ -222,14 +227,14 @@ export class Account {
 
     // token_type is 0x2::sui::SUI, if not specified.
     coin = async (name?:string, token_type?:string) : Promise<CoinStruct[] | undefined> => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         if (addr) {
             return (await Protocol.Client().getCoins({owner: addr, coinType:token_type})).data;
         }
     }
 
     get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, name?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         const b = BigInt(balance_required);
 
         if (addr && b > BigInt(0)) {
@@ -257,7 +262,7 @@ export class Account {
         }
     }
     coin_with_balance = async(balance_required:string | bigint | number, account?:string, token_type?:string) : Promise<string | undefined> => {
-        const pair = this.get_pair(account, true);
+        const pair = await this.get_pair(account, true);
         if (!pair) ERROR(Errors.Fail, 'account invalid')
     
         const txb = new TransactionBlock();
