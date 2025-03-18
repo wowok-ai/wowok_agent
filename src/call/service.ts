@@ -33,7 +33,7 @@ export interface CallService_Data {
     order_required_info?: {order:string; info:Customer_RequiredInfo};
     order_refund?: {order:string; guard?:string;} | {order:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order:string; data:WithdrawPayee}; // guard address
-    order_payer?: {order:string; payer_new: string}; // transfer the order payer permission to someaddress
+    order_payer?: {order:string; payer_new:string; progress?:string}; // transfer the order payer permission to someaddress
     buy_guard?: string;
     bPaused?: boolean;
     clone_new?: {token_type_new?:string; namedNew?: Namedbject};
@@ -325,7 +325,7 @@ export class CallService extends CallBase {
                 obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport)
             }
             if (this.data?.order_payer !== undefined && obj) {
-                obj?.change_order_payer(this.data?.order_payer.order, this.data.order_payer.payer_new)
+                obj?.change_order_payer(this.data?.order_payer.order, this.data.order_payer.payer_new, this.data.order_payer.progress)
             }
             if (this.data?.buy_guard !== undefined) {
                 obj?.set_buy_guard(this.data.buy_guard, passport)
