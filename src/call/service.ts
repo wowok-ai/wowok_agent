@@ -28,7 +28,8 @@ export interface CallService_Data {
     refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     bPublished?: boolean;
-    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch', namedNew?: Namedbject}
+    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch', 
+        namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
     order_agent?: {order:string; agents: string[]; progress?:string};
     order_required_info?: {order:string; info:Customer_RequiredInfo};
     order_refund?: {order:string; guard?:string;} | {order:string; arb:string; arb_token_type:string}; // guard address
@@ -304,7 +305,10 @@ export class CallService extends CallBase {
                         //@ crypto tools support
                         const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
                             this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport) ;
-                        await this.new_with_mark(txb, addr, (this.data?.order_new as any)?.namedNew, account, [TagName.Launch, TagName.Order]);                   
+                        await this.new_with_mark(txb, addr.order, (this.data?.order_new as any)?.namedNewOrder, account, [TagName.Launch, TagName.Order]); 
+                        if (addr?.progress) { 
+                            await this.new_with_mark(txb, addr.progress, (this.data?.order_new as any)?.namedNewProgress, account, [TagName.Launch]);                  
+                        }
                     }                 
                 }
             }
