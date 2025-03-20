@@ -137,127 +137,130 @@ export class CallService extends CallBase {
             }
         }
         if (obj) {
+            //const perm = permission ? permission.get_object() : permission_address;
+            const pst = permission ? undefined : passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data?.endpoint !== undefined) {
-                obj?.set_endpoint(this.data.endpoint, passport);
+                obj?.set_endpoint(this.data.endpoint, pst);
             }
             if (this.data?.payee_treasury !== undefined && object_address) {
-                obj?.set_payee(treasury_address, passport);
+                obj?.set_payee(treasury_address, pst);
             }
             if (this.data?.gen_discount !== undefined) {
-                obj?.discount_transfer(this.data.gen_discount, passport);
+                obj?.discount_transfer(this.data.gen_discount, pst);
             }
             if (this.data?.repository !== undefined) {
                 switch (this.data.repository.op) {
                     case 'add':
-                        this.data.repository.repositories.forEach(v => obj?.add_repository(v, passport));
+                        this.data.repository.repositories.forEach(v => obj?.add_repository(v, pst));
                         break;
                     case 'remove':
-                        obj?.remove_repository(this.data.repository.repositories, false, passport);
+                        obj?.remove_repository(this.data.repository.repositories, false, pst);
                         break;
                     case 'set':
-                        obj?.remove_repository([], true, passport);
-                        this.data.repository.repositories.forEach(v => obj?.add_repository(v, passport));
+                        obj?.remove_repository([], true, pst);
+                        this.data.repository.repositories.forEach(v => obj?.add_repository(v, pst));
                         break;
                     case 'removeall':
-                        obj?.remove_repository([], true, passport);
+                        obj?.remove_repository([], true, pst);
                         break;
                 }
             }
             if (this.data?.extern_withdraw_treasury !== undefined) {
                 switch (this.data.extern_withdraw_treasury.op) {
                     case 'add':
-                        this.data.extern_withdraw_treasury.treasuries.forEach(v => obj?.add_treasury(v.token_type, v.address, passport));
+                        this.data.extern_withdraw_treasury.treasuries.forEach(v => obj?.add_treasury(v.token_type, v.address, pst));
                         break;
                     case 'set':
-                        obj?.remove_treasury([], true, passport);
-                        this.data.extern_withdraw_treasury.treasuries.forEach(v => obj?.add_treasury(v.token_type, v.address, passport));
+                        obj?.remove_treasury([], true, pst);
+                        this.data.extern_withdraw_treasury.treasuries.forEach(v => obj?.add_treasury(v.token_type, v.address, pst));
                         break;
                     case 'remove':
-                        obj?.remove_treasury(this.data.extern_withdraw_treasury.addresses, false, passport);
+                        obj?.remove_treasury(this.data.extern_withdraw_treasury.addresses, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_treasury([], false, passport);
+                        obj?.remove_treasury([], false, pst);
                         break;
                 }
             }
             if (this.data?.machine !== undefined) {
-                obj?.set_machine(this.data.machine, passport);
+                obj?.set_machine(this.data.machine, pst);
             }
             if (this.data?.arbitration !== undefined) {
                 switch (this.data.arbitration.op) {
                     case 'add':
-                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, passport));
+                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, pst));
                         break;
                     case 'set':
-                        obj?.remove_arbitration([], true, passport);
-                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, passport));
+                        obj?.remove_arbitration([], true, pst);
+                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, pst));
                         break;
                     case 'remove':
-                        obj?.remove_arbitration(this.data.arbitration.addresses, false, passport);
+                        obj?.remove_arbitration(this.data.arbitration.addresses, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_arbitration([], false, passport);
+                        obj?.remove_arbitration([], false, pst);
                         break;
                 }
             }
             if (this.data?.customer_required_info !== undefined) {
                 if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
-                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, passport);
+                    obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, pst);
                 }
                 else if (this.data.customer_required_info.pubkey) {
-                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, passport);
+                    obj?.change_required_pubkey(this.data.customer_required_info.pubkey, pst);
                 }
             }
             if (this.data?.sales !== undefined) {
                 switch (this.data.sales.op) {
                     case 'add':
-                        obj?.add_sales(this.data.sales.sales, false, passport);
+                        obj?.add_sales(this.data.sales.sales, false, pst);
                         break;
                     case 'remove':
-                        obj?.remove_sales(this.data.sales.sales_name, passport);
+                        obj?.remove_sales(this.data.sales.sales_name, pst);
                         break;
                 }
             }
             if (this.data?.withdraw_guard !== undefined) {
                 switch (this.data.withdraw_guard.op) {
                     case 'add':
-                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport);
+                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, pst);
                         break;
                     case 'set':
-                        obj?.remove_withdraw_guards([], true, passport);
-                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, passport);
+                        obj?.remove_withdraw_guards([], true, pst);
+                        obj?.add_withdraw_guards(this.data.withdraw_guard.guards, pst);
                         break;
                     case 'remove':
-                        obj?.remove_withdraw_guards(this.data.withdraw_guard.addresses, false, passport);
+                        obj?.remove_withdraw_guards(this.data.withdraw_guard.addresses, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_withdraw_guards([], true, passport);
+                        obj?.remove_withdraw_guards([], true, pst);
                         break;
                 }
             }
             if (this.data?.refund_guard !== undefined) {
                 switch (this.data.refund_guard.op) {
                     case 'add':
-                        obj?.add_refund_guards(this.data.refund_guard.guards, passport);
+                        obj?.add_refund_guards(this.data.refund_guard.guards, pst);
                         break;
                     case 'set':
-                        obj?.remove_refund_guards([], true, passport);
-                        obj?.add_refund_guards(this.data.refund_guard.guards, passport);
+                        obj?.remove_refund_guards([], true, pst);
+                        obj?.add_refund_guards(this.data.refund_guard.guards, pst);
                         break;
                     case 'remove':
-                        obj?.remove_refund_guards(this.data.refund_guard.addresses, false, passport);
+                        obj?.remove_refund_guards(this.data.refund_guard.addresses, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_refund_guards([], true, passport);
+                        obj?.remove_refund_guards([], true, pst);
                         break;
                 }
             }
             if (this.data?.bPublished) {
-                obj?.publish(passport);
+                obj?.publish(pst);
             }
+            var order_new;
             if (this.data?.order_new !== undefined) {
                 let b = BigInt(0);
                 let coin;
@@ -268,39 +271,60 @@ export class CallService extends CallBase {
                     const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
                     if (coin) {
                         //@ crypto tools support
-                        const addr = obj.buy(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine, this.data.order_new.customer_info_crypto, passport);
-                        await this.new_with_mark(txb, addr, this.data?.order_new?.namedNew, account, [TagName.Launch, TagName.Order]);
+                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine, this.data.order_new.customer_info_crypto, pst);
                     }
                 }
             }
             if (this.data?.order_agent !== undefined) {
-                obj?.set_order_agent(this.data.order_agent.order, this.data.order_agent.agents, this.data.order_agent.progress);
+                const o = this.data.order_agent.order ?? order_new?.order;
+                if (!o)
+                    ERROR(Errors.Fail, 'order invalid: order_agent');
+                obj?.set_order_agent(o, this.data.order_agent.agents, this.data.order_agent.progress);
             }
             if (this.data?.order_required_info !== undefined) {
-                obj?.update_order_required_info(this.data.order_required_info.order, this.data.order_required_info.info);
+                const o = this.data.order_required_info.order ?? order_new?.order;
+                if (!o)
+                    ERROR(Errors.Fail, 'order invalid: order_required_info');
+                obj?.update_order_required_info(o, this.data.order_required_info.info);
             }
             if (this.data?.order_refund !== undefined) {
+                const o = this.data.order_refund.order ?? order_new?.order;
+                if (!o)
+                    ERROR(Errors.Fail, 'order invalid: order_refund');
                 if (this.data?.order_refund?.arb && this.data?.order_refund?.arb_token_type) {
-                    obj?.refund_withArb(this.data.order_refund.order, this.data?.order_refund?.arb, this.data?.order_refund?.arb_token_type);
+                    obj?.refund_withArb(o, this.data?.order_refund?.arb, this.data?.order_refund?.arb_token_type);
                 }
                 else {
-                    obj?.refund(this.data.order_refund.order, this.data?.order_refund?.guard, passport);
+                    obj?.refund(o, this.data?.order_refund?.guard, pst);
                 }
             }
-            if (this.data?.order_withdrawl !== undefined && passport) { //@ need withdrawal passport
-                obj?.withdraw(this.data.order_withdrawl.order, this.data.order_withdrawl.data, passport);
+            if (this.data?.order_withdrawl !== undefined && pst) { //@ need withdrawal pst
+                const o = this.data.order_withdrawl.order ?? order_new?.order;
+                if (!o)
+                    ERROR(Errors.Fail, 'order invalid: order_withdrawl');
+                obj?.withdraw(o, this.data.order_withdrawl.data, pst);
             }
             if (this.data?.order_payer !== undefined && obj) {
-                obj?.change_order_payer(this.data?.order_payer.order, this.data.order_payer.payer_new);
+                const o = this.data.order_payer.order ?? order_new?.order;
+                if (!o)
+                    ERROR(Errors.Fail, 'order invalid: order_payer');
+                obj?.change_order_payer(o, this.data.order_payer.payer_new, this.data.order_payer.progress);
+            }
+            if (order_new && this?.data?.order_new) {
+                const buy = obj.order_launch(order_new);
+                await this.new_with_mark(txb, buy.order, this.data?.order_new?.namedNewOrder, account, [TagName.Launch, TagName.Order]);
+                if (buy?.progress) {
+                    await this.new_with_mark(txb, buy.progress, this.data?.order_new?.namedNewProgress, account, [TagName.Launch]);
+                }
             }
             if (this.data?.buy_guard !== undefined) {
-                obj?.set_buy_guard(this.data.buy_guard, passport);
+                obj?.set_buy_guard(this.data.buy_guard, pst);
             }
             if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport);
+                obj?.pause(this.data.bPaused, pst);
             }
             if (this.data?.clone_new !== undefined && obj) {
-                await this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, passport), this.data?.clone_new?.namedNew, account);
+                await this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, pst), this.data?.clone_new?.namedNew, account);
             }
             if (payee) {
                 await this.new_with_mark(txb, payee.launch(), this.data?.payee_treasury?.namedNew, account);

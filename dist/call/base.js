@@ -26,17 +26,17 @@ export class CallBase {
     // throw an exception when errors.
     async call(account) { return undefined; }
     ;
-    async call_with_witness(param) {
-        if (param.info.guard.length > 0) { // prepare passport
-            const p = await GuardParser.Create([...param.info.guard]);
+    async call_with_witness(info, account) {
+        if (info.guard.length > 0) { // prepare passport
+            const p = await GuardParser.Create([...info.guard]);
             if (p) {
-                const query = await p.done(param.info.witness);
+                const query = await p.done(info.witness);
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
-                    await this.operate(new TransactionBlock(), passport?.get_object(), param?.account);
+                    await this.operate(new TransactionBlock(), passport?.get_object(), account);
                     passport.destroy();
-                    return await this.sign_and_commit(txb, param.account);
+                    return await this.sign_and_commit(txb, account);
                 }
             }
             else {

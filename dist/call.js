@@ -25,7 +25,7 @@ export const call_object = async (call) => {
     var obj = call_object_new(call);
     if (obj) {
         if (call.witness) {
-            return obj.call_with_witness(call.witness);
+            return obj.call_with_witness(call.witness, call.account);
         }
         else {
             return obj.call(call.account);
