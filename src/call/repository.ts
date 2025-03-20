@@ -71,47 +71,48 @@ export class CallRepository extends CallBase {
         }
 
         if (obj) {
+            const pst = permission?undefined:passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data?.reference !== undefined) {
                 switch (this.data.reference.op) {
                     case 'set':
-                        obj?.remove_reference([], true, passport);
-                        obj?.add_reference(this.data.reference.addresses, passport);
+                        obj?.remove_reference([], true, pst);
+                        obj?.add_reference(this.data.reference.addresses, pst);
                         break;
                     case 'add':
-                        obj?.add_reference(this.data.reference.addresses, passport);
+                        obj?.add_reference(this.data.reference.addresses, pst);
                         break;
                     case 'remove':
-                        obj?.remove_reference(this.data.reference.addresses, false, passport);
+                        obj?.remove_reference(this.data.reference.addresses, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_reference([], true, passport);
+                        obj?.remove_reference([], true, pst);
                         break;
                 }
             }
             if (this.data?.mode !== undefined && object_address) { //@ priority??
-                obj?.set_policy_mode(this.data.mode, passport)
+                obj?.set_policy_mode(this.data.mode, pst)
             }
             if (this.data?.policy !== undefined) {
                 switch(this.data.policy.op) {
                     case 'set':
-                        obj?.remove_policies([], true, passport);
-                        obj?.add_policies(this.data.policy.data, passport);
+                        obj?.remove_policies([], true, pst);
+                        obj?.add_policies(this.data.policy.data, pst);
                         break;
                     case 'add':
-                        obj?.add_policies(this.data.policy.data, passport);
+                        obj?.add_policies(this.data.policy.data, pst);
                         break;
                     case 'remove':
-                        obj?.remove_policies(this.data.policy.data, false, passport);
+                        obj?.remove_policies(this.data.policy.data, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_policies([], true, passport);
+                        obj?.remove_policies([], true, pst);
                         break;
                     case 'rename':
                         this.data.policy.data.forEach((v) => {
-                            obj?.rename_policy(v.old, v.new, passport);
+                            obj?.rename_policy(v.old, v.new, pst);
                         })
                         break;
                 }

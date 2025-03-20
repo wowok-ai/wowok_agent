@@ -1,8 +1,10 @@
 import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Treasury, Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee, 
+    PermissionIndexType, Treasury, Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee,
+    ArbObject, 
 } from 'wowok';
 import { query_objects, ObjectArbitration, } from '../objects';
 import { CallBase, CallResult, Namedbject} from "./base";
+export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallArbitration_Data {
@@ -14,9 +16,9 @@ export interface CallArbitration_Data {
     fee?: string;
     fee_treasury?: {address:string} | {namedNew: Namedbject, description?:string}; 
     arb_new?: {data: Dispute; guard?:string | 'fetch'; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
-    arb_withdraw_fee?: {arb:string; data:WithdrawFee};
-    arb_vote?: Vote;
-    arb_arbitration?: Feedback;
+    arb_withdraw_fee?: {arb?:string; data:WithdrawFee};
+    arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
+    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string};
     usage_guard?: string;
     voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     bPaused?: boolean;
@@ -128,52 +130,71 @@ export class CallArbitration extends CallBase {
         }
 
         if (obj) {
+            const pst = permission?undefined:passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data?.endpoint !== undefined) {
-                obj?.set_endpoint(this.data.endpoint, passport)
+                obj?.set_endpoint(this.data.endpoint, pst)
             }
             if (this.data?.fee !== undefined && object_address) {
-                obj?.set_fee(BigInt(this.data.fee), passport)
+                obj?.set_fee(BigInt(this.data.fee), pst)
             }
             if (treasury_address !== undefined && object_address) {
-                obj?.set_withdrawTreasury(treasury_address, passport)
+                obj?.set_withdrawTreasury(treasury_address, pst)
             }
+            var arb_new : ArbObject | undefined;
             if (this.data?.arb_new !== undefined) {
-                await this.new_with_mark(txb, obj?.dispute(this.data.arb_new.data, passport), (this.data?.arb_new as any)?.namedNew, account);
+                arb_new = obj?.arb(this.data.arb_new.data, pst);
             }
+
             if (this.data?.arb_arbitration !== undefined) {
-                obj?.arbitration(this.data.arb_arbitration, passport)
+                const a = this.data.arb_arbitration.arb ?? arb_new;
+                if (!a) ERROR(Errors.Fail, 'arb invalid: arb_arbitration');
+
+                obj?.arbitration({arb:a!, feedback:this.data.arb_arbitration.feedback, indemnity:this.data.arb_arbitration.indemnity}, pst)
             }
+
             if (this.data?.arb_vote !== undefined) {
-                obj?.vote(this.data.arb_vote, passport)
+                const a = this.data.arb_vote.arb ?? arb_new;
+                if (!a) ERROR(Errors.Fail, 'arb invalid: arb_vote');
+
+                obj?.vote({arb:a!, voting_guard:this.data.arb_vote.voting_guard, agrees:this.data.arb_vote.agrees}, pst)
             }
+
             if (this.data?.arb_withdraw_fee !== undefined) {
-                obj?.withdraw_fee(this.data.arb_withdraw_fee.arb, this.data.arb_withdraw_fee.data, passport)
+                const a = this.data.arb_withdraw_fee.arb ?? arb_new;
+                if (!a) ERROR(Errors.Fail, 'arb invalid: arb_withdraw_fee');
+
+                obj?.withdraw_fee(a!, this.data.arb_withdraw_fee.data, pst)
             }
+
+            if (arb_new) {
+                await this.new_with_mark(txb, obj?.arb_launch(arb_new), (this.data?.arb_new as any)?.namedNew, account);
+            }
+            
             if (this.data?.voting_guard !== undefined) {
                 switch (this.data.voting_guard.op) {
                     case 'add':
-                        obj?.add_voting_guard(this.data.voting_guard.data, passport)
+                        obj?.add_voting_guard(this.data.voting_guard.data, pst)
                         break;
                     case 'remove':
-                        obj?.remove_voting_guard(this.data.voting_guard.guards, false, passport)
+                        obj?.remove_voting_guard(this.data.voting_guard.guards, false, pst)
                         break;
                     case 'set':
-                        obj?.remove_voting_guard([], true, passport)
-                        obj?.add_voting_guard(this.data.voting_guard.data, passport)
+                        obj?.remove_voting_guard([], true, pst)
+                        obj?.add_voting_guard(this.data.voting_guard.data, pst)
                         break;
                     case 'removeall':
-                        obj?.remove_voting_guard([], true, passport)
+                        obj?.remove_voting_guard([], true, pst)
                         break;
                 }
             }
             if (this.data.usage_guard !== undefined) {
-                obj?.set_guard(this.data.usage_guard, passport)
+                obj?.set_guard(this.data.usage_guard, pst)
             }
             if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport);
+                obj?.pause(this.data.bPaused, pst);
             }
             if (withdraw_treasury) {
                 await this.new_with_mark(txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);

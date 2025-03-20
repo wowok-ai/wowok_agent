@@ -103,12 +103,13 @@ export class CallDemand extends CallBase {
         }
 
         if (obj) {
+            const pst = permission?undefined:passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data?.time_expire !== undefined && object_address) {
                 obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, 
-                    this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, passport)
+                    this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, pst)
             }
             if (this.data?.bounty !== undefined) {
                 if (this.data.bounty.op === 'add') {
@@ -122,17 +123,17 @@ export class CallDemand extends CallBase {
                         if (r) obj.deposit(r)
                     }
                 } else if (this.data.bounty.op === 'reward') {
-                    obj?.yes(this.data.bounty.service, passport);
+                    obj?.yes(this.data.bounty.service, pst);
                 } else if (this.data.bounty.op === 'refund') {
-                    obj?.refund(passport);
+                    obj?.refund(pst);
                 } 
             }
             if (this.data?.present !== undefined) {
-                //@ demand guard and its passport, if set
-                obj?.present(this.data.present.service, this.data.present.service_pay_type, this.data.present.recommend_words, passport);
+                //@ demand guard and its pst, if set
+                obj?.present(this.data.present.service, this.data.present.service_pay_type, this.data.present.recommend_words, pst);
             }
             if (this.data?.guard !== undefined) {
-                obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, passport)
+                obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, pst)
             }
             if (permission) {
                 await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
