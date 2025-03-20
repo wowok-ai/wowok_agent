@@ -12,7 +12,7 @@ import { CallPersonal, CallPersonal_Data } from "./call/personal";
 import { CallRepository, CallRepository_Data } from "./call/repository";
 import { CallService, CallService_Data } from "./call/service";
 import { CallTreasury, CallTreasury_Data } from "./call/treasury";
-import { CallBase, CallResult, CallWithWitnessParam } from "./call/base";
+import { CallBase, CallResult, GuardInfo_forCall } from "./call/base";
 import { CallGuard, CallGuard_Data } from "./call/guard";
 import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_permission";
 
@@ -23,7 +23,7 @@ export interface CallObject {
     type: CallObjectType;
     data: CallObjectData;
     account?: string;
-    witness?: CallWithWitnessParam;
+    witness?: GuardInfo_forCall;
 }
 
 export const call_object_json = async (json: string) : Promise<string> => {
@@ -40,7 +40,7 @@ export const call_object = async (call: CallObject) : Promise<CallResult> => {
 
     if (obj) {
         if (call.witness) {
-            return obj.call_with_witness(call.witness);
+            return obj.call_with_witness(call.witness, call.account);
         } else {
             return obj.call(call.account);
         }

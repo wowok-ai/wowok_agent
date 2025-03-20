@@ -28,10 +28,6 @@ export interface GuardInfo_forCall {
     witness: WitnessFill[];
 }
 
-export interface CallWithWitnessParam {
-    info: GuardInfo_forCall;
-    account?:string;
-}
 export type CallResult = GuardInfo_forCall | CallResponse | undefined;
 
 
@@ -58,19 +54,19 @@ export class CallBase {
     // return ResponseData when the call has completed; 
     // throw an exception when errors.
     async call(account?:string) : Promise<CallResult>  { return undefined };
-    async call_with_witness (param: CallWithWitnessParam) : Promise<CallResponse | undefined> {
-        if (param.info.guard.length > 0) {         // prepare passport
-            const p: GuardParser | undefined = await GuardParser.Create([...param.info.guard]);
+    async call_with_witness (info: GuardInfo_forCall, account?:string) : Promise<CallResponse | undefined> {
+        if (info.guard.length > 0) {         // prepare passport
+            const p: GuardParser | undefined = await GuardParser.Create([...info.guard]);
 
             if (p) {
-                const query = await p.done(param.info.witness);
+                const query = await p.done(info.witness);
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    await this.operate(new TransactionBlock(), passport?.get_object(), param?.account)
+                    await this.operate(new TransactionBlock(), passport?.get_object(), account)
                     passport.destroy();
                     
-                    return await this.sign_and_commit(txb, param.account);
+                    return await this.sign_and_commit(txb, account);
                 }
             } else {
                 ERROR(Errors.Fail, 'guard verify')
