@@ -109,11 +109,9 @@ export class CallBase {
                     const passport = new Passport(txb, query!);   
                     await this.operate(new TransactionBlock(), passport?.get_object(), account)
                     passport.destroy();
-                    
                     return await this.sign_and_commit(txb, account);
                 }
             } 
-            
             return {guard:[...guards], witness:p!.future_fills()};
         } else { // no passport needed
             return await this.exec()

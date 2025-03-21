@@ -23,7 +23,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
         | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL 
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
         | OperatorType.TYPE_LOGIC_NOT | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;  parameters: GuardNode[];}
-    | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD 
+    | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS 
         | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
     | {identifier: number} // data from GuardConst
@@ -185,11 +185,18 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 break;
         }
     } else if (node?.calc !== undefined) {
-        checkType(ValueType.TYPE_U256, type_required, node);
-        if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ JSON.stringify(node));
-        (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
-        output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
-        output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
+        if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
+            checkType(ValueType.TYPE_ADDRESS, type_required, node);
+            if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1'+ JSON.stringify(node));
+            (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+        } else {
+            checkType(ValueType.TYPE_U256, type_required, node);
+            if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ JSON.stringify(node));
+            (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+            output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));            
+        }
     } else if (node?.value_type !== undefined) {
         checkType(node?.value_type, type_required, node);
         if (node?.value === undefined) ERROR(Errors.InvalidParam, 'node value undefined - ' + JSON.stringify(node));
