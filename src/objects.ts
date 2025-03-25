@@ -238,7 +238,6 @@ export enum CacheType {
     memoryStorage = 'memoryStorage', // for console
 }
 
-const MEMORY_STORAGE = new Map<string, string>();
 export interface ObjectsQuery {
     objects: string[];
     showType?: boolean;
