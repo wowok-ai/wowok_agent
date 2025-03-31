@@ -1,5 +1,6 @@
-import { TransactionBlock, PassportObject, Dispute, Feedback, Vote, VotingGuard, WithdrawFee } from 'wowok';
+import { TransactionBlock, PassportObject, Dispute, VotingGuard, WithdrawFee } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
+export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
 export interface CallArbitration_Data {
     type_parameter: string;
     object?: {
@@ -28,11 +29,19 @@ export interface CallArbitration_Data {
         namedNew?: Namedbject;
     };
     arb_withdraw_fee?: {
-        arb: string;
+        arb?: string;
         data: WithdrawFee;
     };
-    arb_vote?: Vote;
-    arb_arbitration?: Feedback;
+    arb_vote?: {
+        arb?: string;
+        voting_guard?: string;
+        agrees: number[];
+    };
+    arb_arbitration?: {
+        arb?: string;
+        feedback: string;
+        indemnity?: string;
+    };
     usage_guard?: string;
     voting_guard?: {
         op: 'add' | 'set';

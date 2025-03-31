@@ -7,7 +7,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_E
 export interface CallPermission_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     description?: string;
-    admin?: {op:'add' | 'remove' | 'set', address:string[]};
+    admin?: {op:'add' | 'remove' | 'set', addresses:string[]} | {op:'removeall'};
     biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};
     permission?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
         | {op:'remove entity'; addresses:string[]} | {op:'remove permission'; address:string; index:PermissionIndexType[]} 
@@ -54,17 +54,20 @@ export class CallPermission extends CallBase {
                 obj?.set_description(this.data.description)
             }
             if (this.data?.admin !== undefined) {
-                switch(this.data.admin.op) {
+                switch(this.data.admin?.op) {
                     case 'add':
-                        obj?.add_admin(this.data.admin.address);
+                        obj?.add_admin(this.data.admin.addresses);
                         break;
                     case 'remove':
-                        obj?.remove_admin(this.data.admin.address);
+                        obj?.remove_admin(this.data.admin.addresses);
                         break;
                     case 'set':
                         obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.address);
+                        obj?.add_admin(this.data.admin.addresses);
                         break
+                    case 'removeall':
+                        obj?.remove_admin([], true);
+                        break;
                 }
             }
             if (this.data?.biz_permission !== undefined) { // High priority operate

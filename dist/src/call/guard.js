@@ -162,12 +162,21 @@ const buildNode = (guard_node, type_required, table, output) => {
         }
     }
     else if (node?.calc !== undefined) {
-        checkType(ValueType.TYPE_U256, type_required, node);
-        if (node.parameters.length < 2)
-            ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2' + JSON.stringify(node));
-        node.parameters.reverse().forEach(v => buildNode(v, 'number', table, output));
-        output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
-        output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
+        if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
+            checkType(ValueType.TYPE_ADDRESS, type_required, node);
+            if (node.parameters.length !== 1)
+                ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1' + JSON.stringify(node));
+            node.parameters.reverse().forEach(v => buildNode(v, 'number', table, output));
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+        }
+        else {
+            checkType(ValueType.TYPE_U256, type_required, node);
+            if (node.parameters.length < 2)
+                ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2' + JSON.stringify(node));
+            node.parameters.reverse().forEach(v => buildNode(v, 'number', table, output));
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+            output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
+        }
     }
     else if (node?.value_type !== undefined) {
         checkType(node?.value_type, type_required, node);

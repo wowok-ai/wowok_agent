@@ -89,32 +89,34 @@ export interface CallService_Data {
         machine?: string;
         customer_info_crypto?: Customer_RequiredInfo;
         guard?: string | 'fetch';
-        namedNew?: Namedbject;
+        namedNewOrder?: Namedbject;
+        namedNewProgress?: Namedbject;
     };
     order_agent?: {
-        order: string;
+        order?: string;
         agents: string[];
         progress?: string;
     };
     order_required_info?: {
-        order: string;
+        order?: string;
         info: Customer_RequiredInfo;
     };
     order_refund?: {
-        order: string;
+        order?: string;
         guard?: string;
     } | {
-        order: string;
+        order?: string;
         arb: string;
         arb_token_type: string;
     };
     order_withdrawl?: {
-        order: string;
+        order?: string;
         data: WithdrawPayee;
     };
     order_payer?: {
-        order: string;
+        order?: string;
         payer_new: string;
+        progress?: string;
     };
     buy_guard?: string;
     bPaused?: boolean;

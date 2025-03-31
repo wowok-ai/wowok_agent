@@ -9,7 +9,6 @@ export var CacheType;
     CacheType["localStorage"] = "localStorage";
     CacheType["memoryStorage"] = "memoryStorage";
 })(CacheType || (CacheType = {}));
-const MEMORY_STORAGE = new Map();
 /* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json) => {
     try {

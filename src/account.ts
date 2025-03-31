@@ -239,7 +239,7 @@ export class Account {
 
         if (addr && b > BigInt(0)) {
             if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
-                return txb.splitCoins(txb.gas, [balance_required]);
+                return txb.splitCoins(txb.gas, [b]);
             } else {
                 const r = await Protocol.Client().getCoins({owner: addr, coinType:token_type});
                 const objects : string[] = []; var current = BigInt(0);

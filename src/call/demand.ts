@@ -11,7 +11,7 @@ export interface CallDemand_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     description?: string;
-    time_expire?: {op: 'duration'; minutes:number} | {op:'set'; time:number};
+    time_expire?: {op: 'duration'; minutes:number} | {op:'time'; time:number};
     bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'reward'; service:string} | {op:'refund'} ;
     present?: {service: string | number; recommend_words:string; service_pay_type:string, guard?:string | 'fetch'}; // guard is the present guard of Demand
     guard?: {address:string; service_id_in_guard?:number};

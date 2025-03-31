@@ -1,4 +1,6 @@
-import { Ed25519Keypair, CoinBalance, CoinStruct, TransactionResult, TransactionBlock } from 'wowok';
+import { Ed25519Keypair, TransactionBlock } from 'wowok';
+import { type CoinBalance, type CoinStruct } from '@mysten/sui/client';
+import { type TransactionResult } from '@mysten/sui/transactions';
 export interface AccountData {
     name: string;
     default?: boolean;
@@ -19,14 +21,14 @@ export declare class Account {
     private _get;
     private _rename;
     set_storage(storage?: 'File' | 'Explorer'): void;
-    gen(name: string, bDefault?: boolean): void;
-    default(): AccountData | undefined;
-    get(name?: string, bNotFoundReturnDefault?: boolean): AccountData | undefined;
-    rename(oldName: string, newName: string, bSwapIfExisted?: boolean): boolean;
-    get_address(name?: string, bNotFoundReturnDefault?: boolean): string | undefined;
-    get_pubkey(name?: string, bNotFoundReturnDefault?: boolean): string | undefined;
-    get_pair(name?: string, bNotFoundReturnDefault?: boolean): Ed25519Keypair | undefined;
-    list(): AccountData_Show[];
+    gen(name: string, bDefault?: boolean): Promise<void>;
+    default(): Promise<AccountData | undefined>;
+    get(name?: string, bNotFoundReturnDefault?: boolean): Promise<AccountData | undefined>;
+    rename(oldName: string, newName: string, bSwapIfExisted?: boolean): Promise<boolean>;
+    get_address(name?: string, bNotFoundReturnDefault?: boolean): Promise<string | undefined>;
+    get_pubkey(name?: string, bNotFoundReturnDefault?: boolean): Promise<string | undefined>;
+    get_pair(name?: string, bNotFoundReturnDefault?: boolean): Promise<Ed25519Keypair | undefined>;
+    list(): Promise<AccountData_Show[]>;
     faucet(name?: string): Promise<void>;
     balance: (name?: string, token_type?: string) => Promise<CoinBalance | undefined>;
     coin: (name?: string, token_type?: string) => Promise<CoinStruct[] | undefined>;

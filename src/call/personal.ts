@@ -6,9 +6,9 @@ import { CallBase, CallResult, Namedbject } from "./base";
 export interface CallPersonal_Data {
     object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
     information?: Entity_Info;
-    mark?: {op:'add'; data:{address:string; name?:string; tags:string[]}[]}
+    mark?: {op:'add or set'; data:{address:string; name?:string; tags:string[]}[]}
         | {op:'remove'; data:{address:string; tags:string[]}[]}
-        | {op:'removeall'; address:string[],}
+        | {op:'removeall'; addresses:string[]}
         | {op:'transfer'; address: string}
         | {op:'destroy';}
         | {op:'replace'; address: string};
@@ -45,7 +45,7 @@ export class CallPersonal extends CallBase {
         if (obj && obj?.get_object()) {
             if (this.data?.mark !== undefined) {
                 switch(this.data.mark.op) {
-                    case 'add':
+                    case 'add or set':
                         this.data.mark.data.forEach(v => {
                             obj?.add(v.address, v.tags, v.name)
                         })
@@ -56,7 +56,7 @@ export class CallPersonal extends CallBase {
                         })                        
                         break;
                     case 'removeall':
-                        this.data.mark.address.forEach(v => {
+                        this.data.mark.addresses.forEach(v => {
                             obj?.removeall(v)
                         })                        
                         break;         

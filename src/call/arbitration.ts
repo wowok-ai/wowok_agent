@@ -4,7 +4,16 @@ import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Error
 } from 'wowok';
 import { query_objects, ObjectArbitration, } from '../objects';
 import { CallBase, CallResult, Namedbject} from "./base";
+import { Account } from '../account';
 export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
+
+export interface DisputeData {
+    order: string,
+    order_token_type: string,
+    description: string,
+    votable_proposition: string[],
+    fee: string | number,
+}
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallArbitration_Data {
@@ -13,13 +22,13 @@ export interface CallArbitration_Data {
     permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
     description?: string;
     endpoint?: string;
-    fee?: string;
+    fee?: string | number;
     fee_treasury?: {address:string} | {namedNew: Namedbject, description?:string}; 
-    arb_new?: {data: Dispute; guard?:string | 'fetch'; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
+    arb_new?: {data: DisputeData; guard?:string | 'fetch'; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
     arb_withdraw_fee?: {arb?:string; data:WithdrawFee};
     arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
-    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string};
-    usage_guard?: string;
+    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string|number};
+    guard?: string;
     voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     bPaused?: boolean;
 }
@@ -61,7 +70,7 @@ export class CallArbitration extends CallBase {
             if (treasury_address !== undefined && object_address) {
                 perms.push(PermissionIndex.arbitration_treasury)
             }
-            if (this.data?.usage_guard !== undefined) {
+            if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.arbitration_guard)
             }
             if (this.data?.voting_guard !== undefined) {
@@ -75,8 +84,8 @@ export class CallArbitration extends CallBase {
                     guards.push(this.data.arb_new.guard)
                 } else {
                     if (!object_address) { // new
-                        if (this.data?.usage_guard && IsValidAddress(this.data?.usage_guard)) {
-                            guards.push(this.data.usage_guard)
+                        if (this.data?.guard && IsValidAddress(this.data?.guard)) {
+                            guards.push(this.data.guard)
                         }
                     } else {
                         if (!obj) {
@@ -145,7 +154,11 @@ export class CallArbitration extends CallBase {
             }
             var arb_new : ArbObject | undefined;
             if (this.data?.arb_new !== undefined) {
-                arb_new = obj?.arb(this.data.arb_new.data, pst);
+                const b = BigInt(this.data.arb_new.data.fee); 
+                const d = this.data?.arb_new.data; 
+                arb_new = obj?.arb({order:d.order, order_token_type:d.order_token_type, description:d.description, votable_proposition:d.votable_proposition, 
+                    fee: b>BigInt(0) ? await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter) : undefined
+                }, pst);
             }
 
             if (this.data?.arb_arbitration !== undefined) {
@@ -190,8 +203,8 @@ export class CallArbitration extends CallBase {
                         break;
                 }
             }
-            if (this.data.usage_guard !== undefined) {
-                obj?.set_guard(this.data.usage_guard, pst)
+            if (this.data.guard !== undefined) {
+                obj?.set_guard(this.data.guard, pst)
             }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);

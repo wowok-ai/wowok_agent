@@ -252,7 +252,7 @@ export interface ObjectMark extends ObjectBase {
 export interface TableItem_PersonalMark extends ObjectBase, Tags {
 }
 export declare enum CacheType {
-    localStorage = "localStorage",
+    localStorage = "localStorage",// for explorer
     memoryStorage = "memoryStorage"
 }
 export interface ObjectsQuery {

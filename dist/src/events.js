@@ -5,20 +5,41 @@
 import { Protocol } from 'wowok';
 export var EVENT_QUERY;
 (function (EVENT_QUERY) {
-    EVENT_QUERY.newArbEvents = async (option) => {
-        return await queryEvents(Protocol.Instance().package('wowok') + '::arb::NewArbEvent', option);
+    EVENT_QUERY.query_events_json = async (json) => {
+        try {
+            const q = JSON.parse(json);
+            return JSON.stringify({ data: await EVENT_QUERY.query_events(q) });
+        }
+        catch (e) {
+            return JSON.stringify({ error: e?.toString() });
+        }
     };
-    EVENT_QUERY.presentServiceEvents = async (option) => {
-        return await queryEvents(Protocol.Instance().package('wowok') + '::demand::PresentEvent', option);
+    EVENT_QUERY.query_events = (query) => {
+        switch (query.type) {
+            case 'OnNewArb':
+                return newArbEvents(query.cursor, query.limit, query.order);
+            case 'OnNewProgress':
+                return newProgressEvents(query.cursor, query.limit, query.order);
+            case 'OnPresentService':
+                return presentServiceEvents(query.cursor, query.limit, query.order);
+            case 'OnNewOrder':
+                return newOrderEvents(query.cursor, query.limit, query.order);
+        }
     };
-    EVENT_QUERY.newProgressEvents = async (option) => {
-        return await queryEvents(Protocol.Instance().package('wowok') + '::progress::NewProgressEvent', option);
+    const newArbEvents = async (cursor, limit, order) => {
+        return await events(Protocol.Instance().package('wowok') + '::arb::NewArbEvent', cursor, limit, order);
     };
-    EVENT_QUERY.newOrderEvents = async (option) => {
-        return await queryEvents(Protocol.Instance().package('wowok') + '::order::NewOrderEvent', option);
+    const presentServiceEvents = async (cursor, limit, order) => {
+        return await events(Protocol.Instance().package('wowok') + '::demand::PresentEvent', cursor, limit, order);
     };
-    const queryEvents = async (type, option) => {
-        const res = await Protocol.Client().queryEvents({ query: { MoveEventType: type }, cursor: option?.cursor, limit: option?.limit, order: option?.order });
+    const newProgressEvents = async (cursor, limit, order) => {
+        return await events(Protocol.Instance().package('wowok') + '::progress::NewProgressEvent', cursor, limit, order);
+    };
+    const newOrderEvents = async (cursor, limit, order) => {
+        return await events(Protocol.Instance().package('wowok') + '::order::NewOrderEvent', cursor, limit, order);
+    };
+    const events = async (type, cursor, limit, order) => {
+        const res = await Protocol.Client().queryEvents({ query: { MoveEventType: type }, cursor: cursor, limit: limit, order: order });
         const data = res?.data?.map((v) => {
             if (v?.packageId === Protocol.Instance().package('wowok')) {
                 if (v?.type?.includes('::order::NewOrderEvent')) {

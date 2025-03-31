@@ -1,8 +1,6 @@
 import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, IsValidAddress, Errors, ERROR, Permission, 
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
-    Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury,
-    OrderObject,
-    OrderResult, 
+    Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, OrderResult, 
 } from 'wowok';
 import { query_objects, ObjectService } from '../objects';
 import { CallBase, CallResult, Namedbject } from "./base";
@@ -21,7 +19,7 @@ export interface CallService_Data {
     extern_withdraw_treasury?: {op:'set' | 'add'; treasuries:{address:string, token_type:string}[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     machine?: string;
-    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, type_parameter:string}[]} 
+    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, token_type:string}[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
@@ -231,11 +229,11 @@ export class CallService extends CallBase {
             if (this.data?.arbitration !== undefined) {
                 switch(this.data.arbitration.op) {
                     case 'add':
-                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.type_parameter, pst))
+                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.token_type, pst))
                         break;
                     case 'set':
                         obj?.remove_arbitration([], true, pst)
-                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.type_parameter, pst))
+                        this.data.arbitration.arbitrations.forEach(v=>obj?.add_arbitration(v.address, v.token_type, pst))
                         break;
                     case 'remove':
                         obj?.remove_arbitration(this.data.arbitration.addresses, false, pst)
@@ -306,7 +304,7 @@ export class CallService extends CallBase {
                     b += BigInt(v.max_price) * BigInt(v.count)
                 })
                 if (b > BigInt(0)) {
-                    const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
                     if (coin) {
                         //@ crypto tools support
                         order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine,

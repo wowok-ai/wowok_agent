@@ -13,8 +13,8 @@ export interface CallRepository_Data {
     description?: string;
     reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
-    policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; data:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
-    data?: {op:'add', data: Repository_Policy_Data | Repository_Policy_Data2} | {op:'remove'; data: Repository_Policy_Data_Remove};
+    policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; keys:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
+    data?: {op:'add', data: Repository_Policy_Data | Repository_Policy_Data2} | {op:'remove'; data: Repository_Policy_Data_Remove[]};
 }
 export class CallRepository extends CallBase {
     data: CallRepository_Data;
@@ -105,7 +105,7 @@ export class CallRepository extends CallBase {
                         obj?.add_policies(this.data.policy.data, pst);
                         break;
                     case 'remove':
-                        obj?.remove_policies(this.data.policy.data, false, pst);
+                        obj?.remove_policies(this.data.policy.keys, false, pst);
                         break;
                     case 'removeall':
                         obj?.remove_policies([], true, pst);
@@ -127,7 +127,7 @@ export class CallRepository extends CallBase {
                         }
                         break;
                     case 'remove':
-                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
+                        this.data.data.data.forEach(v => obj?.remove(v.address, v.key));
                         break;
                 }
             }

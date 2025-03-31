@@ -1,8 +1,8 @@
-import { Protocol, TransactionBlock, Entity, Resource, array_unique, TagName } from 'wowok';
-import { Errors, ERROR, Permission, GuardParser, Passport } from 'wowok';
+import { Protocol, Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
 import { queryTableItem_Personal, raw2type } from '../objects';
+import { Transaction as TransactionBlock } from '@mysten/sui/transactions';
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {
@@ -26,17 +26,17 @@ export class CallBase {
     // throw an exception when errors.
     async call(account) { return undefined; }
     ;
-    async call_with_witness(param) {
-        if (param.info.guard.length > 0) { // prepare passport
-            const p = await GuardParser.Create([...param.info.guard]);
+    async call_with_witness(info, account) {
+        if (info.guard.length > 0) { // prepare passport
+            const p = await GuardParser.Create([...info.guard]);
             if (p) {
-                const query = await p.done(param.info.witness);
+                const query = await p.done(info.witness);
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
-                    await this.operate(new TransactionBlock(), passport?.get_object(), param?.account);
+                    await this.operate(new TransactionBlock(), passport?.get_object(), account);
                     passport.destroy();
-                    return await this.sign_and_commit(txb, param.account);
+                    return await this.sign_and_commit(txb, account);
                 }
             }
             else {
@@ -47,7 +47,7 @@ export class CallBase {
     async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, account) {
         var guards = [];
         if (permIndex.length > 0 || checkOwner) {
-            const addr = Account.Instance().get_address(account);
+            const addr = await Account.Instance().get_address(account);
             if (!addr)
                 ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
             const p = await query_permission({ permission_object: permission, address: addr });
@@ -95,7 +95,7 @@ export class CallBase {
     async new_with_mark(txb, object, named_new, account, innerTags = [TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
         if (!this.resouceObject) {
-            const addr = Account.Instance().get_address(account);
+            const addr = await Account.Instance().get_address(account);
             if (addr) {
                 const r = await queryTableItem_Personal({ address: addr }); //@ use cache
                 if (!r?.mark_object) {
@@ -115,7 +115,7 @@ export class CallBase {
         }
     }
     async sign_and_commit(txb, account) {
-        const pair = Account.Instance().get_pair(account, true);
+        const pair = await Account.Instance().get_pair(account, true);
         if (!pair)
             ERROR(Errors.Fail, 'account invalid');
         if (this.resouceObject) {

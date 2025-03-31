@@ -2,17 +2,6 @@
  * Provide AI with Basic WoWok event queries:
  * for real-time detail tracking.
  */
-export interface EventQueryOption {
-    /** optional paging cursor */
-    cursor?: {
-        eventSeq: string;
-        txDigest: string;
-    } | null | undefined;
-    /** maximum number of items per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
-    limit?: number | null | undefined;
-    /** query result ordering, default to false (ascending order), oldest record first. */
-    order?: 'ascending' | 'descending' | null | undefined;
-}
 export interface EventBase {
     id: {
         eventSeq: string;
@@ -56,10 +45,21 @@ export interface EventAnswer {
         txDigest: string;
     } | null;
 }
+export interface EventCursor {
+    eventSeq: string;
+    txDigest: string;
+}
+export interface EventQuery {
+    type: 'OnNewArb' | 'OnPresentService' | 'OnNewProgress' | 'OnNewOrder';
+    /** optional paging cursor */
+    cursor?: EventCursor | null | undefined;
+    /** maximum number of items per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
+    limit?: number | null | undefined;
+    /** query result ordering, default to false (ascending order), oldest record first. */
+    order?: 'ascending' | 'descending' | null | undefined;
+}
 export declare namespace EVENT_QUERY {
-    const newArbEvents: (option?: EventQueryOption) => Promise<EventAnswer>;
-    const presentServiceEvents: (option?: EventQueryOption) => Promise<EventAnswer>;
-    const newProgressEvents: (option?: EventQueryOption) => Promise<EventAnswer>;
-    const newOrderEvents: (option?: EventQueryOption) => Promise<EventAnswer>;
+    const query_events_json: (json: string) => Promise<string>;
+    const query_events: (query: EventQuery) => Promise<EventAnswer | undefined>;
 }
 //# sourceMappingURL=events.d.ts.map

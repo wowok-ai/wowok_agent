@@ -65,26 +65,26 @@ export interface CallMachine_Data {
         namedNew?: Namedbject;
     };
     progress_context_repository?: {
-        progress: string;
+        progress?: string;
         repository: string;
     };
     progress_namedOperator?: {
-        progress: string;
+        progress?: string;
         data: {
             name: string;
             operator: string[];
         }[];
     };
     progress_parent?: {
-        progress: string;
+        progress?: string;
         parent?: ParentProgress;
     };
     progress_task?: {
-        progress: string;
+        progress?: string;
         task: string;
     };
     progress_hold?: {
-        progress: string;
+        progress?: string;
         data: ProgressNext;
         bHold: boolean;
         adminUnhold?: boolean;

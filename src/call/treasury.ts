@@ -13,7 +13,7 @@ export interface CallTreasury_Data {
     description?: string;
     deposit?: {data:{balance:string|number; index?:number; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
     receive?: {payment:string; received_object:string};
-    withdraw?:WithdrawParam;
+    withdraw?: WithdrawParam;
     deposit_guard?: string;
     withdraw_guard?: {op:'add' | 'set'; data:{guard:string, amount:string|number}[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     withdraw_mode?: Treasury_WithdrawMode;

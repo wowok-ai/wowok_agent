@@ -5,8 +5,8 @@
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
-    IsValidDesription, PassportObject,
-    IsValidGuardIdentifier} from "wowok";
+    IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery
+    } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base";
 
 export interface GuardConst {
@@ -18,7 +18,7 @@ export interface GuardConst {
 
 // parameters: Child nodes arranged in parameter order, with each child node providing the type and data for that parameter
 export type GuardNode = { identifier: number; } // Data from GuardConst
-    | {query: number | string, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
+    | {query: number, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
     | {logic: OperatorType.TYPE_LOGIC_AS_U256_GREATER | OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL
         | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL 
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
@@ -26,7 +26,6 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
     | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS 
         | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
-    | {identifier: number} // data from GuardConst
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
 
 export interface CallGuard_Data {
@@ -110,18 +109,18 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             ERROR(Errors.InvalidParam, 'node identifier - ' + JSON.stringify(node));
         }
     } else if (node?.query !== undefined) {
-        var q: any[] | undefined;
+        var q: GuardQuery | undefined;
         if (typeof(node.query) === 'string') {
-            q = GUARD_QUERIES.find(v=>v[1] === node.query);
+            q = GUARD_QUERIES.find(v=>v.query_name === node.query);
         } else if (typeof(node.query) === 'number') {
-            q = GUARD_QUERIES.find(v=>v[2] === node.query);
+            q = GUARD_QUERIES.find(v=>v.query_id === node.query);
         }
         if (!q) ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
         
-        checkType(q![4], type_required, node); // Return type checking
-        if ((q![3]).length === node.parameters.length) {
+        checkType(q!.return, type_required, node); // Return type checking
+        if (q!.parameters.length === node.parameters.length) {
             for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
-                buildNode(node.parameters[i], q![3][i], table, output); // Recursive check
+                buildNode(node.parameters[i], q!.parameters[i], table, output); // Recursive check
             }
         } else {
             ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + JSON.stringify(node))
@@ -144,7 +143,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
             }
         }
-        output.push(Bcs.getInstance().ser('u16', q![2])); // cmd(u16)
+        output.push(Bcs.getInstance().ser('u16', q!.query_id)); // cmd(u16)
     } else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {

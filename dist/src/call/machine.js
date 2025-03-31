@@ -60,7 +60,7 @@ export class CallMachine extends CallBase {
                     guards.push(this.data?.progress_next?.guard);
                 }
                 else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
-                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.data.next_node_name, this.data.progress_next.data.forward);
+                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.data.next_node_name, this.data.progress_next.data.forward);
                     if (guard) {
                         guards.push(guard);
                     }
@@ -91,95 +91,113 @@ export class CallMachine extends CallBase {
             }
         }
         if (obj) {
+            const perm = permission ? permission.get_object() : permission_address;
+            const pst = permission ? undefined : passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data?.endpoint !== undefined && object_address) {
-                obj?.set_endpoint(this.data.endpoint, passport);
+                obj?.set_endpoint(this.data.endpoint, pst);
             }
             if (this.data?.consensus_repository !== undefined) {
                 switch (this.data.consensus_repository.op) {
                     case 'add':
-                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, passport));
+                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, pst));
                         break;
                     case 'remove':
-                        obj?.remove_repository(this.data.consensus_repository.repositories, false, passport);
+                        obj?.remove_repository(this.data.consensus_repository.repositories, false, pst);
                         break;
                     case 'removeall':
-                        obj?.remove_repository([], true, passport);
+                        obj?.remove_repository([], true, pst);
                         break;
                     case 'set':
-                        obj?.remove_repository([], true, passport);
-                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, passport));
+                        obj?.remove_repository([], true, pst);
+                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, pst));
                         break;
                 }
             }
             if (this.data?.nodes !== undefined) {
                 switch (this.data?.nodes?.op) {
                     case 'add':
-                        obj?.add_node(this.data.nodes.data, passport);
+                        obj?.add_node(this.data.nodes.data, pst);
                         break;
                     case 'remove':
-                        obj?.remove_node(this.data.nodes.names, this.data.nodes?.bTransferMyself, passport);
+                        obj?.remove_node(this.data.nodes.names, this.data.nodes?.bTransferMyself, pst);
                         break;
                     case 'rename node':
-                        this.data.nodes.data.forEach(v => obj?.rename_node(v.old, v.new, passport));
+                        this.data.nodes.data.forEach(v => obj?.rename_node(v.old, v.new, pst));
                         break;
                     case 'add from myself':
-                        obj?.add_node2(this.data.nodes.addresses, passport);
+                        obj?.add_node2(this.data.nodes.addresses, pst);
                         break;
                     case 'add forward':
-                        this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.old_need_remove, passport));
+                        this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.old_need_remove, pst));
                         break;
                     case 'remove forward':
-                        this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, passport));
+                        this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, pst));
                         break;
                 }
             }
             if (this.data?.bPublished) {
                 obj?.publish(passport);
             }
+            var new_progress;
             if (this.data?.progress_new !== undefined) {
-                const addr = Progress?.New(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_new.task_address, passport).launch();
-                if (addr) {
-                    await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
-                }
+                new_progress = Progress?.New(txb, obj?.get_object(), perm, this.data?.progress_new.task_address, pst);
             }
             if (this.data?.progress_context_repository !== undefined) {
-                Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_context_repository.progress)
-                    .set_context_repository(this.data?.progress_context_repository.repository, passport);
+                const p = this.data?.progress_context_repository.progress ?? new_progress?.get_object();
+                if (!p)
+                    ERROR(Errors.Fail, 'progress invalid: progress_context_repository');
+                Progress.From(txb, obj?.get_object(), perm, p).set_context_repository(this.data?.progress_context_repository.repository, pst);
             }
             if (this.data?.progress_namedOperator !== undefined) {
-                const p = Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_namedOperator.progress);
-                this.data.progress_namedOperator.data.forEach(v => p.set_namedOperator(v.name, v.operator, passport));
+                const p = this.data?.progress_namedOperator.progress ?? new_progress?.get_object();
+                if (!p)
+                    ERROR(Errors.Fail, 'progress invalid: progress_namedOperator');
+                let pp = Progress.From(txb, obj?.get_object(), perm, p);
+                this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operator, pst));
             }
             if (this.data?.progress_parent !== undefined) {
+                const p = this.data?.progress_parent.progress ?? new_progress?.get_object();
+                if (!p)
+                    ERROR(Errors.Fail, 'progress invalid: progress_parent');
                 if (this.data.progress_parent.parent) {
-                    Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_parent.progress).parent(this.data.progress_parent.parent);
+                    Progress.From(txb, obj?.get_object(), perm, p).parent(this.data.progress_parent.parent);
                 }
                 else {
-                    Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_parent.progress).parent_none();
+                    Progress.From(txb, obj?.get_object(), perm, p).parent_none();
                 }
             }
             if (this.data?.progress_task !== undefined) {
-                Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_task.progress).bind_task(this.data.progress_task.task, passport);
+                const p = this.data?.progress_task.progress ?? new_progress?.get_object();
+                if (!p)
+                    ERROR(Errors.Fail, 'progress invalid: progress_task');
+                Progress.From(txb, obj?.get_object(), perm, p).bind_task(this.data.progress_task.task, pst);
             }
             if (this.data?.progress_hold !== undefined) {
+                const p = this.data?.progress_hold.progress ?? new_progress?.get_object();
+                if (!p)
+                    ERROR(Errors.Fail, 'progress invalid: progress_hold');
                 if (this.data?.progress_hold.adminUnhold) {
-                    Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_hold.progress).unhold(this.data.progress_hold.data, passport);
+                    Progress.From(txb, obj?.get_object(), perm, p).unhold(this.data.progress_hold.data, pst);
                 }
                 else {
-                    Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_hold.progress).hold(this.data.progress_hold.data, this.data.progress_hold.bHold);
+                    Progress.From(txb, obj?.get_object(), perm, p).hold(this.data.progress_hold.data, this.data.progress_hold.bHold);
                 }
             }
+            const addr = new_progress?.launch();
+            if (addr) {
+                await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
+            }
             if (this.data?.progress_next !== undefined) {
-                Progress.From(txb, obj?.get_object(), permission ?? this.data?.permission, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, passport);
+                Progress.From(txb, obj?.get_object(), perm, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, pst);
             }
             if (this.data?.bPaused !== undefined) {
-                obj?.pause(this.data.bPaused, passport);
+                obj?.pause(this.data.bPaused, pst);
             }
             if (this.data?.clone_new !== undefined && obj) {
-                await this.new_with_mark(txb, obj?.clone(true, passport), this.data?.clone_new?.namedNew, account);
+                await this.new_with_mark(txb, obj?.clone(true, pst), this.data?.clone_new?.namedNew, account);
             }
             if (permission) {
                 await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);

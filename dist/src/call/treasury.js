@@ -107,8 +107,9 @@ export class CallTreasury extends CallBase {
             }
         }
         if (obj) {
+            const pst = permission ? undefined : passport;
             if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, passport);
+                obj?.set_description(this.data.description, pst);
             }
             if (this.data.deposit !== undefined) {
                 const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.data.balance, account, this.data.type_parameter);
@@ -121,33 +122,33 @@ export class CallTreasury extends CallBase {
                 }
             }
             if (this.data?.receive !== undefined) {
-                obj?.receive(this.data.receive.payment, this.data.receive.received_object, passport);
+                obj?.receive(this.data.receive.payment, this.data.receive.received_object, pst);
             }
             if (this.data?.withdraw !== undefined) {
-                obj?.withdraw(this.data.withdraw, passport);
+                obj?.withdraw(this.data.withdraw, pst);
             }
             if (this.data?.deposit_guard !== undefined) {
-                obj?.set_deposit_guard(this.data.deposit_guard, passport);
+                obj?.set_deposit_guard(this.data.deposit_guard, pst);
             }
             if (this.data?.withdraw_guard !== undefined) {
                 switch (this.data.withdraw_guard.op) {
                     case 'add':
-                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), passport));
+                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), pst));
                         break;
                     case 'remove':
-                        obj?.remove_withdraw_guard(this.data.withdraw_guard.guards, false, passport);
+                        obj?.remove_withdraw_guard(this.data.withdraw_guard.guards, false, pst);
                         break;
                     case 'set':
-                        obj?.remove_withdraw_guard([], true, passport);
-                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), passport));
+                        obj?.remove_withdraw_guard([], true, pst);
+                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), pst));
                         break;
                     case 'removeall':
-                        obj?.remove_withdraw_guard([], true, passport);
+                        obj?.remove_withdraw_guard([], true, pst);
                         break;
                 }
             }
             if (this.data?.withdraw_mode !== undefined) {
-                obj?.set_withdraw_mode(this.data.withdraw_mode, passport);
+                obj?.set_withdraw_mode(this.data.withdraw_mode, pst);
             }
             if (permission) {
                 await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);

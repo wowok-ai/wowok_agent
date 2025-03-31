@@ -1,7 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, ERROR, Errors } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, ERROR, Errors, } from 'wowok';
 import { getFaucetHost, requestSuiFromFaucetV0 } from 'wowok';
 const Account_FileName = 'wowok.acc.dat';
 const Account_Key = 'wowok-acc-v1';
@@ -104,9 +101,10 @@ export class Account {
     set_storage(storage = 'File') {
         this.storage = storage;
     }
-    gen(name, bDefault) {
+    async gen(name, bDefault) {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 fs.readFile(filePath, 'utf-8', (err, d) => {
                     const data = this._add(d, name, bDefault);
@@ -120,9 +118,10 @@ export class Account {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    default() {
+    async default() {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 return this._default(fs.readFileSync(filePath, 'utf-8'));
             }
@@ -132,9 +131,10 @@ export class Account {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    get(name, bNotFoundReturnDefault = true) {
+    async get(name, bNotFoundReturnDefault = true) {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 return this._get(fs.readFileSync(filePath, 'utf-8'), name, bNotFoundReturnDefault);
             }
@@ -144,10 +144,11 @@ export class Account {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    rename(oldName, newName, bSwapIfExisted = true) {
+    async rename(oldName, newName, bSwapIfExisted = true) {
         var res;
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 res = this._rename(fs.readFileSync(filePath, 'utf-8'), oldName, newName, bSwapIfExisted);
                 if (res) {
@@ -163,27 +164,28 @@ export class Account {
         catch (e) { /*console.log(e)*/ }
         return res ? true : false;
     }
-    get_address(name, bNotFoundReturnDefault = true) {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_address(name, bNotFoundReturnDefault = true) {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key)).getPublicKey().toSuiAddress();
         }
     }
-    get_pubkey(name, bNotFoundReturnDefault = true) {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_pubkey(name, bNotFoundReturnDefault = true) {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key)).getPublicKey().toSuiPublicKey();
         }
     }
-    get_pair(name, bNotFoundReturnDefault = true) {
-        const a = this.get(name, bNotFoundReturnDefault);
+    async get_pair(name, bNotFoundReturnDefault = true) {
+        const a = await this.get(name, bNotFoundReturnDefault);
         if (a) {
             return Ed25519Keypair.fromSecretKey(fromHEX(a.key));
         }
     }
-    list() {
+    async list() {
         try {
             if (this.storage === 'File') {
+                const [fs, os, path] = await Promise.all([import('fs'), import('os'), import('path')]);
                 const filePath = path.join(os.homedir(), Account_FileName);
                 const a = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
                 return a.map(v => {
@@ -201,7 +203,7 @@ export class Account {
         return [];
     }
     async faucet(name) {
-        const address = this.get_address(name, true);
+        const address = await this.get_address(name, true);
         if (address) {
             await requestSuiFromFaucetV0({ host: getFaucetHost('testnet'), recipient: address }).catch(e => {
                 //console.log(e)
@@ -210,20 +212,20 @@ export class Account {
     }
     // token_type is 0x2::sui::SUI, if not specified.
     balance = async (name, token_type) => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         if (addr) {
             return await Protocol.Client().getBalance({ owner: addr, coinType: token_type });
         }
     };
     // token_type is 0x2::sui::SUI, if not specified.
     coin = async (name, token_type) => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         if (addr) {
             return (await Protocol.Client().getCoins({ owner: addr, coinType: token_type })).data;
         }
     };
     get_coin_object = async (txb, balance_required, name, token_type) => {
-        const addr = this.get_address(name);
+        const addr = await this.get_address(name);
         const b = BigInt(balance_required);
         if (addr && b > BigInt(0)) {
             if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
@@ -252,7 +254,7 @@ export class Account {
         }
     };
     coin_with_balance = async (balance_required, account, token_type) => {
-        const pair = this.get_pair(account, true);
+        const pair = await this.get_pair(account, true);
         if (!pair)
             ERROR(Errors.Fail, 'account invalid');
         const txb = new TransactionBlock();

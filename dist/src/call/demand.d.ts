@@ -19,7 +19,7 @@ export interface CallDemand_Data {
         op: 'duration';
         minutes: number;
     } | {
-        op: 'set';
+        op: 'time';
         time: number;
     };
     bounty?: {
