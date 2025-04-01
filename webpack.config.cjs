@@ -11,7 +11,7 @@ module.exports = {
     }
   },
   output: {
-    filename: 'index.js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd',  
     globalObject: 'this'   
