@@ -1,8 +1,7 @@
-import { Protocol, Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport } from 'wowok';
+import { Protocol, Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
 import { queryTableItem_Personal, raw2type } from '../objects';
-import { Transaction as TransactionBlock } from '@mysten/sui/transactions';
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {
