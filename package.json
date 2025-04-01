@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rmdir /s /q dist && tsc && webpack --mode production"
+    "build": "tsc && webpack --mode production"
   },
   "keywords": [
     "web3",
@@ -57,6 +57,6 @@
   "dependencies": {
     "@mysten/bcs": "^0.11.1",
     "@mysten/sui": "^1.7.0",
-    "wowok": "^1.6.84"
+    "wowok": "^1.6.85"
   }
 }
