@@ -1,13 +1,12 @@
 
 
 import { Protocol, Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
-    PermissionIndexType, GuardParser, Passport, WitnessFill
+    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse
 } from 'wowok';
 import { query_permission } from '../permission';
 import { Account } from '../account';
 import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects';
 import { Transaction as TransactionBlock} from '@mysten/sui/transactions';
-import { type SuiTransactionBlockResponse as CallResponse} from '@mysten/sui/client'; 
 
 
 export interface Namedbject {

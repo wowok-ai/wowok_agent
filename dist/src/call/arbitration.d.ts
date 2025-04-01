@@ -1,6 +1,5 @@
 import { TransactionBlock, PassportObject, VotingGuard, WithdrawFee } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base";
-export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
 export interface DisputeData {
     order: string;
     order_token_type: string;

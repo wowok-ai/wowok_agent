@@ -2,7 +2,6 @@ import { IsValidArgType, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 import { query_objects, } from '../objects';
 import { CallBase } from "./base";
 import { Account } from '../account';
-export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
 export class CallArbitration extends CallBase {
     data;
     constructor(data) {

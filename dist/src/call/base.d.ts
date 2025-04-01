@@ -1,7 +1,6 @@
-import { TxbAddress, ResourceObject, PassportObject, PermissionIndexType, WitnessFill } from 'wowok';
+import { TxbAddress, ResourceObject, PassportObject, PermissionIndexType, WitnessFill, CallResponse } from 'wowok';
 import { ObjectBase } from '../objects';
 import { Transaction as TransactionBlock } from '@mysten/sui/transactions';
-import { type SuiTransactionBlockResponse as CallResponse } from '@mysten/sui/client';
 export interface Namedbject {
     name?: string;
     tags?: string[];

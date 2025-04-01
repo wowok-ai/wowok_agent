@@ -1,8 +1,6 @@
 
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, ERROR, Errors,  } from 'wowok';
-import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1 } from 'wowok';
-import { type CoinBalance, type CoinStruct } from '@mysten/sui/client';
-import { type TransactionArgument, type TransactionResult } from '@mysten/sui/transactions';
+import { getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult } from 'wowok';
 export interface AccountData {
     name: string; 
     default?: boolean;

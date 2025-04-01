@@ -1,6 +1,5 @@
 import { Ed25519Keypair, TransactionBlock } from 'wowok';
-import { type CoinBalance, type CoinStruct } from '@mysten/sui/client';
-import { type TransactionResult } from '@mysten/sui/transactions';
+import { CoinBalance, CoinStruct, TransactionResult } from 'wowok';
 export interface AccountData {
     name: string;
     default?: boolean;

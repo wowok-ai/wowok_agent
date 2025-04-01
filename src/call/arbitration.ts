@@ -5,8 +5,6 @@ import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Error
 import { query_objects, ObjectArbitration, } from '../objects';
 import { CallBase, CallResult, Namedbject} from "./base";
 import { Account } from '../account';
-export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
-
 export interface DisputeData {
     order: string,
     order_token_type: string,
