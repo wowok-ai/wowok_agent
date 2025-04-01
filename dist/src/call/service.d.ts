@@ -45,7 +45,7 @@ export interface CallService_Data {
         op: 'set' | 'add';
         arbitrations: {
             address: string;
-            type_parameter: string;
+            token_type: string;
         }[];
     } | {
         op: 'removeall';

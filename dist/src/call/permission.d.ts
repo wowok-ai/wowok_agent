@@ -9,7 +9,9 @@ export interface CallPermission_Data {
     description?: string;
     admin?: {
         op: 'add' | 'remove' | 'set';
-        address: string[];
+        addresses: string[];
+    } | {
+        op: 'removeall';
     };
     biz_permission?: {
         op: 'add';

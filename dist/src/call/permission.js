@@ -38,16 +38,19 @@ export class CallPermission extends CallBase {
                 obj?.set_description(this.data.description);
             }
             if (this.data?.admin !== undefined) {
-                switch (this.data.admin.op) {
+                switch (this.data.admin?.op) {
                     case 'add':
-                        obj?.add_admin(this.data.admin.address);
+                        obj?.add_admin(this.data.admin.addresses);
                         break;
                     case 'remove':
-                        obj?.remove_admin(this.data.admin.address);
+                        obj?.remove_admin(this.data.admin.addresses);
                         break;
                     case 'set':
                         obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.address);
+                        obj?.add_admin(this.data.admin.addresses);
+                        break;
+                    case 'removeall':
+                        obj?.remove_admin([], true);
                         break;
                 }
             }

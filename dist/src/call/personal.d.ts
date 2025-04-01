@@ -9,7 +9,7 @@ export interface CallPersonal_Data {
     };
     information?: Entity_Info;
     mark?: {
-        op: 'add';
+        op: 'add or set';
         data: {
             address: string;
             name?: string;
@@ -23,7 +23,7 @@ export interface CallPersonal_Data {
         }[];
     } | {
         op: 'removeall';
-        address: string[];
+        addresses: string[];
     } | {
         op: 'transfer';
         address: string;

@@ -1,6 +1,7 @@
 import { IsValidArgType, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Treasury, Arbitration, } from 'wowok';
 import { query_objects, } from '../objects';
 import { CallBase } from "./base";
+import { Account } from '../account';
 export { BCS, getSuiMoveConfig, } from '@mysten/bcs';
 export class CallArbitration extends CallBase {
     data;
@@ -38,7 +39,7 @@ export class CallArbitration extends CallBase {
             if (treasury_address !== undefined && object_address) {
                 perms.push(PermissionIndex.arbitration_treasury);
             }
-            if (this.data?.usage_guard !== undefined) {
+            if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.arbitration_guard);
             }
             if (this.data?.voting_guard !== undefined) {
@@ -53,8 +54,8 @@ export class CallArbitration extends CallBase {
                 }
                 else {
                     if (!object_address) { // new
-                        if (this.data?.usage_guard && IsValidAddress(this.data?.usage_guard)) {
-                            guards.push(this.data.usage_guard);
+                        if (this.data?.guard && IsValidAddress(this.data?.guard)) {
+                            guards.push(this.data.guard);
                         }
                     }
                     else {
@@ -122,7 +123,11 @@ export class CallArbitration extends CallBase {
             }
             var arb_new;
             if (this.data?.arb_new !== undefined) {
-                arb_new = obj?.arb(this.data.arb_new.data, pst);
+                const b = BigInt(this.data.arb_new.data.fee);
+                const d = this.data?.arb_new.data;
+                arb_new = obj?.arb({ order: d.order, order_token_type: d.order_token_type, description: d.description, votable_proposition: d.votable_proposition,
+                    fee: b > BigInt(0) ? await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter) : undefined
+                }, pst);
             }
             if (this.data?.arb_arbitration !== undefined) {
                 const a = this.data.arb_arbitration.arb ?? arb_new;
@@ -162,8 +167,8 @@ export class CallArbitration extends CallBase {
                         break;
                 }
             }
-            if (this.data.usage_guard !== undefined) {
-                obj?.set_guard(this.data.usage_guard, pst);
+            if (this.data.guard !== undefined) {
+                obj?.set_guard(this.data.guard, pst);
             }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);

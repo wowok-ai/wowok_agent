@@ -12,7 +12,7 @@ export interface GuardConst {
 export type GuardNode = {
     identifier: number;
 } | {
-    query: number | string;
+    query: number;
     object: string | number;
     parameters: GuardNode[];
 } | {
@@ -24,8 +24,6 @@ export type GuardNode = {
 } | {
     value_type: ValueType;
     value: any;
-} | {
-    identifier: number;
 } | {
     context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER;
 };

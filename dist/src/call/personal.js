@@ -29,7 +29,7 @@ export class CallPersonal extends CallBase {
         if (obj && obj?.get_object()) {
             if (this.data?.mark !== undefined) {
                 switch (this.data.mark.op) {
-                    case 'add':
+                    case 'add or set':
                         this.data.mark.data.forEach(v => {
                             obj?.add(v.address, v.tags, v.name);
                         });
@@ -40,7 +40,7 @@ export class CallPersonal extends CallBase {
                         });
                         break;
                     case 'removeall':
-                        this.data.mark.address.forEach(v => {
+                        this.data.mark.addresses.forEach(v => {
                             obj?.removeall(v);
                         });
                         break;

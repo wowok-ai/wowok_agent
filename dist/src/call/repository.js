@@ -86,7 +86,7 @@ export class CallRepository extends CallBase {
                         obj?.add_policies(this.data.policy.data, pst);
                         break;
                     case 'remove':
-                        obj?.remove_policies(this.data.policy.data, false, pst);
+                        obj?.remove_policies(this.data.policy.keys, false, pst);
                         break;
                     case 'removeall':
                         obj?.remove_policies([], true, pst);
@@ -109,7 +109,7 @@ export class CallRepository extends CallBase {
                         }
                         break;
                     case 'remove':
-                        obj?.remove(this.data.data.data.address, this.data.data.data.key);
+                        this.data.data.data.forEach(v => obj?.remove(v.address, v.key));
                         break;
                 }
             }

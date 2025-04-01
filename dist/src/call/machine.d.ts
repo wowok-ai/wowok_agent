@@ -49,7 +49,7 @@ export interface CallMachine_Data {
             node_name: string;
             forward: Machine_Forward;
             threshold?: number;
-            old_need_remove?: string;
+            remove_forward?: string;
         }[];
     } | {
         op: 'remove forward';
@@ -66,13 +66,13 @@ export interface CallMachine_Data {
     };
     progress_context_repository?: {
         progress?: string;
-        repository: string;
+        repository?: string;
     };
     progress_namedOperator?: {
         progress?: string;
         data: {
             name: string;
-            operator: string[];
+            operators: string[];
         }[];
     };
     progress_parent?: {
@@ -85,13 +85,13 @@ export interface CallMachine_Data {
     };
     progress_hold?: {
         progress?: string;
-        data: ProgressNext;
+        operation: ProgressNext;
         bHold: boolean;
         adminUnhold?: boolean;
     };
     progress_next?: {
         progress: string;
-        data: ProgressNext;
+        operation: ProgressNext;
         deliverable: Deliverable;
         guard?: string | 'fetch';
     };

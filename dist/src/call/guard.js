@@ -79,17 +79,17 @@ const buildNode = (guard_node, type_required, table, output) => {
     else if (node?.query !== undefined) {
         var q;
         if (typeof (node.query) === 'string') {
-            q = GUARD_QUERIES.find(v => v[1] === node.query);
+            q = GUARD_QUERIES.find(v => v.query_name === node.query);
         }
         else if (typeof (node.query) === 'number') {
-            q = GUARD_QUERIES.find(v => v[2] === node.query);
+            q = GUARD_QUERIES.find(v => v.query_id === node.query);
         }
         if (!q)
             ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
-        checkType(q[4], type_required, node); // Return type checking
-        if ((q[3]).length === node.parameters.length) {
+        checkType(q.return, type_required, node); // Return type checking
+        if (q.parameters.length === node.parameters.length) {
             for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
-                buildNode(node.parameters[i], q[3][i], table, output); // Recursive check
+                buildNode(node.parameters[i], q.parameters[i], table, output); // Recursive check
             }
         }
         else {
@@ -114,7 +114,7 @@ const buildNode = (guard_node, type_required, table, output) => {
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
             }
         }
-        output.push(Bcs.getInstance().ser('u16', q[2])); // cmd(u16)
+        output.push(Bcs.getInstance().ser('u16', q.query_id)); // cmd(u16)
     }
     else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool

@@ -191,11 +191,11 @@ export class CallService extends CallBase {
             if (this.data?.arbitration !== undefined) {
                 switch (this.data.arbitration.op) {
                     case 'add':
-                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, pst));
+                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.token_type, pst));
                         break;
                     case 'set':
                         obj?.remove_arbitration([], true, pst);
-                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.type_parameter, pst));
+                        this.data.arbitration.arbitrations.forEach(v => obj?.add_arbitration(v.address, v.token_type, pst));
                         break;
                     case 'remove':
                         obj?.remove_arbitration(this.data.arbitration.addresses, false, pst);
@@ -268,7 +268,7 @@ export class CallService extends CallBase {
                     b += BigInt(v.max_price) * BigInt(v.count);
                 });
                 if (b > BigInt(0)) {
-                    const coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
                     if (coin) {
                         //@ crypto tools support
                         order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine, this.data.order_new.customer_info_crypto, pst);

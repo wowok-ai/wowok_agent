@@ -16,11 +16,28 @@ module.exports = {
     libraryTarget: 'umd',  
     globalObject: 'this'   
   },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      minSize: 20000,
+      maxSize: 70000,
+    },
+  },
   module: {
-    rules: [{
-      test: /\.ts$/,
-      use: 'ts-loader',
-      exclude: /node_modules/
-    }]
+    rules: [
+      {
+        test: /\.ts$/,
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'node_modules/wowok/src')
+        ],
+        use: {
+          loader: 'ts-loader',
+          options: {
+            allowTsInNodeModules: true
+          }
+        },
+      },
+    ],
   }
 };

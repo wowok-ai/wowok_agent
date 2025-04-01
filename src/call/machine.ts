@@ -168,7 +168,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                         this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, pst))
                         break;
                     case 'remove pair':
-                        this.data.nodes.pairs.forEach(v => obj.remove_pair(v.prior_node_name, v.node_name, pst));
+                        this.data.nodes.pairs.forEach(v => obj?.remove_pair(v.prior_node_name, v.node_name, pst));
                         break;
                     }
             }

@@ -60,7 +60,7 @@ export class CallMachine extends CallBase {
                     guards.push(this.data?.progress_next?.guard);
                 }
                 else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
-                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.data.next_node_name, this.data.progress_next.data.forward);
+                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
                     if (guard) {
                         guards.push(guard);
                     }
@@ -131,10 +131,13 @@ export class CallMachine extends CallBase {
                         obj?.add_node2(this.data.nodes.addresses, pst);
                         break;
                     case 'add forward':
-                        this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.old_need_remove, pst));
+                        this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.remove_forward, pst));
                         break;
                     case 'remove forward':
                         this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, pst));
+                        break;
+                    case 'remove pair':
+                        this.data.nodes.pairs.forEach(v => obj?.remove_pair(v.prior_node_name, v.node_name, pst));
                         break;
                 }
             }
@@ -156,7 +159,7 @@ export class CallMachine extends CallBase {
                 if (!p)
                     ERROR(Errors.Fail, 'progress invalid: progress_namedOperator');
                 let pp = Progress.From(txb, obj?.get_object(), perm, p);
-                this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operator, pst));
+                this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
             }
             if (this.data?.progress_parent !== undefined) {
                 const p = this.data?.progress_parent.progress ?? new_progress?.get_object();
@@ -180,10 +183,10 @@ export class CallMachine extends CallBase {
                 if (!p)
                     ERROR(Errors.Fail, 'progress invalid: progress_hold');
                 if (this.data?.progress_hold.adminUnhold) {
-                    Progress.From(txb, obj?.get_object(), perm, p).unhold(this.data.progress_hold.data, pst);
+                    Progress.From(txb, obj?.get_object(), perm, p).unhold(this.data.progress_hold.operation, pst);
                 }
                 else {
-                    Progress.From(txb, obj?.get_object(), perm, p).hold(this.data.progress_hold.data, this.data.progress_hold.bHold);
+                    Progress.From(txb, obj?.get_object(), perm, p).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold);
                 }
             }
             const addr = new_progress?.launch();
@@ -191,7 +194,7 @@ export class CallMachine extends CallBase {
                 await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
             }
             if (this.data?.progress_next !== undefined) {
-                Progress.From(txb, obj?.get_object(), perm, this.data?.progress_next.progress).next(this.data.progress_next.data, this.data.progress_next.deliverable, pst);
+                Progress.From(txb, obj?.get_object(), perm, this.data?.progress_next.progress).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst);
             }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);

@@ -34,7 +34,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
-                    await this.operate(new TransactionBlock(), passport?.get_object(), account);
+                    await this.operate(txb, passport?.get_object(), account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }
@@ -76,7 +76,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
-                    await this.operate(new TransactionBlock(), passport?.get_object(), account);
+                    await this.operate(txb, passport?.get_object(), account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }

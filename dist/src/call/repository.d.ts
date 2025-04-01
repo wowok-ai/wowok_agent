@@ -26,7 +26,7 @@ export interface CallRepository_Data {
         data: Repository_Policy[];
     } | {
         op: 'remove';
-        data: string[];
+        keys: string[];
     } | {
         op: 'removeall';
     } | {
@@ -41,7 +41,7 @@ export interface CallRepository_Data {
         data: Repository_Policy_Data | Repository_Policy_Data2;
     } | {
         op: 'remove';
-        data: Repository_Policy_Data_Remove;
+        data: Repository_Policy_Data_Remove[];
     };
 }
 export declare class CallRepository extends CallBase {
