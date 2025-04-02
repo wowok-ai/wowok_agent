@@ -9,11 +9,11 @@ import { Account } from '../account';
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
     type_parameter: string;
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
     endpoint?: string;
-    payee_treasury?:{address:string} | {namedNew: Namedbject, description?:string}; 
+    payee_treasury?:{address:string} | {namedNew?: Namedbject, description?:string}; 
     gen_discount?: DicountDispatch[];
     repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
     extern_withdraw_treasury?: {op:'set' | 'add'; treasuries:{address:string, token_type:string}[]} 
@@ -31,7 +31,7 @@ export interface CallService_Data {
     order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string | 'fetch', 
         namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
     order_agent?: {order?:string; agents: string[]; progress?:string};
-    order_required_info?: {order?:string; info:Customer_RequiredInfo};
+    order_required_info?: {order?:string; info?:Customer_RequiredInfo};
     order_refund?: {order?:string; guard?:string;} | {order?:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order?:string; data:WithdrawPayee}; // guard address
     order_payer?: {order?:string; payer_new:string; progress?:string}; // transfer the order payer permission to someaddress
@@ -319,7 +319,7 @@ export class CallService extends CallBase {
 
                 obj?.set_order_agent(o!, this.data.order_agent.agents, this.data.order_agent.progress)
             }
-            if (this.data?.order_required_info !== undefined) {
+            if (this.data?.order_required_info !== undefined && this.data.order_required_info.info !== undefined) {
                 const o = this.data.order_required_info.order ?? order_new?.order;
                 if (!o) ERROR(Errors.Fail, 'order invalid: order_required_info');
                 

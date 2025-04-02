@@ -7,8 +7,8 @@ import { Account } from '../account';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
     endpoint?: string;
     consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
@@ -26,7 +26,7 @@ export interface CallMachine_Data {
     progress_hold?: {progress?:string; operation:ProgressNext; bHold:boolean; adminUnhold?:boolean};
     progress_next?: {progress:string; operation:ProgressNext; deliverable:Deliverable; guard?:string | 'fetch'};
     bPaused?: boolean;
-    clone_new?: {namedNew: Namedbject/*, description?:string*/};
+    clone_new?: {namedNew?: Namedbject/*, description?:string*/};
 }
 export class CallMachine extends CallBase { //@ todo self-owned node operate
     data: CallMachine_Data;

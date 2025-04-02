@@ -16,12 +16,12 @@ export interface DisputeData {
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallArbitration_Data {
     type_parameter: string;
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
     endpoint?: string;
     fee?: string | number;
-    fee_treasury?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    fee_treasury?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     arb_new?: {data: DisputeData; guard?:string | 'fetch'; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
     arb_withdraw_fee?: {arb?:string; data:WithdrawFee};
     arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};

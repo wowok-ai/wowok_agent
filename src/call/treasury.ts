@@ -8,10 +8,10 @@ import { Account } from '../account';
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {
     type_parameter: string;
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
-    deposit?: {data:{balance:string|number; index?:number; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
+    deposit?: {data:{balance:string|number; index?:number|string; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
     receive?: {payment:string; received_object:string};
     withdraw?: WithdrawParam;
     deposit_guard?: string;

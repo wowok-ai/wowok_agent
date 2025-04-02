@@ -4,14 +4,14 @@ import { CallBase, CallResult, Namedbject } from "./base";
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
     information?: Entity_Info;
     mark?: {op:'add or set'; data:{address:string; name?:string; tags:string[]}[]}
         | {op:'remove'; data:{address:string; tags:string[]}[]}
         | {op:'removeall'; addresses:string[]}
         | {op:'transfer'; address: string}
-        | {op:'destroy';}
-        | {op:'replace'; address: string};
+        | {op:'replace'; address: string}
+        | {op:'destroy'}
 }
 
 export class CallPersonal extends CallBase {

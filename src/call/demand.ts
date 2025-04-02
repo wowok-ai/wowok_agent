@@ -8,8 +8,8 @@ import { Account } from '../account';
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallDemand_Data {
     type_parameter: string;
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
     time_expire?: {op: 'duration'; minutes:number} | {op:'time'; time:number};
     bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'reward'; service:string} | {op:'refund'} ;

@@ -444,7 +444,7 @@ function tableItemQuery_byString(parent:string | ObjectMachine | ObjectService, 
     }
     return {parent:parent, key:{type:'0x1::string::String', value:name}};
 }
-function tableItemQuery_byU64 (parent:string | ObjectProgress | ObjectTreasury, index:BigInt) : TableItemQuery {
+function tableItemQuery_byU64(parent:string | ObjectProgress | ObjectTreasury, index:BigInt) : TableItemQuery {
     if (typeof(parent) !== 'string') {
         parent = parent.object;
     }

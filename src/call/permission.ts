@@ -5,7 +5,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_E
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPermission_Data {
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
     description?: string;
     admin?: {op:'add' | 'remove' | 'set', addresses:string[]} | {op:'removeall'};
     biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};

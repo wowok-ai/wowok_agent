@@ -30,9 +30,9 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
 
 export interface CallGuard_Data {
     namedNew?: Namedbject;
-    description: string;
+    description?: string;
     table?: GuardConst[]; //  data used by multiple logical guard nodes
-    root: GuardNode; // root must return ValueType.TYPE_BOOL     
+    root?: GuardNode; // root must return ValueType.TYPE_BOOL     
 }
 export class CallGuard extends CallBase {
     data: CallGuard_Data;
@@ -48,7 +48,7 @@ export class CallGuard extends CallBase {
         if (!this.data?.root) {
             ERROR(Errors.InvalidParam, 'guard root node invalid')
         }
-        if (!IsValidDesription(this.data?.description)) {
+        if (this.data?.description && !IsValidDesription(this.data?.description)) {
             ERROR(Errors.IsValidDesription, 'build_guard - '+this.data.description)
         }
     
@@ -69,7 +69,7 @@ export class CallGuard extends CallBase {
 
         const obj = txb.moveCall({
             target: Protocol.Instance().guardFn('new') as FnCallType,
-            arguments: [txb.pure.string(this.data.description), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
+            arguments: [txb.pure.string(this.data.description ?? ''), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],  
         });
         this.data?.table?.forEach((v) => {
             if (v.bWitness) {

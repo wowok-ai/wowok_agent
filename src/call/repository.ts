@@ -8,8 +8,8 @@ import { CallBase, CallResult, Namedbject} from "./base";
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {
-    object?: {address:string} | {namedNew: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew: Namedbject, description?:string}; 
+    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
+    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
     reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
