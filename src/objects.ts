@@ -5,7 +5,7 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags } from 'wowok';
+    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address} from 'wowok';
 import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache'
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
@@ -401,35 +401,81 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
     }), nextCursor:res.nextCursor, hasNextPage:res.hasNextPage}
 }
 
-export const queryTableItem_DemandPresenter = async (demand_object:string | ObjectDemand, address:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(demand_object, address))
+export interface QueryDemandPresenter {
+    object: string | ObjectDemand;
+    address: string;
 }
-export const queryTableItem_PermissionEntity = async (permission_object:string | ObjectDemand, address:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(permission_object, address))
+
+export const queryTableItem_DemandPresenter = async (query: QueryDemandPresenter) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
 }
-export const queryTableItem_ArbVote = async (arb_object:string | ObjectDemand, address:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(arb_object, address))
+
+export interface QueryPermissionEntity {
+    object: string | ObjectPermission;
+    address: string;
 }
-export const tableItemQuery_MachineNode = async (machine_object:string | ObjectMachine, name:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byString(machine_object, name))
+
+export const queryTableItem_PermissionEntity = async (query: QueryPermissionEntity) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
 }
-export const tableItemQuery_ServiceSale = async (service_object:string | ObjectService, name:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byString(service_object, name))
+
+export interface QueryArbVoting {
+    object: string | ObjectArb;
+    address: string;
 }
-export const tableItemQuery_ProgressHistory = async (progress_object:string | ObjectProgress, index:BigInt) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byU64(progress_object, index))
+export const queryTableItem_ArbVoting = async (query:QueryArbVoting) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
 }
-export const tableItemQuery_TreasuryHistory = async (treasury_object:string | ObjectTreasury, index:BigInt) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byU64(treasury_object, index))
+export interface QueryMachineNode {
+    object: string | ObjectMachine;
+    name: string;
 }
-export const tableItemQuery_RepositoryData = async (repository_object:string | ObjectRepository, address:string, name:string) : Promise<ObjectBase> => {
-    if (typeof(repository_object) !== 'string') {
-        repository_object = repository_object.object;
+
+export const queryTableItem_MachineNode = async (query:QueryMachineNode) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byString(query.object, query.name))
+}
+
+export interface QueryServiceSale {
+    object: string | ObjectService;
+    name: string;
+}
+export const queryTableItem_ServiceSale = async (query:QueryServiceSale) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byString(query.object, query.name))
+}
+export interface QueryProgressHistory {
+    object: string | ObjectProgress;
+    index: string | number | bigint;
+}
+export interface QueryTreasuryHistory {
+    object: string | ObjectTreasury;
+    index: string | number | bigint;
+}
+export const queryTableItem_ProgressHistory = async (query:QueryProgressHistory) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byU64(query.object, query.index))
+}
+export const queryTableItem_TreasuryHistory = async (query:QueryTreasuryHistory) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byU64(query.object, query.index))
+}
+export interface QueryRepositoryData {
+    object: string | ObjectRepository;
+    address: string | number | bigint;
+    name: string;
+}
+export const queryTableItem_RepositoryData = async (query:QueryRepositoryData) : Promise<ObjectBase> => {
+    if (typeof(query.object) !== 'string') {
+        query.object = query.object.object;
     }
-    return await tableItem({parent:repository_object, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:address, key:name}}})
+    if (typeof(query.address) !== 'string') {
+        query.address = uint2address(query.address); // convert int to address
+    }
+    return await tableItem({parent:query.object, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:query.address, key:query.name}}})
 }
-export const tableItemQuery_MarkTag = async (resource_object:string | ObjectMark, address:string) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(resource_object, address))
+export interface QueryMarkTag {
+    object: string | ObjectMark;
+    address: string;
+}
+export const queryTableItem_MarkTag = async (query:QueryMarkTag) : Promise<ObjectBase> => {
+    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
 }
 
 function tableItemQuery_byAddress(parent:string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark, address:string) : TableItemQuery {
@@ -444,7 +490,7 @@ function tableItemQuery_byString(parent:string | ObjectMachine | ObjectService, 
     }
     return {parent:parent, key:{type:'0x1::string::String', value:name}};
 }
-function tableItemQuery_byU64(parent:string | ObjectProgress | ObjectTreasury, index:BigInt) : TableItemQuery {
+function tableItemQuery_byU64(parent:string | ObjectProgress | ObjectTreasury, index:BigInt|string|number) : TableItemQuery {
     if (typeof(parent) !== 'string') {
         parent = parent.object;
     }
