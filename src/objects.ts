@@ -233,11 +233,6 @@ export interface ObjectMark extends ObjectBase {
 export interface TableItem_PersonalMark extends ObjectBase, Tags {
 }
 
-export enum CacheType {
-    localStorage = 'localStorage', // for explorer
-    memoryStorage = 'memoryStorage', // for console
-}
-
 export interface ObjectsQuery {
     objects: string[];
     showType?: boolean;
@@ -401,12 +396,12 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
     }), nextCursor:res.nextCursor, hasNextPage:res.hasNextPage}
 }
 
-export interface QueryDemandPresenter {
+export interface QueryDemandService {
     object: string | ObjectDemand;
     address: string;
 }
 
-export const queryTableItem_DemandPresenter = async (query: QueryDemandPresenter) : Promise<ObjectBase> => {
+export const queryTableItem_DemandService = async (query: QueryDemandService) : Promise<ObjectBase> => {
     return await tableItem(tableItemQuery_byAddress(query.object, query.address))
 }
 
