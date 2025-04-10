@@ -2,8 +2,8 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
     ProgressObject,
 } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base";
-import { Account } from '../account';
+import { CallBase, CallResult, Namedbject } from "./base.js";
+import { Account } from '../account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {

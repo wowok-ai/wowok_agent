@@ -1,6 +1,5 @@
-import { ResourceObject, TransactionBlock } from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, TagName, Resource} from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base";
+import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, Resource} from 'wowok';
+import { CallBase, CallResult, Namedbject } from "./base.js";
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {

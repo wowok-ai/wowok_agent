@@ -1,10 +1,9 @@
 import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Treasury, Arbitration, Dispute, Feedback, Vote, VotingGuard, WithdrawFee,
-    ArbObject, 
+    PermissionIndexType, Treasury, Arbitration, VotingGuard, WithdrawFee, ArbObject, 
 } from 'wowok';
-import { query_objects, ObjectArbitration, } from '../objects';
-import { CallBase, CallResult, Namedbject} from "./base";
-import { Account } from '../account';
+import { query_objects, ObjectArbitration, } from '../objects.js';
+import { CallBase, CallResult, Namedbject} from "./base.js";
+import { Account } from '../account.js';
 export interface DisputeData {
     order: string,
     order_token_type: string,

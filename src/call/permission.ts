@@ -1,4 +1,4 @@
-import { CallBase, CallResult, Namedbject } from "./base";
+import { CallBase, CallResult, Namedbject } from "./base.js";
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, BizPermission,
     PermissionIndexType, TransactionBlock
 } from 'wowok';

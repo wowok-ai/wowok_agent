@@ -3,9 +3,9 @@
 import { Protocol, Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock
 } from 'wowok';
-import { query_permission } from '../permission';
-import { Account } from '../account';
-import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects';
+import { query_permission } from '../permission.js';
+import { Account } from '../account.js';
+import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects.js';
 
 export interface Namedbject {
     name?: string;

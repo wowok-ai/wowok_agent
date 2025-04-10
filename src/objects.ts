@@ -6,7 +6,7 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address} from 'wowok';
-import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache'
+import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache.js'
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 

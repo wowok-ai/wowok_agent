@@ -1,9 +1,8 @@
-import { TransactionBlock } from 'wowok';
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, PermissionIndexType, Repository,
-    Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove,
-    Repository_Policy_Mode, 
+import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
+    PermissionIndexType, Repository, Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, 
+    Repository_Policy_Data_Remove, Repository_Policy_Mode, 
 } from 'wowok';
-import { CallBase, CallResult, Namedbject} from "./base";
+import { CallBase, CallResult, Namedbject} from "./base.js";
 
 
 /// The execution priority is determined by the order in which the object attributes are arranged

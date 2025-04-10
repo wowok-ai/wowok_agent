@@ -4,17 +4,17 @@
  * Restrictive prioritization, such as setting a deposit first and setting a deposit guard later (only subsequent deposits are affected).
  */
 
-import { CallArbitration, CallArbitration_Data } from "./call/arbitration";
-import { CallDemand, CallDemand_Data } from "./call/demand";
-import { CallMachine, CallMachine_Data } from "./call/machine";
-import { CallPermission, CallPermission_Data } from "./call/permission";
-import { CallPersonal, CallPersonal_Data } from "./call/personal";
-import { CallRepository, CallRepository_Data } from "./call/repository";
-import { CallService, CallService_Data } from "./call/service";
-import { CallTreasury, CallTreasury_Data } from "./call/treasury";
-import { CallBase, CallResult, GuardInfo_forCall } from "./call/base";
-import { CallGuard, CallGuard_Data } from "./call/guard";
-import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_permission";
+import { CallArbitration, CallArbitration_Data } from "./call/arbitration.js";
+import { CallDemand, CallDemand_Data } from "./call/demand.js";
+import { CallMachine, CallMachine_Data } from "./call/machine.js";
+import { CallPermission, CallPermission_Data } from "./call/permission.js";
+import { CallPersonal, CallPersonal_Data } from "./call/personal.js";
+import { CallRepository, CallRepository_Data } from "./call/repository.js";
+import { CallService, CallService_Data } from "./call/service.js";
+import { CallTreasury, CallTreasury_Data } from "./call/treasury.js";
+import { CallBase, CallResult, GuardInfo_forCall } from "./call/base.js";
+import { CallGuard, CallGuard_Data } from "./call/guard.js";
+import { CallObjectPermission, CallObjectPermission_Data } from "./call/object_permission.js";
 
 export interface CallDemandObject {
     data: CallDemand_Data;

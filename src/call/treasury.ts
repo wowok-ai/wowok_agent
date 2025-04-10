@@ -1,9 +1,9 @@
 import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
     PermissionIndexType, Treasury, Treasury_WithdrawMode, WithdrawParam, 
 } from 'wowok';
-import { query_objects, ObjectTreasury } from '../objects';
-import { CallBase, CallResult, Namedbject } from "./base";
-import { Account } from '../account';
+import { query_objects, ObjectTreasury } from '../objects.js';
+import { CallBase, CallResult, Namedbject } from "./base.js";
+import { Account } from '../account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {

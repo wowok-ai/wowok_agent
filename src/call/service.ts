@@ -2,9 +2,9 @@ import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject,
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
     Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, OrderResult, 
 } from 'wowok';
-import { query_objects, ObjectService } from '../objects';
-import { CallBase, CallResult, Namedbject } from "./base";
-import { Account } from '../account';
+import { query_objects, ObjectService } from '../objects.js';
+import { CallBase, CallResult, Namedbject } from "./base.js";
+import { Account } from '../account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
