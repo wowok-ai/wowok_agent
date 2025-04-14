@@ -302,31 +302,29 @@ export const query_personal_json = async (json:string) : Promise<string> => {
 }
 
 export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer> => {
-    var ret:ObjectBase[] = []; const pending : string[] = [];
+    var ret:ObjectBase[] = []; var pending : string[] = [];
     const time = new Date().getTime();
     const cache = WowokCache.Instance().get(CacheName.object);
-    if (cache) {
-        for (let i = 0; i < query.objects.length; ++i) {
-            try {
-                let data = cache.load(OBJECT_KEY(query.objects[i], CacheName.object))
-                
-                if (data) {
-                    const r:CachedData = JSON.parse(data);
+    for (let i = 0; i < query.objects.length; ++i) {
+        try {
+            let data = cache?.load(OBJECT_KEY(query.objects[i], CacheName.object))
+            if (data) {
+                const r:CachedData = JSON.parse(data);
 
-                    if (r?.expire !== 'INFINITE' && (query?.no_cache || r.expire <= time) && (query.showOwner || query.showContent)) { //@ type immutable
-                        pending.push(query.objects[i]);
-                    } else {
-                        const d = data2object(JSON.parse(r.data));
-                        d.cache_expire = r.expire;
-                        ret.push(d);                              
-                    }
-                }                 
-            } catch (e) {
-                console.log(e)
-            }
-            pending.push(query.objects[i]);
+                if (r?.expire !== 'INFINITE' && (query?.no_cache || r.expire <= time) && (query.showOwner || query.showContent)) { //@ type immutable
+                    pending.push(query.objects[i]);
+                } else {
+                    const d = data2object(JSON.parse(r.data));
+                    d.cache_expire = r.expire;
+                    ret.push(d);                              
+                }
+                continue;
+            }                 
+        } catch (e) {
+            console.log(e)
         }
-    } 
+        pending.push(query.objects[i]);
+    }
 
     if (pending.length > 0) {
         const res = await Protocol.Client().multiGetObjects({ids:[...pending], 
