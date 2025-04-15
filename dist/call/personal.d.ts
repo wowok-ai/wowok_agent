@@ -1,7 +1,7 @@
 import { TransactionBlock, PassportObject, Entity_Info } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 export interface CallPersonal_Data {
-    object?: {
+    mark_object?: {
         address: string;
     } | {
         namedNew?: Namedbject;
@@ -12,13 +12,13 @@ export interface CallPersonal_Data {
         data: {
             address: string;
             name?: string;
-            tags: string[];
+            tags?: string[];
         }[];
     } | {
         op: 'remove';
         data: {
             address: string;
-            tags: string[];
+            tags?: string[];
         }[];
     } | {
         op: 'removeall';

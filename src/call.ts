@@ -55,7 +55,6 @@ export interface CallRepositoryObject {
 export interface CallPersonalObject {
     data: CallPersonal_Data;
     account?: string;
-    witness?: GuardInfo_forCall;
 }
 export interface CallPermissionObject {
     data: CallPermission_Data;
@@ -177,7 +176,7 @@ export const call_machine = async (call:CallMachineObject) : Promise<CallResult>
 }
 export const call_personal = async (call:CallPersonalObject) : Promise<CallResult> => {
     const obj = new CallPersonal(call.data);
-    return call_object(obj, call.account, call.witness)
+    return call_object(obj, call.account);
 }
 export const call_permission = async (call:CallPermissionObject) : Promise<CallResult> => {
     const obj = new CallPermission(call.data);

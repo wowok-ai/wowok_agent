@@ -128,7 +128,7 @@ export const call_machine = async (call) => {
 };
 export const call_personal = async (call) => {
     const obj = new CallPersonal(call.data);
-    return call_object(obj, call.account, call.witness);
+    return call_object(obj, call.account);
 };
 export const call_permission = async (call) => {
     const obj = new CallPermission(call.data);

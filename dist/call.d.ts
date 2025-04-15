@@ -51,7 +51,6 @@ export interface CallRepositoryObject {
 export interface CallPersonalObject {
     data: CallPersonal_Data;
     account?: string;
-    witness?: GuardInfo_forCall;
 }
 export interface CallPermissionObject {
     data: CallPermission_Data;
