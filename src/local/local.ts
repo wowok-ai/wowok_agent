@@ -89,20 +89,20 @@ export class LocalMark {
     // 4. if not found and genNewIfNotFound is true, generate a new address and save it with name_or_address.
     async get_account(name_or_address?: string, genNewIfNotFound:boolean=false) : Promise<string | undefined> {
       if (name_or_address === undefined) {
-          return Account.Instance().default();
-      }
-
-      const r = await this.get(name_or_address);
-      if (r) {
-        return r.object;
+          return Account.Instance().default(genNewIfNotFound);
       } else {
-        if (IsValidAddress(name_or_address)) {
-          return name_or_address;
-        }
-
-        if (genNewIfNotFound) {
-          const addr = await Account.Instance().gen(false);
-          await this.put(name_or_address, {object:addr});
+        const r = await this.get(name_or_address);
+        if (r) {
+          return r.object;
+        } else {
+          if (IsValidAddress(name_or_address)) {
+            return name_or_address;
+          }
+  
+          if (genNewIfNotFound) {
+            const addr = await Account.Instance().gen(false);
+            await this.put(name_or_address, {object:addr});
+          }
         }
       }
     }

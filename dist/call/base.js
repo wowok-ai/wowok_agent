@@ -2,7 +2,7 @@ import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, Gua
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { query_personal, raw2type } from '../query/objects.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {

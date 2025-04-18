@@ -122,8 +122,14 @@ export class Account {
         ;
         return address;
     }
-    async default() {
-        return await this.storage.get(SettingDefault);
+    async default(genNewIfnotExisted = true) {
+        const r = await this.storage.get(SettingDefault);
+        if (r) {
+            return r;
+        }
+        else if (genNewIfnotExisted) {
+            return await this.gen(true);
+        }
     }
     // address: if undefined, the default returned.
     async get_pubkey(address) {
@@ -146,9 +152,11 @@ export class Account {
         }
     }
     async sign_and_commit(txb, address) {
-        const secret = address ?
-            await this.storage.get(address) :
-            await this.default();
+        const addr = address ? address : await this.default();
+        if (!addr) {
+            return undefined;
+        }
+        const secret = await this.storage.get(addr);
         if (secret) {
             return await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb,

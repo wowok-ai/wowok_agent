@@ -6,7 +6,7 @@ import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, Pa
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { ObjectBase, ObjectBaseType, query_personal, raw2type} from '../query/objects.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 
 export interface Namedbject {
     name?: string; 

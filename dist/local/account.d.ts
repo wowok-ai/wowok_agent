@@ -10,7 +10,7 @@ export declare class Account {
     static Instance(): Account;
     set_default(address?: string): Promise<boolean>;
     gen(bDefault?: boolean): Promise<string>;
-    default(): Promise<string | undefined>;
+    default(genNewIfnotExisted?: boolean): Promise<string | undefined>;
     get_pubkey(address?: string): Promise<string | undefined>;
     list(): Promise<string[]>;
     faucet(address?: string): Promise<void>;
