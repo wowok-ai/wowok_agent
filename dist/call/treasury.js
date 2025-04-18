@@ -1,7 +1,7 @@
 import { IsValidArgType, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Treasury, } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase } from "./base.js";
-import { Account } from '../local/-account.js';
+import { Account } from '../local/account.js';
 export class CallTreasury extends CallBase {
     constructor(data) {
         super();
@@ -150,10 +150,10 @@ export class CallTreasury extends CallBase {
                 obj?.set_withdraw_mode(this.data.withdraw_mode, pst);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), this.data?.permission?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }

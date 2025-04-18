@@ -4,9 +4,12 @@
 import path from "path";
 import os from "os";
 import { Level } from "level";
-import { isBrowser } from "./common.js";
+import { isBrowser } from "../common.js";
+import { IsValidAddress } from "wowok";
+import { Account } from "./account.js";
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
+export const LocalMarkNameMaxLength = 32;
 export class LocalMark {
     constructor() {
         var location = LocalMarkLocation;
@@ -22,10 +25,32 @@ export class LocalMark {
         ;
         return LocalMark._instance;
     }
-    async put(name, mark, replaceIfExist = true) {
-        if (await this.storage.get(name)) {
-            if (!replaceIfExist) {
-                return false;
+    // useAddressIfNameExist true: use address as the name if the name exist; 
+    // otherwise, use this name and change the original name to its address.
+    async put(name, mark, useAddressIfNameExist) {
+        // object address invalid
+        if (!IsValidAddress(mark.object) && mark.object !== '0x2' && mark.object !== '0x6') {
+            return false;
+        }
+        ;
+        // use address as name if name is undefined or null
+        if (name === undefined || name === null) {
+            this.storage.put(mark.object, JSON.stringify(mark));
+            return true;
+        }
+        if (name.length > LocalMarkNameMaxLength) {
+            name = name.substring(0, LocalMarkNameMaxLength);
+        }
+        ;
+        const r = await this.storage.get(name);
+        if (r) {
+            if (useAddressIfNameExist) {
+                this.storage.put(mark.object, JSON.stringify(mark));
+                return true;
+            }
+            else {
+                const obj = JSON.parse(r);
+                await this.storage.put(obj.object, r);
             }
         }
         await this.storage.put(name, JSON.stringify(mark));
@@ -37,6 +62,29 @@ export class LocalMark {
             return JSON.parse(r);
         }
     }
+    // get account address:
+    // 1. if name_or_address is undefined, return default account address.
+    // 2. if name_or_address is address, return it.
+    // 3. if name_or_address is name, return the address of the name.
+    // 4. if not found and genNewIfNotFound is true, generate a new address and save it with name_or_address.
+    async get_account(name_or_address, genNewIfNotFound = false) {
+        if (name_or_address === undefined) {
+            return Account.Instance().default();
+        }
+        const r = await this.get(name_or_address);
+        if (r) {
+            return r.object;
+        }
+        else {
+            if (IsValidAddress(name_or_address)) {
+                return name_or_address;
+            }
+            if (genNewIfNotFound) {
+                const addr = await Account.Instance().gen(false);
+                await this.put(name_or_address, { object: addr });
+            }
+        }
+    }
     async del(name) {
         return await this.storage.del(name);
     }
@@ -44,6 +92,10 @@ export class LocalMark {
         return await this.storage.clear();
     }
     async rename(name, new_name) {
+        if (new_name.length > LocalMarkNameMaxLength) {
+            new_name = new_name.substring(0, LocalMarkNameMaxLength);
+        }
+        ;
         const r = await this.storage.getMany([name, new_name]);
         if (r[0] && !r[1]) {
             await this.storage.put(new_name, r[0]);

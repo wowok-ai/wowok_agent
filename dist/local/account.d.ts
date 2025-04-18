@@ -1,8 +1,7 @@
 /**
  * account management and use
  */
-import { TransactionBlock } from 'wowok';
-import { CoinBalance, CoinStruct, TransactionResult } from 'wowok';
+import { TransactionBlock, CoinBalance, CoinStruct, TransactionResult } from 'wowok';
 export declare class Account {
     private storage;
     constructor();

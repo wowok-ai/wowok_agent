@@ -1,9 +1,8 @@
 /**
  * account management and use
  */
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, } from 'wowok';
-import { getFaucetHost, requestSuiFromFaucetV0 } from 'wowok';
-import { isBrowser } from './common.js';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, getFaucetHost, requestSuiFromFaucetV0 } from 'wowok';
+import { isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
 import { Level } from 'level';

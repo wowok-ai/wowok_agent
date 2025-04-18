@@ -1,7 +1,8 @@
-import { Protocol, Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock } from 'wowok';
+import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { query_personal, raw2type } from '../query/objects.js';
+import { LocalMark } from 'src/local/local.js';
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {
@@ -17,7 +18,9 @@ export function ResponseData(response) {
 export class CallBase {
     async operate(txb, passport, account) { }
     ;
-    constructor() { }
+    constructor() {
+        this.traceMarkNew = new Map();
+    }
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
     // return ResponseData when the call has completed; 
     // throw an exception when errors.
@@ -44,7 +47,7 @@ export class CallBase {
     async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, account) {
         var guards = [];
         if (permIndex.length > 0 || checkOwner) {
-            const addr = await Account.Instance().get_address(account);
+            const addr = await LocalMark.Instance().get_account(account);
             if (!addr)
                 ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
             const p = await query_permission({ permission_object: permission, address: addr });
@@ -89,10 +92,19 @@ export class CallBase {
         await this.operate(txb, undefined, account);
         return await this.sign_and_commit(txb, account);
     }
-    async new_with_mark(txb, object, named_new, account, innerTags = [TagName.Launch]) {
+    async new_with_mark(type, txb, object, named_new, account, innerTags = [TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
+        if (!named_new?.onChain) {
+            if (named_new) {
+                named_new.tags = tags;
+                this.traceMarkNew.set(type, named_new);
+            }
+            return;
+        }
+        ;
+        // onchain mark
         if (!this.resouceObject) {
-            const addr = await Account.Instance().get_address(account);
+            const addr = await LocalMark.Instance().get_account(account);
             if (addr) {
                 const r = await query_personal({ address: addr }); //@ use cache
                 if (!r?.mark_object) {
@@ -111,19 +123,26 @@ export class CallBase {
             Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         }
     }
-    async sign_and_commit(txb, account) {
-        const pair = await Account.Instance().get_pair(account, true);
-        if (!pair)
-            ERROR(Errors.Fail, 'account invalid');
+    async sign_and_commit(txb, address) {
         if (this.resouceObject) {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-        return await Protocol.Client().signAndExecuteTransaction({
-            transaction: txb,
-            signer: pair,
-            options: { showObjectChanges: true },
+        const r = await Account.Instance().sign_and_commit(txb, address);
+        if (!r) {
+            ERROR(Errors.Fail, 'sign and commit failed');
+        }
+        // save the mark locally, anyway
+        const res = ResponseData(r);
+        res.forEach(v => {
+            if (v.type && v.change === 'created') {
+                const namedNew = this.traceMarkNew.get(v.type);
+                if (namedNew) {
+                    LocalMark.Instance().put(namedNew.name, { object: v.object, tags: namedNew?.tags }, namedNew?.useAddressIfNameExist);
+                }
+            }
         });
+        return r;
     }
 }
 //# sourceMappingURL=base.js.map

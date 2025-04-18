@@ -58,7 +58,7 @@ export class CallGuard extends CallBase {
             target: Protocol.Instance().guardFn("create"),
             arguments: [txb.object(obj)]
         });
-        await this.new_with_mark(txb, addr, this.data?.namedNew, account);
+        await this.new_with_mark('Guard', txb, addr, this.data?.namedNew, account);
     }
 }
 //export const MAX_CHILD_NODE_COUNT = 6;

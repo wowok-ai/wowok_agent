@@ -1,6 +1,6 @@
 import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
 import { CallBase } from "./base.js";
-import { Account } from '../local/-account.js';
+import { Account } from '../local/account.js';
 export class CallMachine extends CallBase {
     constructor(data) {
         super();
@@ -59,7 +59,7 @@ export class CallMachine extends CallBase {
                     guards.push(this.data?.progress_next?.guard);
                 }
                 else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
-                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
+                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().default() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
                     if (guard) {
                         guards.push(guard);
                     }
@@ -190,7 +190,7 @@ export class CallMachine extends CallBase {
             }
             const addr = new_progress?.launch();
             if (addr) {
-                await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
+                await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
             }
             if (this.data?.progress_next !== undefined) {
                 Progress.From(txb, obj?.get_object(), perm, this.data?.progress_next.progress).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst);
@@ -198,14 +198,14 @@ export class CallMachine extends CallBase {
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);
             }
-            if (this.data?.clone_new !== undefined && obj) {
-                await this.new_with_mark(txb, obj?.clone(true, pst), this.data?.clone_new?.namedNew, account);
+            if (this.data?.clone_new !== undefined && object_address) {
+                await this.new_with_mark('Machine', txb, obj?.clone(true, pst), this.data?.clone_new?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), this.data?.permission?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Machine', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }

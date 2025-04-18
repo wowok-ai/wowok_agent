@@ -2,7 +2,7 @@ import { IsValidArgType, IsValidCoinType } from 'wowok';
 import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Demand, } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase } from "./base.js";
-import { Account } from '../local/-account.js';
+import { Account } from '../local/account.js';
 export class CallDemand extends CallBase {
     constructor(data) {
         super();
@@ -124,10 +124,10 @@ export class CallDemand extends CallBase {
                 obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, pst);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), this.data?.permission?.namedNew, account);
             }
             if (!this.data.object) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Demand', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }

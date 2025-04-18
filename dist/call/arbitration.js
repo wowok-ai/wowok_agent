@@ -1,7 +1,7 @@
 import { IsValidArgType, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Treasury, Arbitration, } from 'wowok';
 import { query_objects, } from '../query/objects.js';
 import { CallBase } from "./base.js";
-import { Account } from '../local/-account.js';
+import { Account } from '../local/account.js';
 export class CallArbitration extends CallBase {
     constructor(data) {
         super();
@@ -146,7 +146,7 @@ export class CallArbitration extends CallBase {
                 obj?.withdraw_fee(a, this.data.arb_withdraw_fee.data, pst);
             }
             if (arb_new) {
-                await this.new_with_mark(txb, obj?.arb_launch(arb_new), this.data?.arb_new?.namedNew, account);
+                await this.new_with_mark('Arb', txb, obj?.arb_launch(arb_new), this.data?.arb_new?.namedNew, account);
             }
             if (this.data?.voting_guard !== undefined) {
                 switch (this.data.voting_guard.op) {
@@ -172,13 +172,13 @@ export class CallArbitration extends CallBase {
                 obj?.pause(this.data.bPaused, pst);
             }
             if (withdraw_treasury) {
-                await this.new_with_mark(txb, withdraw_treasury.launch(), this.data?.fee_treasury?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, withdraw_treasury.launch(), this.data?.fee_treasury?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), this.data?.permission?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Arbitration', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }

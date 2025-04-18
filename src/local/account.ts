@@ -2,8 +2,9 @@
  * account management and use
  */
 
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, ERROR, Errors, IsValidAddress,  
-    getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, IsValidAddress,  
+    getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
+    CallResponse} from 'wowok';
 import { isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
@@ -61,7 +62,7 @@ export class Account {
 
     // address: if undefined, the default returned.
     async get_pubkey(address?:string) : Promise<string | undefined> {
-        var secret: string | undefined = address? 
+        const secret: string | undefined = address? 
             await this.storage.get(address) :
             await this.default();
         if (secret) {
@@ -80,6 +81,20 @@ export class Account {
 
         if (address) {
             await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {})
+        }
+    }
+
+    async sign_and_commit(txb: TransactionBlock, address?:string) : Promise<CallResponse | undefined> {
+        const secret: string | undefined = address? 
+            await this.storage.get(address) :
+            await this.default();
+
+        if (secret) {
+            return await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb, 
+                signer: Ed25519Keypair.fromSecretKey(fromHEX(secret)),
+                options:{showObjectChanges:true},
+            });
         }
     }
 

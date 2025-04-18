@@ -90,7 +90,7 @@ export class CallPermission extends CallBase {
                 obj?.change_owner(this.data.builder);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Permission', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }

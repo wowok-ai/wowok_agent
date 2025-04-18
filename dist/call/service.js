@@ -1,7 +1,7 @@
 import { IsValidArgType, TagName, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase } from "./base.js";
-import { Account } from '../local/-account.js';
+import { Account } from '../local/account.js';
 export class CallService extends CallBase {
     constructor(data) {
         super();
@@ -311,9 +311,9 @@ export class CallService extends CallBase {
             }
             if (order_new && this?.data?.order_new) {
                 const buy = obj.order_launch(order_new);
-                await this.new_with_mark(txb, buy.order, this.data?.order_new?.namedNewOrder, account, [TagName.Launch, TagName.Order]);
+                await this.new_with_mark('Order', txb, buy.order, this.data?.order_new?.namedNewOrder, account, [TagName.Launch, TagName.Order]);
                 if (buy?.progress) {
-                    await this.new_with_mark(txb, buy.progress, this.data?.order_new?.namedNewProgress, account, [TagName.Launch]);
+                    await this.new_with_mark('Progress', txb, buy.progress, this.data?.order_new?.namedNewProgress, account, [TagName.Launch]);
                 }
             }
             if (this.data?.buy_guard !== undefined) {
@@ -322,17 +322,17 @@ export class CallService extends CallBase {
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);
             }
-            if (this.data?.clone_new !== undefined && obj) {
-                await this.new_with_mark(txb, obj.clone(this.data.clone_new?.token_type_new, true, pst), this.data?.clone_new?.namedNew, account);
+            if (this.data?.clone_new !== undefined && object_address) {
+                await this.new_with_mark('Service', txb, obj.clone(this.data.clone_new?.token_type_new, true, pst), this.data?.clone_new?.namedNew, account);
             }
             if (payee) {
-                await this.new_with_mark(txb, payee.launch(), this.data?.payee_treasury?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, payee.launch(), this.data?.payee_treasury?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), this.data?.permission?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), this.data?.permission?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), this.data?.object?.namedNew, account);
+                await this.new_with_mark('Service', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }
     }
