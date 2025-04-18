@@ -1,15 +1,19 @@
 
 
-import { Protocol, Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
+import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock
 } from 'wowok';
-import { query_permission } from '../permission.js';
-import { Account } from '../account.js';
-import { ObjectBase, queryTableItem_Personal, raw2type} from '../objects.js';
+import { query_permission } from '../query/permission.js';
+import { Account } from '../local/account.js';
+import { ObjectBase, ObjectBaseType, query_personal, raw2type} from '../query/objects.js';
+import { LocalMark } from 'src/local/local.js';
 
 export interface Namedbject {
-    name?: string;
+    name?: string; 
     tags?: string[];
+    onChain?: boolean; // true: onchain, false: local(default)
+    // true: use address as the name if the name exist; otherwise, use this name and change the original name to its address
+    useAddressIfNameExist?: boolean; 
 }
 
 export interface AddressMark {
@@ -44,7 +48,9 @@ export function ResponseData(response: CallResponse | undefined) : ResponseData[
 
 export class CallBase {
     // operation implementation for a call
-    resouceObject:ResourceObject | undefined;
+    private resouceObject:ResourceObject | undefined;
+    private traceMarkNew = new Map<ObjectBaseType, Namedbject>();
+
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
@@ -76,7 +82,7 @@ export class CallBase {
         var guards : string[] = [];
 
         if (permIndex.length > 0 || checkOwner) {
-            const addr = await Account.Instance().get_address(account);
+            const addr = await LocalMark.Instance().get_account(account);
             if (!addr) ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
 
             const p = await query_permission({permission_object:permission, address:addr!});
@@ -120,13 +126,22 @@ export class CallBase {
         return await this.sign_and_commit(txb, account);
     }
 
-    protected async new_with_mark(txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
+    protected async new_with_mark(type:ObjectBaseType, txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
+        if (!named_new?.onChain) {
+            if (named_new) {
+                named_new.tags = tags; 
+                this.traceMarkNew.set(type, named_new)
+            }
+            return ;
+        } ;
 
+        // onchain mark
         if (!this.resouceObject) {
-            const addr = await Account.Instance().get_address(account);
+            const addr = await LocalMark.Instance().get_account(account);
+
             if (addr) {
-                const r = await queryTableItem_Personal({address:addr}); //@ use cache
+                const r = await query_personal({address:addr}); //@ use cache
                 if (!r?.mark_object) {
                     this.resouceObject = Entity.From(txb).create_resource2(); // new 
                     Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
@@ -139,21 +154,32 @@ export class CallBase {
         } else {
             Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         }
+    
     }
 
-    protected async sign_and_commit(txb: TransactionBlock, account?: string) : Promise<CallResponse> {
-        const pair = await Account.Instance().get_pair(account, true);
-        if (!pair) ERROR(Errors.Fail, 'account invalid')
-        
+    protected async sign_and_commit(txb: TransactionBlock, address?: string) : Promise<CallResponse> {
         if (this.resouceObject) {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-    
-        return await Protocol.Client().signAndExecuteTransaction({
-            transaction: txb, 
-            signer: pair!,
-            options:{showObjectChanges:true},
-        });
+
+        const r = await Account.Instance().sign_and_commit(txb, address);
+        if (!r) {
+            ERROR(Errors.Fail, 'sign and commit failed');
+        }
+        
+        // save the mark locally, anyway
+        const res = ResponseData(r);
+        res.forEach(v => {
+            if (v.type && v.change === 'created') {
+                const namedNew = this.traceMarkNew.get(v.type);
+                if (namedNew) {
+                    LocalMark.Instance().put(namedNew.name, 
+                        {object:v.object, tags:namedNew?.tags}, 
+                        namedNew?.useAddressIfNameExist);
+                }
+            }
+        })
+        return r
     }
 }

@@ -1,9 +1,9 @@
 import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex,
     PermissionIndexType, Treasury, Treasury_WithdrawMode, WithdrawParam, 
 } from 'wowok';
-import { query_objects, ObjectTreasury } from '../objects.js';
+import { query_objects, ObjectTreasury } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {
@@ -165,10 +165,10 @@ export class CallTreasury extends CallBase {
                 obj?.set_withdraw_mode(this.data.withdraw_mode, pst)
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
     }

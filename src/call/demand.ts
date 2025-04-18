@@ -1,9 +1,9 @@
 import { TransactionBlock, IsValidArgType, IsValidCoinType, Resource, ResourceObject } from 'wowok';
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Demand, } from 'wowok';
-import { query_objects, ObjectDemand } from '../objects.js';
+import { query_objects, ObjectDemand } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallDemand_Data {
@@ -136,10 +136,10 @@ export class CallDemand extends CallBase {
                 obj?.set_guard(this.data.guard.address, this.data.guard?.service_id_in_guard ?? undefined, pst)
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark('Demand', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }

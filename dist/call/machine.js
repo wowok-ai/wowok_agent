@@ -1,6 +1,6 @@
 import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
 import { CallBase } from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/-account.js';
 export class CallMachine extends CallBase {
     constructor(data) {
         super();

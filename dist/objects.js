@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Progress, ERROR, Errors, IsValidAddress, Bcs, uint2address } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, IsValidAddress, Bcs, uint2address } from 'wowok';
 import { WowokCache, OBJECT_KEY, CacheName } from './cache.js';
 /* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json) => {
@@ -56,7 +56,7 @@ export const query_objects = async (query) => {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e)
         }
         pending.push(query.objects[i]);
     }
@@ -76,9 +76,7 @@ export const query_objects = async (query) => {
                         cache.save(OBJECT_KEY(i.data.objectId, CacheName.object), JSON.stringify(r));
                     }
                 }
-                catch (e) {
-                    console.log(e);
-                }
+                catch (e) { /*console.log(e)*/ }
             });
         }
         ret = ret.concat(res.map(v => data2object(v?.data)));
@@ -103,7 +101,7 @@ export const queryTableItem_Personal = async (query) => {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e)
         }
     }
     const res = await tableItem(tableItemQuery_byAddress(Protocol.Instance().objectEntity(), query.address));
@@ -116,7 +114,7 @@ export const queryTableItem_Personal = async (query) => {
                 res.cache_expire = expire;
             }
             catch (e) {
-                console.log(e);
+                //console.log(e)
             }
         }
         return res;
@@ -424,6 +422,11 @@ export function data2object(data) {
                 return {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     address: content?.name?.fields?.id, key: content?.name?.fields?.key, data: Uint8Array.from(content?.value)
+                };
+            case 'TableItem_MachineNode':
+                return {
+                    object: id, type: type, type_raw: type_raw, owner: owner, version: version,
+                    node: { name: content?.name, pairs: Machine.rpc_de_pair(content?.value) }
                 };
             case 'Personal':
                 const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));

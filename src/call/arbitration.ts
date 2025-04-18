@@ -1,9 +1,9 @@
 import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Treasury, Arbitration, VotingGuard, WithdrawFee, ArbObject, 
 } from 'wowok';
-import { query_objects, ObjectArbitration, } from '../objects.js';
+import { query_objects, ObjectArbitration, } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject} from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/account.js';
 export interface DisputeData {
     order: string,
     order_token_type: string,
@@ -180,7 +180,7 @@ export class CallArbitration extends CallBase {
             }
 
             if (arb_new) {
-                await this.new_with_mark(txb, obj?.arb_launch(arb_new), (this.data?.arb_new as any)?.namedNew, account);
+                await this.new_with_mark('Arb', txb, obj?.arb_launch(arb_new), (this.data?.arb_new as any)?.namedNew, account);
             }
             
             if (this.data?.voting_guard !== undefined) {
@@ -207,14 +207,14 @@ export class CallArbitration extends CallBase {
                 obj?.pause(this.data.bPaused, pst);
             }
             if (withdraw_treasury) {
-                await this.new_with_mark(txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
 
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark('Arbitration', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
     }

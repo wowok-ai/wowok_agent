@@ -1,6 +1,6 @@
 import { CallBase } from "./base.js";
 import { IsValidAddress, Errors, ERROR, Demand, Machine, Service, Treasury, Arbitration, Repository } from 'wowok';
-import { query_objects } from "../objects.js";
+import { query_objects } from "../query/objects.js";
 export class CallObjectPermission extends CallBase {
     constructor(data) {
         super();

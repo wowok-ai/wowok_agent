@@ -1,7 +1,7 @@
 import { Protocol, Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock } from 'wowok';
-import { query_permission } from '../permission.js';
-import { Account } from '../account.js';
-import { queryTableItem_Personal, raw2type } from '../objects.js';
+import { query_permission } from '../query/permission.js';
+import { Account } from '../local/account.js';
+import { query_personal, raw2type } from '../query/objects.js';
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {
@@ -94,7 +94,7 @@ export class CallBase {
         if (!this.resouceObject) {
             const addr = await Account.Instance().get_address(account);
             if (addr) {
-                const r = await queryTableItem_Personal({ address: addr }); //@ use cache
+                const r = await query_personal({ address: addr }); //@ use cache
                 if (!r?.mark_object) {
                     this.resouceObject = Entity.From(txb).create_resource2(); // new 
                     Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);

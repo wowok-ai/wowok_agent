@@ -40,7 +40,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     _remove(buffer, name) {
@@ -54,7 +54,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     _default(buffer) {
@@ -71,7 +71,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     _get(buffer, name, bNotFoundReturnDefault) {
@@ -91,7 +91,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     _rename(buffer, oldName, newName, bSwapIfExisted = true) {
@@ -119,7 +119,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     set_storage(storage = 'File') {
@@ -136,7 +136,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     get(name, bNotFoundReturnDefault = true) {
@@ -150,7 +150,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     rename(oldName, newName, bSwapIfExisted = true) {
@@ -170,7 +170,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
         return res ? true : false;
     }
@@ -185,7 +185,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
         return [];
     }
@@ -204,7 +204,7 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     remove(name) {
@@ -222,21 +222,21 @@ export class PrivateInfo {
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
     removeall() {
         try {
             if (this.storage === 'File') {
                 const filePath = path.join(os.homedir(), Private_FileName);
-                fs.unlink(filePath, (err) => { console.log(err); });
+                fs.unlink(filePath, (err) => { });
             }
             else if (this.storage === 'Explorer') {
                 localStorage.removeItem(Private_Key);
             }
         }
         catch (e) {
-            console.log(e);
+            //console.log(e) 
         }
     }
 }

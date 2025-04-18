@@ -91,7 +91,7 @@ export class CallGuard extends CallBase {
             target:Protocol.Instance().guardFn("create") as FnCallType,
             arguments:[txb.object(obj)]
         });
-        await this.new_with_mark(txb, addr, this.data?.namedNew, account);
+        await this.new_with_mark('Guard', txb, addr, this.data?.namedNew, account);
     }
 }
 

@@ -1,8 +1,9 @@
 import { TxbAddress, ResourceObject, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock } from 'wowok';
-import { ObjectBase } from '../objects.js';
+import { ObjectBase } from '../query/objects.js';
 export interface Namedbject {
     name?: string;
     tags?: string[];
+    onChain?: boolean;
 }
 export interface AddressMark {
     address: TxbAddress;

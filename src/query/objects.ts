@@ -6,7 +6,7 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address} from 'wowok';
-import {WowokCache, OBJECT_KEY, CacheExpire, CacheName, CachedData} from './cache.js'
+import { CacheExpireType, CacheName, CachedData, Cache } from '../local/cache.js'
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
@@ -19,7 +19,7 @@ export interface ObjectBase {
     type_raw?: string;
     owner?: any;
     version?: string;
-    cache_expire?: CacheExpire;
+    cache_expire?: CacheExpireType;
 }
 
 export interface ObjectPermission extends ObjectBase {
@@ -254,6 +254,7 @@ export interface TableQuery {
     parent: string;
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
+    no_cache?: boolean;
 }
 export interface TableAnswerItem {
     key: {type:string; value:unknown};
@@ -264,11 +265,13 @@ export interface TableAnswer {
     items: TableAnswerItem[];
     nextCursor: string | null;
     hasNextPage: boolean;
+    cache_expire?: CacheExpireType;
 }
 
 interface TableItemQuery {
     parent: string;
     key: {type:string, value:unknown};
+    no_cache?: boolean;
 }
 
 /* json: ObjectsQuery string; return ObjectsAnswer */
@@ -295,7 +298,7 @@ export const query_table_json = async (json:string) : Promise<string> => {
 export const query_personal_json = async (json:string) : Promise<string> => {
     try {
         const q : PersonalQuery = JSON.parse(json);
-        return JSON.stringify({data:(await queryTableItem_Personal(q) ?? '')});
+        return JSON.stringify({data:(await query_personal(q) ?? '')});
     } catch (e) {
         return JSON.stringify({error:e?.toString()})
     }
@@ -303,195 +306,188 @@ export const query_personal_json = async (json:string) : Promise<string> => {
 
 export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer> => {
     var ret:ObjectBase[] = []; var pending : string[] = [];
-    const time = new Date().getTime();
-    const cache = WowokCache.Instance().get(CacheName.object);
-    for (let i = 0; i < query.objects.length; ++i) {
-        try {
-            let data = cache?.load(OBJECT_KEY(query.objects[i], CacheName.object))
-            if (data) {
-                const r:CachedData = JSON.parse(data);
+    const showTypeOnly = !(query.showContent || query.showContent);
 
-                if (r?.expire !== 'INFINITE' && (query?.no_cache || r.expire <= time) && (query.showOwner || query.showContent)) { //@ type immutable
-                    pending.push(query.objects[i]);
+    if (!query.no_cache || (query.no_cache && showTypeOnly)) { // showType only, use cache
+        for (let i = 0; i < query.objects.length; ++i) {
+            try {
+                const cache = await Cache.Instance().cache_get(query.objects[i], CacheName.object, showTypeOnly);
+                
+                if (cache) {
+                    const d = data2object(JSON.parse(cache.data));
+                    d.cache_expire = cache.expire;
+                    ret.push(d);    
                 } else {
-                    const d = data2object(JSON.parse(r.data));
-                    d.cache_expire = r.expire;
-                    ret.push(d);                              
+                    pending.push(query.objects[i]);                            
                 }
-                continue;
-            }                 
-        } catch (e) {
-            console.log(e)
+                continue;             
+            } catch (e) { /*console.log(e)*/}
+            pending.push(query.objects[i]);
         }
-        pending.push(query.objects[i]);
     }
 
     if (pending.length > 0) {
         const res = await Protocol.Client().multiGetObjects({ids:[...pending], 
             options:{showContent:query.showContent, showType:query.showType, showOwner:query.showOwner}});
-        const cache = WowokCache.Instance().get(CacheName.object);
-        
-        if (cache) {
-            const now = new Date().getTime(); 
-            res.forEach((i) => { // save
-                try {
-                    if (i?.data) {
-                        const type_raw:string | undefined = i.data?.type ?? ((i.data?.content as any)?.type ?? undefined);
-                        const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
-                        const expire = (type === 'Guard' || type === 'Payment') ? 'INFINITE' : (cache.expire_time()+now); // guard & payment immutable
-                        const r:CachedData = {expire:expire, data:JSON.stringify(i.data)}
-                        cache.save(OBJECT_KEY(i.data.objectId, CacheName.object), JSON.stringify(r));
-                    }                            
-                } catch(e) { console.log(e) }
-            })                
-        }
+
+        for (let i = 0; i < res.length; ++i) {
+            const d = res[i]?.data;
+            if (d) {
+                const type_raw:string | undefined = d?.type ?? ((d?.content as any)?.type ?? undefined);
+                const type:string | undefined = type_raw ? Protocol.Instance().object_name_from_type_repr(type_raw) : undefined;
+                const expire = Cache.ExpireTime(type === 'Guard' || type === 'Payment'); // guard & payment immutable
+                await Cache.Instance().put(d.objectId, {expire:expire, data:JSON.stringify(d)}, CacheName.object); // save cache
+            }     
+        }  
         ret = ret.concat(res.map(v=>data2object(v?.data)));
     } 
     return {objects:ret}
 }
 
-export const queryTableItem_Personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
-    if (!IsValidAddress(query.address))  ERROR(Errors.IsValidAddress, 'entity.address')
-    const time = new Date().getTime();
-    const cache = WowokCache.Instance().get(CacheName.personal);
+export const query_personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
+    if (!IsValidAddress(query.address))  {
+        ERROR(Errors.IsValidAddress, 'query_personal.query.address')
+    }
 
-    if (cache && !query.no_cache) {
+    if (!query.no_cache) {
         try {
-            let data = cache.load(OBJECT_KEY(query.address, CacheName.personal))
-            
-            if (data) {
-                const r:CachedData = JSON.parse(data);
-                if (r?.expire === 'INFINITE' || r.expire <= time) { 
-                    const d = JSON.parse(r.data) as ObjectPersonal;
-                    d.cache_expire = r.expire;  
-                    return d;                         
-                }
+            const cache = await Cache.Instance().cache_get(query.address, CacheName.personal);
+            if (cache) {
+                const d = JSON.parse(cache.data) as ObjectPersonal;
+                d.cache_expire = cache.expire;  
+                return d;                         
             }                 
-        } catch (e) {
-            console.log(e)
-        }
+        } catch (e) {/*console.log(e)*/}
     } 
-    const res = await tableItem(tableItemQuery_byAddress(Protocol.Instance().objectEntity(), query.address));
+    const res = await tableItemQuery_byAddress({parent:Protocol.Instance().objectEntity(), address:query.address});
     if (res.type === 'Personal') {
-        if (cache) {
-            try {
-                const expire = cache.expire_time()+((new Date()).getTime()); // guard & payment immutable
-                const r:CachedData = {expire:expire, data:JSON.stringify(res)}
-                cache.save(OBJECT_KEY(query.address, CacheName.personal), JSON.stringify(r));
-                res.cache_expire = expire;
-            } catch(e) { console.log(e)}               
-        }
+        await Cache.Instance().put(query.address, {expire:Cache.ExpireTime(), data:JSON.stringify(res)}, CacheName.personal);
         return res as ObjectPersonal;
     }
 }
 
 export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
+    if (!IsValidAddress(query.parent))  {
+        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    }
+
+    if (!query.no_cache) {
+        try {
+            const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);
+            
+            if (cache) {
+                const d = JSON.parse(cache.data) as TableAnswer;
+                d.cache_expire = cache.expire;  
+                return d;                         
+            }                 
+        } catch (e) {/*console.log(e)*/}
+    } 
+
     const res = await Protocol.Client().getDynamicFields({parentId:query.parent, cursor:query.cursor, limit:query.limit});
-    return {items:res?.data?.map(v=>{
+    const r = {items:res?.data?.map(v=>{
         return {object:v.objectId, type:v.type, version:v.version, key:{
             type:v.name.type, value:v.name.value
         }} 
-    }), nextCursor:res.nextCursor, hasNextPage:res.hasNextPage}
+    }), nextCursor:res.nextCursor, hasNextPage:res.hasNextPage};
+    await Cache.Instance().put(query.parent, 
+        {expire: Cache.ExpireTime(), data:JSON.stringify(r)}, 
+        CacheName.table);
+    return r;
 }
 
-export interface QueryDemandService {
-    object: string | ObjectDemand;
-    address: string;
+const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
+    if (!IsValidAddress(query.parent))  {
+        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    }
+
+    if (!query.no_cache) {
+        try {
+            const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);
+            
+            if (cache) {
+                const d = JSON.parse(cache.data) as ObjectBase;
+                d.cache_expire = cache.expire;  
+                return d;                         
+            }                 
+        } catch (e) {/*console.log(e)*/}
+    } 
+
+    const res = await Protocol.Client().getDynamicFieldObject({parentId:query.parent, name:{type:query.key.type, value:query.key.value}});
+    return data2object(res?.data)
 }
 
-export const queryTableItem_DemandService = async (query: QueryDemandService) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
-}
 
-export interface QueryPermissionEntity {
-    object: string | ObjectPermission;
-    address: string;
-}
-
-export const queryTableItem_PermissionEntity = async (query: QueryPermissionEntity) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
-}
-
-export interface QueryArbVoting {
-    object: string | ObjectArb;
-    address: string;
-}
-export const queryTableItem_ArbVoting = async (query:QueryArbVoting) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
-}
-export interface QueryMachineNode {
-    object: string | ObjectMachine;
+export interface QueryTableItem_Name {
+    parent: string | ObjectService;
     name: string;
+    no_cache?: boolean;
 }
-
-export const queryTableItem_MachineNode = async (query:QueryMachineNode) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byString(query.object, query.name))
-}
-
-export interface QueryServiceSale {
-    object: string | ObjectService;
-    name: string;
-}
-export const queryTableItem_ServiceSale = async (query:QueryServiceSale) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byString(query.object, query.name))
-}
-export interface QueryProgressHistory {
-    object: string | ObjectProgress;
+export interface QueryTableItem_Index {
+    parent: string | ObjectTreasury;
     index: string | number | bigint;
+    no_cache?: boolean;
 }
-export interface QueryTreasuryHistory {
-    object: string | ObjectTreasury;
-    index: string | number | bigint;
-}
-export const queryTableItem_ProgressHistory = async (query:QueryProgressHistory) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byU64(query.object, query.index))
-}
-export const queryTableItem_TreasuryHistory = async (query:QueryTreasuryHistory) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byU64(query.object, query.index))
-}
-export interface QueryRepositoryData {
-    object: string | ObjectRepository;
+export interface QueryTableItem_AddressName {
+    parent: string | ObjectRepository;
     address: string | number | bigint;
     name: string;
 }
-export const queryTableItem_RepositoryData = async (query:QueryRepositoryData) : Promise<ObjectBase> => {
-    if (typeof(query.object) !== 'string') {
-        query.object = query.object.object;
-    }
+export interface QueryTableItem_Address {
+    parent: string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark;
+    address: string;
+    no_cache?: boolean;
+}
+
+export const queryTableItem_RepositoryData = async (query:QueryTableItem_AddressName) : Promise<ObjectBase> => {
+    const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
+
     if (typeof(query.address) !== 'string') {
         query.address = uint2address(query.address); // convert int to address
     }
-    return await tableItem({parent:query.object, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:query.address, key:query.name}}})
-}
-export interface QueryMarkTag {
-    object: string | ObjectMark;
-    address: string;
-}
-export const queryTableItem_MarkTag = async (query:QueryMarkTag) : Promise<ObjectBase> => {
-    return await tableItem(tableItemQuery_byAddress(query.object, query.address))
+
+    return await tableItem({parent:parent, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:query.address, key:query.name}}})
 }
 
-function tableItemQuery_byAddress(parent:string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark, address:string) : TableItemQuery {
-    if (typeof(parent) !== 'string') {
-        parent = parent.object;
-    }
-    return {parent:parent, key:{type:'address', value:address}};
+export const queryTableItem_DemandService = async (query: QueryTableItem_Address) : Promise<ObjectBase> => {
+    return await tableItemQuery_byAddress(query)
 }
-function tableItemQuery_byString(parent:string | ObjectMachine | ObjectService, name:string) : TableItemQuery  {
-    if (typeof(parent) !== 'string') {
-        parent = parent.object;
-    }
-    return {parent:parent, key:{type:'0x1::string::String', value:name}};
+
+export const queryTableItem_PermissionEntity = async (query: QueryTableItem_Address) : Promise<ObjectBase> => {
+    return await tableItemQuery_byAddress(query)
 }
-function tableItemQuery_byU64(parent:string | ObjectProgress | ObjectTreasury, index:BigInt|string|number) : TableItemQuery {
-    if (typeof(parent) !== 'string') {
-        parent = parent.object;
-    }
-    return {parent:parent, key:{type:'u64', value:index}};
+
+export const queryTableItem_ArbVoting = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
+    return await tableItemQuery_byAddress(query)
 }
-const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
-    const res = await Protocol.Client().getDynamicFieldObject({parentId:query.parent, name:{type:query.key.type, value:query.key.value}});
-    return data2object(res?.data)
+
+export const queryTableItem_MachineNode = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
+    return await tableItemQuery_byName(query)
+}
+
+export const queryTableItem_ServiceSale = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
+    return await tableItemQuery_byName(query)
+}
+
+export const queryTableItem_ProgressHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
+    return await tableItemQuery_byIndex(query)
+}
+export const queryTableItem_TreasuryHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
+    return await tableItemQuery_byIndex(query)
+}
+
+const tableItemQuery_byAddress = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
+    const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
+    return await tableItem({parent:parent, key:{type:'address', value:query.address}, no_cache:query.no_cache});
+}
+
+const tableItemQuery_byName = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
+    const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
+    return await tableItem({parent:parent, key:{type:'0x1::string::String', value:query.name}, no_cache:query.no_cache});
+}
+
+const tableItemQuery_byIndex = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
+    const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
+    return await tableItem({parent:parent, key:{type:'u64', value:query.index}, no_cache:query.no_cache});
 }
 
 export function raw2type(type_raw:string | undefined) : ObjectBaseType | undefined {
@@ -726,6 +722,11 @@ export function data2object(data?:any) : ObjectBase {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 address:content?.name?.fields?.id, key:content?.name?.fields?.key, data:Uint8Array.from(content?.value)
             } as TableItem_RepositoryData;
+        case 'TableItem_MachineNode':
+            return {
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                node: {name:content?.name, pairs:Machine.rpc_de_pair(content?.value)}
+            } as TableItem_MachineNode;
         case 'Personal':
             const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
             return {

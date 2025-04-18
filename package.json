@@ -1,6 +1,6 @@
 {
   "name": "wowok_agent",
-  "version": "1.1.33",
+  "version": "1.2.35",
   "description": "Create, collaborate, and transact on your own terms with the AI-driven web3 collaboration protocol.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -51,5 +51,8 @@
     "ts-loader": "^9.5.2",
     "tsx": "^4.7.1",
     "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "level": "^9.0.0"
   }
 }

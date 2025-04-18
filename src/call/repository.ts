@@ -132,10 +132,10 @@ export class CallRepository extends CallBase {
             }
 
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!this.data.object) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark('Repository', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     };

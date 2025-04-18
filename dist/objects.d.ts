@@ -3,7 +3,7 @@
  *
  */
 import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Entity_Info, Tags } from 'wowok';
-import { CacheExpire } from './cache.js';
+import { CacheExpire } from './local/cache.ts';
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark';
 export interface ObjectBase {
     object: string;

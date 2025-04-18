@@ -1,8 +1,8 @@
 import { IsValidArgType, IsValidCoinType } from 'wowok';
 import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Demand, } from 'wowok';
-import { query_objects } from '../objects.js';
+import { query_objects } from '../query/objects.js';
 import { CallBase } from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/-account.js';
 export class CallDemand extends CallBase {
     constructor(data) {
         super();

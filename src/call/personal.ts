@@ -71,8 +71,8 @@ export class CallPersonal extends CallBase {
                 entity.use_resource(Resource.From(txb, this.data.mark.address));
             }
 
-            if (!object_address && obj) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.mark_object as any)?.namedNew, account);
+            if (!object_address) {
+                await this.new_with_mark('PersonalMark', txb, obj.launch(), (this.data?.mark_object as any)?.namedNew, account);
             }
         }
     }

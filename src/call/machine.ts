@@ -3,7 +3,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
     ProgressObject,
 } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
-import { Account } from '../account.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
@@ -87,7 +87,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     guards.push(this.data?.progress_next?.guard)
                 } else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
                     const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, 
-                        await Account.Instance().get_address() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
+                        await Account.Instance().default() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
                         this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
                     if (guard) {
                         guards.push(guard)
@@ -220,7 +220,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             }
             const addr = new_progress?.launch();
             if (addr) {
-                await this.new_with_mark(txb, addr, this.data?.progress_new?.namedNew, account);
+                await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
             }
 
             if (this.data?.progress_next !== undefined) {
@@ -229,14 +229,14 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst)
             }
-            if (this.data?.clone_new !== undefined && obj) {
-                await this.new_with_mark(txb, obj?.clone(true, pst) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
+            if (this.data?.clone_new !== undefined && object_address) {
+                await this.new_with_mark('Machine', txb, obj?.clone(true, pst) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark(txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
             }
             if (!object_address) {
-                await this.new_with_mark(txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+                await this.new_with_mark('Machine', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             }
         }
     }
