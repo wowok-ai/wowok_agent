@@ -1,7 +1,7 @@
 /**
  * account management and use
  */
-import { TransactionBlock, CoinBalance, CoinStruct, TransactionResult } from 'wowok';
+import { TransactionBlock, CoinBalance, CoinStruct, TransactionResult, CallResponse } from 'wowok';
 export declare class Account {
     private storage;
     constructor();
@@ -14,6 +14,7 @@ export declare class Account {
     get_pubkey(address?: string): Promise<string | undefined>;
     list(): Promise<string[]>;
     faucet(address?: string): Promise<void>;
+    sign_and_commit(txb: TransactionBlock, address?: string): Promise<CallResponse | undefined>;
     balance: (address?: string, token_type?: string) => Promise<CoinBalance | undefined>;
     coin: (address?: string, token_type?: string) => Promise<CoinStruct[] | undefined>;
     get_coin_object: (txb: TransactionBlock, balance_required: string | bigint | number, address?: string, token_type?: string) => Promise<TransactionResult | undefined>;

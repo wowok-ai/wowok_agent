@@ -127,7 +127,7 @@ export class Account {
     }
     // address: if undefined, the default returned.
     async get_pubkey(address) {
-        var secret = address ?
+        const secret = address ?
             await this.storage.get(address) :
             await this.default();
         if (secret) {
@@ -143,6 +143,18 @@ export class Account {
         }
         if (address) {
             await requestSuiFromFaucetV0({ host: getFaucetHost('testnet'), recipient: address }).catch(e => { });
+        }
+    }
+    async sign_and_commit(txb, address) {
+        const secret = address ?
+            await this.storage.get(address) :
+            await this.default();
+        if (secret) {
+            return await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb,
+                signer: Ed25519Keypair.fromSecretKey(fromHEX(secret)),
+                options: { showObjectChanges: true },
+            });
         }
     }
 }
