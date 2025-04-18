@@ -235,9 +235,6 @@ export interface TableItem_PersonalMark extends ObjectBase, Tags {
 
 export interface ObjectsQuery {
     objects: string[];
-    showType?: boolean;
-    showContent?: boolean;
-    showOwner?: boolean;
     no_cache?: boolean;
 }
 
@@ -306,12 +303,11 @@ export const query_personal_json = async (json:string) : Promise<string> => {
 
 export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer> => {
     var ret:ObjectBase[] = []; var pending : string[] = [];
-    const showTypeOnly = !(query.showContent || query.showContent);
 
-    if (!query.no_cache || (query.no_cache && showTypeOnly)) { // showType only, use cache
+    if (!query.no_cache) { // showType only, use cache
         for (let i = 0; i < query.objects.length; ++i) {
             try {
-                const cache = await Cache.Instance().cache_get(query.objects[i], CacheName.object, showTypeOnly);
+                const cache = await Cache.Instance().cache_get(query.objects[i], CacheName.object);
                 
                 if (cache) {
                     const d = data2object(JSON.parse(cache.data));
@@ -324,11 +320,13 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
             } catch (e) { /*console.log(e)*/}
             pending.push(query.objects[i]);
         }
+    } else {
+        pending = [...query.objects];
     }
 
     if (pending.length > 0) {
         const res = await Protocol.Client().multiGetObjects({ids:[...pending], 
-            options:{showContent:query.showContent, showType:query.showType, showOwner:query.showOwner}});
+            options:{showContent:true, showOwner:true}});
 
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
@@ -473,6 +471,9 @@ export const queryTableItem_ProgressHistory = async (query:QueryTableItem_Index)
 }
 export const queryTableItem_TreasuryHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
     return await tableItemQuery_byIndex(query)
+}
+export const queryTableItem_MarkTag = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
+    return await tableItemQuery_byAddress(query)
 }
 
 const tableItemQuery_byAddress = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {

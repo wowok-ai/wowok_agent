@@ -24,7 +24,7 @@ export class CallObjectPermission extends CallBase {
         }
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject) {
-        const r = await query_objects({objects:this.data.objects, showContent:true});
+        const r = await query_objects({objects:this.data.objects});
         r.objects?.forEach(v => {
             switch(v.type) {
             case 'Demand':

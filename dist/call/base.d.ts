@@ -3,8 +3,8 @@ import { ObjectBase, ObjectBaseType } from '../query/objects.js';
 export interface Namedbject {
     name?: string;
     tags?: string[];
-    onChain?: boolean;
     useAddressIfNameExist?: boolean;
+    onChain?: boolean;
 }
 export interface AddressMark {
     address: TxbAddress;

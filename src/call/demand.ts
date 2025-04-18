@@ -61,7 +61,7 @@ export class CallDemand extends CallBase {
                             guards.push(this.data.guard.address)
                         }
                     } else {
-                        const r = await query_objects({objects:[object_address], showContent:true});
+                        const r = await query_objects({objects:[object_address]});
                         if (r?.objects && r?.objects[0]?.type === 'Demand') {
                             const obj = (r?.objects[0] as ObjectDemand);
                             if (obj?.guard) {

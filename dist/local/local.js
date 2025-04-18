@@ -5,7 +5,7 @@ import path from "path";
 import os from "os";
 import { Level } from "level";
 import { isBrowser } from "../common.js";
-import { IsValidAddress } from "wowok";
+import { IsValidAddress, TagName } from "wowok";
 import { Account } from "./account.js";
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
@@ -82,7 +82,7 @@ export class LocalMark {
                 }
                 if (genNewIfNotFound) {
                     const addr = await Account.Instance().gen(false);
-                    await this.put(name_or_address, { object: addr });
+                    await this.put(name_or_address, { object: addr, tags: [TagName.Account] });
                 }
             }
         }

@@ -37,11 +37,10 @@ export const query_personal_json = async (json) => {
 export const query_objects = async (query) => {
     var ret = [];
     var pending = [];
-    const showTypeOnly = !(query.showContent || query.showContent);
-    if (!query.no_cache || (query.no_cache && showTypeOnly)) { // showType only, use cache
+    if (!query.no_cache) { // showType only, use cache
         for (let i = 0; i < query.objects.length; ++i) {
             try {
-                const cache = await Cache.Instance().cache_get(query.objects[i], CacheName.object, showTypeOnly);
+                const cache = await Cache.Instance().cache_get(query.objects[i], CacheName.object);
                 if (cache) {
                     const d = data2object(JSON.parse(cache.data));
                     d.cache_expire = cache.expire;
@@ -56,9 +55,12 @@ export const query_objects = async (query) => {
             pending.push(query.objects[i]);
         }
     }
+    else {
+        pending = [...query.objects];
+    }
     if (pending.length > 0) {
         const res = await Protocol.Client().multiGetObjects({ ids: [...pending],
-            options: { showContent: query.showContent, showType: query.showType, showOwner: query.showOwner } });
+            options: { showContent: true, showOwner: true } });
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
             if (d) {
@@ -162,6 +164,9 @@ export const queryTableItem_ProgressHistory = async (query) => {
 };
 export const queryTableItem_TreasuryHistory = async (query) => {
     return await tableItemQuery_byIndex(query);
+};
+export const queryTableItem_MarkTag = async (query) => {
+    return await tableItemQuery_byAddress(query);
 };
 const tableItemQuery_byAddress = async (query) => {
     const parent = typeof (query.parent) === 'string' ? query.parent : query.parent.object;

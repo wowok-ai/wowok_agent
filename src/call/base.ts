@@ -11,9 +11,9 @@ import { LocalMark } from '../local/local.js';
 export interface Namedbject {
     name?: string; 
     tags?: string[];
-    onChain?: boolean; // true: onchain, false: local(default)
     // true: use address as the name if the name exist; otherwise, use this name and change the original name to its address
     useAddressIfNameExist?: boolean; 
+    onChain?: boolean; // true: onchain, false: local(default)
 }
 
 export interface AddressMark {

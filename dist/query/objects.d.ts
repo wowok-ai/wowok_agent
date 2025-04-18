@@ -253,9 +253,6 @@ export interface TableItem_PersonalMark extends ObjectBase, Tags {
 }
 export interface ObjectsQuery {
     objects: string[];
-    showType?: boolean;
-    showContent?: boolean;
-    showOwner?: boolean;
     no_cache?: boolean;
 }
 export interface PersonalQuery {
@@ -320,6 +317,7 @@ export declare const queryTableItem_MachineNode: (query: QueryTableItem_Name) =>
 export declare const queryTableItem_ServiceSale: (query: QueryTableItem_Name) => Promise<ObjectBase>;
 export declare const queryTableItem_ProgressHistory: (query: QueryTableItem_Index) => Promise<ObjectBase>;
 export declare const queryTableItem_TreasuryHistory: (query: QueryTableItem_Index) => Promise<ObjectBase>;
+export declare const queryTableItem_MarkTag: (query: QueryTableItem_Address) => Promise<ObjectBase>;
 export declare function raw2type(type_raw: string | undefined): ObjectBaseType | undefined;
 export declare function data2object(data?: any): ObjectBase;
 //# sourceMappingURL=objects.d.ts.map

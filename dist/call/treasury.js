@@ -48,7 +48,7 @@ export class CallTreasury extends CallBase {
                     }
                     else {
                         if (!obj) {
-                            const r = await query_objects({ objects: [object_address], showContent: true });
+                            const r = await query_objects({ objects: [object_address] });
                             if (r?.objects && r.objects[0].type === 'Treasury') {
                                 obj = r.objects[0];
                             }
@@ -68,7 +68,7 @@ export class CallTreasury extends CallBase {
                 }
                 else if (this.data.object) {
                     if (!obj) {
-                        const r = await query_objects({ objects: [object_address], showContent: true });
+                        const r = await query_objects({ objects: [object_address] });
                         if (r?.objects && r.objects[0].type === 'Treasury') {
                             obj = r.objects[0];
                         }
