@@ -10,6 +10,7 @@ import { Account } from "./account.js";
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
 export const LocalMarkNameMaxLength = 32;
+export const LocalInfoNameDefault = 'Address of delivery';
 export class LocalMark {
     constructor() {
         var location = LocalMarkLocation;
@@ -125,6 +126,9 @@ export class LocalMark {
         }
         return false;
     }
+    async list() {
+        return JSON.stringify((await this.storage.iterator().all()).map(v => { return { name: v[0], data: v[1] }; }));
+    }
 }
 export class LocalInfo {
     constructor() {
@@ -141,7 +145,7 @@ export class LocalInfo {
         ;
         return LocalInfo._instance;
     }
-    async put(name, content, bDefault = true) {
+    async put(name = LocalInfoNameDefault, content, bDefault = true) {
         const r = await this.storage.get(name);
         if (r) {
             const obj = JSON.parse(r);
@@ -156,22 +160,22 @@ export class LocalInfo {
             await this.storage.put(name, JSON.stringify(obj));
         }
     }
-    async get(name) {
+    async get(name = LocalInfoNameDefault) {
         const r = await this.storage.get(name);
         if (r) {
             return JSON.parse(r);
         }
     }
-    async get_default(name) {
+    async get_default(name = LocalInfoNameDefault) {
         const r = await this.storage.get(name);
         if (r) {
             return JSON.parse(r).default;
         }
     }
-    async del(name) {
-        return await this.storage.del(name);
+    async del(name = LocalInfoNameDefault) {
+        await this.storage.del(name);
     }
-    async del_content(name, index) {
+    async del_content(name = LocalInfoNameDefault, index) {
         const r = await this.storage.get(name);
         if (r) {
             const obj = JSON.parse(r);
@@ -185,6 +189,9 @@ export class LocalInfo {
     }
     async clear() {
         return await this.storage.clear();
+    }
+    async list() {
+        return JSON.stringify((await this.storage.iterator().all()).map(v => { return { name: v[0], data: v[1] }; }));
     }
 }
 //# sourceMappingURL=local.js.map

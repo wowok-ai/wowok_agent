@@ -165,5 +165,24 @@ export class Account {
             });
         }
     }
+    async transfer(from, to, amount, token_type) {
+        const secret = await this.storage.get(from);
+        if (!secret)
+            return undefined;
+        const pair = Ed25519Keypair.fromSecretKey(fromHEX(secret));
+        if (!pair)
+            return undefined;
+        const txb = new TransactionBlock();
+        const coin = await this.get_coin_object(txb, amount, from, token_type);
+        if (coin) {
+            txb.transferObjects([coin], to);
+            const r = await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb,
+                signer: pair,
+                options: { showObjectChanges: true },
+            });
+            return r;
+        }
+    }
 }
 //# sourceMappingURL=account.js.map

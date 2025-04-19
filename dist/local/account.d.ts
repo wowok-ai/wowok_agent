@@ -18,6 +18,7 @@ export declare class Account {
     balance: (address?: string, token_type?: string) => Promise<CoinBalance | undefined>;
     coin: (address?: string, token_type?: string) => Promise<CoinStruct[] | undefined>;
     get_coin_object: (txb: TransactionBlock, balance_required: string | bigint | number, address?: string, token_type?: string) => Promise<TransactionResult | undefined>;
+    transfer(from: string, to: string, amount: number | string, token_type?: string): Promise<CallResponse | undefined>;
     coinObject_with_balance: (balance_required: string | bigint | number, address?: string, token_type?: string) => Promise<string | undefined>;
 }
 //# sourceMappingURL=account.d.ts.map

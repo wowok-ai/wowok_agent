@@ -41,7 +41,6 @@ export interface CallArbitrationObject {
 export interface CallGuardObject {
     data: CallGuard_Data;
     account?: string;
-    witness?: GuardInfo_forCall;
 }
 export interface CallRepositoryObject {
     data: CallRepository_Data;

@@ -23,7 +23,7 @@ export interface InfoData {
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
 export const LocalMarkNameMaxLength = 32;
-
+export const LocalInfoNameDefault = 'Address of delivery';
 export class LocalMark {
     static _instance: any;
     private storage;
@@ -149,6 +149,10 @@ export class LocalMark {
       }
       return false;
     }
+
+    async list() : Promise<string> {
+      return JSON.stringify((await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}}));
+    }
 }
 
 export class LocalInfo {
@@ -169,7 +173,7 @@ export class LocalInfo {
       }; return LocalInfo._instance
   } 
 
-  async put(name:string, content:string, bDefault:boolean=true) : Promise<void> {
+  async put(name:string = LocalInfoNameDefault, content:string, bDefault:boolean=true) : Promise<void> {
     const r = await this.storage.get(name);
     if (r)  {
       const obj = JSON.parse(r) as InfoData;
@@ -185,25 +189,25 @@ export class LocalInfo {
     }
   }
 
-  async get(name: string) : Promise<LocalInfo | undefined> {
+  async get(name: string = LocalInfoNameDefault) : Promise<LocalInfo | undefined> {
     const r = await this.storage.get(name);
     if (r) {
         return JSON.parse(r);
     }
   }
 
-  async get_default(name: string) : Promise<string | undefined> {
+  async get_default(name: string = LocalInfoNameDefault) : Promise<string | undefined> {
     const r = await this.storage.get(name);
     if (r) {
         return (JSON.parse(r) as InfoData).default;
     }
   }
 
-  async del(name:string)  {
-    return await this.storage.del(name);
+  async del(name:string = LocalInfoNameDefault) : Promise<void> {
+    await this.storage.del(name);
   }
 
-  async del_content(name:string, index:number) : Promise<boolean> {
+  async del_content(name:string = LocalInfoNameDefault, index:number) : Promise<boolean> {
     const r = await this.storage.get(name);
     if (r) {
         const obj =  JSON.parse(r) as InfoData;
@@ -218,6 +222,10 @@ export class LocalInfo {
 
   async clear() {
     return await this.storage.clear();
+  }
+
+  async list() : Promise<string> {
+    return JSON.stringify((await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}}));
   }
 }
 

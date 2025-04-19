@@ -16,5 +16,6 @@ export * from './call/call.js';
 export * from './local/account.js';
 export * from './local/cache.js';
 export * from './local/local.js';
+export * from './local/index.js';
 export * as WOWOK from 'wowok';
 //# sourceMappingURL=index.d.ts.map

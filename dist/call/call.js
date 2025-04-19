@@ -120,7 +120,7 @@ export const call_repository = async (call) => {
 };
 export const call_guard = async (call) => {
     const obj = new CallGuard(call.data);
-    return call_object(obj, call.account, call.witness);
+    return call_object(obj, call.account);
 };
 export const call_machine = async (call) => {
     const obj = new CallMachine(call.data);

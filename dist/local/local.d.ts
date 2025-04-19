@@ -12,6 +12,7 @@ export interface InfoData {
 export declare const LocalMarkLocation = "wowok-mark";
 export declare const LocalInfoLocation = "wowok-info";
 export declare const LocalMarkNameMaxLength = 32;
+export declare const LocalInfoNameDefault = "Address of delivery";
 export declare class LocalMark {
     static _instance: any;
     private storage;
@@ -25,17 +26,19 @@ export declare class LocalMark {
     rename(name: string, new_name: string): Promise<boolean>;
     swap_name(name1: string, name2: string): Promise<boolean>;
     set_tags(name: string, tags: string[] | undefined): Promise<boolean>;
+    list(): Promise<string>;
 }
 export declare class LocalInfo {
     static _instance: any;
     private storage;
     constructor();
     static Instance(): LocalInfo;
-    put(name: string, content: string, bDefault?: boolean): Promise<void>;
-    get(name: string): Promise<LocalInfo | undefined>;
-    get_default(name: string): Promise<string | undefined>;
-    del(name: string): Promise<void>;
-    del_content(name: string, index: number): Promise<boolean>;
+    put(name: string | undefined, content: string, bDefault?: boolean): Promise<void>;
+    get(name?: string): Promise<LocalInfo | undefined>;
+    get_default(name?: string): Promise<string | undefined>;
+    del(name?: string): Promise<void>;
+    del_content(name: string | undefined, index: number): Promise<boolean>;
     clear(): Promise<void>;
+    list(): Promise<string>;
 }
 //# sourceMappingURL=local.d.ts.map

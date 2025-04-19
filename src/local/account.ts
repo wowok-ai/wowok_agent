@@ -160,6 +160,24 @@ export class Account {
             }
         }
     }
+    async transfer(from:string, to:string, amount:number|string, token_type?:string) : Promise<CallResponse | undefined> {
+        const secret: string | undefined = await this.storage.get(from);    
+        if (!secret)    return undefined;
+        const pair = Ed25519Keypair.fromSecretKey(fromHEX(secret))
+        if (!pair) return undefined;
+
+        const txb = new TransactionBlock();
+        const coin = await this.get_coin_object(txb, amount, from, token_type);
+        if (coin) {
+            txb.transferObjects([(coin as unknown) as TransactionArgument], to)
+            const r = await Protocol.Client().signAndExecuteTransaction({
+                transaction: txb, 
+                signer: pair,
+                options:{showObjectChanges:true},
+            });
+            return r;
+        }
+    }
 
     coinObject_with_balance = async(balance_required:string | bigint | number, address?:string, token_type?:string) : Promise<string | undefined> => {
         if (!address) {

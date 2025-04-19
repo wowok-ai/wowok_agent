@@ -45,7 +45,6 @@ export interface CallArbitrationObject {
 export interface CallGuardObject {
     data: CallGuard_Data;
     account?: string;
-    witness?: GuardInfo_forCall;
 }
 export interface CallRepositoryObject {
     data: CallRepository_Data;
@@ -168,7 +167,7 @@ export const call_repository = async (call:CallRepositoryObject) : Promise<CallR
 }
 export const call_guard = async (call:CallGuardObject) : Promise<CallResult> => {
     const obj = new CallGuard(call.data);
-    return call_object(obj, call.account, call.witness)
+    return call_object(obj, call.account)
 }
 export const call_machine = async (call:CallMachineObject) : Promise<CallResult> => {
     const obj = new CallMachine(call.data);
