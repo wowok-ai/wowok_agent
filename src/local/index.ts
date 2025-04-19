@@ -1,9 +1,9 @@
 import { CallResponse, CoinBalance, CoinStruct } from "wowok"
 import { Account } from "./account.js"
-import { LocalInfo, LocalInfoNameDefault, LocalMark, MarkData } from "./local.js"
+import { LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
 
-export const query_local_mark_list = async () : Promise<string> => {
-    return await LocalMark.Instance().list()
+export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
+    return JSON.stringify(await LocalMark.Instance().list(filter))
 }
 
 export const query_account_list = async () : Promise<QueryAccountsResult> => {
@@ -14,7 +14,7 @@ export const query_account_list = async () : Promise<QueryAccountsResult> => {
 }
 
 export const query_local_info_list = async () : Promise<string> => {
-    return await LocalInfo.Instance().list()
+    return JSON.stringify(await LocalInfo.Instance().list())
 }
 
 export interface QueryAccountsResult {
@@ -22,10 +22,10 @@ export interface QueryAccountsResult {
     addresses?: string[];
 }
 
-
 export const query_local_mark = async (name: string) : Promise<MarkData | undefined> => {
     return await LocalMark.Instance().get(name)
 }
+
 
 export enum BalanceOrCoin {
     Balance = 'balance',

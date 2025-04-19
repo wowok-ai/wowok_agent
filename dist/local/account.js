@@ -141,7 +141,7 @@ export class Account {
         }
     }
     async list() {
-        return await this.storage.keys().all();
+        return (await this.storage.keys().all()).filter(v => v !== SettingDefault);
     }
     async faucet(address) {
         if (!address) {

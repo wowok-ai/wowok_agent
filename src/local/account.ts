@@ -76,7 +76,7 @@ export class Account {
     }
     
     async list() : Promise<string[]> {
-        return await this.storage.keys().all();
+        return (await this.storage.keys().all()).filter(v => v !== SettingDefault);
     }
     
     async faucet(address?:string) {

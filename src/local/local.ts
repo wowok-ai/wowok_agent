@@ -20,6 +20,12 @@ export interface InfoData {
   others?: string[];
 }
 
+export interface LocalMarkFilter {
+  name?: string;
+  tags?: string[];
+  object?: string;
+}
+
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
 export const LocalMarkNameMaxLength = 32;
@@ -150,10 +156,25 @@ export class LocalMark {
       return false;
     }
 
-    async list() : Promise<string> {
-      return JSON.stringify((await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}}));
+    async list(filter?: LocalMarkFilter) : Promise<QueryNameData[]> {
+      return (await this.storage.iterator().all()).filter(v => {
+        const obj = JSON.parse(v[1]) as MarkData;
+        if (filter?.name && v[0] !== filter.name) return false;
+        if (filter?.object && obj.object !== filter.object) return false;
+        if (filter?.tags && obj.tags) {
+          for (let i = 0; i < filter.tags.length; ++ i) {
+            if (!obj.tags.includes(filter.tags[i])) return false;
+          }
+        }
+        return true;
+      }).map(v => {return {name:v[0], data:v[1]}});
     }
 }
+
+export interface QueryNameData {
+  name: string;
+  data: any;
+};
 
 export class LocalInfo {
   static _instance: any;
@@ -224,8 +245,8 @@ export class LocalInfo {
     return await this.storage.clear();
   }
 
-  async list() : Promise<string> {
-    return JSON.stringify((await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}}));
+  async list() : Promise<QueryNameData[]> {
+    return (await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}});
   }
 }
 
