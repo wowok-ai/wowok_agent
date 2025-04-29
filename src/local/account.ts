@@ -168,8 +168,8 @@ export class Account {
 
         const txb = new TransactionBlock();
         const coin = await this.get_coin_object(txb, amount, from, token_type);
-        if (coin) {
-            txb.transferObjects([(coin as any) as TransactionArgument], to)
+        if (coin !== undefined) {
+            txb.transferObjects([coin as TransactionArgument], to)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
