@@ -31,7 +31,7 @@ export interface CallArbitration_Data {
     };
     arb_new?: {
         data: DisputeData;
-        guard?: string | 'fetch';
+        guard?: string;
         namedNew?: Namedbject;
     };
     arb_withdraw_fee?: {

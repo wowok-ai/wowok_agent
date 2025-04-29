@@ -8,7 +8,7 @@ export interface CallPersonal_Data {
     };
     information?: Entity_Info;
     mark?: {
-        op: 'add or set';
+        op: 'add';
         data: {
             address: string;
             name?: string;

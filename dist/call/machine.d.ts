@@ -93,7 +93,7 @@ export interface CallMachine_Data {
         progress: string;
         operation: ProgressNext;
         deliverable: Deliverable;
-        guard?: string | 'fetch';
+        guard?: string;
     };
     bPaused?: boolean;
     clone_new?: {

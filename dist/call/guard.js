@@ -1,8 +1,9 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, } from "wowok";
 import { CallBase } from "./base.js";
+import { LocalMark } from "src/local/local.js";
 export class CallGuard extends CallBase {
     constructor(data) {
         super();
@@ -36,24 +37,34 @@ export class CallGuard extends CallBase {
             target: Protocol.Instance().guardFn('new'),
             arguments: [txb.pure.string(this.data.description ?? ''), txb.pure.vector('u8', [].slice.call(bytes.reverse()))],
         });
-        this.data?.table?.forEach((v) => {
-            if (v.bWitness) {
-                const n = new Uint8Array(1);
-                n.set([v.value_type], 0);
-                txb.moveCall({
-                    target: Protocol.Instance().guardFn("constant_add"),
-                    arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
-                });
+        if (this.data.table) {
+            for (let i = 0; i < this.data?.table?.length; ++i) {
+                const v = this.data.table[i];
+                if (v.bWitness) {
+                    const n = new Uint8Array(1);
+                    n.set([v.value_type], 0);
+                    txb.moveCall({
+                        target: Protocol.Instance().guardFn("constant_add"),
+                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                    });
+                }
+                else {
+                    if (v.value_type === ValueType.TYPE_ADDRESS) {
+                        v.value = await LocalMark.Instance().get_address(v.value);
+                        if (!v.value) {
+                            ERROR(Errors.InvalidParam, `CallGuard_Data.data.table address`);
+                        }
+                    }
+                    ;
+                    const tmp = Uint8Array.from(Bcs.getInstance().ser(v.value_type, v.value));
+                    const n = insertAtHead(tmp, v.value_type);
+                    txb.moveCall({
+                        target: Protocol.Instance().guardFn("constant_add"),
+                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                    });
+                }
             }
-            else {
-                const tmp = Uint8Array.from(Bcs.getInstance().ser(v.value_type, v.value));
-                const n = insertAtHead(tmp, v.value_type);
-                txb.moveCall({
-                    target: Protocol.Instance().guardFn("constant_add"),
-                    arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
-                });
-            }
-        });
+        }
         const addr = txb.moveCall({
             target: Protocol.Instance().guardFn("create"),
             arguments: [txb.object(obj)]

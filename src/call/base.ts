@@ -5,7 +5,7 @@ import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, Pa
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
-import { ObjectBase, ObjectBaseType, query_personal, raw2type} from '../query/objects.js';
+import { ObjectArbitration, ObjectBase, ObjectBaseType, query_objects, query_personal, raw2type} from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 
 export interface Namedbject {
@@ -50,6 +50,7 @@ export class CallBase {
     // operation implementation for a call
     private resouceObject:ResourceObject | undefined;
     private traceMarkNew = new Map<ObjectBaseType, Namedbject>();
+    content: ObjectBase | undefined = undefined;
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
     constructor () {}
@@ -157,13 +158,24 @@ export class CallBase {
     
     }
 
+    protected async update_content(object:string, type:ObjectBaseType)  {
+        if (this.content)   return ;
+
+        const r = await query_objects({objects:[object]});
+        if (r?.objects?.length !== 1 || r?.objects[0]?.type !== type) {
+            ERROR(Errors.Fail, `Fetch ${type} object ${object} failed`)
+        }
+
+        this.content = r?.objects[0];
+    }
+
     protected async sign_and_commit(txb: TransactionBlock, address?: string) : Promise<CallResponse> {
         if (this.resouceObject) {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-
-        const r = await Account.Instance().sign_and_commit(txb, address);
+        const addr = address !== undefined ? await LocalMark.Instance().get_address(address) : undefined;
+        const r = await Account.Instance().sign_and_commit(txb, addr);
         if (!r) {
             ERROR(Errors.Fail, 'sign and commit failed');
         }
@@ -175,7 +187,7 @@ export class CallBase {
                 const namedNew = this.traceMarkNew.get(v.type);
                 if (namedNew) {
                     LocalMark.Instance().put(namedNew.name, 
-                        {object:v.object, tags:namedNew?.tags}, 
+                        {object:v.object, tags:namedNew?.tags ? [...namedNew?.tags, v.type] : [v.type]}, 
                         namedNew?.useAddressIfNameExist);
                 }
             }

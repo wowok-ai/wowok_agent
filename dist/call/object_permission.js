@@ -1,14 +1,17 @@
 import { CallBase } from "./base.js";
-import { IsValidAddress, Errors, ERROR, Demand, Machine, Service, Treasury, Arbitration, Repository } from 'wowok';
+import { Errors, ERROR, Demand, Machine, Service, Treasury, Arbitration, Repository } from 'wowok';
 import { query_objects } from "../query/objects.js";
+import { LocalMark } from "src/local/local.js";
 export class CallObjectPermission extends CallBase {
     constructor(data) {
         super();
+        this.new_perm = undefined;
         this.data = data;
     }
     async call(account) {
-        if (!IsValidAddress(this.data.new_permission)) {
-            ERROR(Errors.InvalidParam, 'CallObjectPermission_Data.new_permission' + this.data.new_permission);
+        this.new_perm = await LocalMark.Instance().get_address(this.data.new_permission);
+        if (!this.new_perm) {
+            ERROR(Errors.InvalidParam, 'CallObjectPermission_Data.new_permission:' + this.data.new_permission);
         }
         if (this.data?.objects.length > 0) {
             return await this.exec(account);
@@ -20,27 +23,27 @@ export class CallObjectPermission extends CallBase {
             switch (v.type) {
                 case 'Demand':
                     const demand = v;
-                    Demand.From(txb, Demand.parseObjectType(demand.type_raw), demand.permission, demand.object).change_permission(this.data.new_permission);
+                    Demand.From(txb, Demand.parseObjectType(demand.type_raw), demand.permission, demand.object).change_permission(this.new_perm);
                     break;
                 case 'Machine':
                     const machine = v;
-                    Machine.From(txb, machine.permission, machine.object).change_permission(this.data.new_permission);
+                    Machine.From(txb, machine.permission, machine.object).change_permission(this.new_perm);
                     break;
                 case 'Service':
                     const service = v;
-                    Service.From(txb, Service.parseObjectType(service.type_raw), service.permission, service.object).change_permission(this.data.new_permission);
+                    Service.From(txb, Service.parseObjectType(service.type_raw), service.permission, service.object).change_permission(this.new_perm);
                     break;
                 case 'Treasury':
                     const treasury = v;
-                    Treasury.From(txb, Treasury.parseObjectType(treasury.type_raw), treasury.permission, treasury.object).change_permission(this.data.new_permission);
+                    Treasury.From(txb, Treasury.parseObjectType(treasury.type_raw), treasury.permission, treasury.object).change_permission(this.new_perm);
                     break;
                 case 'Arbitration':
                     const arbitraion = v;
-                    Arbitration.From(txb, Arbitration.parseObjectType(arbitraion.type_raw), arbitraion.permission, arbitraion.object).change_permission(this.data.new_permission);
+                    Arbitration.From(txb, Arbitration.parseObjectType(arbitraion.type_raw), arbitraion.permission, arbitraion.object).change_permission(this.new_perm);
                     break;
                 case 'Repository':
                     const repository = v;
-                    Repository.From(txb, repository.permission, repository.object).change_permission(this.data.new_permission);
+                    Repository.From(txb, repository.permission, repository.object).change_permission(this.new_perm);
                     break;
             }
         });

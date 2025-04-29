@@ -3,6 +3,8 @@ import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Permis
     Repository_Policy_Data_Remove, Repository_Policy_Mode, 
 } from 'wowok';
 import { CallBase, CallResult, Namedbject} from "./base.js";
+import { LocalMark } from 'src/local/local.js';
+import { ObjectRepository } from 'src/query/objects.js';
 
 
 /// The execution priority is determined by the order in which the object attributes are arranged
@@ -25,10 +27,21 @@ export class CallRepository extends CallBase {
     async call(account?:string) : Promise<CallResult>   {
         var checkOwner = false;
         const perms : PermissionIndexType[] = []; 
-        const permission_address = (this.data?.permission as any)?.address;
-        const object_address = (this.data?.object as any)?.address;
+        var [permission_address, object_address] = 
+            await LocalMark.Instance().get_many_address(
+                [(this.data?.permission as any)?.address, 
+                (this.data?.object as any)?.address]);
 
-        if (permission_address && IsValidAddress(permission_address)) {
+        if (object_address) {
+            if (!permission_address) {
+                await this.update_content(object_address, 'Repository');
+                if (this.content) {
+                    permission_address = (this.content as ObjectRepository).permission;     
+                }
+            } 
+        } 
+
+        if (permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.repository)
             }
@@ -51,21 +64,24 @@ export class CallRepository extends CallBase {
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Repository | undefined ; let permission: any;
-        const permission_address = (this.data?.permission as any)?.address;
-        const object_address = (this.data?.object as any)?.address;
+        var [permission_address, object_address] = this?.content ? 
+            [(this.content as ObjectRepository).permission, this.content.object] : 
+            await LocalMark.Instance().get_many_address(
+                [(this.data?.permission as any)?.address, 
+                (this.data?.object as any)?.address]);
 
         if (!object_address) {
-            if (!permission_address || !IsValidAddress(permission_address)) {
+            if (!permission_address) {
                 const d = (this.data?.permission as any)?.description ?? '';
                 permission = Permission.New(txb, d);
             }
             
             obj = Repository.New(txb, permission ? permission.get_object() : permission_address, this.data?.description??'', this.data?.mode, permission?undefined:passport)
         } else {
-            if (IsValidAddress(object_address) && this.data.permission && IsValidAddress(permission_address)) {
+            if (permission_address) {
                 obj = Repository.From(txb, permission_address, object_address)
             } else {
-                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
+                ERROR(Errors.InvalidParam, 'CallRepository_Data.data.permission')
             }
         }
 
@@ -77,14 +93,12 @@ export class CallRepository extends CallBase {
             if (this.data?.reference !== undefined) {
                 switch (this.data.reference.op) {
                     case 'set':
-                        obj?.remove_reference([], true, pst);
-                        obj?.add_reference(this.data.reference.addresses, pst);
-                        break;
                     case 'add':
-                        obj?.add_reference(this.data.reference.addresses, pst);
+                        if (this.data.reference.op === 'set') obj?.remove_reference([], true, pst);
+                        obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), pst);
                         break;
                     case 'remove':
-                        obj?.remove_reference(this.data.reference.addresses, false, pst);
+                        obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), false, pst);
                         break;
                     case 'removeall':
                         obj?.remove_reference([], true, pst);

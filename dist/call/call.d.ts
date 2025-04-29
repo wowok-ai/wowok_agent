@@ -15,51 +15,51 @@ import { CallGuard_Data } from "./guard.js";
 import { CallObjectPermission_Data } from "./object_permission.js";
 export interface CallDemandObject {
     data: CallDemand_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallServiceObject {
     data: CallService_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallMachineObject {
     data: CallMachine_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallTreasuryObject {
     data: CallTreasury_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallArbitrationObject {
     data: CallArbitration_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallGuardObject {
     data: CallGuard_Data;
-    account?: string;
+    account?: string | null;
 }
 export interface CallRepositoryObject {
     data: CallRepository_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallPersonalObject {
     data: CallPersonal_Data;
-    account?: string;
+    account?: string | null;
 }
 export interface CallPermissionObject {
     data: CallPermission_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallTransferPermissionObject {
     data: CallObjectPermission_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export declare const call_demand_json: (json: string) => Promise<string>;
 export declare const call_service_json: (json: string) => Promise<string>;

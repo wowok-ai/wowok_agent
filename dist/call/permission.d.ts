@@ -42,6 +42,7 @@ export interface CallPermission_Data {
 }
 export declare class CallPermission extends CallBase {
     data: CallPermission_Data;
+    object_address: string | undefined;
     constructor(data: CallPermission_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

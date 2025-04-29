@@ -1,5 +1,6 @@
-import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Repository, } from 'wowok';
+import { Errors, ERROR, Permission, PermissionIndex, Repository, } from 'wowok';
 import { CallBase } from "./base.js";
+import { LocalMark } from 'src/local/local.js';
 export class CallRepository extends CallBase {
     constructor(data) {
         super();
@@ -8,9 +9,17 @@ export class CallRepository extends CallBase {
     async call(account) {
         var checkOwner = false;
         const perms = [];
-        const permission_address = this.data?.permission?.address;
-        const object_address = this.data?.object?.address;
-        if (permission_address && IsValidAddress(permission_address)) {
+        var [permission_address, object_address] = await LocalMark.Instance().get_many_address([this.data?.permission?.address,
+            this.data?.object?.address]);
+        if (object_address) {
+            if (!permission_address) {
+                await this.update_content(object_address, 'Repository');
+                if (this.content) {
+                    permission_address = this.content.permission;
+                }
+            }
+        }
+        if (permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.repository);
             }
@@ -33,21 +42,23 @@ export class CallRepository extends CallBase {
     async operate(txb, passport, account) {
         let obj;
         let permission;
-        const permission_address = this.data?.permission?.address;
-        const object_address = this.data?.object?.address;
+        var [permission_address, object_address] = this?.content ?
+            [this.content.permission, this.content.object] :
+            await LocalMark.Instance().get_many_address([this.data?.permission?.address,
+                this.data?.object?.address]);
         if (!object_address) {
-            if (!permission_address || !IsValidAddress(permission_address)) {
+            if (!permission_address) {
                 const d = this.data?.permission?.description ?? '';
                 permission = Permission.New(txb, d);
             }
             obj = Repository.New(txb, permission ? permission.get_object() : permission_address, this.data?.description ?? '', this.data?.mode, permission ? undefined : passport);
         }
         else {
-            if (IsValidAddress(object_address) && this.data.permission && IsValidAddress(permission_address)) {
+            if (permission_address) {
                 obj = Repository.From(txb, permission_address, object_address);
             }
             else {
-                ERROR(Errors.InvalidParam, 'object or permission address invalid.');
+                ERROR(Errors.InvalidParam, 'CallRepository_Data.data.permission');
             }
         }
         if (obj) {
@@ -58,14 +69,13 @@ export class CallRepository extends CallBase {
             if (this.data?.reference !== undefined) {
                 switch (this.data.reference.op) {
                     case 'set':
-                        obj?.remove_reference([], true, pst);
-                        obj?.add_reference(this.data.reference.addresses, pst);
-                        break;
                     case 'add':
-                        obj?.add_reference(this.data.reference.addresses, pst);
+                        if (this.data.reference.op === 'set')
+                            obj?.remove_reference([], true, pst);
+                        obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), pst);
                         break;
                     case 'remove':
-                        obj?.remove_reference(this.data.reference.addresses, false, pst);
+                        obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), false, pst);
                         break;
                     case 'removeall':
                         obj?.remove_reference([], true, pst);

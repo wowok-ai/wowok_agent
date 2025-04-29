@@ -6,6 +6,7 @@ export interface CallObjectPermission_Data {
 }
 export declare class CallObjectPermission extends CallBase {
     data: CallObjectPermission_Data;
+    new_perm: string | undefined;
     constructor(data: CallObjectPermission_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject): Promise<void>;

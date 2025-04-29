@@ -18,53 +18,53 @@ import { CallObjectPermission, CallObjectPermission_Data } from "./object_permis
 
 export interface CallDemandObject {
     data: CallDemand_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 
 export interface CallServiceObject {
     data: CallService_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallMachineObject {
     data: CallMachine_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallTreasuryObject {
     data: CallTreasury_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallArbitrationObject {
     data: CallArbitration_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallGuardObject {
     data: CallGuard_Data;
-    account?: string;
+    account?: string | null;
 }
 export interface CallRepositoryObject {
     data: CallRepository_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 export interface CallPersonalObject {
     data: CallPersonal_Data;
-    account?: string;
+    account?: string | null;
 }
 export interface CallPermissionObject {
     data: CallPermission_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 
 export interface CallTransferPermissionObject {
     data: CallObjectPermission_Data;
-    account?: string;
-    witness?: GuardInfo_forCall;
+    account?: string | null;
+    witness?: GuardInfo_forCall | null;
 }
 
 export const call_demand_json = async (json: string) : Promise<string> => {
@@ -101,10 +101,13 @@ export const call_repository_json = async (json: string) : Promise<string> => {
     }
 }
 export const call_permission_json = async (json: string) : Promise<string> => {
+    console.log(1)
     try {
         const c : CallPermissionObject = JSON.parse(json);
+        console.log(c)
         return JSON.stringify({data:await call_permission(c)});
     } catch (e) {
+        console.log(2)
         return JSON.stringify({error:e?.toString()})
     }
 }
@@ -190,10 +193,10 @@ export const call_arbitration = async (call:CallArbitrationObject) : Promise<Cal
     return call_object(obj, call.account, call.witness)
 }
 
-const call_object = async (object: CallBase, account?: string, witness?: GuardInfo_forCall) : Promise<CallResult> => {
+const call_object = async (object: CallBase, account?: string | null, witness?: GuardInfo_forCall | null) : Promise<CallResult> => {
     if (witness) {
-        return object.call_with_witness(witness, account);
+        return object.call_with_witness(witness, account ?? undefined);
     } else {
-        return object.call(account);
+        return object.call(account ?? undefined);
     }
 }

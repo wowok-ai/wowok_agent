@@ -66,75 +66,79 @@ export const query_local_info = async (name: string = LocalInfoNameDefault) : Pr
 }
 
 export interface AccountOperation {
-    gen?: {name?:string, default?: boolean, useAddressIfNameExist?: boolean};
-    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string};
+    gen?: {name?:string, default?: boolean, useAddressIfNameExist?: boolean} | null;
+    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null; 
 }
 
 export interface AccountOperationResult {
-    gen?: {address:string};
+    gen?: {address:string, default:boolean, name: string};
     transfer?: CallResponse;
 }
 
 export const account_operation = async(op: AccountOperation) : Promise<AccountOperationResult> => {
-    var res : AccountOperationResult = {};
+    var res : AccountOperationResult = {}; 
     if (op.gen) {
-        const acc = await Account.Instance().gen(op.gen.default);
-        if (await LocalMark.Instance().put(op.gen.name, {object: acc, tags: ['account']}, op.gen.useAddressIfNameExist)) {
-            res.gen = {address: acc};
-        }
-    } else if (op.transfer) {
-        const from = await LocalMark.Instance().get_account(op.transfer.name_or_address_from);
-        const to = await LocalMark.Instance().get_account(op.transfer.name_or_address_to);
-        if (from && to) {
-            res.transfer = await Account.Instance().transfer(from, to, op.transfer.amount, op.transfer.token_type);
-        }
+        const acc = await Account.Instance().gen(op.gen?.default);
+        const name = await LocalMark.Instance().put(op.gen.name, {object: acc, tags: ['account']}, op.gen.useAddressIfNameExist);
+        res.gen =  {address: acc, default: op.gen.default ?? false, name:name};
     } 
+    
+    if(op.transfer) {
+        const from = await LocalMark.Instance().get_account(op.transfer?.name_or_address_from, false);
+        const to = await LocalMark.Instance().get_account(op.transfer.name_or_address_to, false);
+        if (from && to) {
+            res.transfer = await Account.Instance().transfer(from, to, op.transfer?.amount, op.transfer?.token_type);
+        }
+    }
     return res;
 }
 
-export interface LocalMarkOperation {
-    removeall?: boolean;
-    add_or_set?: {name:string, address:string, tags?:string[], useAddressIfNameExist?:boolean}[];
-    remove?: string[];
-}
+export interface LocalMarkOperation { data: {op: 'removeall' } 
+    | {op:'add', data:{name:string, address:string, tags?:string[], useAddressIfNameExist?:boolean}[]}
+    | {op:'remove', data: string[]} 
+};
 
 export const local_mark_operation = async(op: LocalMarkOperation) : Promise<void> => {
-    if (op.removeall) {
-        await LocalMark.Instance().clear();
-    } else if (op.add_or_set) {
-        for (let i = 0; i < op.add_or_set.length; ++ i) {
-            const v = op.add_or_set[i];
-            await LocalMark.Instance().put(v.name, {object: v.address, tags: v.tags}, v.useAddressIfNameExist);
-        }
-    } else if (op.remove) {
-        for (let i = 0; i < op.remove.length; ++ i) {
-            const v = op.remove[i];
-            await LocalMark.Instance().del(v);
-        }
+    switch(op.data?.op) {
+        case 'removeall':
+            return await LocalMark.Instance().clear();
+        case 'add':
+            for (let i = 0; i < op.data.data.length; ++ i) {
+                const v = op.data.data[i];
+                await LocalMark.Instance().put(v.name, {object: v.address, tags: v.tags}, v.useAddressIfNameExist);
+            };
+            return ;
+        case 'remove':
+            for (let i = 0; i < op.data.data.length; ++ i) {
+                const v = op.data.data[i];
+                await LocalMark.Instance().del(v);
+            }
+            return     
     }
-    return undefined;
 }   
 
-export interface LocalInfoOperation {
-    removeall?: boolean;
-    add?: {name:string, content:string, bdefault?: boolean}[];
-    remove?: string[];
-}
+export interface LocalInfoOperation { 
+    data: {op: 'removeall' } 
+    | {op:'add', data:{name:string, content:string, bdefault?: boolean}[]}
+    | {op:'remove', data: string[]} 
+};
 
 export const local_info_operation = async(op: LocalInfoOperation) : Promise<void> => {
-    if (op.removeall) {
-        await LocalInfo.Instance().clear();
-    }
-    else if (op.add) {  
-        for (let i = 0; i < op.add.length; ++ i) {
-            const v = op.add[i];
-            await LocalInfo.Instance().put(v.name, v.content, v.bdefault);
-        }
-    }
-    else if (op.remove) {   
-        for (let i = 0; i < op.remove.length; ++ i) {
-            const v = op.remove[i];
-            await LocalInfo.Instance().del(v);
-        }
+    switch (op.data?.op) {
+        case 'removeall':
+            await LocalInfo.Instance().clear();
+            break;
+        case 'add' :
+            for (let i = 0; i < op.data?.data.length; ++ i) {
+                const v = op.data.data[i];
+                await LocalInfo.Instance().put(v.name, v.content, v?.bdefault);
+            }
+            break;
+        case 'remove' :   
+            for (let i = 0; i < op.data?.data.length; ++ i) {
+                const v = op.data.data[i];
+                await LocalInfo.Instance().del(v);
+            }
+            break;
     }
 }

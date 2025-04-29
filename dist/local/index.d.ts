@@ -30,40 +30,54 @@ export interface AccountOperation {
         name?: string;
         default?: boolean;
         useAddressIfNameExist?: boolean;
-    };
+    } | null;
     transfer?: {
         name_or_address_from?: string;
         name_or_address_to?: string;
         amount: number | string;
         token_type?: string;
-    };
+    } | null;
 }
 export interface AccountOperationResult {
     gen?: {
         address: string;
+        default: boolean;
+        name: string;
     };
     transfer?: CallResponse;
 }
 export declare const account_operation: (op: AccountOperation) => Promise<AccountOperationResult>;
 export interface LocalMarkOperation {
-    removeall?: boolean;
-    add_or_set?: {
-        name: string;
-        address: string;
-        tags?: string[];
-        useAddressIfNameExist?: boolean;
-    }[];
-    remove?: string[];
+    data: {
+        op: 'removeall';
+    } | {
+        op: 'add';
+        data: {
+            name: string;
+            address: string;
+            tags?: string[];
+            useAddressIfNameExist?: boolean;
+        }[];
+    } | {
+        op: 'remove';
+        data: string[];
+    };
 }
 export declare const local_mark_operation: (op: LocalMarkOperation) => Promise<void>;
 export interface LocalInfoOperation {
-    removeall?: boolean;
-    add?: {
-        name: string;
-        content: string;
-        bdefault?: boolean;
-    }[];
-    remove?: string[];
+    data: {
+        op: 'removeall';
+    } | {
+        op: 'add';
+        data: {
+            name: string;
+            content: string;
+            bdefault?: boolean;
+        }[];
+    } | {
+        op: 'remove';
+        data: string[];
+    };
 }
 export declare const local_info_operation: (op: LocalInfoOperation) => Promise<void>;
 //# sourceMappingURL=index.d.ts.map

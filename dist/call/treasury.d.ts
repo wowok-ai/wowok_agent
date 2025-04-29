@@ -22,7 +22,7 @@ export interface CallTreasury_Data {
             for_object?: string;
             for_guard?: string;
         };
-        guard?: string | 'fetch';
+        guard?: string;
     };
     receive?: {
         payment: string;

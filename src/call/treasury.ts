@@ -4,6 +4,8 @@ import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Error
 import { query_objects, ObjectTreasury } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { Account } from '../local/account.js';
+import { LocalMark } from 'src/local/local.js';
+import { get_object_address } from 'src/common.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {
@@ -11,7 +13,7 @@ export interface CallTreasury_Data {
     object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
     permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
     description?: string;
-    deposit?: {data:{balance:string|number; index?:number|string; remark?:string; for_object?:string; for_guard?:string}; guard?:string | 'fetch'};
+    deposit?: {data:{balance:string|number; index?:number|string; remark?:string; for_object?:string; for_guard?:string}; guard?:string};
     receive?: {payment:string; received_object:string};
     withdraw?: WithdrawParam;
     deposit_guard?: string;
@@ -32,10 +34,26 @@ export class CallTreasury extends CallBase {
 
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = [];  var obj: ObjectTreasury | undefined ;
-        const permission_address = (this.data?.permission as any)?.address;
-        const object_address = (this.data?.object as any)?.address;
+        var [permission_address, object_address, treasury_address] = 
+            await LocalMark.Instance().get_many_address(
+                [(this.data?.permission as any)?.address, 
+                (this.data?.object as any)?.address]);
 
-        if (permission_address && IsValidAddress(permission_address)) {
+        if (object_address) {
+            if (!this.data.type_parameter || !permission_address) {
+                await this.update_content(object_address, 'Treasury');
+                if (this.content) {
+                    permission_address = (this.content as ObjectTreasury).permission;     
+                    this.data.type_parameter =  this.content.type_raw!;             
+                }
+            } 
+        } else {
+            if (!this.data?.type_parameter || !IsValidArgType(this.data.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallTreasury_Data.data.type_parameter')
+            }
+        }
+
+        if (permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.treasury)
             }
@@ -54,46 +72,34 @@ export class CallTreasury extends CallBase {
             if (this.data?.deposit_guard !== undefined) {
                 perms.push(PermissionIndex.treasury_deposit_guard)
             }
-            if (this.data?.deposit?.guard !== undefined) {
-                if (IsValidAddress(this.data.deposit.guard)) {
-                    guards.push(this.data.deposit.guard)
+            if (this.data?.deposit !== undefined) {
+                const guard = await LocalMark.Instance().get_address(this.data?.deposit?.guard);
+                if (guard) {
+                    guards.push(guard)
                 } else {
-                    if (!this.data.object) {
-                        if (this.data?.deposit_guard && IsValidAddress(this.data?.deposit_guard)) {
-                            guards.push(this.data.deposit_guard)
+                    if (!object_address) {
+                        const guard = await LocalMark.Instance().get_address(this.data.deposit_guard);
+                        if (guard) {
+                            guards.push(guard);
                         }
                     } else {
-                        if (!obj) {
-                            const r = await query_objects({objects:[object_address]});
-                            if (r?.objects && r.objects[0].type === 'Treasury') {
-                                obj = r.objects[0] as ObjectTreasury;
-                            }
-                        }
-                        if (obj?.deposit_guard) {
-                            guards.push(obj?.deposit_guard)
-                        }                        
+                        await this.update_content(object_address, 'Treasury');
+    
+                        if ((this.content as ObjectTreasury)?.deposit_guard) {
+                            guards.push((this.content as ObjectTreasury).deposit_guard!)
+                        }                         
                     }
-
                 }
             }
             if (this.data?.receive !== undefined) {
                 perms.push(PermissionIndex.treasury_receive)
             }
-            if (this.data?.withdraw?.withdraw_guard !== undefined) {
-                if (typeof(this.data.withdraw.withdraw_guard) === 'string' && IsValidAddress(this.data.withdraw.withdraw_guard)) {
-                    guards.push(this.data.withdraw.withdraw_guard)
-                } else if (this.data.object) {
-                    if (!obj) {
-                        const r = await query_objects({objects:[object_address]});
-                        if (r?.objects && r.objects[0].type === 'Treasury') {
-                            obj = r.objects[0] as ObjectTreasury;
-                        }
-                    }
-                    if (typeof(obj?.withdraw_guard) === 'string') {
-                        guards.push(obj?.withdraw_guard)
-                    }
-                }
-            } else {
+            if (this.data?.withdraw?.withdraw_guard !== undefined) { // withdraw with guard
+                const guard = await get_object_address(this.data.withdraw.withdraw_guard);
+                if (guard) {
+                    guards.push(guard)
+                } 
+            } else { // withdraw with permission
                 perms.push(PermissionIndex.treasury_withdraw)
             }
             return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
@@ -102,20 +108,23 @@ export class CallTreasury extends CallBase {
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Treasury | undefined ; let permission: any; 
-        const permission_address = (this.data?.permission as any)?.address;
-        const object_address = (this.data?.object as any)?.address;
+        var [permission_address, object_address] = this?.content ? 
+            [(this.content as ObjectTreasury).permission, this.content.object] : 
+            await LocalMark.Instance().get_many_address(
+                [(this.data?.permission as any)?.address, 
+                (this.data?.object as any)?.address]);
 
         if (!object_address) {
-            if (!permission_address || !IsValidAddress(permission_address)) {
+            if (!permission_address) {
                 const d = (this.data?.permission as any)?.description ?? '';
                 permission = Permission.New(txb, d);
             }
             obj = Treasury.New(txb, this.data.type_parameter!, permission ? permission.get_object() : permission_address, this.data?.description??'', permission?undefined:passport)
         } else {
-            if (IsValidAddress(object_address) && this.data.type_parameter && permission_address && IsValidAddress(permission_address)) {
+            if (this.data.type_parameter && permission_address) {
                 obj = Treasury.From(txb, this.data.type_parameter, permission_address, object_address)
             } else {
-                ERROR(Errors.InvalidParam, 'object or permission address invalid.')
+                ERROR(Errors.InvalidParam, 'CallTreasury_Data.data.type_parameter or permission')
             }
         }
 
@@ -129,33 +138,42 @@ export class CallTreasury extends CallBase {
                 if (coin) {
                     const index = this.data.deposit.data?.index ?? 0;
                     obj?.deposit({coin:coin, index:BigInt(index), remark:this.data.deposit.data.remark ??'', 
-                        for_guard:this.data.deposit.data?.for_guard,
-                        for_object: this.data.deposit.data?.for_object
+                        for_guard:await get_object_address(this.data.deposit.data?.for_guard),
+                        for_object:await get_object_address(this.data.deposit.data?.for_object)
                     })
                 }
             }
             if (this.data?.receive !== undefined) {
-                obj?.receive(this.data.receive.payment, this.data.receive.received_object, pst); 
+                const [payment, receive] = await LocalMark.Instance().get_many_address([this.data.receive.payment, this.data.receive.received_object])
+                if (payment && receive) obj?.receive(payment, receive, pst); 
             }
+
             if (this.data?.withdraw !== undefined) {
+                this.data.withdraw.for_guard = await get_object_address(this.data.withdraw.for_guard);
+                this.data.withdraw.for_object = await get_object_address(this.data.withdraw.for_object);
+                this.data.withdraw.withdraw_guard = await get_object_address(this.data.withdraw.withdraw_guard);
                 obj?.withdraw(this.data.withdraw, pst)
             }
 
             if (this.data?.deposit_guard !== undefined) {
-                obj?.set_deposit_guard(this.data.deposit_guard, pst);
+                const guard = await LocalMark.Instance().get_address(this.data?.deposit_guard);
+                obj?.set_deposit_guard(guard, pst);
             }
             if (this.data?.withdraw_guard !== undefined) {
                 switch (this.data.withdraw_guard.op) {
                     case 'add':
-                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), pst))
+                    case 'set':
+                        if (this.data.withdraw_guard.op === 'set') obj?.remove_withdraw_guard([], true, pst);
+                        for (let i = 0; i < this.data.withdraw_guard.data.length; ++ i) {
+                            let v = this.data.withdraw_guard.data[i];
+                            const guard = await LocalMark.Instance().get_address(v.guard);
+                            if (guard) obj?.add_withdraw_guard(guard, BigInt(v.amount), pst);
+                        }
                         break;
                     case 'remove':
-                        obj?.remove_withdraw_guard(this.data.withdraw_guard.guards, false, pst)
+                        obj?.remove_withdraw_guard(await LocalMark.Instance().get_many_address2(this.data.withdraw_guard.guards), false, pst)
                         break;
-                    case 'set':
-                        obj?.remove_withdraw_guard([], true, pst)
-                        this.data.withdraw_guard.data.forEach(v => obj?.add_withdraw_guard(v.guard, BigInt(v.amount), pst))
-                        break;
+
                     case 'removeall':
                         obj?.remove_withdraw_guard([], true, pst)
                         break;

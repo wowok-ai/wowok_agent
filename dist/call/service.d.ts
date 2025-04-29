@@ -88,7 +88,7 @@ export interface CallService_Data {
         discount?: string;
         machine?: string;
         customer_info_crypto?: Customer_RequiredInfo;
-        guard?: string | 'fetch';
+        guard?: string;
         namedNewOrder?: Namedbject;
         namedNewProgress?: Namedbject;
     };

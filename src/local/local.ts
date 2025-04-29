@@ -7,7 +7,7 @@ import path from "path";
 import os from "os";
 import { Level } from "level";
 import { isBrowser } from "../common.js";
-import { IsValidAddress, TagName } from "wowok";
+import { ERROR, Errors, IsValidAddress, TagName } from "wowok";
 import { Account } from "./account.js";
 
 export interface MarkData {
@@ -50,16 +50,16 @@ export class LocalMark {
 
     // useAddressIfNameExist true: use address as the name if the name exist; 
     // otherwise, use this name and change the original name to its address.
-    async put(name:string | undefined | null, mark:MarkData, useAddressIfNameExist?:boolean) : Promise<boolean> {
+    async put(name:string | undefined | null, mark:MarkData, useAddressIfNameExist?:boolean) : Promise<string> {
       // object address invalid
       if (!IsValidAddress(mark.object) && mark.object !== '0x2' && mark.object !== '0x6') { 
-        return false;
+        ERROR(Errors.InvalidParam, `LocalMark.put.mark.object: ${mark.object}`)
       };
 
       // use address as name if name is undefined or null
       if (name === undefined || name === null) {
         this.storage.put(mark.object, JSON.stringify(mark));
-        return true;
+        return mark.object
       }
 
       if (name.length > LocalMarkNameMaxLength) {
@@ -70,7 +70,7 @@ export class LocalMark {
       if (r) {
         if (useAddressIfNameExist) {
           this.storage.put(mark.object, JSON.stringify(mark));
-          return true;
+          return mark.object
         } else {
           const obj = JSON.parse(r) as MarkData;
           await this.storage.put(obj.object, r)
@@ -78,7 +78,7 @@ export class LocalMark {
       }
 
       await this.storage.put(name, JSON.stringify(mark));
-      return true;
+      return name
     }
 
     async get(name: string) : Promise<MarkData | undefined> {
@@ -86,6 +86,39 @@ export class LocalMark {
       if (r) {
           return JSON.parse(r);
       }
+    }
+
+    async get_address(name_or_address?: string | null) : Promise<string | undefined> {
+      if (IsValidAddress(name_or_address)) {
+        return name_or_address!;
+      }
+
+      if (name_or_address !== undefined && name_or_address !== null) {
+        const r = await this.storage.get(name_or_address);
+        if (r) {
+            return JSON.parse(r).object;
+        }     
+      }
+    }
+
+    async get_many_address(name_or_addresses: (string | null | undefined)[]) : Promise<(string | undefined)[]> {
+      const check = (v: string | null | undefined) : boolean => {
+        return v!==undefined && v!==null && !IsValidAddress(v)
+      }
+      const q = await this.storage.getMany((name_or_addresses.filter(v => check(v)) as string[]));
+      return name_or_addresses.map(v => {
+        if (check(v)) {
+          const r = q.shift();
+          if (r) {
+            return JSON.parse(q.shift()!)?.object;
+          } 
+        } 
+        return v
+      })
+    }
+
+    async get_many_address2(name_or_addresses: (string | null | undefined)[]) : Promise<string[]> {
+      return (await this.get_many_address(name_or_addresses)).filter(v => v!==undefined && v!== null) as string[]
     }
 
     // get account address:
@@ -157,13 +190,20 @@ export class LocalMark {
     }
 
     async list(filter?: LocalMarkFilter) : Promise<QueryNameData[]> {
+      if (filter && filter.tags) filter.tags = filter.tags.filter(v => v !== '' && v);
+
       return (await this.storage.iterator().all()).filter(v => {
         const obj = JSON.parse(v[1]) as MarkData;
         if (filter?.name && v[0] !== filter.name) return false;
         if (filter?.object && obj.object !== filter.object) return false;
-        if (filter?.tags && obj.tags) {
+
+        if (filter?.tags && filter.tags.length > 0) {
+          if (!obj.tags || obj.tags.length === 0) return false;
+
           for (let i = 0; i < filter.tags.length; ++ i) {
-            if (!obj.tags.includes(filter.tags[i])) return false;
+            if (!obj.tags.includes(filter.tags[i])) {
+              return false
+            }
           }
         }
         return true;

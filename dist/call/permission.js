@@ -1,15 +1,17 @@
+import { LocalMark } from "src/local/local.js";
 import { CallBase } from "./base.js";
-import { IsValidAddress, Permission } from 'wowok';
+import { Permission } from 'wowok';
 export class CallPermission extends CallBase {
     constructor(data) {
         super();
+        this.object_address = undefined;
         this.data = data;
     }
     async call(account) {
         var checkOwner = false;
         var checkAdmin = false;
-        const object_address = this.data?.object?.address;
-        if (object_address && IsValidAddress(object_address)) {
+        this.object_address = await LocalMark.Instance().get_address(this.data?.object?.address);
+        if (this.object_address) {
             if (this.data?.builder !== undefined || this.data?.admin !== undefined) {
                 checkOwner = true;
             }
@@ -19,18 +21,18 @@ export class CallPermission extends CallBase {
             if (this.data?.description !== undefined) {
                 checkAdmin = true;
             }
-            return await this.check_permission_and_call(object_address, [], [], checkOwner, checkAdmin, account);
+            return await this.check_permission_and_call(this.object_address, [], [], checkOwner, checkAdmin, account);
         }
         return await this.exec(account);
     }
     async operate(txb, passport, account) {
         let obj;
-        const object_address = this.data?.object?.address;
-        if (!object_address || !IsValidAddress(object_address)) {
+        console.log('aa');
+        if (!this.object_address) {
             obj = Permission.New(txb, this.data?.description ?? '');
         }
         else {
-            obj = Permission.From(txb, object_address);
+            obj = Permission.From(txb, this.object_address);
         }
         if (obj) {
             if (this.data?.description !== undefined && this.data.object) {
@@ -39,14 +41,15 @@ export class CallPermission extends CallBase {
             if (this.data?.admin !== undefined) {
                 switch (this.data.admin?.op) {
                     case 'add':
-                        obj?.add_admin(this.data.admin.addresses);
+                    case 'set':
+                        if (this.data.admin?.op === 'set')
+                            obj?.remove_admin([], true);
+                        var addrs = await LocalMark.Instance().get_many_address2(this.data.admin.addresses);
+                        obj?.add_admin(addrs);
                         break;
                     case 'remove':
+                        var addrs = await LocalMark.Instance().get_many_address2(this.data.admin.addresses);
                         obj?.remove_admin(this.data.admin.addresses);
-                        break;
-                    case 'set':
-                        obj?.remove_admin([], true);
-                        obj?.add_admin(this.data.admin.addresses);
                         break;
                     case 'removeall':
                         obj?.remove_admin([], true);
@@ -70,26 +73,53 @@ export class CallPermission extends CallBase {
             if (this.data?.permission !== undefined) {
                 switch (this.data.permission.op) {
                     case 'add entity':
-                        obj?.add_entity(this.data.permission.entities);
+                        var add = [];
+                        for (let i = 0; i < this.data.permission.entities.length; ++i) {
+                            const v = this.data.permission.entities[i];
+                            const addr = await LocalMark.Instance().get_address(v.address);
+                            if (addr) {
+                                v.address = addr;
+                                add.push(v);
+                            }
+                        }
+                        obj?.add_entity(add);
                         break;
                     case 'add permission':
+                        for (let i = 0; i < this.data.permission.permissions.length; ++i) {
+                            const v = this.data.permission.permissions[i];
+                            const e = [];
+                            for (let j = 0; j < v.entities.length; ++j) {
+                                const addr = await LocalMark.Instance().get_address(v.entities[j].address);
+                                const guard = (typeof (v.entities[j].guard) === 'string') ? await LocalMark.Instance().get_address(v.entities[j].guard) : undefined;
+                                if (addr) {
+                                    e.push({ address: addr, guard: guard });
+                                }
+                            }
+                            v.entities = e;
+                        }
                         obj?.add_entity3(this.data.permission.permissions);
                         break;
                     case 'remove entity':
-                        obj?.remove_entity(this.data.permission.addresses);
+                        obj?.remove_entity(await LocalMark.Instance().get_many_address2(this.data.permission.addresses));
                         break;
                     case 'remove permission':
-                        obj?.remove_index(this.data.permission.address, this.data.permission.index);
+                        const addr = await LocalMark.Instance().get_address(this.data.permission.address);
+                        if (addr)
+                            obj?.remove_index(addr, this.data.permission.index);
                         break;
                     case 'transfer permission':
-                        obj?.transfer_permission(this.data.permission.from_address, this.data.permission.to_address);
+                        const [from, to] = await LocalMark.Instance().get_many_address([this.data.permission.from_address, this.data.permission.to_address]);
+                        if (from && to)
+                            obj?.transfer_permission(from, to);
                         break;
                 }
             }
             if (this.data?.builder !== undefined) {
-                obj?.change_owner(this.data.builder);
+                const b = await LocalMark.Instance().get_account(this.data.builder);
+                if (b)
+                    obj?.change_owner(b);
             }
-            if (!object_address) {
+            if (!this.object_address) {
                 await this.new_with_mark('Permission', txb, obj.launch(), this.data?.object?.namedNew, account);
             }
         }

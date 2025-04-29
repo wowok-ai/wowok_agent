@@ -49,11 +49,14 @@ export const call_repository_json = async (json) => {
     }
 };
 export const call_permission_json = async (json) => {
+    console.log(1);
     try {
         const c = JSON.parse(json);
+        console.log(c);
         return JSON.stringify({ data: await call_permission(c) });
     }
     catch (e) {
+        console.log(2);
         return JSON.stringify({ error: e?.toString() });
     }
 };
@@ -144,10 +147,10 @@ export const call_arbitration = async (call) => {
 };
 const call_object = async (object, account, witness) => {
     if (witness) {
-        return object.call_with_witness(witness, account);
+        return object.call_with_witness(witness, account ?? undefined);
     }
     else {
-        return object.call(account);
+        return object.call(account ?? undefined);
     }
 };
 //# sourceMappingURL=call.js.map

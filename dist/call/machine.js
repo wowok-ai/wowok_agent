@@ -1,6 +1,7 @@
-import { IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
+import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
+import { LocalMark } from 'src/local/local.js';
 export class CallMachine extends CallBase {
     constructor(data) {
         super();
@@ -10,9 +11,17 @@ export class CallMachine extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
-        const permission_address = this.data?.permission?.address;
-        const object_address = this.data?.object?.address;
-        if (permission_address && IsValidAddress(permission_address)) {
+        var [permission_address, object_address] = await LocalMark.Instance().get_many_address([this.data?.permission?.address,
+            this.data?.object?.address]);
+        if (object_address) {
+            if (!permission_address) {
+                await this.update_content(object_address, 'Machine');
+                if (this.content) {
+                    permission_address = this.content.permission;
+                }
+            }
+        }
+        if (permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine);
             }
@@ -54,14 +63,18 @@ export class CallMachine extends CallBase {
             if (this.data?.bPaused !== undefined) {
                 perms.push(PermissionIndex.machine_pause);
             }
-            if (this.data?.progress_next?.guard !== undefined) {
-                if (IsValidAddress(this.data?.progress_next?.guard)) {
-                    guards.push(this.data?.progress_next?.guard);
+            if (this.data?.progress_next !== undefined) {
+                const guard = await LocalMark.Instance().get_address(this.data?.progress_next?.guard);
+                if (guard) {
+                    guards.push(guard);
                 }
-                else if (this.data?.object && IsValidAddress(object_address)) { // fetch guard
-                    const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().default() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
-                    if (guard) {
-                        guards.push(guard);
+                else if (object_address) { // fetch guard
+                    const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
+                    if (p) {
+                        const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, await Account.Instance().default() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
+                        if (guard) {
+                            guards.push(guard);
+                        }
                     }
                 }
             }
@@ -72,21 +85,23 @@ export class CallMachine extends CallBase {
     async operate(txb, passport, account) {
         let obj;
         let permission;
-        const permission_address = this.data?.permission?.address;
-        const object_address = this.data?.object?.address;
+        var [permission_address, object_address] = this?.content ?
+            [this.content.permission, this.content.object] :
+            await LocalMark.Instance().get_many_address([this.data?.permission?.address,
+                this.data?.object?.address]);
         if (!object_address) {
-            if (!permission_address || !IsValidAddress(permission_address)) {
+            if (!permission_address) {
                 const d = this.data?.permission?.description ?? '';
                 permission = Permission.New(txb, d);
             }
             obj = Machine.New(txb, permission ? permission.get_object() : permission_address, this.data?.description ?? '', this.data?.endpoint ?? '', permission ? undefined : passport);
         }
         else {
-            if (IsValidAddress(object_address) && permission_address && IsValidAddress(permission_address)) {
+            if (permission_address) {
                 obj = Machine.From(txb, permission_address, object_address);
             }
             else {
-                ERROR(Errors.InvalidParam, 'object or permission address invalid.');
+                ERROR(Errors.InvalidParam, 'CallMachine_Data.data.permission');
             }
         }
         if (obj) {
@@ -101,17 +116,21 @@ export class CallMachine extends CallBase {
             if (this.data?.consensus_repository !== undefined) {
                 switch (this.data.consensus_repository.op) {
                     case 'add':
-                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, pst));
+                    case 'set':
+                        if (this.data.consensus_repository.op === 'set') {
+                            obj?.remove_repository([], true, pst);
+                        }
+                        var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                        reps.forEach(v => obj?.add_repository(v, pst));
                         break;
                     case 'remove':
-                        obj?.remove_repository(this.data.consensus_repository.repositories, false, pst);
+                        var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                        if (reps.length > 0) {
+                            obj?.remove_repository(reps, false, pst);
+                        }
                         break;
                     case 'removeall':
                         obj?.remove_repository([], true, pst);
-                        break;
-                    case 'set':
-                        obj?.remove_repository([], true, pst);
-                        this.data.consensus_repository.repositories.forEach(v => obj?.add_repository(v, pst));
                         break;
                 }
             }
@@ -145,42 +164,60 @@ export class CallMachine extends CallBase {
             }
             var new_progress;
             if (this.data?.progress_new !== undefined) {
-                new_progress = Progress?.New(txb, obj?.get_object(), perm, this.data?.progress_new.task_address, pst);
+                const task = await LocalMark.Instance().get_address(this.data?.progress_new.task_address);
+                new_progress = Progress?.New(txb, obj?.get_object(), perm, task, pst);
             }
             if (this.data?.progress_context_repository !== undefined) {
-                const p = this.data?.progress_context_repository.progress ?? new_progress?.get_object();
+                const p = this.data?.progress_context_repository.progress
+                    ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
+                    : new_progress?.get_object();
                 if (!p)
-                    ERROR(Errors.Fail, 'progress invalid: progress_context_repository');
-                Progress.From(txb, obj?.get_object(), perm, p).set_context_repository(this.data?.progress_context_repository.repository, pst);
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
+                const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
+                Progress.From(txb, obj?.get_object(), perm, p).set_context_repository(rep, pst);
             }
             if (this.data?.progress_namedOperator !== undefined) {
-                const p = this.data?.progress_namedOperator.progress ?? new_progress?.get_object();
+                const p = this.data?.progress_namedOperator.progress
+                    ? await LocalMark.Instance().get_address(this.data?.progress_namedOperator.progress)
+                    : new_progress?.get_object();
                 if (!p)
-                    ERROR(Errors.Fail, 'progress invalid: progress_namedOperator');
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_namedOperator.progress');
                 let pp = Progress.From(txb, obj?.get_object(), perm, p);
                 this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
             }
             if (this.data?.progress_parent !== undefined) {
-                const p = this.data?.progress_parent.progress ?? new_progress?.get_object();
+                const p = this.data?.progress_parent.progress
+                    ? await LocalMark.Instance().get_address(this.data?.progress_parent.progress)
+                    : new_progress?.get_object();
                 if (!p)
-                    ERROR(Errors.Fail, 'progress invalid: progress_parent');
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_parent.progress');
                 if (this.data.progress_parent.parent) {
-                    Progress.From(txb, obj?.get_object(), perm, p).parent(this.data.progress_parent.parent);
+                    const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent.parent_id);
+                    if (parent) {
+                        this.data.progress_parent.parent.parent_id = parent;
+                        Progress.From(txb, obj?.get_object(), perm, p).parent(this.data.progress_parent.parent);
+                    }
                 }
                 else {
                     Progress.From(txb, obj?.get_object(), perm, p).parent_none();
                 }
             }
             if (this.data?.progress_task !== undefined) {
-                const p = this.data?.progress_task.progress ?? new_progress?.get_object();
+                const p = this.data?.progress_task.progress
+                    ? await LocalMark.Instance().get_address(this.data?.progress_task.progress)
+                    : new_progress?.get_object();
                 if (!p)
-                    ERROR(Errors.Fail, 'progress invalid: progress_task');
-                Progress.From(txb, obj?.get_object(), perm, p).bind_task(this.data.progress_task.task, pst);
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_task.progress');
+                const task = await LocalMark.Instance().get_address(this.data.progress_task.task);
+                if (task)
+                    Progress.From(txb, obj?.get_object(), perm, p).bind_task(task, pst);
             }
             if (this.data?.progress_hold !== undefined) {
-                const p = this.data?.progress_hold.progress ?? new_progress?.get_object();
+                const p = this.data?.progress_hold.progress
+                    ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
+                    : new_progress?.get_object();
                 if (!p)
-                    ERROR(Errors.Fail, 'progress invalid: progress_hold');
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_hold.progress');
                 if (this.data?.progress_hold.adminUnhold) {
                     Progress.From(txb, obj?.get_object(), perm, p).unhold(this.data.progress_hold.operation, pst);
                 }
