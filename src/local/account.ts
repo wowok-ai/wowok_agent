@@ -4,7 +4,7 @@
 
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, IsValidAddress,  
     getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
-    CallResponse} from 'wowok';
+    CallResponse, TransactionObjectArgument} from 'wowok';
 import { isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
@@ -168,8 +168,8 @@ export class Account {
 
         const txb = new TransactionBlock();
         const coin = await this.get_coin_object(txb, amount, from, token_type);
-        if (coin !== undefined) {
-            txb.transferObjects([coin as TransactionArgument], to)
+        if (coin) {
+            txb.transferObjects([coin as TransactionObjectArgument], to)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
@@ -194,7 +194,7 @@ export class Account {
         const txb = new TransactionBlock();
         const res = await this.get_coin_object(txb, balance_required, address, token_type);
         if (res) {
-            txb.transferObjects([(res as any) as TransactionArgument], address)
+            txb.transferObjects([res as TransactionObjectArgument], address)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
