@@ -169,7 +169,7 @@ export class Account {
         const txb = new TransactionBlock();
         const coin = await this.get_coin_object(txb, amount, from, token_type);
         if (coin) {
-            txb.transferObjects([(coin as unknown) as TransactionArgument], to)
+            txb.transferObjects([(coin as any) as TransactionArgument], to)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
@@ -194,7 +194,7 @@ export class Account {
         const txb = new TransactionBlock();
         const res = await this.get_coin_object(txb, balance_required, address, token_type);
         if (res) {
-            txb.transferObjects([(res as unknown) as TransactionArgument], address)
+            txb.transferObjects([(res as any) as TransactionArgument], address)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
