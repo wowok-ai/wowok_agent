@@ -95,14 +95,12 @@ export class CallBase {
     }
     async new_with_mark(type, txb, object, named_new, account, innerTags = [TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
-        if (!named_new?.onChain) {
-            if (named_new) {
-                named_new.tags = tags;
-                this.traceMarkNew.set(type, named_new);
-            }
-            return;
+        if (named_new) {
+            named_new.tags = tags;
+            this.traceMarkNew.set(type, named_new);
         }
-        ;
+        if (!named_new?.onChain)
+            return;
         // onchain mark
         if (!this.resouceObject) {
             const addr = await LocalMark.Instance().get_account(account);

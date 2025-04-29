@@ -1,6 +1,6 @@
 import { Errors, ERROR, Permission, PermissionIndex, Repository, } from 'wowok';
 import { CallBase } from "./base.js";
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export class CallRepository extends CallBase {
     constructor(data) {
         super();

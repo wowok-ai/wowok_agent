@@ -2,8 +2,9 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, IsValidAddress, Bcs, uint2address } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, Bcs, uint2address } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
+import { LocalMark } from '../local/local.js';
 /* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json) => {
     try {
@@ -37,6 +38,7 @@ export const query_personal_json = async (json) => {
 export const query_objects = async (query) => {
     var ret = [];
     var pending = [];
+    query.objects = await LocalMark.Instance().get_many_address2(query.objects);
     if (!query.no_cache) { // showType only, use cache
         for (let i = 0; i < query.objects.length; ++i) {
             try {
@@ -75,9 +77,11 @@ export const query_objects = async (query) => {
     return { objects: ret };
 };
 export const query_personal = async (query) => {
-    if (!IsValidAddress(query.address)) {
-        ERROR(Errors.IsValidAddress, 'query_personal.query.address');
+    const addr = await LocalMark.Instance().get_address(query.address);
+    if (!addr) {
+        ERROR(Errors.InvalidParam, 'query_personal.query.address');
     }
+    query.address = addr;
     if (!query.no_cache) {
         try {
             const cache = await Cache.Instance().cache_get(query.address, CacheName.personal);
@@ -96,9 +100,11 @@ export const query_personal = async (query) => {
     }
 };
 export const query_table = async (query) => {
-    if (!IsValidAddress(query.parent)) {
-        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    const addr = await LocalMark.Instance().get_address(query.parent);
+    if (!addr) {
+        ERROR(Errors.InvalidParam, 'query_table.query.parent');
     }
+    query.parent = addr;
     if (!query.no_cache) {
         try {
             const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);
@@ -120,9 +126,11 @@ export const query_table = async (query) => {
     return r;
 };
 const tableItem = async (query) => {
-    if (!IsValidAddress(query.parent)) {
-        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    const addr = await LocalMark.Instance().get_address(query.parent);
+    if (!addr) {
+        ERROR(Errors.InvalidParam, 'tableItem.query.parent');
     }
+    query.parent = addr;
     if (!query.no_cache) {
         try {
             const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);

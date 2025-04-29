@@ -1,8 +1,8 @@
 import { IsValidArgType, TagName, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, } from 'wowok';
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
-import { get_object_address } from 'src/common.js';
+import { LocalMark } from '../local/local.js';
+import { get_object_address } from '../common.js';
 export class CallService extends CallBase {
     constructor(data) {
         super();

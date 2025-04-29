@@ -1,6 +1,6 @@
 import { Entity, Resource } from 'wowok';
 import { CallBase } from "./base.js";
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export class CallPersonal extends CallBase {
     constructor(data) {
         super();

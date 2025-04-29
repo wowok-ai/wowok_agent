@@ -1,6 +1,6 @@
 import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, Resource} from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {

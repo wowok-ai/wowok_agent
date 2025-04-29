@@ -1,7 +1,7 @@
 import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export class CallMachine extends CallBase {
     constructor(data) {
         super();

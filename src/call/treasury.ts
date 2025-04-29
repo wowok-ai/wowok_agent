@@ -4,8 +4,8 @@ import { TransactionBlock, IsValidArgType, PassportObject, IsValidAddress, Error
 import { query_objects, ObjectTreasury } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
-import { get_object_address } from 'src/common.js';
+import { LocalMark } from '../local/local.js';
+import { get_object_address } from '../common.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {

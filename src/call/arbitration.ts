@@ -4,7 +4,7 @@ import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permis
 import { ObjectArbitration, } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject} from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export interface DisputeData {
     order: string,
     order_token_type: string,

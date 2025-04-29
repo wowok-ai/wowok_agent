@@ -8,7 +8,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, 
     } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
-import { LocalMark } from "src/local/local.js";
+import { LocalMark } from "../local/local.js";
 
 export interface GuardConst {
     identifier: number; // 1-255, the same identifier to represent the same data in different nodes

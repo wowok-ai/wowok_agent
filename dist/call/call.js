@@ -56,7 +56,7 @@ export const call_permission_json = async (json) => {
         return JSON.stringify({ data: await call_permission(c) });
     }
     catch (e) {
-        console.log(2);
+        console.log(e);
         return JSON.stringify({ error: e?.toString() });
     }
 };

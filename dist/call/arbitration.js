@@ -1,7 +1,7 @@
 import { IsValidArgType, Errors, ERROR, Permission, PermissionIndex, Treasury, Arbitration, } from 'wowok';
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export class CallArbitration extends CallBase {
     constructor(data) {
         super();

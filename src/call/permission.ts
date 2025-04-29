@@ -1,4 +1,4 @@
-import { LocalMark } from "src/local/local.js";
+import { LocalMark } from "../local/local.js";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { PassportObject, IsValidAddress, Errors, ERROR, Permission, Permission_Entity, Permission_Index, BizPermission,
     PermissionIndexType, TransactionBlock,
@@ -44,7 +44,7 @@ export class CallPermission extends CallBase {
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Permission | undefined ; 
-        console.log('aa')
+
         if (!this.object_address) {
             obj = Permission.New(txb, this.data?.description??'');
         } else {

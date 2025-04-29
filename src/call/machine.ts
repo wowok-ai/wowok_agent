@@ -4,8 +4,8 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { Account } from '../local/account.js';
-import { ObjectMachine } from 'src/query/objects.js';
-import { LocalMark } from 'src/local/local.js';
+import { ObjectMachine } from '../query/objects.js';
+import { LocalMark } from '../local/local.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {

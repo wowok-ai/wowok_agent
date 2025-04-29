@@ -107,7 +107,7 @@ export const call_permission_json = async (json: string) : Promise<string> => {
         console.log(c)
         return JSON.stringify({data:await call_permission(c)});
     } catch (e) {
-        console.log(2)
+        console.log(e)
         return JSON.stringify({error:e?.toString()})
     }
 }

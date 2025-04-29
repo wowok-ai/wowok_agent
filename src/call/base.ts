@@ -129,13 +129,12 @@ export class CallBase {
 
     protected async new_with_mark(type:ObjectBaseType, txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
-        if (!named_new?.onChain) {
-            if (named_new) {
-                named_new.tags = tags; 
-                this.traceMarkNew.set(type, named_new)
-            }
-            return ;
-        } ;
+        if (named_new) {
+            named_new.tags = tags; 
+            this.traceMarkNew.set(type, named_new)
+        }
+
+        if (!named_new?.onChain) return ;
 
         // onchain mark
         if (!this.resouceObject) {
@@ -155,7 +154,6 @@ export class CallBase {
         } else {
             Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         }
-    
     }
 
     protected async update_content(object:string, type:ObjectBaseType)  {

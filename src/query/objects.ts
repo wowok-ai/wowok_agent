@@ -7,6 +7,7 @@ import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operat
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address} from 'wowok';
 import { CacheExpireType, CacheName, CachedData, Cache } from '../local/cache.js'
+import { LocalMark } from '../local/local.js';
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
@@ -303,6 +304,7 @@ export const query_personal_json = async (json:string) : Promise<string> => {
 
 export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer> => {
     var ret:ObjectBase[] = []; var pending : string[] = [];
+    query.objects = await LocalMark.Instance().get_many_address2(query.objects);
 
     if (!query.no_cache) { // showType only, use cache
         for (let i = 0; i < query.objects.length; ++i) {
@@ -343,9 +345,11 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
 }
 
 export const query_personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
-    if (!IsValidAddress(query.address))  {
-        ERROR(Errors.IsValidAddress, 'query_personal.query.address')
+    const addr = await LocalMark.Instance().get_address(query.address);
+    if (!addr)  {
+        ERROR(Errors.InvalidParam, 'query_personal.query.address')
     }
+    query.address = addr;
 
     if (!query.no_cache) {
         try {
@@ -365,9 +369,11 @@ export const query_personal = async (query:PersonalQuery) : Promise<ObjectPerson
 }
 
 export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
-    if (!IsValidAddress(query.parent))  {
-        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    const addr = await LocalMark.Instance().get_address(query.parent);
+    if (!addr)  {
+        ERROR(Errors.InvalidParam, 'query_table.query.parent')
     }
+    query.parent = addr;
 
     if (!query.no_cache) {
         try {
@@ -394,9 +400,11 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
 }
 
 const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
-    if (!IsValidAddress(query.parent))  {
-        ERROR(Errors.IsValidAddress, 'query_table.query.parent');
+    const addr = await LocalMark.Instance().get_address(query.parent);
+    if (!addr)  {
+        ERROR(Errors.InvalidParam, 'tableItem.query.parent')
     }
+    query.parent = addr;
 
     if (!query.no_cache) {
         try {

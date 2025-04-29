@@ -4,7 +4,7 @@ import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIn
 import { query_objects, ObjectDemand } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallDemand_Data {

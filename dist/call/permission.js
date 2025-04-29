@@ -1,4 +1,4 @@
-import { LocalMark } from "src/local/local.js";
+import { LocalMark } from "../local/local.js";
 import { CallBase } from "./base.js";
 import { Permission } from 'wowok';
 export class CallPermission extends CallBase {
@@ -27,7 +27,6 @@ export class CallPermission extends CallBase {
     }
     async operate(txb, passport, account) {
         let obj;
-        console.log('aa');
         if (!this.object_address) {
             obj = Permission.New(txb, this.data?.description ?? '');
         }

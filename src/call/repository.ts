@@ -3,8 +3,8 @@ import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Permis
     Repository_Policy_Data_Remove, Repository_Policy_Mode, 
 } from 'wowok';
 import { CallBase, CallResult, Namedbject} from "./base.js";
-import { LocalMark } from 'src/local/local.js';
-import { ObjectRepository } from 'src/query/objects.js';
+import { LocalMark } from '../local/local.js';
+import { ObjectRepository } from '../query/objects.js';
 
 
 /// The execution priority is determined by the order in which the object attributes are arranged

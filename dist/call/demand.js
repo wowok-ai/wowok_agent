@@ -2,7 +2,7 @@ import { IsValidArgType, IsValidCoinType } from 'wowok';
 import { Errors, ERROR, Permission, PermissionIndex, Demand, } from 'wowok';
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
-import { LocalMark } from 'src/local/local.js';
+import { LocalMark } from '../local/local.js';
 export class CallDemand extends CallBase {
     constructor(data) {
         super();
