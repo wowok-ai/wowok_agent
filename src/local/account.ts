@@ -2,9 +2,9 @@
  * account management and use
  */
 
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, IsValidAddress,  
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, 
     getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
-    CallResponse, TransactionObjectArgument} from 'wowok';
+    CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName} from 'wowok';
 import { isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
@@ -12,8 +12,16 @@ import { Level } from 'level';
 
 
 const AccountLocation = 'wowok-acc';
-const SettingDefault = 'default';
+const AccountKey = 'account';
 
+export interface AccountData {
+    address: string;
+    secret?: string;
+    pubkey?: string;
+    name?: string;
+    suspended?: boolean;
+    default?: boolean;
+}
 export class Account {
     private storage;
 
@@ -34,112 +42,226 @@ export class Account {
         }; return Account._instance
     }
     
-    async set_default(address?: string) : Promise<boolean> {
-        if (address) {
-            if (!await this.storage.get(address)) {
-                return false
-            }
-            await this.storage.put(SettingDefault, address);
-        } else {
-            await this.storage.del(SettingDefault);
-        }
-        return true
+    private accountData(data:AccountData | undefined) : AccountData | undefined {
+        if (!data) return ;
+
+        data.pubkey = Ed25519Keypair.fromSecretKey(fromHEX(data.secret!)).getPublicKey().toSuiPublicKey();
+        data.secret = undefined;
+        return data;
     }
 
-    async gen(bDefault?: boolean) : Promise<string> {       
+    async set_default(address_or_name: string) : Promise<boolean> {
+        const r = await this.storage.get(AccountKey);
+        var found = false;
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            for (let i = 0; i < s.length; i++) {
+                if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
+                    s[i].default = true;
+                    found = true;
+                } else {
+                    s[i].default = false;
+                }
+            }
+            await this.storage.put(AccountKey, JSON.stringify(s));
+        }
+
+        return found;
+    }
+
+    async gen(bDefault?: boolean, name?:string) : Promise<AccountData> {    
+        if (name && !IsValidName(name)) {
+            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
+        }   
+
         var secret = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
         var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
-        await this.storage.put(address, secret);
-        if (bDefault) {
-            await this.storage.put(SettingDefault, address);
-        };
-        return address;
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            if (name) {
+                if (s.find(v => v.name === name)) {
+                    ERROR(Errors.IsValidName, `Name ${name} already exists`);
+                }
+            }
+            
+            if (bDefault) {
+                s.forEach(v => {
+                    if (v.default) {
+                        v.default = false;
+                    }
+                })
+            }
+
+            const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
+            s.push(ret);
+
+            await this.storage.put(AccountKey, JSON.stringify(s));
+            return this.accountData(ret)!;
+        } else {
+            const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
+            await this.storage.put(AccountKey, JSON.stringify([ret]));
+            return this.accountData(ret)!;
+        }
     }
 
-    async default(genNewIfnotExisted:boolean=true) : Promise<string | undefined> {
-        const r = await this.storage.get(SettingDefault);
+    async default() : Promise<AccountData | undefined> {
+        const r = await this.storage.get(AccountKey);
         if (r) {
-            return r;
-        } else if (genNewIfnotExisted) {
-            return await this.gen(true);
+            const s = JSON.parse(r) as AccountData[];
+            return this.accountData(s.find(v => v.default));
         } 
     }
 
     // address: if undefined, the default returned.
-    async get_pubkey(address?:string) : Promise<string | undefined> {
-        const secret: string | undefined = address? 
-            await this.storage.get(address) :
-            await this.default();
-        if (secret) {
-            return Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiPublicKey()
+    async get(address_or_name?: string) : Promise<AccountData | undefined> {
+        return this.accountData(await this.get_imp(address_or_name));
+    }
+
+    private async get_imp(address_or_name?: string) : Promise<AccountData | undefined> {
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            if (!address_or_name) {
+                return s.find(v => v.default);
+            }
+
+            return s.find(v => v.address === address_or_name || v.name === address_or_name);
         } 
     }
     
-    async list() : Promise<string[]> {
-        return (await this.storage.keys().all()).filter(v => v !== SettingDefault);
+    async get_many(address_or_names: (string | null | undefined)[]) : Promise<(AccountData | undefined)[]> {
+        return await this.get_many_imp(address_or_names).then(v => v.map(i => this.accountData(i)));
+    }
+    private async get_many_imp(address_or_names: (string | null | undefined)[]) : Promise<(AccountData | undefined)[]> {
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            return address_or_names.map(i => {
+                if (!i) {
+                    return s.find(v => v.default);
+                } else {
+                    return s.find(v => v.address === i || v.name === i);
+                }
+            })
+        }
+        return address_or_names.map(v => undefined);
+    }
+    async set_name(name:string, address?:string) : Promise<boolean> {
+        if (!IsValidName(name)) {
+            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
+        }
+
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            if (s.find(v => v.name === name)) {
+                ERROR(Errors.IsValidName, `Name ${name} already exists`); 
+            }
+
+            if (!address) {
+                const f = s.find(v => v.default);
+                if (f) {
+                    f.name = name;
+                    await this.storage.put(AccountKey, JSON.stringify(s));
+                    return true;
+                } 
+            } else {
+                const f = s.find(v => v.address === address);
+                if (f) {
+                    f.name = name;
+                    await this.storage.put(AccountKey, JSON.stringify(s));
+                    return true;
+                } 
+            }
+        } 
+        return false;
+    }
+
+    async list(showSuspended?:boolean) : Promise<AccountData[]> {        
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            if (showSuspended) {
+                return s.map(v => this.accountData(v)!);
+            } else {
+                return s.filter(v => !v.suspended).map(v => this.accountData(v)!);
+            }
+        } 
+        return [];
     }
     
-    async faucet(address?:string) {
-        if (!address) {
-            address = await this.default();
-        }
-
-        if (address) {
-            await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:address}).catch(e => {})
+    async suspend(address_or_name?:string, suspend:boolean=true) : Promise<void> {
+        const r = await this.storage.get(AccountKey);
+        if (r) {
+            const s = JSON.parse(r) as AccountData[];
+            if (!address_or_name) {
+                const f = s.find(v => v.default);
+                if (f) {
+                    f.suspended = suspend;
+                } 
+            } else {
+                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                if (f) {
+                    f.suspended = suspend;
+                } 
+            }
+            await this.storage.put(AccountKey, JSON.stringify(s));
         }
     }
 
-    async sign_and_commit(txb: TransactionBlock, address?:string) : Promise<CallResponse | undefined> {
-        const addr = address ? address : await this.default();
-        if (!addr) {
-            return undefined;
+    async faucet(address_or_name?:string) {
+        const a = await this.get(address_or_name);
+
+        if (a) {
+            await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:a.address}).catch(e => {})
         }
+    }
 
-        const secret: string | undefined = await this.storage.get(addr);
-
-        if (secret) {
-            return await Protocol.Client().signAndExecuteTransaction({
-                transaction: txb, 
-                signer: Ed25519Keypair.fromSecretKey(fromHEX(secret)),
-                options:{showObjectChanges:true},
-            });
+    async sign_and_commit(txb: TransactionBlock, address_or_name?:string) : Promise<CallResponse | undefined> {
+        const a = await this.get_imp(address_or_name);
+        console.log('sign_and_commit', a, address_or_name);
+        if (a) {
+            const pair = Ed25519Keypair.fromSecretKey(fromHEX(a.secret!));
+            if (pair) {
+                return await Protocol.Client().signAndExecuteTransaction({
+                    transaction: txb, 
+                    signer: pair,
+                    options:{showObjectChanges:true},
+                });
+            } 
         }
     }
 
     // token_type is 0x2::sui::SUI, if not specified.
-    balance = async (address?:string, token_type?:string) : Promise<CoinBalance | undefined> => {
-        if (!address) {
-            address = await this.default();
-        }
-
-        if (address) {
-            return await Protocol.Client().getBalance({owner: address, coinType:token_type});
+    balance = async (address_or_name?:string, token_type?:string) : Promise<CoinBalance | undefined> => {
+        const a = await this.get(address_or_name);
+        const token_type_ = token_type ?? '0x2::sui::SUI';
+        if (a) {
+            return await Protocol.Client().getBalance({owner: a.address, coinType:token_type_});
         }
     }
 
     // token_type is 0x2::sui::SUI, if not specified.
-    coin = async (address?:string, token_type?:string) : Promise<CoinStruct[] | undefined> => {
-        if (!address) {
-            address = await this.default();
-        }
-        if (address) {
-            return (await Protocol.Client().getCoins({owner: address, coinType:token_type})).data;
+    coin = async (token_type?:string, address_or_name?:string) : Promise<CoinStruct[] | undefined> => {
+        const a = await this.get(address_or_name);
+        const token_type_ = token_type ?? '0x2::sui::SUI';
+        if (a) {
+            return (await Protocol.Client().getCoins({owner: a.address, coinType:token_type_})).data;
         }
     }
 
-    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, address?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
-        if (!address) {
-            address = await this.default();
-        }
+    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, address_or_name?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
+        const a = await this.get(address_or_name);
 
-        if (address) {
+        if (a) {
             const b = BigInt(balance_required);
 
             if (b >= BigInt(0)) {
                 if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
                     return txb.splitCoins(txb.gas, [b]);
                 } else {
-                    const r = await Protocol.Client().getCoins({owner: address, coinType:token_type});
+                    const r = await Protocol.Client().getCoins({owner: a.address , coinType:token_type});
                     const objects : string[] = []; var current = BigInt(0);
                     for (let i = 0; i < r.data.length; ++ i) {
                         current += BigInt(r.data[i].balance);
@@ -160,41 +282,39 @@ export class Account {
             }
         }
     }
-    async transfer(from:string, to:string, amount:number|string, token_type?:string) : Promise<CallResponse | undefined> {
-        const secret: string | undefined = await this.storage.get(from);    
-        if (!secret)    return undefined;
-        const pair = Ed25519Keypair.fromSecretKey(fromHEX(secret))
-        if (!pair) return undefined;
+    async transfer(amount:number|string, token_type?:string, to_address_or_name?:string, from_address_or_name?:string) : Promise<CallResponse | undefined> {
+        const [from, to]= await this.get_many_imp([from_address_or_name, to_address_or_name]);
+        if (!from) ERROR(Errors.InvalidParam, `Invalid from address or name ${from_address_or_name}`);
+        const to_address = to?.address ?? to_address_or_name;
+        if (!to_address) ERROR(Errors.InvalidParam, `Invalid to address or name ${to_address_or_name}`);
 
-        const txb = new TransactionBlock();
-        const coin = await this.get_coin_object(txb, amount, from, token_type);
-        if (coin) {
-            txb.transferObjects([coin as TransactionObjectArgument], to)
-            const r = await Protocol.Client().signAndExecuteTransaction({
-                transaction: txb, 
-                signer: pair,
-                options:{showObjectChanges:true},
-            });
-            return r;
+        const pair = Ed25519Keypair.fromSecretKey(fromHEX(from.secret!))
+        if (pair) {
+            const txb = new TransactionBlock();
+            const coin = await this.get_coin_object(txb, amount, from.address, token_type);
+            if (coin) {
+                txb.transferObjects([coin as TransactionObjectArgument], to_address)
+                const r = await Protocol.Client().signAndExecuteTransaction({
+                    transaction: txb, 
+                    signer: pair,
+                    options:{showObjectChanges:true},
+                });
+                return r;
+            }
         }
     }
 
-    coinObject_with_balance = async(balance_required:string | bigint | number, address?:string, token_type?:string) : Promise<string | undefined> => {
-        if (!address) {
-            address = await this.default();
-        }
+    coinObject_with_balance = async(balance_required:string | bigint | number, address_or_name?:string, token_type?:string) : Promise<string | undefined> => {
+        const a = await this.get_imp(address_or_name);
+        if (!a) return undefined;
 
-        if (!address) return undefined;
-        const secret = await this.storage.get(address);
-        if (!secret) return undefined;
-
-        const pair = Ed25519Keypair.fromSecretKey(fromHEX(secret))
+        const pair = Ed25519Keypair.fromSecretKey(fromHEX(a.secret!))
         if (!pair) return undefined;
     
         const txb = new TransactionBlock();
-        const res = await this.get_coin_object(txb, balance_required, address, token_type);
+        const res = await this.get_coin_object(txb, balance_required, a.address, token_type);
         if (res) {
-            txb.transferObjects([res as TransactionObjectArgument], address)
+            txb.transferObjects([res as TransactionObjectArgument], a.address)
             const r = await Protocol.Client().signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,

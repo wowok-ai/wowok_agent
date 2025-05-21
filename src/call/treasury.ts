@@ -73,9 +73,11 @@ export class CallTreasury extends CallBase {
                 perms.push(PermissionIndex.treasury_deposit_guard)
             }
             if (this.data?.deposit !== undefined) {
-                const guard = await LocalMark.Instance().get_address(this.data?.deposit?.guard);
-                if (guard) {
-                    guards.push(guard)
+                if (this.data.deposit.guard) {
+                    const guard = await LocalMark.Instance().get_address(this.data?.deposit?.guard);
+                    if (guard) {
+                        guards.push(guard)
+                    }
                 } else {
                     if (!object_address) {
                         const guard = await LocalMark.Instance().get_address(this.data.deposit_guard);

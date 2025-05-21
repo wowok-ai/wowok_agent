@@ -96,17 +96,19 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 perms.push(PermissionIndex.machine_pause)
             }
             if (this.data?.progress_next !== undefined) {
-                const guard = await LocalMark.Instance().get_address(this.data?.progress_next?.guard);
-                if (guard) {
-                    guards.push(guard)
+                if (this.data?.progress_next?.guard) {
+                    const guard = await LocalMark.Instance().get_address(this.data?.progress_next?.guard);
+                    if (guard) {
+                        guards.push(guard);
+                    }                     
                 } else if (object_address) { // fetch guard
                     const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
                     if (p) {
                         const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, 
-                            await Account.Instance().default() ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
+                            (await Account.Instance().default())?.address ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
                             this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
                         if (guard) {
-                            guards.push(guard)
+                            guards.push(guard);
                         }                        
                     }
                 }
@@ -256,15 +258,21 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 } else {
                     Progress.From(txb, obj?.get_object(), perm, p!).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold)
                 }
+            }            
+            
+            if (this.data?.progress_next !== undefined) {
+                const p = this.data?.progress_next.progress 
+                    ? await LocalMark.Instance().get_address(this.data?.progress_next.progress)
+                    : new_progress?.get_object();
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
+                Progress.From(txb, obj?.get_object(), perm, p!).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst)
             }
+
             const addr = new_progress?.launch();
             if (addr) {
                 await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
             }
 
-            if (this.data?.progress_next !== undefined) {
-                Progress.From(txb, obj?.get_object(), perm, this.data?.progress_next.progress).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst)
-            }
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst)
             }

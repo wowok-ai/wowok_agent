@@ -49,9 +49,11 @@ export class CallDemand extends CallBase {
                 perms.push(PermissionIndex.demand_refund);
             }
             if (this.data?.present?.guard !== undefined) {
-                const guard = await LocalMark.Instance().get_address(this.data.present.guard);
-                if (guard) {
-                    guards.push(guard);
+                if (this.data.present.guard) {
+                    const guard = await LocalMark.Instance().get_address(this.data.present.guard);
+                    if (guard) {
+                        guards.push(guard);
+                    }
                 }
                 else {
                     if (!object_address) { // new
@@ -135,7 +137,7 @@ export class CallDemand extends CallBase {
             }
             if (this.data?.present !== undefined) {
                 //@ demand guard and its pst, if set
-                const service = typeof (this.data.present.service) === 'string' ? await LocalMark.Instance().get_account(this.data.present.service) : this.data.present.service;
+                const service = typeof (this.data.present.service) === 'string' ? (await LocalMark.Instance().get_address(this.data.present.service)) : this.data.present.service;
                 if (service === undefined) {
                     ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service');
                 }

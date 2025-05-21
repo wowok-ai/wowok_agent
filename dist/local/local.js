@@ -5,8 +5,7 @@ import path from "path";
 import os from "os";
 import { Level } from "level";
 import { isBrowser } from "../common.js";
-import { ERROR, Errors, IsValidAddress, TagName } from "wowok";
-import { Account } from "./account.js";
+import { ERROR, Errors, IsValidAddress } from "wowok";
 export const LocalMarkLocation = 'wowok-mark';
 export const LocalInfoLocation = 'wowok-info';
 export const LocalMarkNameMaxLength = 32;
@@ -91,31 +90,6 @@ export class LocalMark {
     }
     async get_many_address2(name_or_addresses) {
         return (await this.get_many_address(name_or_addresses)).filter(v => v !== undefined && v !== null);
-    }
-    // get account address:
-    // 1. if name_or_address is undefined, return default account address.
-    // 2. if name_or_address is address, return it.
-    // 3. if name_or_address is name, return the address of the name.
-    // 4. if not found and genNewIfNotFound is true, generate a new address and save it with name_or_address.
-    async get_account(name_or_address, genNewIfNotFound = false) {
-        if (name_or_address === undefined) {
-            return Account.Instance().default(genNewIfNotFound);
-        }
-        else {
-            const r = await this.get(name_or_address);
-            if (r) {
-                return r.object;
-            }
-            else {
-                if (IsValidAddress(name_or_address)) {
-                    return name_or_address;
-                }
-                if (genNewIfNotFound) {
-                    const addr = await Account.Instance().gen(false);
-                    await this.put(name_or_address, { object: addr, tags: [TagName.Account] });
-                }
-            }
-        }
     }
     async del(name) {
         return await this.storage.del(name);

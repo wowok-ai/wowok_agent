@@ -1,12 +1,9 @@
 import { CallResponse, CoinBalance, CoinStruct } from "wowok";
+import { AccountData } from "./account.js";
 import { LocalInfo, LocalMarkFilter, MarkData } from "./local.js";
 export declare const query_local_mark_list: (filter?: LocalMarkFilter) => Promise<string>;
-export declare const query_account_list: () => Promise<QueryAccountsResult>;
+export declare const query_account_list: (showSuspendedAccount?: boolean) => Promise<AccountData[]>;
 export declare const query_local_info_list: () => Promise<string>;
-export interface QueryAccountsResult {
-    default?: string;
-    addresses?: string[];
-}
 export declare const query_local_mark: (name: string) => Promise<MarkData | undefined>;
 export declare enum BalanceOrCoin {
     Balance = "balance",
@@ -29,7 +26,17 @@ export interface AccountOperation {
     gen?: {
         name?: string;
         default?: boolean;
-        useAddressIfNameExist?: boolean;
+    } | null;
+    default?: {
+        name_or_address: string;
+    } | null;
+    suspend?: {
+        name_or_address?: string;
+        suspend?: boolean;
+    } | null;
+    name?: {
+        name: string;
+        address?: string;
     } | null;
     transfer?: {
         name_or_address_from?: string;
@@ -41,8 +48,8 @@ export interface AccountOperation {
 export interface AccountOperationResult {
     gen?: {
         address: string;
-        default: boolean;
-        name: string;
+        default?: boolean;
+        name?: string;
     };
     transfer?: CallResponse;
 }

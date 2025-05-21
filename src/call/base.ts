@@ -83,10 +83,10 @@ export class CallBase {
         var guards : string[] = [];
 
         if (permIndex.length > 0 || checkOwner) {
-            const addr = await LocalMark.Instance().get_account(account);
+            const addr = await Account.Instance().get(account);
             if (!addr) ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
 
-            const p = await query_permission({permission_object:permission, address:addr!});
+            const p = await query_permission({permission_object:permission, address:addr.address});
             if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
@@ -118,7 +118,7 @@ export class CallBase {
             } 
             return {guard:[...guards], witness:p!.future_fills()};
         } else { // no passport needed
-            return await this.exec()
+            return await this.exec(account)
         }
     }
     protected async exec (account?:string) : Promise<CallResponse> {
@@ -138,10 +138,10 @@ export class CallBase {
 
         // onchain mark
         if (!this.resouceObject) {
-            const addr = await LocalMark.Instance().get_account(account);
+            const addr = await Account.Instance().get(account);
 
             if (addr) {
-                const r = await query_personal({address:addr}); //@ use cache
+                const r = await query_personal({address:addr.address}); //@ use cache
                 if (!r?.mark_object) {
                     this.resouceObject = Entity.From(txb).create_resource2(); // new 
                     Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
@@ -167,17 +167,16 @@ export class CallBase {
         this.content = r?.objects[0];
     }
 
-    protected async sign_and_commit(txb: TransactionBlock, address?: string) : Promise<CallResponse> {
+    protected async sign_and_commit(txb: TransactionBlock, account?: string) : Promise<CallResponse> {
         if (this.resouceObject) {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-        const addr = address !== undefined ? await LocalMark.Instance().get_address(address) : undefined;
-        const r = await Account.Instance().sign_and_commit(txb, addr);
+        const r = await Account.Instance().sign_and_commit(txb, account);
+        
         if (!r) {
             ERROR(Errors.Fail, 'sign and commit failed');
         }
-        
         // save the mark locally, anyway
         const res = ResponseData(r);
         res.forEach(v => {

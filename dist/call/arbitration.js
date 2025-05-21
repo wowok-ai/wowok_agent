@@ -57,9 +57,11 @@ export class CallArbitration extends CallBase {
                 perms.push(PermissionIndex.arbitration_arbitration);
             }
             if (this.data?.arb_new?.guard !== undefined) {
-                const guard = await LocalMark.Instance().get_address(this.data?.arb_new?.guard);
-                if (guard) {
-                    guards.push(guard);
+                if (this.data?.arb_new?.guard) {
+                    const guard = await LocalMark.Instance().get_address(this.data?.arb_new?.guard);
+                    if (guard) {
+                        guards.push(guard);
+                    }
                 }
                 else {
                     if (!object_address) { // new

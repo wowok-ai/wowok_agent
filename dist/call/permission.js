@@ -1,3 +1,4 @@
+import { Account } from "../local/account.js";
 import { LocalMark } from "../local/local.js";
 import { CallBase } from "./base.js";
 import { Permission } from 'wowok';
@@ -114,9 +115,9 @@ export class CallPermission extends CallBase {
                 }
             }
             if (this.data?.builder !== undefined) {
-                const b = await LocalMark.Instance().get_account(this.data.builder);
+                const b = await Account.Instance().get(this.data.builder);
                 if (b)
-                    obj?.change_owner(b);
+                    obj?.change_owner(b.address);
             }
             if (!this.object_address) {
                 await this.new_with_mark('Permission', txb, obj.launch(), this.data?.object?.namedNew, account);

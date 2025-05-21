@@ -1,25 +1,17 @@
-import { CallResponse, CoinBalance, CoinStruct } from "wowok"
-import { Account } from "./account.js"
+import { CallResponse, CoinBalance, CoinStruct, Protocol } from "wowok"
+import { Account, AccountData } from "./account.js"
 import { LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
 
 export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
     return JSON.stringify(await LocalMark.Instance().list(filter))
 }
 
-export const query_account_list = async () : Promise<QueryAccountsResult> => {
-    const res : QueryAccountsResult = {};
-    res.addresses = await Account.Instance().list();
-    res.default = await Account.Instance().default(false);
-    return res;
+export const query_account_list = async (showSuspendedAccount?:boolean) : Promise<AccountData[]> => {
+    return await Account.Instance().list(showSuspendedAccount);
 }
 
 export const query_local_info_list = async () : Promise<string> => {
     return JSON.stringify(await LocalInfo.Instance().list())
-}
-
-export interface QueryAccountsResult {
-    default?: string;
-    addresses?: string[];
 }
 
 export const query_local_mark = async (name: string) : Promise<MarkData | undefined> => {
@@ -46,15 +38,19 @@ export interface QueryAccountResult {
 }
 
 export const query_account = async (query: QueryAccount) : Promise<QueryAccountResult> => {
-    const r = await LocalMark.Instance().get_account(query.name_or_address);
-    const res : QueryAccountResult = {address: r};
-    if (query.name_or_address) { res.name_or_address = query.name_or_address; }
+    const r = await Account.Instance().get(query.name_or_address);
+    if (!r) {
+        return {name_or_address: query.name_or_address};
+    }
+
+    const res : QueryAccountResult = {address: r.address, name_or_address: r.name};
 
     if (r) {
+        const token_type_ = query.token_type ?? '0x2::sui::SUI';
         if (query?.balance_or_coin === BalanceOrCoin.Balance) {
-            res.balance = await Account.Instance().balance(r, query.token_type);
+            res.balance = await Protocol.Client().getBalance({owner: r.address, coinType:token_type_});
         } else if (query?.balance_or_coin === BalanceOrCoin.Coin) {
-            res.coin =  await Account.Instance().coin(r, query.token_type);
+            res.coin = (await Protocol.Client().getCoins({owner: r.address, coinType:token_type_})).data;
         } 
     } 
     
@@ -66,29 +62,36 @@ export const query_local_info = async (name: string = LocalInfoNameDefault) : Pr
 }
 
 export interface AccountOperation {
-    gen?: {name?:string, default?: boolean, useAddressIfNameExist?: boolean} | null;
-    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null; 
+    gen?: {name?:string, default?: boolean} | null; // generate a new account, if not specified, generate a new default account.
+    default?: {name_or_address: string} | null; // set the default account.
+    suspend?: {name_or_address?: string, suspend?:boolean} | null; // suspend the account, if not specified, suspend the default account.
+    name?: {name:string, address?:string} | null; // name the account, if not specified, name the default account.
+    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null;   // transfer the token.
 }
 
 export interface AccountOperationResult {
-    gen?: {address:string, default:boolean, name: string};
+    gen?: {address:string, default?:boolean, name?: string};
     transfer?: CallResponse;
 }
 
 export const account_operation = async(op: AccountOperation) : Promise<AccountOperationResult> => {
     var res : AccountOperationResult = {}; 
     if (op.gen) {
-        const acc = await Account.Instance().gen(op.gen?.default);
-        const name = await LocalMark.Instance().put(op.gen.name, {object: acc, tags: ['account']}, op.gen.useAddressIfNameExist);
-        res.gen =  {address: acc, default: op.gen.default ?? false, name:name};
+        const acc = await Account.Instance().gen(op.gen?.default, op.gen?.name);
+        res.gen =  {address: acc?.address, default: acc?.default, name:acc?.name};
     } 
-    
+    if (op.default) {
+        await Account.Instance().set_default(op.default.name_or_address); 
+    }
+    if (op.suspend) {
+        await Account.Instance().suspend(op.suspend.name_or_address, op.suspend.suspend);
+    }
+    if (op.name) {
+        await Account.Instance().set_name(op.name.name, op.name.address); 
+    }
+
     if(op.transfer) {
-        const from = await LocalMark.Instance().get_account(op.transfer?.name_or_address_from, false);
-        const to = await LocalMark.Instance().get_account(op.transfer.name_or_address_to, false);
-        if (from && to) {
-            res.transfer = await Account.Instance().transfer(from, to, op.transfer?.amount, op.transfer?.token_type);
-        }
+        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_from, op.transfer.name_or_address_to);
     }
     return res;
 }

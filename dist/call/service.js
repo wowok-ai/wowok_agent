@@ -89,9 +89,11 @@ export class CallService extends CallBase {
                 perms.push(PermissionIndex.service_sales);
             }
             if (this.data?.order_new !== undefined) {
-                const guard = await LocalMark.Instance().get_address(this.data.order_new.guard);
-                if (guard) {
-                    guards.push(guard);
+                if (this.data.order_new.guard) {
+                    const guard = await LocalMark.Instance().get_address(this.data.order_new.guard);
+                    if (guard) {
+                        guards.push(guard);
+                    }
                 }
                 else {
                     if (!object_address) {

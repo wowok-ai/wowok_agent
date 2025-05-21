@@ -49,14 +49,11 @@ export const call_repository_json = async (json) => {
     }
 };
 export const call_permission_json = async (json) => {
-    console.log(1);
     try {
         const c = JSON.parse(json);
-        console.log(c);
         return JSON.stringify({ data: await call_permission(c) });
     }
     catch (e) {
-        console.log(e);
         return JSON.stringify({ error: e?.toString() });
     }
 };
@@ -107,50 +104,50 @@ export const call_guard_json = async (json) => {
 };
 export const call_demand = async (call) => {
     const obj = new CallDemand(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_service = async (call) => {
     const obj = new CallService(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_treasury = async (call) => {
     const obj = new CallTreasury(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_repository = async (call) => {
     const obj = new CallRepository(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_guard = async (call) => {
     const obj = new CallGuard(call.data);
-    return call_object(obj, call.account);
+    return await call_object(obj, call.account);
 };
 export const call_machine = async (call) => {
     const obj = new CallMachine(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_personal = async (call) => {
     const obj = new CallPersonal(call.data);
-    return call_object(obj, call.account);
+    return await call_object(obj, call.account);
 };
 export const call_permission = async (call) => {
     const obj = new CallPermission(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_transfer_permission = async (call) => {
     const obj = new CallObjectPermission(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 export const call_arbitration = async (call) => {
     const obj = new CallArbitration(call.data);
-    return call_object(obj, call.account, call.witness);
+    return await call_object(obj, call.account, call.witness);
 };
 const call_object = async (object, account, witness) => {
     if (witness) {
-        return object.call_with_witness(witness, account ?? undefined);
+        return await object.call_with_witness(witness, account ?? undefined);
     }
     else {
-        return object.call(account ?? undefined);
+        return await object.call(account ?? undefined);
     }
 };
 //# sourceMappingURL=call.js.map

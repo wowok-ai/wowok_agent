@@ -28,7 +28,6 @@ export declare class LocalMark {
     get_address(name_or_address?: string | null): Promise<string | undefined>;
     get_many_address(name_or_addresses: (string | null | undefined)[]): Promise<(string | undefined)[]>;
     get_many_address2(name_or_addresses: (string | null | undefined)[]): Promise<string[]>;
-    get_account(name_or_address?: string, genNewIfNotFound?: boolean): Promise<string | undefined>;
     del(name: string): Promise<void>;
     clear(): Promise<void>;
     rename(name: string, new_name: string): Promise<boolean>;

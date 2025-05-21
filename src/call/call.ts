@@ -101,13 +101,10 @@ export const call_repository_json = async (json: string) : Promise<string> => {
     }
 }
 export const call_permission_json = async (json: string) : Promise<string> => {
-    console.log(1)
     try {
         const c : CallPermissionObject = JSON.parse(json);
-        console.log(c)
         return JSON.stringify({data:await call_permission(c)});
     } catch (e) {
-        console.log(e)
         return JSON.stringify({error:e?.toString()})
     }
 }
@@ -154,49 +151,49 @@ export const call_guard_json = async (json: string) : Promise<string> => {
 
 export const call_demand = async (call:CallDemandObject) : Promise<CallResult> => {
     const obj = new CallDemand(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_service = async (call:CallServiceObject) : Promise<CallResult> => {
     const obj = new CallService(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_treasury = async (call:CallTreasuryObject) : Promise<CallResult> => {
     const obj = new CallTreasury(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_repository = async (call:CallRepositoryObject) : Promise<CallResult> => {
     const obj = new CallRepository(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_guard = async (call:CallGuardObject) : Promise<CallResult> => {
     const obj = new CallGuard(call.data);
-    return call_object(obj, call.account)
+    return await call_object(obj, call.account)
 }
 export const call_machine = async (call:CallMachineObject) : Promise<CallResult> => {
     const obj = new CallMachine(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_personal = async (call:CallPersonalObject) : Promise<CallResult> => {
     const obj = new CallPersonal(call.data);
-    return call_object(obj, call.account);
+    return await call_object(obj, call.account);
 }
 export const call_permission = async (call:CallPermissionObject) : Promise<CallResult> => {
     const obj = new CallPermission(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_transfer_permission = async (call:CallTransferPermissionObject) : Promise<CallResult> => {
     const obj = new CallObjectPermission(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 export const call_arbitration = async (call:CallArbitrationObject) : Promise<CallResult> => {
     const obj = new CallArbitration(call.data);
-    return call_object(obj, call.account, call.witness)
+    return await call_object(obj, call.account, call.witness)
 }
 
 const call_object = async (object: CallBase, account?: string | null, witness?: GuardInfo_forCall | null) : Promise<CallResult> => {
     if (witness) {
-        return object.call_with_witness(witness, account ?? undefined);
+        return await object.call_with_witness(witness, account ?? undefined);
     } else {
-        return object.call(account ?? undefined);
+        return await object.call(account ?? undefined);
     }
 }

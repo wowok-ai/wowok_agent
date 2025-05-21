@@ -32,6 +32,6 @@ export declare class CallBase {
     protected exec(account?: string): Promise<CallResponse>;
     protected new_with_mark(type: ObjectBaseType, txb: TransactionBlock, object: TxbAddress, named_new?: Namedbject, account?: string, innerTags?: string[]): Promise<void>;
     protected update_content(object: string, type: ObjectBaseType): Promise<void>;
-    protected sign_and_commit(txb: TransactionBlock, address?: string): Promise<CallResponse>;
+    protected sign_and_commit(txb: TransactionBlock, account?: string): Promise<CallResponse>;
 }
 //# sourceMappingURL=base.d.ts.map
