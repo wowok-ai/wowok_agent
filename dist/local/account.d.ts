@@ -24,7 +24,7 @@ export declare class Account {
     private get_imp;
     get_many(address_or_names: (string | null | undefined)[]): Promise<(AccountData | undefined)[]>;
     private get_many_imp;
-    set_name(name: string, address?: string): Promise<boolean>;
+    set_name(name: string, address_or_name?: string): Promise<boolean>;
     list(showSuspended?: boolean): Promise<AccountData[]>;
     suspend(address_or_name?: string, suspend?: boolean): Promise<void>;
     faucet(address_or_name?: string): Promise<void>;

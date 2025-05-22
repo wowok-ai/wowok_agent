@@ -51,10 +51,10 @@ export const account_operation = async (op) => {
         await Account.Instance().suspend(op.suspend.name_or_address, op.suspend.suspend);
     }
     if (op.name) {
-        await Account.Instance().set_name(op.name.name, op.name.address);
+        await Account.Instance().set_name(op.name.new_name, op.name.name_or_address);
     }
     if (op.transfer) {
-        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_from, op.transfer.name_or_address_to);
+        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from);
     }
     return res;
 };

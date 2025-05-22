@@ -51,7 +51,7 @@ export class CallBase {
             const addr = await Account.Instance().get(account);
             if (!addr)
                 ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
-            const p = await query_permission({ permission_object: permission, address: addr.address });
+            const p = await query_permission({ object_address_or_name: permission, entity_address_or_name: addr.address });
             if (checkOwner && !p.owner)
                 ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin)

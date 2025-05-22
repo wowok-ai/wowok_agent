@@ -187,7 +187,7 @@ export class Account {
         }
         return address_or_names.map(v => undefined);
     }
-    async set_name(name, address) {
+    async set_name(name, address_or_name) {
         if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
@@ -197,7 +197,7 @@ export class Account {
             if (s.find(v => v.name === name)) {
                 ERROR(Errors.IsValidName, `Name ${name} already exists`);
             }
-            if (!address) {
+            if (!address_or_name) {
                 const f = s.find(v => v.default);
                 if (f) {
                     f.name = name;
@@ -206,7 +206,7 @@ export class Account {
                 }
             }
             else {
-                const f = s.find(v => v.address === address);
+                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
                 if (f) {
                     f.name = name;
                     await this.storage.put(AccountKey, JSON.stringify(s));
@@ -237,15 +237,18 @@ export class Account {
                 const f = s.find(v => v.default);
                 if (f) {
                     f.suspended = suspend;
+                    f.name = undefined;
+                    await this.storage.put(AccountKey, JSON.stringify(s));
                 }
             }
             else {
                 const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
                 if (f) {
                     f.suspended = suspend;
+                    f.name = undefined;
+                    await this.storage.put(AccountKey, JSON.stringify(s));
                 }
             }
-            await this.storage.put(AccountKey, JSON.stringify(s));
         }
     }
     async faucet(address_or_name) {
@@ -256,7 +259,6 @@ export class Account {
     }
     async sign_and_commit(txb, address_or_name) {
         const a = await this.get_imp(address_or_name);
-        console.log('sign_and_commit', a, address_or_name);
         if (a) {
             const pair = Ed25519Keypair.fromSecretKey(fromHEX(a.secret));
             if (pair) {

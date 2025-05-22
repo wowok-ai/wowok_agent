@@ -4,8 +4,8 @@
  */
 import { PermissionAnswer } from 'wowok';
 export interface PermissionQuery {
-    permission_object: string;
-    address: string;
+    object_address_or_name: string;
+    entity_address_or_name: string;
 }
 export declare const query_permission_json: (json: string) => Promise<string>;
 export declare const query_permission: (query: PermissionQuery) => Promise<PermissionAnswer>;

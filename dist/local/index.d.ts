@@ -35,8 +35,8 @@ export interface AccountOperation {
         suspend?: boolean;
     } | null;
     name?: {
-        name: string;
-        address?: string;
+        new_name: string;
+        name_or_address?: string;
     } | null;
     transfer?: {
         name_or_address_from?: string;
