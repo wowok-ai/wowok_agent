@@ -1,6 +1,6 @@
 
 /**
- * manage object's name and tags locally
+ * manage address name and tags locally
  */
 
 import path from "path";
@@ -10,7 +10,7 @@ import { isBrowser } from "../common.js";
 import { ERROR, Errors, IsValidAddress, TagName } from "wowok";
 
 export interface MarkData {
-    object: string;
+    address: string;
     tags?: string[];
 }
 
@@ -22,7 +22,7 @@ export interface InfoData {
 export interface LocalMarkFilter {
   name?: string;
   tags?: string[];
-  object?: string;
+  address?: string;
 }
 
 export const LocalMarkLocation = 'wowok-mark';
@@ -51,14 +51,14 @@ export class LocalMark {
     // otherwise, use this name and change the original name to its address.
     async put(name:string | undefined | null, mark:MarkData, useAddressIfNameExist?:boolean) : Promise<string> {
       // object address invalid
-      if (!IsValidAddress(mark.object) && mark.object !== '0x2' && mark.object !== '0x6') { 
-        ERROR(Errors.InvalidParam, `LocalMark.put.mark.object: ${mark.object}`)
+      if (!IsValidAddress(mark.address) && mark.address !== '0x2' && mark.address !== '0x6') { 
+        ERROR(Errors.InvalidParam, `LocalMark.put.mark.address: ${mark.address}`)
       };
 
       // use address as name if name is undefined or null
       if (name === undefined || name === null) {
-        this.storage.put(mark.object, JSON.stringify(mark));
-        return mark.object
+        this.storage.put(mark.address, JSON.stringify(mark));
+        return mark.address
       }
 
       if (name.length > LocalMarkNameMaxLength) {
@@ -68,11 +68,11 @@ export class LocalMark {
       const r = await this.storage.get(name);
       if (r) {
         if (useAddressIfNameExist) {
-          this.storage.put(mark.object, JSON.stringify(mark));
-          return mark.object
+          this.storage.put(mark.address, JSON.stringify(mark));
+          return mark.address
         } else {
           const obj = JSON.parse(r) as MarkData;
-          await this.storage.put(obj.object, r)
+          await this.storage.put(obj.address, r)
         }
       }
 
@@ -95,7 +95,7 @@ export class LocalMark {
       if (name_or_address !== undefined && name_or_address !== null) {
         const r = await this.storage.get(name_or_address);
         if (r) {
-            return JSON.parse(r).object;
+            return JSON.parse(r).address;
         }     
       }
     }
@@ -109,7 +109,7 @@ export class LocalMark {
         if (check(v)) {
           const r = q.shift();
           if (r) {
-            return JSON.parse(q.shift()!)?.object;
+            return JSON.parse(q.shift()!)?.address;
           } 
         } 
         return v
@@ -169,7 +169,7 @@ export class LocalMark {
       return (await this.storage.iterator().all()).filter(v => {
         const obj = JSON.parse(v[1]) as MarkData;
         if (filter?.name && v[0] !== filter.name) return false;
-        if (filter?.object && obj.object !== filter.object) return false;
+        if (filter?.address && obj.address !== filter.address) return false;
 
         if (filter?.tags && filter.tags.length > 0) {
           if (!obj.tags || obj.tags.length === 0) return false;

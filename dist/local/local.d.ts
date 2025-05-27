@@ -1,8 +1,8 @@
 /**
- * manage object's name and tags locally
+ * manage address name and tags locally
  */
 export interface MarkData {
-    object: string;
+    address: string;
     tags?: string[];
 }
 export interface InfoData {
@@ -12,7 +12,7 @@ export interface InfoData {
 export interface LocalMarkFilter {
     name?: string;
     tags?: string[];
-    object?: string;
+    address?: string;
 }
 export declare const LocalMarkLocation = "wowok-mark";
 export declare const LocalInfoLocation = "wowok-info";

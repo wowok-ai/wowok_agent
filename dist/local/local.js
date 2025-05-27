@@ -1,5 +1,5 @@
 /**
- * manage object's name and tags locally
+ * manage address name and tags locally
  */
 import path from "path";
 import os from "os";
@@ -29,14 +29,14 @@ export class LocalMark {
     // otherwise, use this name and change the original name to its address.
     async put(name, mark, useAddressIfNameExist) {
         // object address invalid
-        if (!IsValidAddress(mark.object) && mark.object !== '0x2' && mark.object !== '0x6') {
-            ERROR(Errors.InvalidParam, `LocalMark.put.mark.object: ${mark.object}`);
+        if (!IsValidAddress(mark.address) && mark.address !== '0x2' && mark.address !== '0x6') {
+            ERROR(Errors.InvalidParam, `LocalMark.put.mark.address: ${mark.address}`);
         }
         ;
         // use address as name if name is undefined or null
         if (name === undefined || name === null) {
-            this.storage.put(mark.object, JSON.stringify(mark));
-            return mark.object;
+            this.storage.put(mark.address, JSON.stringify(mark));
+            return mark.address;
         }
         if (name.length > LocalMarkNameMaxLength) {
             name = name.substring(0, LocalMarkNameMaxLength);
@@ -45,12 +45,12 @@ export class LocalMark {
         const r = await this.storage.get(name);
         if (r) {
             if (useAddressIfNameExist) {
-                this.storage.put(mark.object, JSON.stringify(mark));
-                return mark.object;
+                this.storage.put(mark.address, JSON.stringify(mark));
+                return mark.address;
             }
             else {
                 const obj = JSON.parse(r);
-                await this.storage.put(obj.object, r);
+                await this.storage.put(obj.address, r);
             }
         }
         await this.storage.put(name, JSON.stringify(mark));
@@ -69,7 +69,7 @@ export class LocalMark {
         if (name_or_address !== undefined && name_or_address !== null) {
             const r = await this.storage.get(name_or_address);
             if (r) {
-                return JSON.parse(r).object;
+                return JSON.parse(r).address;
             }
         }
     }
@@ -82,7 +82,7 @@ export class LocalMark {
             if (check(v)) {
                 const r = q.shift();
                 if (r) {
-                    return JSON.parse(q.shift())?.object;
+                    return JSON.parse(q.shift())?.address;
                 }
             }
             return v;
@@ -136,7 +136,7 @@ export class LocalMark {
             const obj = JSON.parse(v[1]);
             if (filter?.name && v[0] !== filter.name)
                 return false;
-            if (filter?.object && obj.object !== filter.object)
+            if (filter?.address && obj.address !== filter.address)
                 return false;
             if (filter?.tags && filter.tags.length > 0) {
                 if (!obj.tags || obj.tags.length === 0)

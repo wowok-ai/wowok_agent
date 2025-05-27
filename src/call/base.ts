@@ -184,7 +184,7 @@ export class CallBase {
                 const namedNew = this.traceMarkNew.get(v.type);
                 if (namedNew) {
                     LocalMark.Instance().put(namedNew.name, 
-                        {object:v.object, tags:namedNew?.tags ? [...namedNew?.tags, v.type] : [v.type]}, 
+                        {address:v.object, tags:namedNew?.tags ? [...namedNew?.tags, v.type] : [v.type]}, 
                         namedNew?.useAddressIfNameExist);
                 }
             }

@@ -1,11 +1,6 @@
 import { TransactionBlock, PassportObject, Entity_Info } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { CallBase, CallResult } from "./base.js";
 export interface CallPersonal_Data {
-    mark_object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-    };
     information?: Entity_Info;
     mark?: {
         op: 'add';

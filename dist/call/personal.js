@@ -1,6 +1,8 @@
-import { Entity, Resource } from 'wowok';
+import { Errors, ERROR, Entity, Resource } from 'wowok';
 import { CallBase } from "./base.js";
 import { LocalMark } from '../local/local.js';
+import { query_personal } from '../query/objects.js';
+import { Account } from '../local/account.js';
 export class CallPersonal extends CallBase {
     constructor(data) {
         super();
@@ -10,20 +12,25 @@ export class CallPersonal extends CallBase {
         return await this.exec(account);
     }
     async operate(txb, passport, account) {
+        const entity_address = (await Account.Instance().get(account))?.address;
+        if (!entity_address) {
+            ERROR(Errors.InvalidParam, 'account - ' + account);
+        }
+        ;
         let obj;
         let entity = Entity.From(txb);
+        const entity_data = await query_personal({ address: entity_address });
+        if (entity_data?.mark_object) {
+            obj = Resource.From(txb, entity_data.mark_object);
+        }
+        else {
+            obj = Resource.From(txb, entity.create_resource2());
+        }
         if (this.data?.information !== undefined) {
             entity.update(this.data.information);
         }
         if (this.data?.mark === undefined) {
             return;
-        }
-        const object_address = await LocalMark.Instance().get_address(this.data?.mark_object?.address);
-        if (!object_address) {
-            obj = Resource.From(txb, entity.create_resource2());
-        }
-        else {
-            obj = Resource.From(txb, object_address);
         }
         if (this.data?.mark?.op === 'destroy') {
             entity.destroy_resource(obj);
@@ -79,8 +86,8 @@ export class CallPersonal extends CallBase {
                 if (addr)
                     entity.use_resource(Resource.From(txb, addr));
             }
-            if (!object_address) {
-                await this.new_with_mark('PersonalMark', txb, obj.launch(), this.data?.mark_object?.namedNew, account);
+            if (!entity_data?.mark_object) {
+                obj.launch();
             }
         }
     }

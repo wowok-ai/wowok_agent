@@ -1,10 +1,11 @@
 import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR, Entity, Entity_Info, Resource} from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { LocalMark } from '../local/local.js';
+import { query_personal } from '../query/objects.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
-    mark_object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new personal resource object ; // undefined for creating personal resource object
     information?: Entity_Info;
     mark?: {op:'add'; data:{address:string; name?:string; tags?:string[]}[]}
         | {op:'remove'; data:{address:string; tags?:string[]}[]}
@@ -24,7 +25,18 @@ export class CallPersonal extends CallBase {
         return await this.exec(account)
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?: string) {
+        const entity_address = (await Account.Instance().get(account))?.address;
+        if (!entity_address) {
+            ERROR(Errors.InvalidParam, 'account - ' + account)
+        };
+
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);
+        const entity_data = await query_personal({address:entity_address});
+        if (entity_data?.mark_object) {
+            obj = Resource.From(txb, entity_data.mark_object);
+        } else {
+            obj = Resource.From(txb, entity.create_resource2());
+        }
 
         if (this.data?.information !== undefined ) {
             entity.update(this.data.information)
@@ -32,13 +44,6 @@ export class CallPersonal extends CallBase {
 
         if (this.data?.mark === undefined) {
             return ;
-        }
-        
-        const object_address = await LocalMark.Instance().get_address((this.data?.mark_object as any)?.address);
-        if (!object_address) {
-            obj = Resource.From(txb, entity.create_resource2());
-        } else {
-            obj = Resource.From(txb, object_address)
         }
 
         if (this.data?.mark?.op === 'destroy') {
@@ -97,8 +102,8 @@ export class CallPersonal extends CallBase {
                 if (addr) entity.use_resource(Resource.From(txb, addr));
             }
 
-            if (!object_address) {
-                await this.new_with_mark('PersonalMark', txb, obj.launch(), (this.data?.mark_object as any)?.namedNew, account);
+            if (!entity_data?.mark_object) {
+                obj.launch();
             }
         }
     }

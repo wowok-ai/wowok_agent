@@ -66,7 +66,7 @@ export const local_mark_operation = async (op) => {
         case 'add':
             for (let i = 0; i < op.data.data.length; ++i) {
                 const v = op.data.data[i];
-                await LocalMark.Instance().put(v.name, { object: v.address, tags: v.tags }, v.useAddressIfNameExist);
+                await LocalMark.Instance().put(v.name, { address: v.address, tags: v.tags }, v.useAddressIfNameExist);
             }
             ;
             return;

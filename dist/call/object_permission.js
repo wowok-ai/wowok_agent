@@ -14,6 +14,13 @@ export class CallObjectPermission extends CallBase {
             ERROR(Errors.InvalidParam, 'CallObjectPermission_Data.new_permission:' + this.data.new_permission);
         }
         if (this.data?.objects.length > 0) {
+            for (let i = 0; i < this.data.objects.length; i++) {
+                const obj = await LocalMark.Instance().get_address(this.data.objects[i]);
+                if (!obj) {
+                    ERROR(Errors.InvalidParam, 'CallObjectPermission_Data.objects[' + i + ']:' + this.data.objects[i]);
+                }
+                this.data.objects[i] = obj;
+            }
             return await this.exec(account);
         }
     }
