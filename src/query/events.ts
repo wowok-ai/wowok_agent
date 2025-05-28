@@ -54,7 +54,7 @@ export interface EventCursor {
     txDigest: string
 }
 export interface EventQuery {
-    type: 'OnNewArb' | 'OnPresentService' | 'OnNewProgress' | 'OnNewOrder';
+    type: 'OnNewArb' | 'OnPresentService' | 'OnNewProgress' | 'OnNewOrder' |  string;
     /** optional paging cursor */
     cursor?: EventCursor | null | undefined;
     /** maximum number of items per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
@@ -73,15 +73,17 @@ export const query_events_json = async (json:string) : Promise<string> => {
 }
 
 export const query_events = (query: EventQuery) : Promise<EventAnswer | undefined> => {
-    switch(query.type) {
-        case 'OnNewArb':
-            return newArbEvents(query.cursor, query.limit, query.order)
-        case 'OnNewProgress':
-            return newProgressEvents(query.cursor, query.limit, query.order)
-        case 'OnPresentService':
-            return presentServiceEvents(query.cursor, query.limit, query.order)
-        case 'OnNewOrder':
-            return newOrderEvents(query.cursor, query.limit, query.order)
+    const type = query.type.toLowerCase();
+    if (type.includes('arb') || type.includes('arbitration')) {
+        return newArbEvents(query.cursor, query.limit, query.order)
+    } else if (type.includes('present') || type.includes('demand')) {
+        return newProgressEvents(query.cursor, query.limit, query.order)
+    } else if (type.includes('progress') || type.includes('machine')) {
+        return presentServiceEvents(query.cursor, query.limit, query.order)
+    } else if (type.includes('order') || type.includes('service')) {
+        return newOrderEvents(query.cursor, query.limit, query.order)
+    } else {
+        return Promise.resolve(undefined);
     }
 }
 

@@ -437,6 +437,7 @@ export interface QueryTableItem_AddressName {
     parent: string | ObjectRepository;
     address: string | number | bigint;
     name: string;
+    no_cache?: boolean;
 }
 export interface QueryTableItem_Address {
     parent: string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark;
