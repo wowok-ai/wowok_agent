@@ -2,10 +2,24 @@ import { IsValidArgType, TagName, IsValidAddress, Errors, ERROR, Permission, Per
 import { CallBase } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
-import { get_object_address } from '../common.js';
+import { crypto_string, get_object_address } from '../common.js';
 export class CallService extends CallBase {
     constructor(data) {
         super();
+        this.info_crypto = async (object, info) => {
+            if (!this.content && info && object) {
+                await this.update_content('Service', object);
+            }
+            const pubkey = this.content.customer_required_info?.pubkey ?? '';
+            var info_crypto;
+            if (pubkey && info) {
+                info_crypto = {
+                    customer_pubkey: pubkey,
+                    customer_info_crypt: crypto_string(info, pubkey)
+                };
+            }
+            return info_crypto;
+        };
         this.data = data;
     }
     async call(account) {
@@ -15,13 +29,12 @@ export class CallService extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
-        var obj;
         var [permission_address, object_address, treasury_address] = await LocalMark.Instance().get_many_address([this.data?.permission?.address,
             this.data?.object?.address,
             this.data?.payee_treasury?.address]);
         if (object_address) {
             if (!this.data.type_parameter || !permission_address) {
-                await this.update_content(object_address, 'Service');
+                await this.update_content('Service', object_address);
                 if (this.content) {
                     permission_address = this.content.permission;
                     this.data.type_parameter = this.content.type_raw;
@@ -103,7 +116,7 @@ export class CallService extends CallBase {
                         }
                     }
                     else {
-                        await this.update_content(object_address, 'Service');
+                        await this.update_content('Service', object_address);
                         if (this.content?.buy_guard) {
                             guards.push(this.content.buy_guard);
                         }
@@ -189,7 +202,7 @@ export class CallService extends CallBase {
                             let v = this.data.repository.repositories[i];
                             const addr = await LocalMark.Instance().get_address(v);
                             if (addr) {
-                                obj?.add_repository(v, pst);
+                                obj?.add_repository(addr, pst);
                             }
                         }
                         break;
@@ -211,7 +224,7 @@ export class CallService extends CallBase {
                             let v = this.data.extern_withdraw_treasury.treasuries[i];
                             const addr = await LocalMark.Instance().get_address(v.address);
                             if (addr && v.token_type) {
-                                obj?.add_treasury(v.token_type, v.address, pst);
+                                obj?.add_treasury(addr, v.token_type, pst);
                             }
                         }
                         break;
@@ -237,7 +250,7 @@ export class CallService extends CallBase {
                             let v = this.data.arbitration.arbitrations[i];
                             const addr = await LocalMark.Instance().get_address(v.address);
                             if (addr && v.token_type) {
-                                obj?.add_arbitration(v.address, v.token_type, pst);
+                                obj?.add_arbitration(addr, v.token_type, pst);
                             }
                         }
                         break;
@@ -329,9 +342,10 @@ export class CallService extends CallBase {
                 });
                 if (b > BigInt(0)) {
                     coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    console.log(coin);
                     if (coin) {
-                        //@ crypto tools support
-                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine, this.data.order_new.customer_info_crypto, pst);
+                        await this.update_content('Service', object_address);
+                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this?.content?.machine ?? this.data.order_new.machine, await this.info_crypto(this.data.order_new.customer_info_required), pst);
                     }
                 }
             }
@@ -344,11 +358,14 @@ export class CallService extends CallBase {
                     ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.progress:${this.data.order_agent.progress}`);
                 obj?.set_order_agent(o, await LocalMark.Instance().get_many_address2(this.data.order_agent.agents), p);
             }
-            if (this.data?.order_required_info !== undefined && this.data.order_required_info.info !== undefined) {
+            if (this.data?.order_required_info?.customer_info_required) {
                 const o = this.data.order_required_info.order ? await LocalMark.Instance().get_address(this.data.order_required_info.order) : order_new?.order;
                 if (!o)
                     ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_required_info.order}`);
-                obj?.update_order_required_info(o, this.data.order_required_info.info);
+                const crypto = await this.info_crypto(object_address, this.data.order_required_info.customer_info_required);
+                if (crypto) {
+                    obj?.update_order_required_info(o, crypto);
+                }
             }
             if (this.data?.order_refund !== undefined) {
                 const o = this.data.order_refund.order ? await LocalMark.Instance().get_address(this.data.order_refund.order) : order_new?.order;

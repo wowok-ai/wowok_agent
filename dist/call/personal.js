@@ -71,7 +71,7 @@ export class CallPersonal extends CallBase {
                         const v = this.data.mark.addresses[i];
                         const addr = await LocalMark.Instance().get_address(v);
                         if (addr) {
-                            obj?.removeall(v);
+                            obj?.removeall(addr);
                         }
                     }
                     break;

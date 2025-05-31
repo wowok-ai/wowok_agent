@@ -1,4 +1,4 @@
-import { TransactionBlock, PassportObject, BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service_Buy, Service_Guard_Percent, Service_Sale, WithdrawPayee } from 'wowok';
+import { TransactionBlock, PassportObject, BuyRequiredEnum, DicountDispatch, Service_Buy, Service_Guard_Percent, Service_Sale, WithdrawPayee } from 'wowok';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 export interface CallService_Data {
     type_parameter: string;
@@ -87,7 +87,7 @@ export interface CallService_Data {
         buy_items: Service_Buy[];
         discount?: string;
         machine?: string;
-        customer_info_crypto?: Customer_RequiredInfo;
+        customer_info_required?: string;
         guard?: string;
         namedNewOrder?: Namedbject;
         namedNewProgress?: Namedbject;
@@ -99,7 +99,7 @@ export interface CallService_Data {
     };
     order_required_info?: {
         order?: string;
-        info?: Customer_RequiredInfo;
+        customer_info_required?: string;
     };
     order_refund?: {
         order?: string;
@@ -130,5 +130,6 @@ export declare class CallService extends CallBase {
     constructor(data: CallService_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    private info_crypto;
 }
 //# sourceMappingURL=service.d.ts.map

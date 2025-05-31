@@ -41,7 +41,7 @@ export class CallTreasury extends CallBase {
 
         if (object_address) {
             if (!this.data.type_parameter || !permission_address) {
-                await this.update_content(object_address, 'Treasury');
+                await this.update_content('Treasury', object_address);
                 if (this.content) {
                     permission_address = (this.content as ObjectTreasury).permission;     
                     this.data.type_parameter =  this.content.type_raw!;             
@@ -85,7 +85,7 @@ export class CallTreasury extends CallBase {
                             guards.push(guard);
                         }
                     } else {
-                        await this.update_content(object_address, 'Treasury');
+                        await this.update_content('Treasury', object_address);
     
                         if ((this.content as ObjectTreasury)?.deposit_guard) {
                             guards.push((this.content as ObjectTreasury).deposit_guard!)

@@ -13,15 +13,21 @@ export const query_events_json = async (json) => {
     }
 };
 export const query_events = (query) => {
-    switch (query.type) {
-        case 'OnNewArb':
-            return newArbEvents(query.cursor, query.limit, query.order);
-        case 'OnNewProgress':
-            return newProgressEvents(query.cursor, query.limit, query.order);
-        case 'OnPresentService':
-            return presentServiceEvents(query.cursor, query.limit, query.order);
-        case 'OnNewOrder':
-            return newOrderEvents(query.cursor, query.limit, query.order);
+    const type = query.type.toLowerCase();
+    if (type.includes('arb') || type.includes('arbitration')) {
+        return newArbEvents(query.cursor, query.limit, query.order);
+    }
+    else if (type.includes('present') || type.includes('demand')) {
+        return newProgressEvents(query.cursor, query.limit, query.order);
+    }
+    else if (type.includes('progress') || type.includes('machine')) {
+        return presentServiceEvents(query.cursor, query.limit, query.order);
+    }
+    else if (type.includes('order') || type.includes('service')) {
+        return newOrderEvents(query.cursor, query.limit, query.order);
+    }
+    else {
+        return Promise.resolve(undefined);
     }
 };
 const newArbEvents = async (cursor, limit, order) => {

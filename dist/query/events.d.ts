@@ -50,7 +50,7 @@ export interface EventCursor {
     txDigest: string;
 }
 export interface EventQuery {
-    type: 'OnNewArb' | 'OnPresentService' | 'OnNewProgress' | 'OnNewOrder';
+    type: 'OnNewArb' | 'OnPresentService' | 'OnNewProgress' | 'OnNewOrder' | string;
     /** optional paging cursor */
     cursor?: EventCursor | null | undefined;
     /** maximum number of items per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */

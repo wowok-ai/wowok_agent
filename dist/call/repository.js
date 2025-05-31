@@ -13,7 +13,7 @@ export class CallRepository extends CallBase {
             this.data?.object?.address]);
         if (object_address) {
             if (!permission_address) {
-                await this.update_content(object_address, 'Repository');
+                await this.update_content('Repository', object_address);
                 if (this.content) {
                     permission_address = this.content.permission;
                 }

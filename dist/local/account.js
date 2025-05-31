@@ -28,10 +28,13 @@ export class Account {
         };
         this.get_coin_object = async (txb, balance_required, address_or_name, token_type) => {
             const a = await this.get(address_or_name);
+            console.log(a);
+            console.log(balance_required);
             if (a) {
                 const b = BigInt(balance_required);
                 if (b >= BigInt(0)) {
                     if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
+                        console.log(1);
                         return txb.splitCoins(txb.gas, [b]);
                     }
                     else {

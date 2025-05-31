@@ -122,10 +122,10 @@ export class CallBase {
             Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
         }
     }
-    async update_content(object, type) {
-        if (this.content)
+    async update_content(type, object) {
+        if (this.content || !object)
             return;
-        const r = await query_objects({ objects: [object] });
+        const r = await query_objects({ objects: [object], no_cache: true });
         if (r?.objects?.length !== 1 || r?.objects[0]?.type !== type) {
             ERROR(Errors.Fail, `Fetch ${type} object ${object} failed`);
         }

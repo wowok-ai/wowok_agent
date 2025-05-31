@@ -2,11 +2,11 @@ import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject,
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
     Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, OrderResult, 
 } from 'wowok';
-import { query_objects, ObjectService } from '../query/objects.js';
+import { ObjectService } from '../query/objects.js';
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
-import { get_object_address } from '../common.js';
+import { crypto_string, get_object_address } from '../common.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
@@ -30,10 +30,10 @@ export interface CallService_Data {
     refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
         | {op:'removeall'} | {op:'remove', addresses:string[]};
     bPublished?: boolean;
-    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_crypto?: Customer_RequiredInfo, guard?:string, 
+    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_required?: string, guard?:string, 
         namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
     order_agent?: {order?:string; agents: string[]; progress?:string};
-    order_required_info?: {order?:string; info?:Customer_RequiredInfo};
+    order_required_info?: {order?:string; customer_info_required?:string};
     order_refund?: {order?:string; guard?:string;} | {order?:string; arb:string; arb_token_type:string}; // guard address
     order_withdrawl?: {order?:string; data:WithdrawPayee}; // guard address
     order_payer?: {order?:string; payer_new:string; progress?:string}; // transfer the order payer permission to someaddress
@@ -54,7 +54,7 @@ export class CallService extends CallBase {
         }
 
         var checkOwner = false; const guards : string[] = [];
-        const perms : PermissionIndexType[] = [];  var obj: ObjectService | undefined;
+        const perms : PermissionIndexType[] = []; 
         var [permission_address, object_address, treasury_address] = 
             await LocalMark.Instance().get_many_address(
                 [(this.data?.permission as any)?.address, 
@@ -63,7 +63,7 @@ export class CallService extends CallBase {
 
         if (object_address) {
             if (!this.data.type_parameter || !permission_address) {
-                await this.update_content(object_address, 'Service');
+                await this.update_content('Service', object_address);
                 if (this.content) {
                     permission_address = (this.content as ObjectService).permission;     
                     this.data.type_parameter =  this.content.type_raw!;             
@@ -143,7 +143,7 @@ export class CallService extends CallBase {
                             guards.push(buy_guard)
                         }
                     } else {
-                        await this.update_content(object_address, 'Service');
+                        await this.update_content('Service', object_address);
 
                         if ((this.content as ObjectService)?.buy_guard) {
                             guards.push((this.content as ObjectService).buy_guard!)
@@ -231,7 +231,7 @@ export class CallService extends CallBase {
                             let  v = this.data.repository.repositories[i];
                             const addr = await LocalMark.Instance().get_address(v);
                             if (addr) {
-                                obj?.add_repository(v, pst)
+                                obj?.add_repository(addr, pst)
                             }
                         }
                         break;
@@ -253,7 +253,7 @@ export class CallService extends CallBase {
                             let  v = this.data.extern_withdraw_treasury.treasuries[i];
                             const addr = await LocalMark.Instance().get_address(v.address);
                             if (addr && v.token_type) {
-                                obj?.add_treasury(v.token_type, v.address, pst);
+                                obj?.add_treasury(addr, v.token_type, pst);
                             }
                         }
                         break;
@@ -278,7 +278,7 @@ export class CallService extends CallBase {
                             let  v = this.data.arbitration.arbitrations[i];
                             const addr = await LocalMark.Instance().get_address(v.address);
                             if (addr && v.token_type) {
-                                obj?.add_arbitration(v.address, v.token_type, pst)
+                                obj?.add_arbitration(addr, v.token_type, pst)
                             }
                         }
 
@@ -370,10 +370,12 @@ export class CallService extends CallBase {
                 })
                 if (b > BigInt(0)) {
                     coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
+                    console.log(coin)
                     if (coin) {
-                        //@ crypto tools support
-                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, this.data.order_new.machine,
-                            this.data.order_new.customer_info_crypto, pst);
+                        await this.update_content('Service', object_address);
+                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
+                            (this?.content as ObjectService)?.machine ?? this.data.order_new.machine,
+                            await this.info_crypto(this.data.order_new.customer_info_required), pst);
                     }                 
                 }
             }
@@ -387,11 +389,13 @@ export class CallService extends CallBase {
 
                 obj?.set_order_agent(o, await LocalMark.Instance().get_many_address2(this.data.order_agent.agents), p)
             }
-            if (this.data?.order_required_info !== undefined && this.data.order_required_info.info !== undefined) {
+            if (this.data?.order_required_info?.customer_info_required) {
                 const o = this.data.order_required_info.order ? await LocalMark.Instance().get_address(this.data.order_required_info.order) : order_new?.order;
                 if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_required_info.order}`);
-                
-                obj?.update_order_required_info(o!, this.data.order_required_info.info)
+                const crypto =  await this.info_crypto(object_address, this.data.order_required_info.customer_info_required);
+                if (crypto) {
+                    obj?.update_order_required_info(o, crypto);
+                }
             }
             if (this.data?.order_refund !== undefined) {
                 const o = this.data.order_refund.order ? await LocalMark.Instance().get_address(this.data.order_refund.order) : order_new?.order;
@@ -455,5 +459,20 @@ export class CallService extends CallBase {
                 await this.new_with_mark('Service', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
             } 
         }
+    }
+
+    private info_crypto = async (object?:string, info?: string) : Promise<Customer_RequiredInfo | undefined>=> {
+        if (!this.content && info && object) {
+            await this.update_content('Service', object);
+        }
+        const pubkey = (this.content as ObjectService).customer_required_info?.pubkey ?? '';
+        var info_crypto: Customer_RequiredInfo | undefined ;
+        if (pubkey && info) {
+            info_crypto = {
+                customer_pubkey: pubkey,
+                customer_info_crypt: crypto_string(info, pubkey)
+            }
+        }
+        return info_crypto
     }
 }

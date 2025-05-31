@@ -46,7 +46,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
 
         if (object_address) {
             if (!permission_address) {
-                await this.update_content(object_address, 'Machine');
+                await this.update_content('Machine', object_address);
                 if (this.content) {
                     permission_address = (this.content as ObjectMachine).permission;     
                 }

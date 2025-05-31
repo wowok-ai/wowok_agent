@@ -16,7 +16,7 @@ export class CallArbitration extends CallBase {
             this.data?.fee_treasury?.address]);
         if (object_address) {
             if (!this.data.type_parameter || !permission_address) {
-                await this.update_content(object_address, 'Arbitration');
+                await this.update_content('Arbitration', object_address);
                 if (this.content) {
                     permission_address = this.content.permission;
                     this.data.type_parameter = this.content.type_raw;
@@ -71,7 +71,7 @@ export class CallArbitration extends CallBase {
                         }
                     }
                     else {
-                        await this.update_content(object_address, 'Arbitration');
+                        await this.update_content('Arbitration', object_address);
                         if (this.content?.usage_guard) {
                             guards.push(this.content.usage_guard);
                         }

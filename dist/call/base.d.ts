@@ -31,7 +31,7 @@ export declare class CallBase {
     protected check_permission_and_call(permission: string, permIndex: PermissionIndexType[], guards_needed: string[], checkOwner?: boolean, checkAdmin?: boolean, account?: string): Promise<CallResult>;
     protected exec(account?: string): Promise<CallResponse>;
     protected new_with_mark(type: ObjectBaseType, txb: TransactionBlock, object: TxbAddress, named_new?: Namedbject, account?: string, innerTags?: string[]): Promise<void>;
-    protected update_content(object: string, type: ObjectBaseType): Promise<void>;
+    protected update_content(type: ObjectBaseType, object?: string): Promise<void>;
     protected sign_and_commit(txb: TransactionBlock, account?: string): Promise<CallResponse>;
 }
 //# sourceMappingURL=base.d.ts.map

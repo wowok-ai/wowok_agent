@@ -17,7 +17,7 @@ export class CallDemand extends CallBase {
             this.data?.object?.address]);
         if (object_address) {
             if (!this.data.type_parameter || !permission_address) {
-                await this.update_content(object_address, 'Demand');
+                await this.update_content('Demand', object_address);
                 if (this.content) {
                     permission_address = this.content.permission;
                     this.data.type_parameter = this.content.type_raw;
@@ -63,7 +63,7 @@ export class CallDemand extends CallBase {
                         }
                     }
                     else {
-                        await this.update_content(object_address, 'Demand');
+                        await this.update_content('Demand', object_address);
                         if (this.content?.guard?.object) {
                             guards.push(this.content.guard?.object);
                         }

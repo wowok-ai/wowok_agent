@@ -1,4 +1,5 @@
 import { LocalMark } from "./local/local.js";
+import NodeRSA from 'node-rsa';
 export const isBrowser = () => {
     return typeof window !== 'undefined' && typeof indexedDB !== 'undefined';
 };
@@ -9,5 +10,10 @@ export const get_object_address = async (object) => {
     else {
         return object;
     }
+};
+export const crypto_string = (str, pubkey) => {
+    const rsa = new NodeRSA();
+    rsa.importKey(pubkey, 'pkcs8-public-pem');
+    return rsa.encrypt(str, 'base64');
 };
 //# sourceMappingURL=common.js.map
