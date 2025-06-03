@@ -38,6 +38,7 @@ export declare class CallDemand extends CallBase {
     permission_address: string | undefined;
     type_parameter: string | undefined;
     constructor(data: CallDemand_Data);
+    protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

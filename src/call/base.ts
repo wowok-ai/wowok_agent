@@ -34,17 +34,21 @@ export interface TypeNamedObjectWithPermission extends NamedObjectWithPermission
 /// object address or namedNew for creating a new object
 export type ObjectTypedMain = string |  TypeNamedObjectWithPermission ;
 export type ObjectMain = string | NamedObjectWithPermission ;
+export type ObjectPermissionMain = string | Namedbject;
 export type ObjectParam = string | NamedObjectWithDescription;
 
-export const GetObjectExisted = (object: ObjectMain | ObjectTypedMain | ObjectParam | undefined) : string | undefined => {
+export const GetObjectExisted = (object: ObjectMain | ObjectTypedMain | ObjectParam | ObjectPermissionMain | undefined) : string | undefined => {
     return (typeof object === 'string' ) ? object : undefined;
 }
 
-export const GetObjectMain = (object: ObjectMain | ObjectTypedMain | undefined) : NamedObjectWithPermission | TypeNamedObjectWithPermission | undefined => {
-    return (typeof object === 'object' && object !== null && 'type_parameter' in object) ? 
-        (object as TypeNamedObjectWithPermission) : 
-        (typeof object === 'object' && object !== null && 'permission' in object) ? 
-            (object as NamedObjectWithPermission) : undefined;
+export const GetObjectMain = (object: ObjectMain | ObjectTypedMain | ObjectPermissionMain | undefined) : NamedObjectWithPermission | TypeNamedObjectWithPermission | Namedbject | undefined => {
+   if (typeof object === 'object' && object !== null && 'type_parameter' in object) {
+       return (object as TypeNamedObjectWithPermission);
+   } else if (typeof object === 'object' && object !== null && 'permission' in object) {
+       return (object as NamedObjectWithPermission);
+   } else if (typeof object === 'object') {
+       return (object as Namedbject);
+   }
 }
 
 export const GetObjectParam = (object: ObjectParam | undefined) : NamedObjectWithDescription | undefined => {
@@ -123,6 +127,7 @@ export class CallBase {
     content: ObjectBase | undefined = undefined;
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
+    protected async prepare() {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
     // return ResponseData when the call has completed; 
@@ -137,6 +142,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
+                    await this.prepare();
                     await this.operate(txb, passport?.get_object(), account)
                     passport.destroy();
                     

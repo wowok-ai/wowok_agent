@@ -1,6 +1,6 @@
 {
   "name": "wowok_agent",
-  "version": "1.3.47",
+  "version": "1.3.48",
   "description": "Agent for WoWok: Unlock Co-Creation, Lighting Transaction, Empower Potential.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

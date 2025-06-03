@@ -105,6 +105,7 @@ export declare class CallService extends CallBase {
     permission_address: string | undefined;
     type_parameter: string | undefined;
     constructor(data: CallService_Data);
+    protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     private order_allowed;
     private order_progress;

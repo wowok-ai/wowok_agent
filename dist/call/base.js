@@ -8,10 +8,15 @@ export const GetObjectExisted = (object) => {
     return (typeof object === 'string') ? object : undefined;
 };
 export const GetObjectMain = (object) => {
-    return (typeof object === 'object' && object !== null && 'type_parameter' in object) ?
-        object :
-        (typeof object === 'object' && object !== null && 'permission' in object) ?
-            object : undefined;
+    if (typeof object === 'object' && object !== null && 'type_parameter' in object) {
+        return object;
+    }
+    else if (typeof object === 'object' && object !== null && 'permission' in object) {
+        return object;
+    }
+    else if (typeof object === 'object') {
+        return object;
+    }
 };
 export const GetObjectParam = (object) => {
     return (typeof object === 'object' && object !== null && 'description' in object) ? object : undefined;
@@ -56,6 +61,8 @@ export function ResponseData(response) {
 export class CallBase {
     async operate(txb, passport, account) { }
     ;
+    async prepare() { }
+    ;
     constructor() {
         this.traceMarkNew = new Map();
         this.content = undefined;
@@ -73,6 +80,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
+                    await this.prepare();
                     await this.operate(txb, passport?.get_object(), account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);

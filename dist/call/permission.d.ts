@@ -1,4 +1,4 @@
-import { AccountOrMark_Address, CallBase, CallResult, ObjectMain } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, ObjectPermissionMain } from "./base.js";
 import { PassportObject, BizPermission, PermissionIndexType, TransactionBlock } from 'wowok';
 export interface Entity_Permission {
     index: PermissionIndexType;
@@ -17,7 +17,7 @@ export interface Permission_Index {
     entities: Permission_Index_Entity[];
 }
 export interface CallPermission_Data {
-    object?: ObjectMain;
+    object?: ObjectPermissionMain;
     description?: string;
     biz_permission?: {
         op: 'add';
@@ -56,6 +56,7 @@ export declare class CallPermission extends CallBase {
     data: CallPermission_Data;
     object_address: string | undefined;
     constructor(data: CallPermission_Data);
+    protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

@@ -17,9 +17,10 @@ export interface TypeNamedObjectWithPermission extends NamedObjectWithPermission
 }
 export type ObjectTypedMain = string | TypeNamedObjectWithPermission;
 export type ObjectMain = string | NamedObjectWithPermission;
+export type ObjectPermissionMain = string | Namedbject;
 export type ObjectParam = string | NamedObjectWithDescription;
-export declare const GetObjectExisted: (object: ObjectMain | ObjectTypedMain | ObjectParam | undefined) => string | undefined;
-export declare const GetObjectMain: (object: ObjectMain | ObjectTypedMain | undefined) => NamedObjectWithPermission | TypeNamedObjectWithPermission | undefined;
+export declare const GetObjectExisted: (object: ObjectMain | ObjectTypedMain | ObjectParam | ObjectPermissionMain | undefined) => string | undefined;
+export declare const GetObjectMain: (object: ObjectMain | ObjectTypedMain | ObjectPermissionMain | undefined) => NamedObjectWithPermission | TypeNamedObjectWithPermission | Namedbject | undefined;
 export declare const GetObjectParam: (object: ObjectParam | undefined) => NamedObjectWithDescription | undefined;
 export type AccountOrMark_Address = {
     account?: string;
@@ -54,6 +55,7 @@ export declare class CallBase {
     private traceMarkNew;
     content: ObjectBase | undefined;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected prepare(): Promise<void>;
     constructor();
     call(account?: string): Promise<CallResult>;
     call_with_witness(info: GuardInfo_forCall, account?: string): Promise<CallResponse | undefined>;

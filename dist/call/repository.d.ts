@@ -38,6 +38,7 @@ export declare class CallRepository extends CallBase {
     object_address: string | undefined;
     permission_address: string | undefined;
     constructor(data: CallRepository_Data);
+    protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

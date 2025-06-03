@@ -94,6 +94,7 @@ export declare class CallMachine extends CallBase {
     object_address: string | undefined;
     permission_address: string | undefined;
     constructor(data: CallMachine_Data);
+    protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }
