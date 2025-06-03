@@ -1,42 +1,54 @@
-import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, IsValidAddress, Errors, ERROR, Permission, 
-    PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, DicountDispatch, Service, Service_Buy, 
-    Service_Guard_Percent, Service_Sale, WithdrawPayee, Treasury, OrderResult, 
+import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, Errors, ERROR, Permission, 
+    PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, Service_Buy, 
+    Service_Guard_Percent, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
+    ProgressObject, Arbitration, Service_Discount,
+    ServiceObject, 
 } from 'wowok';
-import { ObjectService } from '../query/objects.js';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { ObjectOrder, ObjectService, query_objects } from '../query/objects.js';
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
+    GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectParam, ObjectTypedMain, 
+    TypeNamedObjectWithPermission, WithdrawParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
-import { crypto_string, get_object_address } from '../common.js';
+import { crypto_string } from '../common.js';
+import { machine } from 'os';
+
+export interface ServiceWithdraw extends WithdrawParam {
+    withdraw_guard: string;
+}
+
+export interface DicountDispatch {
+    receiver: AccountOrMark_Address;
+    discount: Service_Discount;
+    count?: number;
+}
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
-    type_parameter: string;
-    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
+    object: ObjectTypedMain;
+    order_new?: {buy_items:Service_Buy[], discount_object?:string, customer_info_required?: string, 
+        namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
+    order_agent?: {order?:string; agents: AccountOrMark_Address[];};
+    order_required_info?: {order:string; customer_info_required?:string};
+    order_refund?: {order:string; } | {order:string; arb:string;}; 
+    order_withdrawl?: {order:string; data:ServiceWithdraw}; // guard address
+    order_payer?: {order?:string; payer_new:AccountOrMark_Address; }; // transfer the order payer permission to someaddress
+
     description?: string;
     endpoint?: string;
-    payee_treasury?:{address:string} | {namedNew?: Namedbject, description?:string}; 
+    payee_treasury?:ObjectParam; 
     gen_discount?: DicountDispatch[];
     repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
-    extern_withdraw_treasury?: {op:'set' | 'add'; treasuries:{address:string, token_type:string}[]} 
-        | {op:'removeall'} | {op:'remove', addresses:string[]};
+    extern_withdraw_treasury?: {op:'set' | 'add' | 'remove'; treasuries:string[]} | {op:'removeall'} ;
     machine?: string;
-    arbitration?: {op:'set' | 'add'; arbitrations:{address:string, token_type:string}[]} 
-        | {op:'removeall'} | {op:'remove', addresses:string[]};
+    arbitration?: {op:'set' | 'add' |  'remove'; arbitrations:string[]} | {op:'removeall'};
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
     withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
-        | {op:'removeall'} | {op:'remove', addresses:string[]};
+        | {op:'removeall'} | {op:'remove', guards:string[]};
     refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
-        | {op:'removeall'} | {op:'remove', addresses:string[]};
+        | {op:'removeall'} | {op:'remove', guards:string[]};
     bPublished?: boolean;
-    order_new?: {buy_items:Service_Buy[], discount?:string, machine?:string, customer_info_required?: string, guard?:string, 
-        namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
-    order_agent?: {order?:string; agents: string[]; progress?:string};
-    order_required_info?: {order?:string; customer_info_required?:string};
-    order_refund?: {order?:string; guard?:string;} | {order?:string; arb:string; arb_token_type:string}; // guard address
-    order_withdrawl?: {order?:string; data:WithdrawPayee}; // guard address
-    order_payer?: {order?:string; payer_new:string; progress?:string}; // transfer the order payer permission to someaddress
     buy_guard?: string;
     bPaused?: boolean;
     clone_new?: {token_type_new?:string; namedNew?: Namedbject};
@@ -44,42 +56,37 @@ export interface CallService_Data {
 
 export class CallService extends CallBase {
     data: CallService_Data;
+    object_address: string | undefined = undefined;
+    permission_address: string | undefined = undefined;
+    type_parameter: string | undefined = undefined;
+
     constructor(data: CallService_Data) {
         super();
         this.data = data;
     }
     async call(account?:string) : Promise<CallResult>  {
-        if (!this.data.type_parameter || !IsValidArgType(this.data.type_parameter)) {
-            ERROR(Errors.IsValidArgType, 'service.type_parameter');
-        }
-
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-        var [permission_address, object_address, treasury_address] = 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address, 
-                (this.data?.payee_treasury as any)?.address]);
-
-        if (object_address) {
-            if (!this.data.type_parameter || !permission_address) {
-                await this.update_content('Service', object_address);
-                if (this.content) {
-                    permission_address = (this.content as ObjectService).permission;     
-                    this.data.type_parameter =  this.content.type_raw!;             
-                }
-            } 
+        this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
+        if (this.object_address) {
+            await this.update_content('Service', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallService_Data.data.object:' + this.object_address);
+            this.permission_address = (this.content as ObjectService).permission;
+            this.type_parameter = Service.parseObjectType(this.content.type_raw);
         } else {
-            if (!this.data?.type_parameter || !IsValidArgType(this.data.type_parameter)) {
-                ERROR(Errors.IsValidArgType, 'CallService_Data.data.type_parameter')
-            }
-        }
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!IsValidArgType(n?.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallService_Data.data.object.type_parameter');
+            }          
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
+            this.type_parameter = n.type_parameter;
+        } 
 
-        if (permission_address) {
+        if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.service)
             }
-            if (this.data?.description !== undefined && object_address) {
+            if (this.data?.description !== undefined && this.object_address) {
                 perms.push(PermissionIndex.service_description)
             }
             if (this.data?.bPaused !== undefined) {
@@ -115,7 +122,7 @@ export class CallService extends CallBase {
             if (this.data?.machine !== undefined) {
                 perms.push(PermissionIndex.service_machine)
             }
-            if (treasury_address !== undefined && object_address) {
+            if (this.data?.payee_treasury !== undefined && this.object_address) {
                 perms.push(PermissionIndex.service_payee)
             }
             if (this.data?.withdraw_guard !== undefined) {
@@ -131,24 +138,10 @@ export class CallService extends CallBase {
                 perms.push(PermissionIndex.service_sales)
             }
             if (this.data?.order_new !== undefined) {
-                if (this.data.order_new.guard) { 
-                    const guard = await LocalMark.Instance().get_address(this.data.order_new.guard);
-                    if (guard) {
-                        guards.push(guard)
-                    }
-                } else {
-                    if (!object_address) {
-                        const buy_guard = await LocalMark.Instance().get_address(this.data?.buy_guard);
-                        if (buy_guard) {
-                            guards.push(buy_guard)
-                        }
-                    } else {
-                        await this.update_content('Service', object_address);
-
-                        if ((this.content as ObjectService)?.buy_guard) {
-                            guards.push((this.content as ObjectService).buy_guard!)
-                        }                         
-                    }
+                if (this.object_address) {
+                    if ((this.content as ObjectService)?.buy_guard) {
+                        guards.push((this.content as ObjectService).buy_guard!)
+                    }    
                 }
             }
             if (this.data.order_refund !== undefined) {
@@ -165,59 +158,167 @@ export class CallService extends CallBase {
                 if (guard) guards.push(guard);
             }
 
-            return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
-        let obj : Service | undefined ; let permission: any;  let payee: any;
-        var [permission_address, object_address] = this?.content ? 
-            [(this.content as ObjectService).permission, this.content.object] : 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address]);
-        const treasury_address = await LocalMark.Instance().get_address((this.data?.payee_treasury as any)?.address);
 
-        if (!object_address) {
-            if (!permission_address || !IsValidAddress(permission_address)) {
-                const d = (this.data?.permission as any)?.description ?? '';
-                permission = Permission.New(txb, d);
+    private order_allowed() : boolean {
+        if ((this.content as ObjectService)?.bPaused) {
+            ERROR(Errors.InvalidParam, 'Service is paused');
+            return false;
+        }
+        if (((this.content as ObjectService)?.bPublished !== true)) {
+            ERROR(Errors.InvalidParam, 'Service is not published');
+            return false;
+        }
+        return true
+    }
+
+    private order_progress = async (order?: string, order_new?:OrderResult) : Promise<ProgressObject> => {
+        if (order) {
+            const r = await query_objects({objects:[order]});
+            if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Order') {
+                ERROR(Errors.InvalidParam, 'order_progress:' + order);
             }
-            if (!treasury_address || !IsValidAddress(treasury_address)) {
-                const d = (this.data?.payee_treasury as any)?.description ?? '';
-                payee = Treasury.New(txb, this.data?.type_parameter!, permission ?? permission_address, d, permission?undefined:passport);
-            }
-            obj = Service.New(txb, this.data.type_parameter!, permission?permission.get_object():permission_address, 
-                this.data?.description??'', payee?payee.get_object():treasury_address, permission?undefined:passport)
+            return (r.objects[0] as ObjectOrder).progress! as ProgressObject;
+        } else if (order_new) {
+            return order_new.progress as ProgressObject;
         } else {
-            if (this.data.type_parameter && permission_address) {
-                obj = Service.From(txb, this.data.type_parameter, permission_address, object_address)
-            } else {
-                ERROR(Errors.InvalidParam, 'CallService_Data.data.type_parameter or permission')
+            ERROR(Errors.InvalidParam, 'order_progress');
+        }
+    }
+
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
+        let obj : Service | undefined ; 
+        let permission: any;  let payee: any;
+
+        if (this.object_address) {
+            obj = Service.From(txb, this.type_parameter!, this.permission_address!, this.object_address);
+        } else {
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!this.permission_address) {
+                permission = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
             }
+            const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.payee_treasury));
+            if (!treasury_address) {
+                payee = Treasury.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, 
+                    GetObjectParam(this.data.payee_treasury)?.description ?? '', permission?undefined:passport);
+            }
+            const t = payee ? payee.get_object() : treasury_address;
+            if (!t) {   
+                ERROR(Errors.InvalidParam, 'CallService_Data.payee_treasury:' + (this.data.payee_treasury as any).address);
+            }   
+
+            obj = Service.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, 
+                this.data?.description??'', t, permission?undefined:passport);
         }
 
         if (obj) {
             //const perm = permission ? permission.get_object() : permission_address;
             const pst = permission?undefined:passport;
+            var order_new : OrderResult | undefined;
+            if (this.data?.order_new !== undefined && this.order_allowed()) {
+                let b = BigInt(0); let coin : any;
+                this.data.order_new.buy_items.forEach(v => {
+                    b += BigInt(v.max_price) * BigInt(v.count)
+                });
 
-            if (this.data?.description !== undefined && object_address) {
+                coin = await Account.Instance().get_coin_object(txb, b, account, this.type_parameter);
+                if (coin) {
+                    order_new = obj.order(this.data.order_new.buy_items, coin, 
+                        await LocalMark.Instance().get_address(this.data.order_new.discount_object), 
+                        (this?.content as ObjectService).machine!,
+                        await this.info_crypto(this.data.order_new.customer_info_required), pst);
+                }                 
+            }
+        
+            if (this.data?.order_agent !== undefined) {
+                const o = this.data.order_agent.order ? await LocalMark.Instance().get_address(this.data.order_agent.order) : order_new?.order;
+                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_agent.order}`);
+                
+                const p = await this.order_progress(this.data.order_agent.order, order_new);
+                const agents = await GetManyAccountOrMark_Address(this.data.order_agent.agents);
+                obj?.set_order_agent(o, agents.filter((v):v is string =>v!==undefined), p);
+            }
+            if (this.data?.order_required_info?.customer_info_required) {
+                const o = await LocalMark.Instance().get_address(this.data.order_required_info.order);
+                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_required_info.order:${this.data.order_required_info.order}`);
+                const crypto =  await this.info_crypto(this.object_address, this.data.order_required_info.customer_info_required);
+                if (crypto) {
+                    obj?.update_order_required_info(o, crypto);
+                }
+            }
+            if (this.data?.order_refund !== undefined) {
+                const o = await LocalMark.Instance().get_address(this.data.order_refund.order);
+                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_refund.order}`);
+
+                if ((this.data?.order_refund as any)?.arb) {
+                    const r = await query_objects({objects:[(this.data?.order_refund as any)?.arb]});
+                    if (r?.objects?.length!== 1 || r?.objects[0]?.type!== 'Arb') {
+                        ERROR(Errors.InvalidParam, 'order_refund.arb:' + (this.data?.order_refund as any)?.arb);
+                    }
+                    obj?.refund_withArb(o!, r?.objects[0].object, Arbitration.parseArbObjectType(r.objects[0].type_raw)!);
+                } else {
+                    const guard = await LocalMark.Instance().get_address((this.data?.order_refund as any)?.guard);
+                    if (guard) obj?.refund(o!, guard, pst)
+                }
+            }
+            if (this.data?.order_withdrawl !== undefined && pst) { //@ need withdrawal pst
+                const n = this.data?.order_withdrawl;
+                const o = await LocalMark.Instance().get_address(n.order);
+                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_withdrawl.order}`);
+
+                const [for_guard, for_object, withdrawGuard] = await LocalMark.Instance().get_many_address(
+                    [n.data.for_guard, n.data.for_object, n.data.withdraw_guard]);
+                if (!withdrawGuard) ERROR(Errors.InvalidParam, `CallService_Data.data.order_withdrawl.data.withdraw_guard:${this.data.order_withdrawl.data.withdraw_guard}`);
+                
+                obj?.withdraw(o!, {withdraw_guard:withdrawGuard, treasury:(this.content as ObjectService).payee_treasury!,
+                    index: n.data.index, for_guard:for_guard, for_object:for_object, remark:n.data.remark}, pst);
+            }
+
+            if (this.data?.order_payer !== undefined) {
+                const o = this.data.order_payer.order ? await LocalMark.Instance().get_address(this.data.order_payer.order) : order_new?.order;
+                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_payer.order}`);
+                
+                const p = await this.order_progress(this.data.order_payer.order, order_new);
+                const payer = await GetAccountOrMark_Address(this.data.order_payer.payer_new);
+                if (payer)  obj?.change_order_payer(o, payer, p)
+            }
+
+            if (order_new && this?.data?.order_new) {
+                const buy = obj.order_launch(order_new);
+                await this.new_with_mark('Order', txb, buy.order, (this.data?.order_new as any)?.namedNewOrder, account, [TagName.Launch, TagName.Order]); 
+                if (buy?.progress) { 
+                    await this.new_with_mark('Progress', txb, buy.progress, (this.data?.order_new as any)?.namedNewProgress, account, [TagName.Launch, 'progress']);                  
+                }
+            }
+
+            if (this.data?.description !== undefined && this.object_address) {
                 obj?.set_description(this.data.description, pst);
             }
             if (this.data?.endpoint !== undefined) {
                 obj?.set_endpoint(this.data.endpoint, pst)
             }
-            if (treasury_address !== undefined && object_address) {
-                obj?.set_payee(treasury_address, pst);
+            if (this.data?.payee_treasury !== undefined && this.object_address) {
+                const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.payee_treasury));
+                if (!treasury_address) {
+                    payee = Treasury.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, 
+                        GetObjectParam(this.data.payee_treasury)?.description ?? '', permission?undefined:passport);
+                }
+                const t = payee ? payee.get_object() : treasury_address;
+                if (!t) {   
+                    ERROR(Errors.InvalidParam, 'CallService_Data.payee_treasury:' + (this.data.payee_treasury as any).address);
+                }   
+                obj?.set_payee(t, pst);
             }
             if (this.data?.gen_discount !== undefined) {
-                const add = [];
+                const add: WowokDiscountDispatch[] = [];
                 for (let i = 0; i < this.data.gen_discount.length; ++ i) {
                     let  v = this.data.gen_discount[i];
-                    const addr = await LocalMark.Instance().get_address(v.receiver);
+                    const addr = await GetAccountOrMark_Address(v.receiver);
                     if (addr) {
-                        v.receiver = addr;
-                        add.push(v)
+                        add.push({receiver:addr, count:v.count ?? 1, discount:v.discount})
                     }
                 }
                 obj?.discount_transfer(add, pst)
@@ -248,17 +349,15 @@ export class CallService extends CallBase {
                     case 'add':
                     case 'set':
                         if (this.data.extern_withdraw_treasury.op === 'set') obj?.remove_treasury([], true, pst);
-
-                        for (let i = 0; i < this.data.extern_withdraw_treasury.treasuries.length; ++ i) {
-                            let  v = this.data.extern_withdraw_treasury.treasuries[i];
-                            const addr = await LocalMark.Instance().get_address(v.address);
-                            if (addr && v.token_type) {
-                                obj?.add_treasury(addr, v.token_type, pst);
+                        const r = await query_objects({objects:this.data.extern_withdraw_treasury.treasuries, no_cache:true});
+                        r.objects?.forEach(v => {
+                            if (v.type ==='Treasury') {
+                                obj?.add_treasury(v.object, Treasury.parseObjectType(v.type_raw), pst)
                             }
-                        }
+                        });
                         break;
                     case 'remove':
-                        obj?.remove_treasury(await LocalMark.Instance().get_many_address2(this.data.extern_withdraw_treasury.addresses), false, pst)
+                        obj?.remove_treasury(await LocalMark.Instance().get_many_address2(this.data.extern_withdraw_treasury.treasuries), false, pst)
                         break;
                     case 'removeall':
                         obj?.remove_treasury([], false, pst)
@@ -274,17 +373,15 @@ export class CallService extends CallBase {
                     case 'add':
                     case 'set':
                         if (this.data.arbitration.op === 'set') obj?.remove_arbitration([], true, pst);
-                        for (let i = 0; i < this.data.arbitration.arbitrations.length; ++ i) {
-                            let  v = this.data.arbitration.arbitrations[i];
-                            const addr = await LocalMark.Instance().get_address(v.address);
-                            if (addr && v.token_type) {
-                                obj?.add_arbitration(addr, v.token_type, pst)
+                        const r = await query_objects({objects:this.data.arbitration.arbitrations, no_cache:true});
+                        r.objects?.forEach(v => {
+                            if (v.type ==='Arbitration') {
+                                obj?.add_arbitration(v.object, Arbitration.parseObjectType(v.type_raw), pst)
                             }
-                        }
-
+                        });
                         break;
                     case 'remove':
-                        obj?.remove_arbitration(await LocalMark.Instance().get_many_address2(this.data.arbitration.addresses), false, pst)
+                        obj?.remove_arbitration(await LocalMark.Instance().get_many_address2(this.data.arbitration.arbitrations), false, pst)
                         break;
                     case 'removeall':
                         obj?.remove_arbitration([], false, pst)
@@ -292,7 +389,7 @@ export class CallService extends CallBase {
                 }
             }
             if (this.data?.customer_required_info !== undefined) {
-                if (this.data.customer_required_info.required_info && this.data.customer_required_info.pubkey) {
+                if (this.data.customer_required_info.required_info.length > 0 && this.data.customer_required_info.pubkey) {
                     obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, pst);
                 } else if (this.data.customer_required_info.pubkey) {
                     obj?.change_required_pubkey(this.data.customer_required_info.pubkey, pst);
@@ -326,7 +423,7 @@ export class CallService extends CallBase {
                         obj?.add_withdraw_guards(add, pst)
                         break;
                     case 'remove':
-                        obj?.remove_withdraw_guards(await LocalMark.Instance().get_many_address2(this.data.withdraw_guard.addresses), false, pst)
+                        obj?.remove_withdraw_guards(await LocalMark.Instance().get_many_address2(this.data.withdraw_guard.guards), false, pst)
                         break;
                     case 'removeall':
                         obj?.remove_withdraw_guards([], true, pst)
@@ -350,9 +447,8 @@ export class CallService extends CallBase {
                         obj?.add_refund_guards(add, pst)
                         break;
                     
-      
                     case 'remove':
-                        obj?.remove_refund_guards(await LocalMark.Instance().get_many_address2(this.data.refund_guard.addresses), false, pst)
+                        obj?.remove_refund_guards(await LocalMark.Instance().get_many_address2(this.data.refund_guard.guards), false, pst)
                         break;
                     case 'removeall':
                         obj?.remove_refund_guards([], true, pst)
@@ -362,83 +458,6 @@ export class CallService extends CallBase {
             if (this.data?.bPublished) {
                 obj?.publish(pst)
             }
-            var order_new : OrderResult | undefined;
-            if (this.data?.order_new !== undefined) {
-                let b = BigInt(0); let coin : any;
-                this.data.order_new.buy_items.forEach(v => {
-                    b += BigInt(v.max_price) * BigInt(v.count)
-                })
-                if (b > BigInt(0)) {
-                    coin = await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter);
-                    console.log(coin)
-                    if (coin) {
-                        await this.update_content('Service', object_address);
-                        order_new = obj.order(this.data.order_new.buy_items, coin, this.data.order_new.discount, 
-                            (this?.content as ObjectService)?.machine ?? this.data.order_new.machine,
-                            await this.info_crypto(this.data.order_new.customer_info_required), pst);
-                    }                 
-                }
-            }
-        
-            if (this.data?.order_agent !== undefined) {
-                const o = this.data.order_agent.order ? await LocalMark.Instance().get_address(this.data.order_agent.order) : order_new?.order;
-                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_agent.order}`);
-
-                const p = this.data.order_agent.progress ? await LocalMark.Instance().get_address(this.data.order_agent.progress) : order_new?.progress;
-                if (!p) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.progress:${this.data.order_agent.progress}`);
-
-                obj?.set_order_agent(o, await LocalMark.Instance().get_many_address2(this.data.order_agent.agents), p)
-            }
-            if (this.data?.order_required_info?.customer_info_required) {
-                const o = this.data.order_required_info.order ? await LocalMark.Instance().get_address(this.data.order_required_info.order) : order_new?.order;
-                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_required_info.order}`);
-                const crypto =  await this.info_crypto(object_address, this.data.order_required_info.customer_info_required);
-                if (crypto) {
-                    obj?.update_order_required_info(o, crypto);
-                }
-            }
-            if (this.data?.order_refund !== undefined) {
-                const o = this.data.order_refund.order ? await LocalMark.Instance().get_address(this.data.order_refund.order) : order_new?.order;
-                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_refund.order}`);
-
-
-                if ((this.data?.order_refund as any)?.arb && (this.data?.order_refund as any)?.arb_token_type) {
-                    const arb = await LocalMark.Instance().get_address((this.data?.order_refund as any)?.arb);
-                    if (arb) {
-                        obj?.refund_withArb(o!, arb, (this.data?.order_refund as any)?.arb_token_type)
-                    }
-                } else {
-                    const guard = await LocalMark.Instance().get_address((this.data?.order_refund as any)?.guard);
-                    if (guard) obj?.refund(o!, guard, pst)
-                }
-            }
-            if (this.data?.order_withdrawl !== undefined && pst) { //@ need withdrawal pst
-                const o = this.data.order_withdrawl.order ? await LocalMark.Instance().get_address(this.data.order_withdrawl.order) : order_new?.order;
-                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_withdrawl.order}`);
-                this.data.order_withdrawl.data.for_guard = await get_object_address(this.data.order_withdrawl.data.for_guard);
-                this.data.order_withdrawl.data.for_object = await get_object_address(this.data.order_withdrawl.data.for_object);
-                this.data.order_withdrawl.data.treasury = await get_object_address(this.data.order_withdrawl.data.treasury);
-                this.data.order_withdrawl.data.withdraw_guard = await get_object_address(this.data.order_withdrawl.data.withdraw_guard);
-                obj?.withdraw(o!, this.data.order_withdrawl.data, pst)
-            }
-
-            if (this.data?.order_payer !== undefined && obj) {
-                const o = this.data.order_payer.order ? await LocalMark.Instance().get_address(this.data.order_payer.order) : order_new?.order;
-                if (!o) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_payer.order}`);
-                const p = this.data.order_payer.progress ? await LocalMark.Instance().get_address(this.data.order_payer.progress) : order_new?.progress;
-                if (!p) ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.progress:${this.data.order_payer.progress}`);
-
-                const payer = await LocalMark.Instance().get_address(this.data.order_payer.payer_new);
-                if (payer)  obj?.change_order_payer(o, payer, p)
-            }
-
-            if (order_new && this?.data?.order_new) {
-                const buy = obj.order_launch(order_new);
-                await this.new_with_mark('Order', txb, buy.order, (this.data?.order_new as any)?.namedNewOrder, account, [TagName.Launch, TagName.Order]); 
-                if (buy?.progress) { 
-                    await this.new_with_mark('Progress', txb, buy.progress, (this.data?.order_new as any)?.namedNewProgress, account, [TagName.Launch]);                  
-                }
-            }
 
             if (this.data?.buy_guard !== undefined) {
                 obj?.set_buy_guard(this.data.buy_guard, pst)
@@ -446,17 +465,18 @@ export class CallService extends CallBase {
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst)
             }
-            if (this.data?.clone_new !== undefined && object_address) {
+            if (this.data?.clone_new !== undefined) {
                 await this.new_with_mark('Service', txb, obj.clone(this.data.clone_new?.token_type_new, true, pst) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (payee) {
-                await this.new_with_mark('Treasury', txb, payee.launch(), (this.data?.payee_treasury as any)?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, payee.launch(), GetObjectParam(this.data?.payee_treasury), account);
             }
             if (permission) {
-                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+                await this.new_with_mark('Permission', txb, permission.launch(), GetObjectParam(n?.permission), account);
             }
-            if (!object_address) {
-                await this.new_with_mark('Service', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+            if (!this.object_address) {
+                await this.new_with_mark('Service', txb, obj.launch(), GetObjectMain(this.data?.object), account);
             } 
         }
     }

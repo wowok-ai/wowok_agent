@@ -1,42 +1,20 @@
-import { TransactionBlock, PassportObject, VotingGuard, WithdrawFee } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { TransactionBlock, PassportObject, VotingGuard } from 'wowok';
+import { CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, WithdrawParam } from "./base.js";
 export interface DisputeData {
     order: string;
-    order_token_type: string;
     description: string;
     votable_proposition: string[];
-    fee: string | number;
+    max_fee: string | number;
 }
 export interface CallArbitration_Data {
-    type_parameter: string;
-    object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-    };
-    permission?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
-    };
-    description?: string;
-    endpoint?: string;
-    fee?: string | number;
-    fee_treasury?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
-    };
+    object: ObjectTypedMain;
     arb_new?: {
         data: DisputeData;
-        guard?: string;
         namedNew?: Namedbject;
     };
     arb_withdraw_fee?: {
-        arb?: string;
-        data: WithdrawFee;
+        arb: string;
+        data: WithdrawParam;
     };
     arb_vote?: {
         arb?: string;
@@ -48,6 +26,10 @@ export interface CallArbitration_Data {
         feedback: string;
         indemnity?: string | number;
     };
+    description?: string;
+    endpoint?: string;
+    fee?: string | number;
+    fee_treasury?: ObjectParam;
     guard?: string;
     voting_guard?: {
         op: 'add' | 'set';
@@ -62,6 +44,9 @@ export interface CallArbitration_Data {
 }
 export declare class CallArbitration extends CallBase {
     data: CallArbitration_Data;
+    object_address: string | undefined;
+    permission_address: string | undefined;
+    type_parameter: string | undefined;
     constructor(data: CallArbitration_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

@@ -80,7 +80,11 @@ export class LocalMark {
       return name
     }
 
-    async get(name: string) : Promise<MarkData | undefined> {
+    async get(name?: string) : Promise<MarkData | undefined> {
+      if (name === undefined || name === null) {
+        return undefined;
+      }
+
       const r = await this.storage.get(name);
       if (r) {
           return JSON.parse(r);
@@ -117,7 +121,7 @@ export class LocalMark {
     }
 
     async get_many_address2(name_or_addresses: (string | null | undefined)[]) : Promise<string[]> {
-      return (await this.get_many_address(name_or_addresses)).filter(v => v!==undefined && v!== null) as string[]
+      return (await this.get_many_address(name_or_addresses)).filter((v):v is string => v!==undefined && v!== null) as string[]
     }
 
     async del(name:string)  {

@@ -1,26 +1,47 @@
-import { TransactionBlock, PassportObject, BuyRequiredEnum, DicountDispatch, Service_Buy, Service_Guard_Percent, Service_Sale, WithdrawPayee } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Buy, Service_Guard_Percent, Service_Sale, Service_Discount } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, WithdrawParam } from "./base.js";
+export interface ServiceWithdraw extends WithdrawParam {
+    withdraw_guard: string;
+}
+export interface DicountDispatch {
+    receiver: AccountOrMark_Address;
+    discount: Service_Discount;
+    count?: number;
+}
 export interface CallService_Data {
-    type_parameter: string;
-    object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
+    object: ObjectTypedMain;
+    order_new?: {
+        buy_items: Service_Buy[];
+        discount_object?: string;
+        customer_info_required?: string;
+        namedNewOrder?: Namedbject;
+        namedNewProgress?: Namedbject;
     };
-    permission?: {
-        address: string;
+    order_agent?: {
+        order?: string;
+        agents: AccountOrMark_Address[];
+    };
+    order_required_info?: {
+        order: string;
+        customer_info_required?: string;
+    };
+    order_refund?: {
+        order: string;
     } | {
-        namedNew?: Namedbject;
-        description?: string;
+        order: string;
+        arb: string;
+    };
+    order_withdrawl?: {
+        order: string;
+        data: ServiceWithdraw;
+    };
+    order_payer?: {
+        order?: string;
+        payer_new: AccountOrMark_Address;
     };
     description?: string;
     endpoint?: string;
-    payee_treasury?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
-    };
+    payee_treasury?: ObjectParam;
     gen_discount?: DicountDispatch[];
     repository?: {
         op: 'set' | 'add' | 'remove';
@@ -29,29 +50,17 @@ export interface CallService_Data {
         op: 'removeall';
     };
     extern_withdraw_treasury?: {
-        op: 'set' | 'add';
-        treasuries: {
-            address: string;
-            token_type: string;
-        }[];
+        op: 'set' | 'add' | 'remove';
+        treasuries: string[];
     } | {
         op: 'removeall';
-    } | {
-        op: 'remove';
-        addresses: string[];
     };
     machine?: string;
     arbitration?: {
-        op: 'set' | 'add';
-        arbitrations: {
-            address: string;
-            token_type: string;
-        }[];
+        op: 'set' | 'add' | 'remove';
+        arbitrations: string[];
     } | {
         op: 'removeall';
-    } | {
-        op: 'remove';
-        addresses: string[];
     };
     customer_required_info?: {
         pubkey: string;
@@ -71,7 +80,7 @@ export interface CallService_Data {
         op: 'removeall';
     } | {
         op: 'remove';
-        addresses: string[];
+        guards: string[];
     };
     refund_guard?: {
         op: 'add' | 'set';
@@ -80,44 +89,9 @@ export interface CallService_Data {
         op: 'removeall';
     } | {
         op: 'remove';
-        addresses: string[];
+        guards: string[];
     };
     bPublished?: boolean;
-    order_new?: {
-        buy_items: Service_Buy[];
-        discount?: string;
-        machine?: string;
-        customer_info_required?: string;
-        guard?: string;
-        namedNewOrder?: Namedbject;
-        namedNewProgress?: Namedbject;
-    };
-    order_agent?: {
-        order?: string;
-        agents: string[];
-        progress?: string;
-    };
-    order_required_info?: {
-        order?: string;
-        customer_info_required?: string;
-    };
-    order_refund?: {
-        order?: string;
-        guard?: string;
-    } | {
-        order?: string;
-        arb: string;
-        arb_token_type: string;
-    };
-    order_withdrawl?: {
-        order?: string;
-        data: WithdrawPayee;
-    };
-    order_payer?: {
-        order?: string;
-        payer_new: string;
-        progress?: string;
-    };
     buy_guard?: string;
     bPaused?: boolean;
     clone_new?: {
@@ -127,8 +101,13 @@ export interface CallService_Data {
 }
 export declare class CallService extends CallBase {
     data: CallService_Data;
+    object_address: string | undefined;
+    permission_address: string | undefined;
+    type_parameter: string | undefined;
     constructor(data: CallService_Data);
     call(account?: string): Promise<CallResult>;
+    private order_allowed;
+    private order_progress;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
     private info_crypto;
 }

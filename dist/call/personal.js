@@ -1,5 +1,5 @@
 import { Errors, ERROR, Entity, Resource } from 'wowok';
-import { CallBase } from "./base.js";
+import { CallBase, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
 import { Account } from '../local/account.js';
@@ -42,10 +42,9 @@ export class CallPersonal extends CallBase {
                     const add = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await LocalMark.Instance().get_address(v.address);
+                        const addr = await GetAccountOrMark_Address(v.entity);
                         if (addr) {
-                            v.address = addr;
-                            add.push(v);
+                            add.push({ address: addr, tags: v.tags, name: v.name });
                         }
                     }
                     add.forEach(v => {
@@ -56,10 +55,9 @@ export class CallPersonal extends CallBase {
                     const remove = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await LocalMark.Instance().get_address(v.address);
+                        const addr = await GetAccountOrMark_Address(v.entity);
                         if (addr) {
-                            v.address = addr;
-                            remove.push(v);
+                            remove.push({ address: addr, tags: v.tags });
                         }
                     }
                     remove.forEach(v => {
@@ -67,9 +65,9 @@ export class CallPersonal extends CallBase {
                     });
                     break;
                 case 'removeall':
-                    for (let i = 0; i < this.data.mark.addresses.length; ++i) {
-                        const v = this.data.mark.addresses[i];
-                        const addr = await LocalMark.Instance().get_address(v);
+                    for (let i = 0; i < this.data.mark.entities.length; ++i) {
+                        const v = this.data.mark.entities[i];
+                        const addr = await GetAccountOrMark_Address(v);
                         if (addr) {
                             obj?.removeall(addr);
                         }
@@ -77,12 +75,12 @@ export class CallPersonal extends CallBase {
                     break;
             }
             if (this.data?.mark?.op === 'transfer' && obj) {
-                const addr = await LocalMark.Instance().get_address(this.data.mark.address);
+                const addr = await GetAccountOrMark_Address(this.data.mark.to);
                 if (addr)
                     entity.transfer_resource(obj, addr);
             }
             if (this.data?.mark?.op === 'replace') {
-                const addr = await LocalMark.Instance().get_address(this.data.mark.address);
+                const addr = await LocalMark.Instance().get_address(this.data.mark.mark_object);
                 if (addr)
                     entity.use_resource(Resource.From(txb, addr));
             }

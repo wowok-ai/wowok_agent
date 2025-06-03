@@ -255,13 +255,12 @@ export class Account {
 
     get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, address_or_name?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
         const a = await this.get(address_or_name);
-        console.log(a); console.log(balance_required);
+        
         if (a) {
             const b = BigInt(balance_required);
 
             if (b >= BigInt(0)) {
                 if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
-                    console.log(1)
                     return txb.splitCoins(txb.gas, [b]);
                 } else {
                     const r = await Protocol.Client().getCoins({owner: a.address , coinType:token_type});

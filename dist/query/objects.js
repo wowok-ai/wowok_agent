@@ -199,6 +199,9 @@ export function raw2type(type_raw) {
     else if (t === 'Resource') {
         return 'PersonalMark';
     }
+    else if (t === 'CoinWrapper') {
+        return 'Treasury_ReceivedObject';
+    }
     const start = type_raw?.indexOf('0x2::dynamic_field::Field<');
     if (start === 0) {
         const end = type_raw?.substring('0x2::dynamic_field::Field<'.length);
@@ -308,7 +311,7 @@ export function data2object(data) {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     machine: content?.machine, permission: content?.permission, description: content?.description,
                     arbitration: content?.arbitrations, bPaused: content?.bPaused, bPublished: content?.bPublished,
-                    buy_guard: content?.buy_guard, endpoint: content?.endpoint, payee: content?.payee, repository: content?.repositories,
+                    buy_guard: content?.buy_guard, endpoint: content?.endpoint, payee_treasury: content?.payee, repository: content?.repositories,
                     withdraw_guard: content?.withdraw_guard?.fields?.contents?.map((v) => {
                         return { object: v?.fields?.key, percent: v?.fields?.value };
                     }),
@@ -445,6 +448,10 @@ export function data2object(data) {
             case 'TableItem_PersonalMark':
                 return { object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     address: content?.name, name: content?.value?.fields?.nick, tags: content?.value?.fields?.tags
+                };
+            case 'Treasury_ReceivedObject':
+                return { object: id, type: type, type_raw: type_raw, owner: owner, version: version,
+                    balance: content.coin?.fields?.balance, payment: content?.payment
                 };
         }
     }

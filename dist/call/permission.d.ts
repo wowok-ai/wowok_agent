@@ -1,18 +1,24 @@
-import { CallBase, CallResult, Namedbject } from "./base.js";
-import { PassportObject, Permission_Entity, Permission_Index, BizPermission, PermissionIndexType, TransactionBlock } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, ObjectMain } from "./base.js";
+import { PassportObject, BizPermission, PermissionIndexType, TransactionBlock } from 'wowok';
+export interface Entity_Permission {
+    index: PermissionIndexType;
+    guard?: string;
+}
+export interface Permission_Entity {
+    entity: AccountOrMark_Address;
+    permissions: Entity_Permission[];
+}
+export interface Permission_Index_Entity {
+    entity: AccountOrMark_Address;
+    guard?: string;
+}
+export interface Permission_Index {
+    index: PermissionIndexType;
+    entities: Permission_Index_Entity[];
+}
 export interface CallPermission_Data {
-    object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-    };
+    object?: ObjectMain;
     description?: string;
-    admin?: {
-        op: 'add' | 'remove' | 'set';
-        addresses: string[];
-    } | {
-        op: 'removeall';
-    };
     biz_permission?: {
         op: 'add';
         data: BizPermission[];
@@ -28,17 +34,23 @@ export interface CallPermission_Data {
         permissions: Permission_Index[];
     } | {
         op: 'remove entity';
-        addresses: string[];
+        entities: AccountOrMark_Address[];
     } | {
         op: 'remove permission';
-        address: string;
+        entity: AccountOrMark_Address;
         index: PermissionIndexType[];
     } | {
         op: 'transfer permission';
-        from_address: string;
-        to_address: string;
+        from_entity: AccountOrMark_Address;
+        to_entity: AccountOrMark_Address;
     };
-    builder?: string;
+    admin?: {
+        op: 'add' | 'remove' | 'set';
+        entities: AccountOrMark_Address[];
+    } | {
+        op: 'removeall';
+    };
+    builder?: AccountOrMark_Address;
 }
 export declare class CallPermission extends CallBase {
     data: CallPermission_Data;

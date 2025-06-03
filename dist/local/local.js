@@ -57,6 +57,9 @@ export class LocalMark {
         return name;
     }
     async get(name) {
+        if (name === undefined || name === null) {
+            return undefined;
+        }
         const r = await this.storage.get(name);
         if (r) {
             return JSON.parse(r);
@@ -89,7 +92,7 @@ export class LocalMark {
         });
     }
     async get_many_address2(name_or_addresses) {
-        return (await this.get_many_address(name_or_addresses)).filter(v => v !== undefined && v !== null);
+        return (await this.get_many_address(name_or_addresses)).filter((v) => v !== undefined && v !== null);
     }
     async del(name) {
         return await this.storage.del(name);

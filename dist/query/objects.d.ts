@@ -4,7 +4,7 @@
  */
 import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Entity_Info, Tags } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
-export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark';
+export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark' | 'Treasury_ReceivedObject';
 export interface ObjectBase {
     object: string;
     type?: ObjectBaseType;
@@ -12,6 +12,10 @@ export interface ObjectBase {
     owner?: any;
     version?: string;
     cache_expire?: CacheExpireType;
+}
+export interface Treasury_ReceivedObject extends ObjectBase {
+    balance: string;
+    payment: string;
 }
 export interface ObjectPermission extends ObjectBase {
     builder: string;
@@ -103,7 +107,7 @@ export interface ObjectService extends ObjectBase {
     endpoint?: string | null;
     extern_withdraw_treasury: string[];
     machine?: string | null;
-    payee: string;
+    payee_treasury: string;
     repository: string[];
     sales_count: number;
     withdraw_guard: {

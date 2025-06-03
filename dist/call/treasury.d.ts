@@ -1,34 +1,27 @@
 import { TransactionBlock, PassportObject, Treasury_WithdrawMode, WithdrawParam } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, ObjectTypedMain } from "./base.js";
+export interface ReceiverParam {
+    address: AccountOrMark_Address;
+    amount: string | number;
+}
+export interface TreasuryWithdrawParam extends WithdrawParam {
+    receiver: ReceiverParam[];
+    withdraw_guard?: string;
+}
 export interface CallTreasury_Data {
-    type_parameter: string;
-    object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-    };
-    permission?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
-    };
-    description?: string;
+    object: ObjectTypedMain;
     deposit?: {
-        data: {
-            balance: string | number;
-            index?: number | string;
-            remark?: string;
-            for_object?: string;
-            for_guard?: string;
-        };
-        guard?: string;
+        balance: string | number;
+        index?: number | string;
+        remark?: string;
+        for_object?: string;
+        for_guard?: string;
     };
     receive?: {
-        payment: string;
-        received_object: string;
-    };
-    withdraw?: WithdrawParam;
+        received_objects: string[];
+    } | 'recently';
+    withdraw?: TreasuryWithdrawParam;
+    description?: string;
     deposit_guard?: string;
     withdraw_guard?: {
         op: 'add' | 'set';
@@ -46,6 +39,9 @@ export interface CallTreasury_Data {
 }
 export declare class CallTreasury extends CallBase {
     data: CallTreasury_Data;
+    object_address: string | undefined;
+    permission_address: string | undefined;
+    type_parameter: string | undefined;
     constructor(data: CallTreasury_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

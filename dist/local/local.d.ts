@@ -24,7 +24,7 @@ export declare class LocalMark {
     constructor();
     static Instance(): LocalMark;
     put(name: string | undefined | null, mark: MarkData, useAddressIfNameExist?: boolean): Promise<string>;
-    get(name: string): Promise<MarkData | undefined>;
+    get(name?: string): Promise<MarkData | undefined>;
     get_address(name_or_address?: string | null): Promise<string | undefined>;
     get_many_address(name_or_addresses: (string | null | undefined)[]): Promise<(string | undefined)[]>;
     get_many_address2(name_or_addresses: (string | null | undefined)[]): Promise<string[]>;

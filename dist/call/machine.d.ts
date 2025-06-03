@@ -1,16 +1,40 @@
 import { PassportObject, TransactionBlock, Machine_Forward, Machine_Node, Deliverable, ParentProgress, ProgressNext } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { CallBase, CallResult, Namedbject, ObjectMain } from "./base.js";
 export interface CallMachine_Data {
-    object?: {
-        address: string;
-    } | {
+    object?: ObjectMain;
+    progress_new?: {
+        task_address?: string;
         namedNew?: Namedbject;
     };
-    permission?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
+    progress_context_repository?: {
+        progress?: string;
+        repository?: string;
+    };
+    progress_namedOperator?: {
+        progress?: string;
+        data: {
+            name: string;
+            operators: string[];
+        }[];
+    };
+    progress_parent?: {
+        progress?: string;
+        parent?: ParentProgress;
+    };
+    progress_hold?: {
+        progress?: string;
+        operation: ProgressNext;
+        bHold: boolean;
+        adminUnhold?: boolean;
+    };
+    progress_task?: {
+        progress: string;
+        task_address: string;
+    };
+    progress_next?: {
+        progress: string;
+        operation: ProgressNext;
+        deliverable: Deliverable;
     };
     description?: string;
     endpoint?: string;
@@ -60,41 +84,6 @@ export interface CallMachine_Data {
         }[];
     };
     bPublished?: boolean;
-    progress_new?: {
-        task_address?: string;
-        namedNew?: Namedbject;
-    };
-    progress_context_repository?: {
-        progress?: string;
-        repository?: string;
-    };
-    progress_namedOperator?: {
-        progress?: string;
-        data: {
-            name: string;
-            operators: string[];
-        }[];
-    };
-    progress_parent?: {
-        progress?: string;
-        parent?: ParentProgress;
-    };
-    progress_task?: {
-        progress?: string;
-        task: string;
-    };
-    progress_hold?: {
-        progress?: string;
-        operation: ProgressNext;
-        bHold: boolean;
-        adminUnhold?: boolean;
-    };
-    progress_next?: {
-        progress: string;
-        operation: ProgressNext;
-        deliverable: Deliverable;
-        guard?: string;
-    };
     bPaused?: boolean;
     clone_new?: {
         namedNew?: Namedbject;
@@ -102,6 +91,8 @@ export interface CallMachine_Data {
 }
 export declare class CallMachine extends CallBase {
     data: CallMachine_Data;
+    object_address: string | undefined;
+    permission_address: string | undefined;
     constructor(data: CallMachine_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

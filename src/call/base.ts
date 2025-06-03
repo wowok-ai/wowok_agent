@@ -1,21 +1,91 @@
 
 
 import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
-    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock
+    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock,
+    WithdrawFee, TreasuryObject
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
-import { ObjectArbitration, ObjectBase, ObjectBaseType, query_objects, query_personal, raw2type} from '../query/objects.js';
+import { ObjectBase, ObjectBaseType, query_objects, query_personal, raw2type} from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 
 export interface Namedbject {
-    name?: string; 
-    tags?: string[];
+    name?: string;  // name of the object, if not defined, the object will be created without name      
+    tags?: string[]; // tags of the object, if not defined, the object will be created without tags
     // true: use address as the name if the name exist; otherwise, use this name and change the original name to its address
     useAddressIfNameExist?: boolean; 
-    onChain?: boolean; // true: onchain, false: local(default)
+    onChain?: boolean; // true: onchain mark, false: local mark(default)
 }
 
+export interface NamedObjectWithDescription extends Namedbject {
+    description?:string; // description of the new object, if not defined, the object will be created with no description.
+}
+
+export interface NamedObjectWithPermission extends Namedbject {
+    // permission object, undefined or {named_new...} for creating a new object;  if defined, the permission object must exist. 
+    permission?: ObjectParam; 
+}
+
+export interface TypeNamedObjectWithPermission extends NamedObjectWithPermission {
+    // type of the object, e.g. '0x2::coin::Coin<0x2::sui::SUI>'
+    type_parameter: string;  
+};
+
+/// object address or namedNew for creating a new object
+export type ObjectTypedMain = string |  TypeNamedObjectWithPermission ;
+export type ObjectMain = string | NamedObjectWithPermission ;
+export type ObjectParam = string | NamedObjectWithDescription;
+
+export const GetObjectExisted = (object: ObjectMain | ObjectTypedMain | ObjectParam | undefined) : string | undefined => {
+    return (typeof object === 'string' ) ? object : undefined;
+}
+
+export const GetObjectMain = (object: ObjectMain | ObjectTypedMain | undefined) : NamedObjectWithPermission | TypeNamedObjectWithPermission | undefined => {
+    return (typeof object === 'object' && object !== null && 'type_parameter' in object) ? 
+        (object as TypeNamedObjectWithPermission) : 
+        (typeof object === 'object' && object !== null && 'permission' in object) ? 
+            (object as NamedObjectWithPermission) : undefined;
+}
+
+export const GetObjectParam = (object: ObjectParam | undefined) : NamedObjectWithDescription | undefined => {
+    return (typeof object === 'object' && object!== null && 'description' in object)? (object as NamedObjectWithDescription) : undefined;
+}
+
+// address from local Account or local Mark.
+export type AccountOrMark_Address = {account?: string} | {name_or_address: string};
+
+export const GetAccountOrMark_Address = async (entity?: AccountOrMark_Address) : Promise<string | undefined> => {
+    if (typeof((entity as any)?.name_or_address) === 'string') {
+        return await LocalMark.Instance().get_address((entity as any).name_or_address);
+    } else {
+        const acc = await Account.Instance().get((entity as any)?.account);
+        return acc?.address;
+    }
+}
+
+export const GetManyAccountOrMark_Address = async (entities: AccountOrMark_Address[]) : Promise<(string | undefined)[]> => {
+    const res = [];
+    for (let i = 0; i < entities.length; ++i) {
+        const addr = await GetAccountOrMark_Address(entities[i]);
+        if (addr) res.push(addr);
+    }
+    return res;
+}
+
+export interface WithdrawParam {
+    index: bigint | string | number,
+    remark: string,
+    for_object?: string,
+    for_guard?: string,
+}
+
+export const SetWithdrawFee = async (param: WithdrawParam, treasury?:TreasuryObject) : Promise<WithdrawFee> => {
+    if (!treasury) {
+        ERROR(Errors.InvalidParam, 'WithdrawFee: treasury_address invalid');
+    }
+    const [object, guard] = await LocalMark.Instance().get_many_address([param.for_object, param.for_guard]);
+    return {index:BigInt(param.index), remark:param.remark, for_object:object, for_guard:guard, treasury:treasury};
+}
 export interface AddressMark {
     address: TxbAddress;
     name?: string; 
@@ -99,7 +169,6 @@ export class CallBase {
         if (guards_needed.length > 0) {
             guards = guards.concat(guards_needed);
         }
-
         if (guards.length > 0) {         // prepare passport
             const p: GuardParser | undefined = await GuardParser.Create([...guards]);
             const futures = p ? p.future_fills() : []; 
@@ -173,7 +242,6 @@ export class CallBase {
             this.resouceObject = undefined;
         }
         const r = await Account.Instance().sign_and_commit(txb, account);
-        
         if (!r) {
             ERROR(Errors.Fail, 'sign and commit failed');
         }

@@ -1,31 +1,31 @@
 import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Treasury, Arbitration, VotingGuard, WithdrawFee, ArbObject,
+    PermissionIndexType, Treasury, Arbitration, VotingGuard, ArbObject, Service,
 } from 'wowok';
-import { ObjectArbitration, } from '../query/objects.js';
-import { CallBase, CallResult, Namedbject} from "./base.js";
+import { ObjectArbitration, query_objects, } from '../query/objects.js';
+import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, 
+    ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, WithdrawParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 export interface DisputeData {
     order: string,
-    order_token_type: string,
     description: string,
     votable_proposition: string[],
-    fee: string | number,
+    max_fee: string | number,
 }
+
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallArbitration_Data {
-    type_parameter: string;
-    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
+    object: ObjectTypedMain;
+    arb_new?: {data: DisputeData; namedNew?: Namedbject}; // dispute an order, and a Arb object will be created.
+    arb_withdraw_fee?: {arb:string; data:WithdrawParam};
+    arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
+    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string|number};
+
     description?: string;
     endpoint?: string;
     fee?: string | number;
-    fee_treasury?: {address:string} | {namedNew?: Namedbject, description?:string}; 
-    arb_new?: {data: DisputeData; guard?:string; namedNew?: Namedbject}; // dispute an order, and a new Arb launched.
-    arb_withdraw_fee?: {arb?:string; data:WithdrawFee};
-    arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
-    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string|number};
+    fee_treasury?: ObjectParam;
     guard?: string;
     voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     bPaused?: boolean;
@@ -33,6 +33,9 @@ export interface CallArbitration_Data {
 
 export class CallArbitration extends CallBase {
     data: CallArbitration_Data;
+    object_address: string | undefined = undefined;
+    permission_address: string | undefined = undefined;
+    type_parameter: string | undefined = undefined; // type of the object, e.g. '00x2::sui::SUI'
 
     constructor (data: CallArbitration_Data) {
         super();
@@ -42,31 +45,26 @@ export class CallArbitration extends CallBase {
     async call(account?:string) : Promise<CallResult> {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-        var [permission_address, object_address, treasury_address] = 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address, 
-                (this.data?.fee_treasury as any)?.address]);
-
-        if (object_address) {
-            if (!this.data.type_parameter || !permission_address) {
-                await this.update_content( 'Arbitration', object_address);
-                if (this.content) {
-                    permission_address = (this.content as ObjectArbitration).permission;     
-                    this.data.type_parameter =  this.content.type_raw!;             
-                }
-            } 
+        this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
+        if (this.object_address) {
+            await this.update_content('Arbitration', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.data.object);
+            this.permission_address = (this.content as ObjectArbitration).permission;
+            this.type_parameter = Arbitration.parseObjectType(this.content.type_raw);
         } else {
-            if (!this.data?.type_parameter || !IsValidArgType(this.data.type_parameter)) {
-                ERROR(Errors.IsValidArgType, 'CallArbitration_Data.data.type_parameter')
-            }
-        }
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!n?.type_parameter || !IsValidArgType(n.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallArbitration_Data.data.object.type_parameter');
+            }          
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
+            this.type_parameter = n.type_parameter;
+        } 
 
-        if (permission_address) {
+        if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.arbitration)
             }
-            if (this.data?.description !== undefined && object_address) {
+            if (this.data?.description !== undefined && this.object_address) {
                 perms.push(PermissionIndex.arbitration_description)
             }
             if (this.data?.bPaused !== undefined) {
@@ -75,10 +73,10 @@ export class CallArbitration extends CallBase {
             if (this.data?.endpoint == undefined) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.arbitration_endpoint)
             }
-            if (this.data?.fee !== undefined && object_address) {
+            if (this.data?.fee !== undefined && this.object_address) {
                 perms.push(PermissionIndex.arbitration_fee)
             }
-            if (treasury_address !== undefined && object_address) {
+            if (this.data.fee_treasury !== undefined && this.object_address) {
                 perms.push(PermissionIndex.arbitration_treasury)
             }
             if (this.data?.guard !== undefined) {
@@ -90,27 +88,20 @@ export class CallArbitration extends CallBase {
             if (this.data?.arb_arbitration !== undefined) {
                 perms.push(PermissionIndex.arbitration_arbitration)
             }
-            if (this.data?.arb_new?.guard !== undefined) {
-                if (this.data?.arb_new?.guard) {
-                    const guard = await LocalMark.Instance().get_address(this.data?.arb_new?.guard);
+
+            if (this.data?.arb_new !== undefined) { // new arb with guard and permission
+                if (this.object_address) { 
+                    if ((this.content as ObjectArbitration)?.usage_guard) {
+                        guards.push((this.content as ObjectArbitration).usage_guard!)
+                    }   
+                }/* else {
+                    const guard = await LocalMark.Instance().get_address(this.data.guard);
                     if (guard) {
-                        guards.push(guard)
-                    } 
-                } else {
-                    if (!object_address) { // new
-                        const guard = await LocalMark.Instance().get_address(this.data.guard);
-                        if (guard) {
-                            guards.push(guard);
-                        }
-                    } else {
-                        await this.update_content('Arbitration', object_address);
- 
-                        if ((this.content as ObjectArbitration)?.usage_guard) {
-                            guards.push((this.content as ObjectArbitration).usage_guard!)
-                        }                   
+                        guards.push(guard);
                     }
-                }
+                }*/ 
             }
+
             if (this.data?.arb_vote !== undefined) {
                 perms.push(PermissionIndex.arbitration_vote);
 
@@ -120,63 +111,60 @@ export class CallArbitration extends CallBase {
                 } 
             }
 
-            return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
-        let obj : Arbitration | undefined ; let permission: any; let withdraw_treasury:any;
-        var [permission_address, object_address] = this?.content ? 
-        [(this.content as ObjectArbitration).permission, this.content.object] : 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address]);
-        const treasury_address = await LocalMark.Instance().get_address((this.data?.fee_treasury as any)?.address);
+        let obj : Arbitration | undefined ; 
+        let permission: any; 
+        let withdraw_treasury:Treasury | undefined;
 
-        if (!object_address) {
-            if (!permission_address) {
-                const d = (this.data?.permission as any)?.description ?? '';
-                permission = Permission.New(txb, d);
-            }
-            if (!treasury_address) {
-                const d = (this.data?.fee_treasury as any)?.description ?? '';
-                withdraw_treasury = Treasury.New(txb, this.data?.type_parameter!, permission ? permission.get_object() : permission_address, 
-                    d, permission?undefined:passport);
-            }
-            obj = Arbitration.New(txb, this.data.type_parameter!, permission ? permission.get_object() : permission_address, this.data?.description??'', 
-                BigInt(this.data?.fee ?? 0), withdraw_treasury? withdraw_treasury.get_object() : treasury_address, permission?undefined:passport);
+        if (this.object_address) {
+            obj = Arbitration.From(txb, this.type_parameter!, this.permission_address!, this.object_address);
         } else {
-            if (this.data.type_parameter && permission_address) {
-                obj = Arbitration.From(txb, this.data.type_parameter, permission_address, object_address)
-            } else {
-                ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.type_parameter or permission')
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!this.permission_address) {
+                permission = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
             }
+            const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.fee_treasury));
+            if (!treasury_address) {
+                withdraw_treasury = Treasury.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, 
+                    GetObjectParam(this.data.fee_treasury)?.description ?? '', permission?undefined:passport);
+            }
+            const t = withdraw_treasury ? withdraw_treasury.get_object() : treasury_address;
+            if (!t) {   
+                ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.fee_treasury')
+            }   
+
+            obj = Arbitration.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, this.data?.description??'', 
+                BigInt(this.data?.fee ?? 0), t, permission?undefined:passport);
         }
 
         if (obj) {
             const pst = permission?undefined:passport;
-            if (this.data?.description !== undefined && object_address) {
-                obj?.set_description(this.data.description, pst);
-            }
-            if (this.data?.endpoint !== undefined) {
-                obj?.set_endpoint(this.data.endpoint, pst)
-            }
-            if (this.data?.fee !== undefined && object_address) {
-                obj?.set_fee(BigInt(this.data.fee), pst)
-            }
-            if (treasury_address !== undefined && object_address) {
-                obj?.set_withdrawTreasury(treasury_address, pst)
-            }
             var arb_new : ArbObject | undefined;
             if (this.data?.arb_new !== undefined) {
                 const d = this.data?.arb_new.data; 
                 const order = await LocalMark.Instance().get_address(d.order);
-                if (order) {
-                    const b = BigInt(d.fee); 
-                    arb_new = obj?.arb({order:d.order, order_token_type:d.order_token_type, description:d.description, votable_proposition:d.votable_proposition, 
-                        fee: b>BigInt(0) ? await Account.Instance().get_coin_object(txb, b, account, this.data.type_parameter) : undefined
-                    }, pst);                    
+                const fee = BigInt((this.object_address ? (this.content as ObjectArbitration)?.fee : this.data?.fee) ?? 0);
+                const max_fee = BigInt(d.max_fee);
+                if (!order) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order');
+                const r = await query_objects({objects:[order]});
+                if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Order') {
+                    ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order is not an Order object');
                 }
+                const order_type = Service.parseOrderObjectType(r.objects[0].type_raw);
+                if (!order_type) {
+                    ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order type invalid');
+                }
+
+                if (fee > max_fee) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.fee > max_fee');
+
+                arb_new = obj?.arb({order:d.order, order_token_type:order_type, description:d.description, votable_proposition:d.votable_proposition, 
+                    fee: fee>BigInt(0) ? await Account.Instance().get_coin_object(txb, fee, account, this.type_parameter) : undefined
+                }, pst);                    
+                
             }
 
             if (this.data?.arb_arbitration !== undefined) {
@@ -194,16 +182,43 @@ export class CallArbitration extends CallBase {
             }
 
             if (this.data?.arb_withdraw_fee !== undefined) {
-                const a = await LocalMark.Instance().get_address(this.data.arb_withdraw_fee.arb) ?? arb_new;
+                const a = await LocalMark.Instance().get_address(this.data.arb_withdraw_fee.arb);
                 if (!a) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_withdraw_fee.arb');
-
-                obj?.withdraw_fee(a!, this.data.arb_withdraw_fee.data, pst)
+        
+                obj?.withdraw_fee(a!, await SetWithdrawFee(this.data.arb_withdraw_fee.data, (this.content as ObjectArbitration).fee_treasury), pst);
             }
 
             if (arb_new) {
                 await this.new_with_mark('Arb', txb, obj?.arb_launch(arb_new), (this.data?.arb_new as any)?.namedNew, account);
             }
+
+            if (this.data?.description !== undefined && this.object_address) {
+                obj?.set_description(this.data.description, pst);
+            }
+            if (this.data?.endpoint !== undefined) {
+                obj?.set_endpoint(this.data.endpoint, pst)
+            }
+            if (this.data?.fee !== undefined && this.object_address) {
+                obj?.set_fee(BigInt(this.data.fee), pst)
+            }
+            if (this.data?.fee_treasury !== undefined && this.object_address) {
+                const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.fee_treasury));
+                if (!treasury_address) {
+                    withdraw_treasury = Treasury.New(txb, this.type_parameter!, permission ? permission.get_object() : this.permission_address, 
+                        GetObjectParam(this.data.fee_treasury)?.description ?? '', permission?undefined:passport);
+                }
+                const t = withdraw_treasury ? withdraw_treasury.get_object() : treasury_address;
+                if (!t) {   
+                    ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.fee_treasury')
+                }   
+                obj?.set_withdrawTreasury(t, pst)
+            }
             
+            const guard = await LocalMark.Instance().get_address(this.data.guard);
+            if (guard) {
+                obj?.set_guard(guard, pst)
+            }
+
             if (this.data?.voting_guard !== undefined) {
                 switch (this.data.voting_guard.op) {
                     case 'add':
@@ -231,23 +246,20 @@ export class CallArbitration extends CallBase {
                         break;
                 }
             }
-            const guard = await LocalMark.Instance().get_address(this.data.guard);
-            if (guard) {
-                obj?.set_guard(guard, pst)
-            }
 
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst);
             }
             if (withdraw_treasury) {
-                await this.new_with_mark('Treasury', txb, withdraw_treasury.launch(), (this.data?.fee_treasury as any)?.namedNew, account);
+                await this.new_with_mark('Treasury', txb, withdraw_treasury.launch(), GetObjectParam(this.data?.fee_treasury), account);
             }
             if (permission) {
-                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+                await this.new_with_mark('Permission', txb, permission.launch(), GetObjectParam(n?.permission), account);
             }
 
-            if (!object_address) {
-                await this.new_with_mark('Arbitration', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+            if (!this.object_address) {
+                await this.new_with_mark('Arbitration', txb, obj.launch(), GetObjectMain(this.data?.object), account);
             } 
         }
     }

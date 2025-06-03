@@ -1,5 +1,5 @@
 import { CallBase, CallResult } from "./base.js";
-import { TransactionBlock, PassportObject, IsValidAddress, Errors, ERROR,  Demand, Machine, Service, Treasury, Arbitration, Repository} from 'wowok';
+import { TransactionBlock, PassportObject, Errors, ERROR,  Demand, Machine, Service, Treasury, Arbitration, Repository} from 'wowok';
 import { ObjectArbitration, ObjectDemand, ObjectMachine, ObjectRepository, ObjectService, ObjectTreasury, query_objects } from "../query/objects.js";
 import { LocalMark } from "../local/local.js";
 

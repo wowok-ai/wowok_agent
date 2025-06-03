@@ -1,4 +1,4 @@
-import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock } from 'wowok';
+import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject } from 'wowok';
 import { ObjectBase, ObjectBaseType } from '../query/objects.js';
 export interface Namedbject {
     name?: string;
@@ -6,6 +6,35 @@ export interface Namedbject {
     useAddressIfNameExist?: boolean;
     onChain?: boolean;
 }
+export interface NamedObjectWithDescription extends Namedbject {
+    description?: string;
+}
+export interface NamedObjectWithPermission extends Namedbject {
+    permission?: ObjectParam;
+}
+export interface TypeNamedObjectWithPermission extends NamedObjectWithPermission {
+    type_parameter: string;
+}
+export type ObjectTypedMain = string | TypeNamedObjectWithPermission;
+export type ObjectMain = string | NamedObjectWithPermission;
+export type ObjectParam = string | NamedObjectWithDescription;
+export declare const GetObjectExisted: (object: ObjectMain | ObjectTypedMain | ObjectParam | undefined) => string | undefined;
+export declare const GetObjectMain: (object: ObjectMain | ObjectTypedMain | undefined) => NamedObjectWithPermission | TypeNamedObjectWithPermission | undefined;
+export declare const GetObjectParam: (object: ObjectParam | undefined) => NamedObjectWithDescription | undefined;
+export type AccountOrMark_Address = {
+    account?: string;
+} | {
+    name_or_address: string;
+};
+export declare const GetAccountOrMark_Address: (entity?: AccountOrMark_Address) => Promise<string | undefined>;
+export declare const GetManyAccountOrMark_Address: (entities: AccountOrMark_Address[]) => Promise<(string | undefined)[]>;
+export interface WithdrawParam {
+    index: bigint | string | number;
+    remark: string;
+    for_object?: string;
+    for_guard?: string;
+}
+export declare const SetWithdrawFee: (param: WithdrawParam, treasury?: TreasuryObject) => Promise<WithdrawFee>;
 export interface AddressMark {
     address: TxbAddress;
     name?: string;

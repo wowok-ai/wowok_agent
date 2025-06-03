@@ -5,14 +5,15 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address} from 'wowok';
+    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address,
+    TreasuryReceivedObject} from 'wowok';
 import { CacheExpireType, CacheName, CachedData, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
         'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' |
-        'TableItem_RepositoryData' | 'TableItem_PersonalMark';
+        'TableItem_RepositoryData' | 'TableItem_PersonalMark' | 'Treasury_ReceivedObject';
 
 export interface ObjectBase {
     object: string;
@@ -21,6 +22,11 @@ export interface ObjectBase {
     owner?: any;
     version?: string;
     cache_expire?: CacheExpireType;
+}
+
+export interface Treasury_ReceivedObject extends ObjectBase {
+    balance: string;
+    payment: string;
 }
 
 export interface ObjectPermission extends ObjectBase {
@@ -107,7 +113,7 @@ export interface ObjectService extends ObjectBase {
     endpoint?: string | null;
     extern_withdraw_treasury: string[];
     machine?: string | null;
-    payee: string;
+    payee_treasury: string;
     repository: string[];
     sales_count: number;
     withdraw_guard: {guard:string, percent:number}[];
@@ -509,7 +515,10 @@ export function raw2type(type_raw:string | undefined) : ObjectBaseType | undefin
         return t
     } else if (t === 'Resource') {
         return 'PersonalMark';
+    } else if (t === 'CoinWrapper') {
+        return 'Treasury_ReceivedObject';
     }
+
     const start = type_raw?.indexOf('0x2::dynamic_field::Field<');
     if (start === 0) {
         const end = type_raw?.substring('0x2::dynamic_field::Field<'.length);
@@ -612,7 +621,7 @@ export function data2object(data?:any) : ObjectBase {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 machine:content?.machine, permission:content?.permission, description:content?.description,
                 arbitration:content?.arbitrations, bPaused:content?.bPaused, bPublished:content?.bPublished,
-                buy_guard:content?.buy_guard, endpoint:content?.endpoint, payee:content?.payee, repository:content?.repositories, 
+                buy_guard:content?.buy_guard, endpoint:content?.endpoint, payee_treasury:content?.payee, repository:content?.repositories, 
                 withdraw_guard:content?.withdraw_guard?.fields?.contents?.map((v:any) => {
                     return {object:v?.fields?.key, percent:v?.fields?.value}
                 }),
@@ -750,6 +759,10 @@ export function data2object(data?:any) : ObjectBase {
             return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
             } as TableItem_PersonalMark;
+        case 'Treasury_ReceivedObject':
+            return { object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                balance: content.coin?.fields?.balance, payment:content?.payment
+            } as Treasury_ReceivedObject;
         }
     } 
 

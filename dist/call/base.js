@@ -3,6 +3,44 @@ import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { query_objects, query_personal, raw2type } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
+;
+export const GetObjectExisted = (object) => {
+    return (typeof object === 'string') ? object : undefined;
+};
+export const GetObjectMain = (object) => {
+    return (typeof object === 'object' && object !== null && 'type_parameter' in object) ?
+        object :
+        (typeof object === 'object' && object !== null && 'permission' in object) ?
+            object : undefined;
+};
+export const GetObjectParam = (object) => {
+    return (typeof object === 'object' && object !== null && 'description' in object) ? object : undefined;
+};
+export const GetAccountOrMark_Address = async (entity) => {
+    if (typeof (entity?.name_or_address) === 'string') {
+        return await LocalMark.Instance().get_address(entity.name_or_address);
+    }
+    else {
+        const acc = await Account.Instance().get(entity?.account);
+        return acc?.address;
+    }
+};
+export const GetManyAccountOrMark_Address = async (entities) => {
+    const res = [];
+    for (let i = 0; i < entities.length; ++i) {
+        const addr = await GetAccountOrMark_Address(entities[i]);
+        if (addr)
+            res.push(addr);
+    }
+    return res;
+};
+export const SetWithdrawFee = async (param, treasury) => {
+    if (!treasury) {
+        ERROR(Errors.InvalidParam, 'WithdrawFee: treasury_address invalid');
+    }
+    const [object, guard] = await LocalMark.Instance().get_many_address([param.for_object, param.for_guard]);
+    return { index: BigInt(param.index), remark: param.remark, for_object: object, for_guard: guard, treasury: treasury };
+};
 export function ResponseData(response) {
     const res = [];
     response?.objectChanges?.forEach(v => {

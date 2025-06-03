@@ -1,16 +1,22 @@
-import { PassportObject, IsValidAddress, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
+import { PassportObject, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
     PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
-    ProgressObject,
 } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
-import { Account } from '../local/account.js';
+import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectMain, TypeNamedObjectWithPermission } from "./base.js";
 import { ObjectMachine } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
-    object?: {address:string} | {namedNew?: Namedbject}; // undefined or {named_new...} for creating a new object
-    permission?: {address:string} | {namedNew?: Namedbject, description?:string}; 
+    object?: ObjectMain;
+    progress_new?: {task_address?:string, namedNew?: Namedbject};
+    progress_context_repository?: {progress?:string; repository?:string};
+    progress_namedOperator?: {progress?:string; data:{name:string, operators:string[]}[]};
+    progress_parent?: {progress?:string, parent?:ParentProgress};
+    progress_hold?: {progress?:string; operation:ProgressNext; bHold:boolean; adminUnhold?:boolean};
+    progress_task?: {progress:string; task_address:string};
+    progress_next?: {progress:string; operation:ProgressNext; deliverable:Deliverable};
+
     description?: string;
     endpoint?: string;
     consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
@@ -20,18 +26,14 @@ export interface CallMachine_Data {
     | {op:'add forward'; data: {prior_node_name:string; node_name:string; forward:Machine_Forward; threshold?:number; remove_forward?:string}[]}
     | {op:'remove forward'; data:{prior_node_name:string; node_name:string; forward_name:string}[]}
     bPublished?: boolean;
-    progress_new?: {task_address?:string; namedNew?: Namedbject};
-    progress_context_repository?: {progress?:string; repository?:string};
-    progress_namedOperator?: {progress?:string; data:{name:string, operators:string[]}[]};
-    progress_parent?: {progress?:string, parent?:ParentProgress};
-    progress_task?: {progress?:string; task:string};
-    progress_hold?: {progress?:string; operation:ProgressNext; bHold:boolean; adminUnhold?:boolean};
-    progress_next?: {progress:string; operation:ProgressNext; deliverable:Deliverable; guard?:string};
     bPaused?: boolean;
     clone_new?: {namedNew?: Namedbject/*, description?:string*/};
 }
 export class CallMachine extends CallBase { //@ todo self-owned node operate
     data: CallMachine_Data;
+    object_address: string | undefined = undefined;
+    permission_address: string | undefined = undefined;
+
     constructor(data:CallMachine_Data) {
         super();
         this.data = data;
@@ -39,28 +41,24 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-        var [permission_address, object_address] = 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address]);
-
-        if (object_address) {
-            if (!permission_address) {
-                await this.update_content('Machine', object_address);
-                if (this.content) {
-                    permission_address = (this.content as ObjectMachine).permission;     
-                }
-            } 
+        this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data?.object)));
+        if (this.object_address) {
+            await this.update_content('Machine', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object:' + this.object_address);
+            this.permission_address = (this.content as ObjectMachine).permission;
+        } else {
+            const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission; 
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
         } 
 
-        if (permission_address) {
+        if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine)
             }
-            if (this.data?.description !== undefined && object_address) {
+            if (this.data?.description !== undefined && this.object_address) {
                 perms.push(PermissionIndex.machine_description)
             }
-            if (this.data?.endpoint !== undefined && object_address) {
+            if (this.data?.endpoint !== undefined && this.object_address) {
                 perms.push(PermissionIndex.machine_endpoint)
             }
             if (this.data?.consensus_repository !== undefined) {
@@ -95,60 +93,119 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPaused !== undefined) {
                 perms.push(PermissionIndex.machine_pause)
             }
+            if (this.data?.clone_new!== undefined) {
+                perms.push(PermissionIndex.machine_clone)
+            }
+
             if (this.data?.progress_next !== undefined) {
-                if (this.data?.progress_next?.guard) {
-                    const guard = await LocalMark.Instance().get_address(this.data?.progress_next?.guard);
+                if (this.object_address) { // fetch guard
+                    const [p, acc] = await Promise.all([
+                        LocalMark.Instance().get_address(this.data?.progress_next.progress), 
+                        Account.Instance().get(account)]);
+
+                    if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
+                    if (!acc) ERROR(Errors.InvalidParam, 'CallMachine_Data.account');
+  
+                    const guard = await Progress.QueryForwardGuard(p, this.object_address, acc.address, 
+                        this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
                     if (guard) {
                         guards.push(guard);
-                    }                     
-                } else if (object_address) { // fetch guard
-                    const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
-                    if (p) {
-                        const guard = await Progress.QueryForwardGuard(this.data?.progress_next.progress, object_address, 
-                            (await Account.Instance().default())?.address ?? '0xe386bb9e01b3528b75f3751ad8a1e418b207ad979fea364087deef5250a73d3f', 
-                            this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
-                        if (guard) {
-                            guards.push(guard);
-                        }                        
-                    }
+                    }                        
                 }
             }
 
-            return await this.check_permission_and_call(permission_address, perms, guards, checkOwner, undefined, account)
+            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);
     }
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Machine | undefined ; let permission: any;
-        var [permission_address, object_address] = this?.content ? 
-            [(this.content as ObjectMachine).permission, this.content.object] : 
-            await LocalMark.Instance().get_many_address(
-                [(this.data?.permission as any)?.address, 
-                (this.data?.object as any)?.address]);
-
-        if (!object_address) {
-            if (!permission_address) {
-                const d = (this.data?.permission as any)?.description ?? '';
-                permission = Permission.New(txb, d);
-            }
-            obj = Machine.New(txb, permission ? permission.get_object() : permission_address, this.data?.description??'', this.data?.endpoint ?? '', permission?undefined:passport);
+        if (this.object_address) {
+            obj = Machine.From(txb, this.permission_address!, this.object_address);
         } else {
-            if (permission_address) {
-                obj = Machine.From(txb, permission_address, object_address)
-            } else {
-                ERROR(Errors.InvalidParam, 'CallMachine_Data.data.permission')
+            const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission;
+            if (!this.permission_address) {
+                permission = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
             }
+
+            obj = Machine.New(txb, permission ? permission.get_object() : this.permission_address, this.data?.description??'', 
+                this.data?.endpoint, permission?undefined:passport);
         }
 
         if (obj) {
-            const perm = permission ? permission.get_object() : permission_address;
             const pst = permission?undefined:passport;
+            const perm = permission ? permission.get_object() : this.permission_address;
 
-            if (this.data?.description !== undefined && object_address) {
+            var new_progress : Progress | undefined;
+            if (this.data?.progress_new !== undefined) {
+                const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
+                new_progress = Progress?.New(txb, obj?.get_object(), perm, task, pst);
+            }
+            if (this.data?.progress_context_repository !== undefined) {
+                const p = this.data?.progress_context_repository.progress 
+                    ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
+                    : new_progress?.get_object();
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
+                const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
+                Progress.From(txb, obj?.get_object(), perm, p!).set_context_repository(rep, pst)
+            }
+            if (this.data?.progress_namedOperator !== undefined) {
+                const p = this.data?.progress_namedOperator.progress 
+                    ? await LocalMark.Instance().get_address(this.data?.progress_namedOperator.progress)
+                    : new_progress?.get_object();
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_namedOperator.progress');
+
+                let pp = Progress.From(txb, obj?.get_object(), perm, p!);
+                this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
+            }
+            if (this.data?.progress_parent !== undefined) {
+                const p = this.data?.progress_parent.progress 
+                    ? await LocalMark.Instance().get_address(this.data?.progress_parent.progress)
+                    : new_progress?.get_object();
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_parent.progress');
+
+                if (this.data.progress_parent.parent) {
+                    const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent.parent_id);
+                    if (parent) {
+                        this.data.progress_parent.parent.parent_id = parent;
+                        Progress.From(txb, obj?.get_object(), perm, p!).parent(this.data.progress_parent.parent);
+                    }
+                } else {
+                    Progress.From(txb, obj?.get_object(), perm, p!).parent_none();
+                }
+            }
+            if (this.data?.progress_hold !== undefined) {
+                const p = this.data?.progress_hold.progress 
+                    ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
+                    : new_progress?.get_object();
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_hold.progress');
+
+                if (this.data?.progress_hold.adminUnhold) {
+                    Progress.From(txb, obj?.get_object(), perm, p!).unhold(this.data.progress_hold.operation, pst)
+                } else {
+                    Progress.From(txb, obj?.get_object(), perm, p!).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold)
+                }
+            }            
+            if (this.data?.progress_task !== undefined) {
+                const [p, task] = await LocalMark.Instance().get_many_address([this.data?.progress_task.progress, this.data?.progress_task.task_address]);
+                if (p && task) Progress.From(txb, obj?.get_object(), perm, p).bind_task(task, pst);
+            }
+            if (this.data?.progress_next !== undefined) {
+                const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
+                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
+                Progress.From(txb, obj?.get_object(), perm, p!).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst)
+            }
+
+            const addr = new_progress?.launch();
+            if (addr) {
+                await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
+            }
+
+            if (this.data?.description !== undefined && this.object_address) {
                 obj?.set_description(this.data.description, pst);
             }
-            if (this.data?.endpoint !== undefined && object_address) {
+            if (this.data?.endpoint !== undefined && this.object_address) {
                 obj?.set_endpoint(this.data.endpoint, pst)
             }
 
@@ -201,89 +258,19 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.bPublished ) {
                 obj?.publish(passport)
             }
-            var new_progress : Progress | undefined;
-            if (this.data?.progress_new !== undefined) {
-                const task = await LocalMark.Instance().get_address(this.data?.progress_new.task_address);
-                new_progress = Progress?.New(txb, obj?.get_object(), perm, task, pst);
-            }
-            if (this.data?.progress_context_repository !== undefined) {
-                const p = this.data?.progress_context_repository.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
-                const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
-                Progress.From(txb, obj?.get_object(), perm, p!).set_context_repository(rep, pst)
-            }
-            if (this.data?.progress_namedOperator !== undefined) {
-                const p = this.data?.progress_namedOperator.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_namedOperator.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_namedOperator.progress');
-
-                let pp = Progress.From(txb, obj?.get_object(), perm, p!);
-                this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
-            }
-            if (this.data?.progress_parent !== undefined) {
-                const p = this.data?.progress_parent.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_parent.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_parent.progress');
-
-                if (this.data.progress_parent.parent) {
-                    const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent.parent_id);
-                    if (parent) {
-                        this.data.progress_parent.parent.parent_id = parent;
-                        Progress.From(txb, obj?.get_object(), perm, p!).parent(this.data.progress_parent.parent);
-                    }
-                } else {
-                    Progress.From(txb, obj?.get_object(), perm, p!).parent_none();
-                }
-            }
-            if (this.data?.progress_task !== undefined) {
-                const p = this.data?.progress_task.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_task.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_task.progress');
-                const task = await LocalMark.Instance().get_address(this.data.progress_task.task);
-                if (task) Progress.From(txb, obj?.get_object(), perm, p!).bind_task(task, pst);
-            }
-            if (this.data?.progress_hold !== undefined) {
-                const p = this.data?.progress_hold.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_hold.progress');
-
-                if (this.data?.progress_hold.adminUnhold) {
-                    Progress.From(txb, obj?.get_object(), perm, p!).unhold(this.data.progress_hold.operation, pst)
-                } else {
-                    Progress.From(txb, obj?.get_object(), perm, p!).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold)
-                }
-            }            
-            
-            if (this.data?.progress_next !== undefined) {
-                const p = this.data?.progress_next.progress 
-                    ? await LocalMark.Instance().get_address(this.data?.progress_next.progress)
-                    : new_progress?.get_object();
-                if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-                Progress.From(txb, obj?.get_object(), perm, p!).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst)
-            }
-
-            const addr = new_progress?.launch();
-            if (addr) {
-                await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
-            }
 
             if (this.data?.bPaused !== undefined) {
                 obj?.pause(this.data.bPaused, pst)
             }
-            if (this.data?.clone_new !== undefined && object_address) {
+            if (this.data?.clone_new !== undefined && this.object_address) {
                 await this.new_with_mark('Machine', txb, obj?.clone(true, pst) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
             }
             if (permission) {
-                await this.new_with_mark('Permission', txb, permission.launch(), (this.data?.permission as any)?.namedNew, account);
+                const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission;
+                await this.new_with_mark('Permission', txb, permission.launch(), GetObjectParam(n?.permission), account);
             }
-            if (!object_address) {
-                await this.new_with_mark('Machine', txb, obj.launch(), (this.data?.object as any)?.namedNew, account);
+            if (!this.object_address) {
+                await this.new_with_mark('Machine', txb, obj.launch(), GetObjectMain(this.data?.object), account);
             }
         }
     }

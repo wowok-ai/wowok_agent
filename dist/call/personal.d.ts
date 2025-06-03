@@ -1,29 +1,29 @@
 import { TransactionBlock, PassportObject, Entity_Info } from 'wowok';
-import { CallBase, CallResult } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult } from "./base.js";
 export interface CallPersonal_Data {
     information?: Entity_Info;
     mark?: {
         op: 'add';
         data: {
-            address: string;
+            entity: AccountOrMark_Address;
             name?: string;
             tags?: string[];
         }[];
     } | {
         op: 'remove';
         data: {
-            address: string;
+            entity: AccountOrMark_Address;
             tags?: string[];
         }[];
     } | {
         op: 'removeall';
-        addresses: string[];
+        entities: AccountOrMark_Address[];
     } | {
         op: 'transfer';
-        address: string;
+        to: AccountOrMark_Address;
     } | {
         op: 'replace';
-        address: string;
+        mark_object: string;
     } | {
         op: 'destroy';
     };

@@ -1,17 +1,7 @@
 import { TransactionBlock, PassportObject, Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove, Repository_Policy_Mode } from 'wowok';
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { CallBase, CallResult, ObjectMain } from "./base.js";
 export interface CallRepository_Data {
-    object?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-    };
-    permission?: {
-        address: string;
-    } | {
-        namedNew?: Namedbject;
-        description?: string;
-    };
+    object?: ObjectMain;
     description?: string;
     reference?: {
         op: 'set' | 'add' | 'remove';
@@ -45,6 +35,8 @@ export interface CallRepository_Data {
 }
 export declare class CallRepository extends CallBase {
     data: CallRepository_Data;
+    object_address: string | undefined;
+    permission_address: string | undefined;
     constructor(data: CallRepository_Data);
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
