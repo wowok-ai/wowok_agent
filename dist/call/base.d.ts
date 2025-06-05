@@ -29,9 +29,9 @@ export type ObjectsOp = {
     op: 'removeall';
 };
 export type AccountOrMark_Address = {
-    account_name?: string;
+    account_or_address?: string;
 } | {
-    mark_name: string;
+    mark_or_address: string;
 };
 export declare const GetAccountOrMark_Address: (entity?: AccountOrMark_Address) => Promise<string | undefined>;
 export declare const GetManyAccountOrMark_Address: (entities: AccountOrMark_Address[]) => Promise<string[]>;

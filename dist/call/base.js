@@ -22,11 +22,11 @@ export const GetObjectParam = (object) => {
     return (typeof object === 'object' && object !== null && 'description' in object) ? object : undefined;
 };
 export const GetAccountOrMark_Address = async (entity) => {
-    if (typeof (entity?.mark_name) === 'string') {
-        return await LocalMark.Instance().get_address(entity.mark_name);
+    if (typeof (entity?.mark_or_address) === 'string') {
+        return await LocalMark.Instance().get_address(entity.mark_or_address);
     }
     else {
-        return (await Account.Instance().get(entity?.account_name))?.address;
+        return (await Account.Instance().get(entity?.account_or_address))?.address;
     }
 };
 export const GetManyAccountOrMark_Address = async (entities) => {
@@ -93,7 +93,7 @@ export class CallBase {
     async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, account) {
         var guards = [];
         if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({ permission_object: permission, address: { account_name: account } });
+            const p = await query_permission({ permission_object: permission, address: { account_or_address: account } });
             if (checkOwner && !p.owner)
                 ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin)
@@ -145,7 +145,7 @@ export class CallBase {
             return;
         // onchain mark
         if (!this.resouceObject) {
-            const r = await query_personal({ address: { account_name: account } });
+            const r = await query_personal({ address: { account_or_address: account } });
             if (!r?.mark_object) {
                 this.resouceObject = Entity.From(txb).create_resource2(); // new 
                 Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);

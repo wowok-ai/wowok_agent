@@ -13,7 +13,7 @@ export class CallPersonal extends CallBase {
     async operate(txb, passport, account) {
         let obj;
         let entity = Entity.From(txb);
-        const entity_data = await query_personal({ address: { account_name: account } });
+        const entity_data = await query_personal({ address: { account_or_address: account } });
         if (entity_data?.mark_object) {
             obj = Resource.From(txb, entity_data.mark_object);
         }

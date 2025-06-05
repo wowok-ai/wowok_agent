@@ -26,7 +26,7 @@ export class CallPersonal extends CallBase {
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?: string) {
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);
-        const entity_data = await query_personal({address:{account_name:account}});
+        const entity_data = await query_personal({address:{account_or_address:account}});
         if (entity_data?.mark_object) {
             obj = Resource.From(txb, entity_data.mark_object);
         } else {

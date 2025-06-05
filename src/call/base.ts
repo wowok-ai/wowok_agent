@@ -58,13 +58,13 @@ export const GetObjectParam = (object: ObjectParam | undefined) : NamedObjectWit
 export type ObjectsOp = {op:'set' | 'add' | 'remove' ; objects:string[]} | {op:'removeall'};
 
 // address from local Account or local Mark.
-export type AccountOrMark_Address = {account_name?: string} | {mark_name: string};
+export type AccountOrMark_Address = {account_or_address?: string} | {mark_or_address: string};
 
 export const GetAccountOrMark_Address = async (entity?: AccountOrMark_Address) : Promise<string | undefined> => {
-    if (typeof((entity as any)?.mark_name) === 'string') {
-        return await LocalMark.Instance().get_address((entity as any).mark_name);
+    if (typeof((entity as any)?.mark_or_address) === 'string') {
+        return await LocalMark.Instance().get_address((entity as any).mark_or_address);
     } else {
-        return (await Account.Instance().get((entity as any)?.account_name))?.address;
+        return (await Account.Instance().get((entity as any)?.account_or_address))?.address;
     }
 }
 
@@ -160,7 +160,7 @@ export class CallBase {
         var guards : string[] = [];
 
         if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({permission_object:permission, address:{account_name:account}});
+            const p = await query_permission({permission_object:permission, address:{account_or_address:account}});
             if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
@@ -211,7 +211,7 @@ export class CallBase {
 
         // onchain mark
         if (!this.resouceObject) {
-            const r = await query_personal({address:{account_name:account}}); 
+            const r = await query_personal({address:{account_or_address:account}}); 
             if (!r?.mark_object) {
                 this.resouceObject = Entity.From(txb).create_resource2(); // new 
                 Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
