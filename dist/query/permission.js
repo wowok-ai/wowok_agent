@@ -2,6 +2,7 @@
  * Provides permission lookup for an address:
  * not only the permission table, but also the administrator or Builder identity.
  */
+import { GetAccountOrMark_Address } from '../call/base.js';
 import { LocalMark } from '../local/local.js';
 import { TransactionBlock, Protocol, Bcs, Errors, ERROR, Permission, BCS } from 'wowok';
 /*json: PermissionQuery; return PermissionAnswer */
@@ -15,10 +16,12 @@ export const query_permission_json = async (json) => {
     }
 };
 export const query_permission = async (query) => {
-    const object_address = await LocalMark.Instance().get_address(query.object_address_or_name);
-    const entity_address = await LocalMark.Instance().get_address(query.entity_address_or_name);
+    const [object_address, entity_address] = await Promise.all([
+        LocalMark.Instance().get_address(query.permission_object),
+        GetAccountOrMark_Address(query.address),
+    ]);
     if (!object_address || !entity_address) {
-        ERROR(Errors.InvalidParam, 'query.object_address_or_name or query.entity_address_or_name');
+        ERROR(Errors.InvalidParam, 'permission.query_permission');
     }
     const txb = new TransactionBlock();
     const object = Permission.From(txb, object_address);

@@ -1,5 +1,6 @@
-import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
-import { CallBase, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
+import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, Service, } from 'wowok';
+import { CallBase, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
+import { query_objects } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 import { Account } from '../local/account.js';
 export class CallMachine extends CallBase {
@@ -137,7 +138,11 @@ export class CallMachine extends CallBase {
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_namedOperator.progress');
             let pp = Progress.From(txb, obj?.get_object(), permission, p);
-            this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
+            for (let i = 0; i < this.data.progress_namedOperator.data.length; i++) {
+                const v = this.data.progress_namedOperator.data[i];
+                const addrs = await GetManyAccountOrMark_Address(v.operators);
+                pp.set_namedOperator(v.name, addrs, pst);
+            }
         }
         if (this.data?.progress_parent !== undefined) {
             const p = this.data?.progress_parent.progress
@@ -178,7 +183,20 @@ export class CallMachine extends CallBase {
             const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-            Progress.From(txb, obj?.get_object(), permission, p).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst);
+            var t = [];
+            if (this.data.progress_next.deliverable.orders.length > 0) {
+                const o = await query_objects({ objects: this.data.progress_next.deliverable.orders });
+                if (o?.objects?.length !== this.data.progress_next.deliverable.orders.length) {
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
+                }
+                t = o.objects.map(v => {
+                    if (v.type !== 'Order') {
+                        ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
+                    }
+                    return { object: v.object, pay_token_type: Service.parseOrderObjectType(v.type_raw) };
+                });
+            }
+            Progress.From(txb, obj?.get_object(), permission, p).next(this.data.progress_next.operation, { msg: this.data.progress_next.deliverable.msg, orders: t }, pst);
         }
         const addr = new_progress?.launch();
         if (addr) {
@@ -197,11 +215,11 @@ export class CallMachine extends CallBase {
                     if (this.data.consensus_repository.op === 'set') {
                         obj?.remove_repository([], true, pst);
                     }
-                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.objects);
                     reps.forEach(v => obj?.add_repository(v, pst));
                     break;
                 case 'remove':
-                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.objects);
                     if (reps.length > 0) {
                         obj?.remove_repository(reps, false, pst);
                     }

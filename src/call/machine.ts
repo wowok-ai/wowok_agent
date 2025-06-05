@@ -1,26 +1,34 @@
 import { PassportObject, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
-    PermissionIndexType, Machine, Machine_Forward, Machine_Node,  Deliverable, ParentProgress, Progress, ProgressNext,
+    PermissionIndexType, Machine, Machine_Forward, Machine_Node, ParentProgress, Progress, ProgressNext,
     PermissionObject,
+    OrderWrap,
+    Service,
 } from 'wowok';
-import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectMain, TypeNamedObjectWithPermission } from "./base.js";
-import { ObjectMachine } from '../query/objects.js';
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission } from "./base.js";
+import { ObjectMachine, query_objects } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 import { Account } from '../local/account.js';
+
+
+export interface ProgressDeliverable {
+    msg: string;
+    orders: string[];
+}
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
     object?: ObjectMain;
     progress_new?: {task_address?:string, namedNew?: Namedbject};
     progress_context_repository?: {progress?:string; repository?:string};
-    progress_namedOperator?: {progress?:string; data:{name:string, operators:string[]}[]};
+    progress_namedOperator?: {progress?:string; data:{name:string, operators:AccountOrMark_Address[]}[]};
     progress_parent?: {progress?:string, parent?:ParentProgress};
     progress_hold?: {progress?:string; operation:ProgressNext; bHold:boolean; adminUnhold?:boolean};
     progress_task?: {progress:string; task_address:string};
-    progress_next?: {progress:string; operation:ProgressNext; deliverable:Deliverable};
+    progress_next?: {progress:string; operation:ProgressNext; deliverable:ProgressDeliverable};
 
     description?: string;
     endpoint?: string;
-    consensus_repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
+    consensus_repository?: ObjectsOp;
     nodes?: {op: 'add'; data: Machine_Node[]} | {op: 'remove'; names: string[], bTransferMyself?:boolean} 
     | {op:'rename node'; data:{old:string; new:string}[]} | {op:'add from myself'; addresses: string[]}
     | {op:'remove pair'; pairs: {prior_node_name:string; node_name:string}[]}
@@ -170,7 +178,11 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_namedOperator.progress');
 
             let pp = Progress.From(txb, obj?.get_object(), permission, p!);
-            this.data.progress_namedOperator.data.forEach(v => pp.set_namedOperator(v.name, v.operators, pst));
+            for(let i=0; i<this.data.progress_namedOperator.data.length; i++) {
+                const v = this.data.progress_namedOperator.data[i];
+                const addrs = await GetManyAccountOrMark_Address(v.operators);
+                pp.set_namedOperator(v.name, addrs, pst);
+            }
         }
         if (this.data?.progress_parent !== undefined) {
             const p = this.data?.progress_parent.progress 
@@ -207,7 +219,22 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         if (this.data?.progress_next !== undefined) {
             const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-            Progress.From(txb, obj?.get_object(), permission, p!).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst)
+            var t: OrderWrap[] = [];
+
+            if (this.data.progress_next.deliverable.orders.length > 0) {
+                const o = await query_objects({objects:this.data.progress_next.deliverable.orders});
+                if (o?.objects?.length !== this.data.progress_next.deliverable.orders.length) {
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
+                }                
+                t = o.objects.map(v => {
+                    if (v.type !== 'Order') {
+                        ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
+                    }
+                    return {object:v.object, pay_token_type:Service.parseOrderObjectType(v.type_raw)}
+                })
+            }
+            Progress.From(txb, obj?.get_object(), permission, p!).next(this.data.progress_next.operation, 
+                {msg:this.data.progress_next.deliverable.msg, orders:t}, pst);
         }
 
         const addr = new_progress?.launch();
@@ -229,11 +256,11 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     if (this.data.consensus_repository.op === 'set') {
                         obj?.remove_repository([], true, pst);
                     }
-                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.objects);
                     reps.forEach(v=>obj?.add_repository(v, pst)) ;
                     break;
                 case 'remove': 
-                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.repositories);
+                    var reps = await LocalMark.Instance().get_many_address2(this.data.consensus_repository.objects);
                     if (reps.length > 0) {
                         obj?.remove_repository(reps, false, pst);
                     }

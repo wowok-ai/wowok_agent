@@ -1,6 +1,16 @@
-import { Errors, ERROR, Permission, PermissionIndex, Repository, } from 'wowok';
-import { CallBase, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
+import { Errors, ERROR, Permission, PermissionIndex, Repository, uint2address, IsValidU256, } from 'wowok';
+import { CallBase, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { LocalMark } from '../local/local.js';
+export const GetAddressID = async (key) => {
+    if (typeof (key) === 'number' || typeof (key) === 'bigint') {
+        if (IsValidU256(key)) {
+            return uint2address(key);
+        }
+    }
+    else {
+        return await GetAccountOrMark_Address(key);
+    }
+};
 export class CallRepository extends CallBase {
     constructor(data) {
         super();
@@ -78,10 +88,10 @@ export class CallRepository extends CallBase {
                 case 'add':
                     if (this.data.reference.op === 'set')
                         obj?.remove_reference([], true, pst);
-                    obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), pst);
+                    obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.objects), pst);
                     break;
                 case 'remove':
-                    obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), false, pst);
+                    obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.objects), false, pst);
                     break;
                 case 'removeall':
                     obj?.remove_reference([], true, pst);
@@ -120,7 +130,7 @@ export class CallRepository extends CallBase {
                         const d = this.data.data.data.data;
                         const add = [];
                         for (let i = 0; i < d.length; ++i) {
-                            const addr = await LocalMark.Instance().get_address(d[i].address);
+                            const addr = await GetAddressID(d[i].address);
                             if (addr) {
                                 add.push({ address: addr, bcsBytes: d[i].bcsBytes });
                             }
@@ -129,7 +139,7 @@ export class CallRepository extends CallBase {
                     }
                     else if (this.data.data?.data?.address !== undefined) {
                         const d = this.data.data.data;
-                        const addr = await LocalMark.Instance().get_address(d.address);
+                        const addr = await GetAddressID(d.address);
                         if (addr) {
                             obj?.add_data2({ address: addr, data: d.data, value_type: d.value_type });
                         }
@@ -137,7 +147,7 @@ export class CallRepository extends CallBase {
                     break;
                 case 'remove':
                     for (let i = 0; i < this.data.data.data.length; ++i) {
-                        const addr = await LocalMark.Instance().get_address(this.data.data.data[i].address);
+                        const addr = await GetAddressID(this.data.data.data[i].address);
                         if (addr) {
                             obj?.remove(addr, this.data.data.data[i].key);
                         }

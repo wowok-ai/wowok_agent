@@ -5,19 +5,19 @@ export interface CallPersonal_Data {
     mark?: {
         op: 'add';
         data: {
-            entity: AccountOrMark_Address;
+            address: AccountOrMark_Address;
             name?: string;
             tags?: string[];
         }[];
     } | {
         op: 'remove';
         data: {
-            entity: AccountOrMark_Address;
+            address: AccountOrMark_Address;
             tags?: string[];
         }[];
     } | {
         op: 'removeall';
-        entities: AccountOrMark_Address[];
+        addresses: AccountOrMark_Address[];
     } | {
         op: 'transfer';
         to: AccountOrMark_Address;

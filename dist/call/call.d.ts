@@ -17,31 +17,26 @@ export interface CallDemandObject {
     data: CallDemand_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallServiceObject {
     data: CallService_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallMachineObject {
     data: CallMachine_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallTreasuryObject {
     data: CallTreasury_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallArbitrationObject {
     data: CallArbitration_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallGuardObject {
     data: CallGuard_Data;
@@ -51,7 +46,6 @@ export interface CallRepositoryObject {
     data: CallRepository_Data;
     account?: string | null;
     witness?: GuardInfo_forCall | null;
-    no_cache?: boolean;
 }
 export interface CallPersonalObject {
     data: CallPersonal_Data;

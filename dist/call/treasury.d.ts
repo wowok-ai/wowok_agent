@@ -1,10 +1,10 @@
-import { TransactionBlock, PassportObject, Treasury_WithdrawMode, WithdrawParam } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, ObjectTypedMain } from "./base.js";
+import { TransactionBlock, PassportObject, Treasury_WithdrawMode } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, ObjectTypedMain, PayParam } from "./base.js";
 export interface ReceiverParam {
     address: AccountOrMark_Address;
     amount: string | number;
 }
-export interface TreasuryWithdrawParam extends WithdrawParam {
+export interface TreasuryWithdrawParam extends PayParam {
     receiver: ReceiverParam[];
     withdraw_guard?: string;
 }
@@ -12,10 +12,7 @@ export interface CallTreasury_Data {
     object: ObjectTypedMain;
     deposit?: {
         balance: string | number;
-        index?: number | string;
-        remark?: string;
-        for_object?: string;
-        for_guard?: string;
+        param?: PayParam;
     };
     receive?: {
         received_objects: string[];

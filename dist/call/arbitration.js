@@ -116,12 +116,11 @@ export class CallArbitration extends CallBase {
         var arb_new;
         if (this.data?.arb_new !== undefined) {
             const d = this.data?.arb_new.data;
-            const order = await LocalMark.Instance().get_address(d.order);
             const fee = BigInt((this.object_address ? this.content?.fee : this.data?.fee) ?? 0);
-            const max_fee = BigInt(d.max_fee);
-            if (!order)
-                ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order');
-            const r = await query_objects({ objects: [order] });
+            const max_fee = BigInt(d.max_fee ?? fee);
+            if (fee > max_fee)
+                ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.fee > max_fee');
+            const r = await query_objects({ objects: [d.order] });
             if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Order') {
                 ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order is not an Order object');
             }
@@ -129,8 +128,6 @@ export class CallArbitration extends CallBase {
             if (!order_type) {
                 ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order type invalid');
             }
-            if (fee > max_fee)
-                ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.fee > max_fee');
             arb_new = obj?.arb({ order: d.order, order_token_type: order_type, description: d.description, votable_proposition: d.votable_proposition,
                 fee: fee > BigInt(0) ? await Account.Instance().get_coin_object(txb, fee, account, this.type_parameter) : undefined
             }, pst);

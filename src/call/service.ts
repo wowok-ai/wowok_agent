@@ -1,20 +1,17 @@
 import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, Errors, ERROR, Permission, 
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, Service_Buy, 
     Service_Guard_Percent, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
-    ProgressObject, Arbitration, Service_Discount,
-    ServiceObject,
-    PermissionObject, 
+    ProgressObject, Arbitration, Service_Discount, PermissionObject, 
 } from 'wowok';
 import { ObjectOrder, ObjectService, query_objects } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
-    GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectParam, ObjectTypedMain, 
-    TypeNamedObjectWithPermission, WithdrawParam } from "./base.js";
+    GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp,
+    TypeNamedObjectWithPermission, PayParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { crypto_string } from '../common.js';
-import { machine } from 'os';
 
-export interface ServiceWithdraw extends WithdrawParam {
+export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;
 }
 
@@ -24,6 +21,16 @@ export interface DicountDispatch {
     count?: number;
 }
 
+export interface RefundWithGuard {
+    order:string; 
+    refund_guard:string;
+}
+
+export interface RefundWithArb {
+    order:string;
+    arb:string;
+}
+
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallService_Data {
     object: ObjectTypedMain;
@@ -31,7 +38,7 @@ export interface CallService_Data {
         namedNewOrder?: Namedbject, namedNewProgress?:Namedbject}
     order_agent?: {order?:string; agents: AccountOrMark_Address[];};
     order_required_info?: {order:string; customer_info_required?:string};
-    order_refund?: {order:string; } | {order:string; arb:string;}; 
+    order_refund?: RefundWithGuard | RefundWithArb;
     order_withdrawl?: {order:string; data:ServiceWithdraw}; // guard address
     order_payer?: {order?:string; payer_new:AccountOrMark_Address; }; // transfer the order payer permission to someaddress
 
@@ -39,10 +46,10 @@ export interface CallService_Data {
     endpoint?: string;
     payee_treasury?:ObjectParam; 
     gen_discount?: DicountDispatch[];
-    repository?: {op:'set' | 'add' | 'remove' ; repositories:string[]} | {op:'removeall'};
-    extern_withdraw_treasury?: {op:'set' | 'add' | 'remove'; treasuries:string[]} | {op:'removeall'} ;
+    repository?: ObjectsOp;
+    extern_withdraw_treasury?: ObjectsOp;
     machine?: string;
-    arbitration?: {op:'set' | 'add' |  'remove'; arbitrations:string[]} | {op:'removeall'};
+    arbitration?: ObjectsOp;
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]};
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
     withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
@@ -151,8 +158,8 @@ export class CallService extends CallBase {
                     }    
                 }
             }
-            if (this.data.order_refund !== undefined) {
-                const guard = await LocalMark.Instance().get_address((this.data?.order_refund as any)?.guard);
+            if ((this.data?.order_refund as RefundWithGuard)?.refund_guard !== undefined) {
+                const guard = await LocalMark.Instance().get_address((this.data?.order_refund as RefundWithGuard)?.refund_guard);
                 if (guard) guards.push(guard);
             }
 
@@ -272,7 +279,7 @@ export class CallService extends CallBase {
                 }
                 obj?.refund_withArb(o!, r?.objects[0].object, Arbitration.parseArbObjectType(r.objects[0].type_raw)!);
             } else {
-                const guard = await LocalMark.Instance().get_address((this.data?.order_refund as any)?.guard);
+                const guard = await LocalMark.Instance().get_address((this.data?.order_refund as RefundWithGuard)?.refund_guard);
                 if (guard) obj?.refund(o!, guard, pst)
             }
         }
@@ -340,8 +347,8 @@ export class CallService extends CallBase {
                 case 'add':
                 case 'set':
                     if (this.data.repository.op === 'set') obj?.remove_repository([], true, pst);
-                    for (let i = 0; i < this.data.repository.repositories.length; ++ i) {
-                        let  v = this.data.repository.repositories[i];
+                    for (let i = 0; i < this.data.repository.objects.length; ++ i) {
+                        let  v = this.data.repository.objects[i];
                         const addr = await LocalMark.Instance().get_address(v);
                         if (addr) {
                             obj?.add_repository(addr, pst)
@@ -349,7 +356,7 @@ export class CallService extends CallBase {
                     }
                     break;
                 case 'remove':
-                    obj?.remove_repository(await LocalMark.Instance().get_many_address2(this.data.repository.repositories), false, pst)
+                    obj?.remove_repository(await LocalMark.Instance().get_many_address2(this.data.repository.objects), false, pst)
                     break;
                 case 'removeall':
                     obj?.remove_repository([], true, pst)
@@ -361,7 +368,7 @@ export class CallService extends CallBase {
                 case 'add':
                 case 'set':
                     if (this.data.extern_withdraw_treasury.op === 'set') obj?.remove_treasury([], true, pst);
-                    const r = await query_objects({objects:this.data.extern_withdraw_treasury.treasuries, no_cache:true});
+                    const r = await query_objects({objects:this.data.extern_withdraw_treasury.objects, no_cache:true});
                     r.objects?.forEach(v => {
                         if (v.type ==='Treasury') {
                             obj?.add_treasury(v.object, Treasury.parseObjectType(v.type_raw), pst)
@@ -369,7 +376,7 @@ export class CallService extends CallBase {
                     });
                     break;
                 case 'remove':
-                    obj?.remove_treasury(await LocalMark.Instance().get_many_address2(this.data.extern_withdraw_treasury.treasuries), false, pst)
+                    obj?.remove_treasury(await LocalMark.Instance().get_many_address2(this.data.extern_withdraw_treasury.objects), false, pst)
                     break;
                 case 'removeall':
                     obj?.remove_treasury([], false, pst)
@@ -385,7 +392,7 @@ export class CallService extends CallBase {
                 case 'add':
                 case 'set':
                     if (this.data.arbitration.op === 'set') obj?.remove_arbitration([], true, pst);
-                    const r = await query_objects({objects:this.data.arbitration.arbitrations, no_cache:true});
+                    const r = await query_objects({objects:this.data.arbitration.objects, no_cache:true});
                     r.objects?.forEach(v => {
                         if (v.type ==='Arbitration') {
                             obj?.add_arbitration(v.object, Arbitration.parseObjectType(v.type_raw), pst)
@@ -393,7 +400,7 @@ export class CallService extends CallBase {
                     });
                     break;
                 case 'remove':
-                    obj?.remove_arbitration(await LocalMark.Instance().get_many_address2(this.data.arbitration.arbitrations), false, pst)
+                    obj?.remove_arbitration(await LocalMark.Instance().get_many_address2(this.data.arbitration.objects), false, pst)
                     break;
                 case 'removeall':
                     obj?.remove_arbitration([], false, pst)

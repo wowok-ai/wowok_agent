@@ -1,10 +1,10 @@
 import { TransactionBlock, PassportObject, VotingGuard } from 'wowok';
-import { CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, WithdrawParam } from "./base.js";
+import { CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, PayParam } from "./base.js";
 export interface DisputeData {
     order: string;
     description: string;
     votable_proposition: string[];
-    max_fee: string | number;
+    max_fee?: string | number;
 }
 export interface CallArbitration_Data {
     object: ObjectTypedMain;
@@ -14,7 +14,7 @@ export interface CallArbitration_Data {
     };
     arb_withdraw_fee?: {
         arb: string;
-        data: WithdrawParam;
+        data: PayParam;
     };
     arb_vote?: {
         arb?: string;

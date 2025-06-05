@@ -7,9 +7,9 @@ import { Account } from '../local/account.js';
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
     information?: Entity_Info;
-    mark?: {op:'add'; data:{entity:AccountOrMark_Address; name?:string; tags?:string[]}[]}
-        | {op:'remove'; data:{entity:AccountOrMark_Address; tags?:string[]}[]}
-        | {op:'removeall'; entities:AccountOrMark_Address[]}
+    mark?: {op:'add'; data:{address:AccountOrMark_Address; name?:string; tags?:string[]}[]}
+        | {op:'remove'; data:{address:AccountOrMark_Address; tags?:string[]}[]}
+        | {op:'removeall'; addresses:AccountOrMark_Address[]}
         | {op:'transfer'; to: AccountOrMark_Address}
         | {op:'replace'; mark_object: string}
         | {op:'destroy'}
@@ -25,13 +25,8 @@ export class CallPersonal extends CallBase {
         return await this.exec(account)
     }
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?: string) {
-        const entity_address = (await Account.Instance().get(account))?.address;
-        if (!entity_address) {
-            ERROR(Errors.InvalidParam, 'account - ' + account)
-        };
-
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);
-        const entity_data = await query_personal({address:entity_address});
+        const entity_data = await query_personal({address:{account_name:account}});
         if (entity_data?.mark_object) {
             obj = Resource.From(txb, entity_data.mark_object);
         } else {
@@ -57,7 +52,7 @@ export class CallPersonal extends CallBase {
                     const add  = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await GetAccountOrMark_Address(v.entity);
+                        const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             add.push({address:addr, tags:v.tags, name:v.name})
                         }
@@ -71,7 +66,7 @@ export class CallPersonal extends CallBase {
                     const remove = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await GetAccountOrMark_Address(v.entity);
+                        const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             remove.push({address:addr, tags:v.tags})
                         }
@@ -81,8 +76,8 @@ export class CallPersonal extends CallBase {
                     })                        
                     break;
                 case 'removeall':
-                    for (let i = 0; i < this.data.mark.entities.length; ++i) {
-                        const v = this.data.mark.entities[i];
+                    for (let i = 0; i < this.data.mark.addresses.length; ++i) {
+                        const v = this.data.mark.addresses[i];
                         const addr = await GetAccountOrMark_Address(v);
                         if (addr) {
                             obj?.removeall(addr)

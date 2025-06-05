@@ -104,9 +104,9 @@ export class CallTreasury extends CallBase {
         if (this.data.deposit !== undefined) {
             const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.balance, account, this.type_parameter);
             if (coin) {
-                const index = this.data.deposit?.index ?? 0;
-                const [for_guard, for_object] = await LocalMark.Instance().get_many_address([this.data.deposit?.for_guard, this.data.deposit?.for_object]);
-                obj?.deposit({ coin: coin, index: BigInt(index), remark: this.data.deposit.remark ?? '', for_guard, for_object });
+                const index = this.data.deposit?.param?.index ?? 0;
+                const [for_guard, for_object] = await LocalMark.Instance().get_many_address([this.data.deposit?.param?.for_guard, this.data.deposit?.param?.for_object]);
+                obj?.deposit({ coin: coin, index: BigInt(index), remark: this.data.deposit?.param?.remark ?? '', for_guard, for_object });
             }
         }
         if (this.data?.receive !== undefined && this.object_address) {

@@ -1,18 +1,49 @@
 import { TransactionBlock, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Repository, Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, 
-    Repository_Policy_Data_Remove, Repository_Policy_Mode, Repository_Value,
-    PermissionObject, 
+    PermissionIndexType, Repository,  Repository_Policy_Mode, Repository_Value as Wowok_Repository_Value,
+    PermissionObject, uint2address, IsValidU256, ValueType, Repository_Policy, Repository_Value2,
 } from 'wowok';
-import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, TypeNamedObjectWithPermission} from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { ObjectRepository } from '../query/objects.js';
 
+
+// Account name, or local mark name, or address, or u256 number|bigint(eg. time number) that can be converted to address.
+export type AddressID = AccountOrMark_Address | number | bigint; 
+
+export const GetAddressID = async(key:AddressID) : Promise<string | undefined> =>{
+    if (typeof(key) === 'number' || typeof(key) === 'bigint')  {
+        if (IsValidU256(key)) {
+            return uint2address(key);
+        }
+    } else {
+        return await GetAccountOrMark_Address(key)
+    }
+}
+
+export interface Repository_Value {
+    address: AddressID; // UID: address or objectid
+    bcsBytes: Uint8Array; // BCS contents. Notice that: First Byte be the Type by caller, or specify type with 'Repository_Policy_Data.value_type' field.
+}
+export interface Repository_Policy_Data {
+    key: string;
+    data: Repository_Value[];  
+    value_type?: ValueType; // Specifies a data type prefix; If the data prefix is already included in the data byte stream, there is no need to specify it.
+}
+export interface Repository_Policy_Data2 {
+    address: AddressID;
+    data: Repository_Value2[];
+    value_type?: ValueType;
+}
+export interface Repository_Policy_Data_Remove {
+    key: string;
+    address: AddressID;
+}
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {
     object?: ObjectMain;
     description?: string;
-    reference?: {op:'set' | 'add' | 'remove' ; addresses:string[]} | {op:'removeall'};
+    reference?: ObjectsOp;
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; keys:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
     data?: {op:'add', data: Repository_Policy_Data | Repository_Policy_Data2} | {op:'remove'; data: Repository_Policy_Data_Remove[]};
@@ -97,10 +128,10 @@ export class CallRepository extends CallBase {
                 case 'set':
                 case 'add':
                     if (this.data.reference.op === 'set') obj?.remove_reference([], true, pst);
-                    obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), pst);
+                    obj?.add_reference(await LocalMark.Instance().get_many_address2(this.data.reference.objects), pst);
                     break;
                 case 'remove':
-                    obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.addresses), false, pst);
+                    obj?.remove_reference(await LocalMark.Instance().get_many_address2(this.data.reference.objects), false, pst);
                     break;
                 case 'removeall':
                     obj?.remove_reference([], true, pst);
@@ -137,9 +168,9 @@ export class CallRepository extends CallBase {
                 case 'add':
                     if ((this.data.data?.data as any)?.key !== undefined) {
                         const d = (this.data.data.data as Repository_Policy_Data).data;
-                        const add: Repository_Value[] = [];
+                        const add: Wowok_Repository_Value[] = [];
                         for (let i=0; i<d.length; ++i) {
-                            const addr = await LocalMark.Instance().get_address(d[i].address);
+                            const addr = await GetAddressID(d[i].address);
                             if (addr) {
                                 add.push({address:addr, bcsBytes:d[i].bcsBytes});
                             }
@@ -147,7 +178,7 @@ export class CallRepository extends CallBase {
                         obj?.add_data({key:(this.data.data.data as Repository_Policy_Data).key, data:add, value_type:(this.data.data.data as Repository_Policy_Data).value_type});
                     } else if ((this.data.data?.data as any)?.address !== undefined) {
                         const d = this.data.data.data as Repository_Policy_Data2;
-                        const addr = await LocalMark.Instance().get_address(d.address);
+                        const addr = await GetAddressID(d.address);
                         if (addr) {
                             obj?.add_data2({address:addr, data:d.data, value_type:d.value_type})
                         }
@@ -155,7 +186,7 @@ export class CallRepository extends CallBase {
                     break;
                 case 'remove':
                     for (let i=0; i<this.data.data.data.length; ++i) {
-                        const addr = await LocalMark.Instance().get_address(this.data.data.data[i].address);
+                        const addr = await GetAddressID(this.data.data.data[i].address);
                         if (addr) {
                             obj?.remove(addr, this.data.data.data[i].key);
                         }

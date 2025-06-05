@@ -1,12 +1,20 @@
 import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Buy, Service_Guard_Percent, Service_Sale, Service_Discount } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, WithdrawParam } from "./base.js";
-export interface ServiceWithdraw extends WithdrawParam {
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp, PayParam } from "./base.js";
+export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;
 }
 export interface DicountDispatch {
     receiver: AccountOrMark_Address;
     discount: Service_Discount;
     count?: number;
+}
+export interface RefundWithGuard {
+    order: string;
+    refund_guard: string;
+}
+export interface RefundWithArb {
+    order: string;
+    arb: string;
 }
 export interface CallService_Data {
     object: ObjectTypedMain;
@@ -25,12 +33,7 @@ export interface CallService_Data {
         order: string;
         customer_info_required?: string;
     };
-    order_refund?: {
-        order: string;
-    } | {
-        order: string;
-        arb: string;
-    };
+    order_refund?: RefundWithGuard | RefundWithArb;
     order_withdrawl?: {
         order: string;
         data: ServiceWithdraw;
@@ -43,25 +46,10 @@ export interface CallService_Data {
     endpoint?: string;
     payee_treasury?: ObjectParam;
     gen_discount?: DicountDispatch[];
-    repository?: {
-        op: 'set' | 'add' | 'remove';
-        repositories: string[];
-    } | {
-        op: 'removeall';
-    };
-    extern_withdraw_treasury?: {
-        op: 'set' | 'add' | 'remove';
-        treasuries: string[];
-    } | {
-        op: 'removeall';
-    };
+    repository?: ObjectsOp;
+    extern_withdraw_treasury?: ObjectsOp;
     machine?: string;
-    arbitration?: {
-        op: 'set' | 'add' | 'remove';
-        arbitrations: string[];
-    } | {
-        op: 'removeall';
-    };
+    arbitration?: ObjectsOp;
     customer_required_info?: {
         pubkey: string;
         required_info: (string | BuyRequiredEnum)[];

@@ -2,9 +2,10 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, Bcs, uint2address } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, Bcs, uint2address, } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
+import { GetAccountOrMark_Address } from '../call/base.js';
 /* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json) => {
     try {
@@ -77,14 +78,13 @@ export const query_objects = async (query) => {
     return { objects: ret };
 };
 export const query_personal = async (query) => {
-    const addr = await LocalMark.Instance().get_address(query.address);
+    const addr = await GetAccountOrMark_Address(query.address);
     if (!addr) {
-        ERROR(Errors.InvalidParam, 'query_personal.query.address');
+        ERROR(Errors.InvalidParam, 'query_personal.address');
     }
-    query.address = addr;
     if (!query.no_cache) {
         try {
-            const cache = await Cache.Instance().cache_get(query.address, CacheName.personal);
+            const cache = await Cache.Instance().cache_get(addr, CacheName.personal);
             if (cache) {
                 const d = JSON.parse(cache.data);
                 d.cache_expire = cache.expire;
@@ -93,9 +93,9 @@ export const query_personal = async (query) => {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    const res = await tableItemQuery_byAddress({ parent: Protocol.Instance().objectEntity(), address: query.address });
+    const res = await tableItemQuery_byAddress({ parent: Protocol.Instance().objectEntity(), address: addr });
     if (res.type === 'Personal') {
-        await Cache.Instance().put(query.address, { expire: Cache.ExpireTime(), data: JSON.stringify(res) }, CacheName.personal);
+        await Cache.Instance().put(addr, { expire: Cache.ExpireTime(), data: JSON.stringify(res) }, CacheName.personal);
         return res;
     }
 };

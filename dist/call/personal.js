@@ -1,8 +1,7 @@
-import { Errors, ERROR, Entity, Resource } from 'wowok';
+import { Entity, Resource } from 'wowok';
 import { CallBase, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
-import { Account } from '../local/account.js';
 export class CallPersonal extends CallBase {
     constructor(data) {
         super();
@@ -12,14 +11,9 @@ export class CallPersonal extends CallBase {
         return await this.exec(account);
     }
     async operate(txb, passport, account) {
-        const entity_address = (await Account.Instance().get(account))?.address;
-        if (!entity_address) {
-            ERROR(Errors.InvalidParam, 'account - ' + account);
-        }
-        ;
         let obj;
         let entity = Entity.From(txb);
-        const entity_data = await query_personal({ address: entity_address });
+        const entity_data = await query_personal({ address: { account_name: account } });
         if (entity_data?.mark_object) {
             obj = Resource.From(txb, entity_data.mark_object);
         }
@@ -42,7 +36,7 @@ export class CallPersonal extends CallBase {
                     const add = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await GetAccountOrMark_Address(v.entity);
+                        const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             add.push({ address: addr, tags: v.tags, name: v.name });
                         }
@@ -55,7 +49,7 @@ export class CallPersonal extends CallBase {
                     const remove = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
-                        const addr = await GetAccountOrMark_Address(v.entity);
+                        const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             remove.push({ address: addr, tags: v.tags });
                         }
@@ -65,8 +59,8 @@ export class CallPersonal extends CallBase {
                     });
                     break;
                 case 'removeall':
-                    for (let i = 0; i < this.data.mark.entities.length; ++i) {
-                        const v = this.data.mark.entities[i];
+                    for (let i = 0; i < this.data.mark.addresses.length; ++i) {
+                        const v = this.data.mark.addresses[i];
                         const addr = await GetAccountOrMark_Address(v);
                         if (addr) {
                             obj?.removeall(addr);

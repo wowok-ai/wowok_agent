@@ -1,10 +1,9 @@
 import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permission, PermissionIndex,
-    PermissionIndexType, Treasury, Treasury_WithdrawMode, WithdrawParam,
-    PermissionObject, 
+    PermissionIndexType, Treasury, Treasury_WithdrawMode, PermissionObject, 
 } from 'wowok';
 import { query_objects, ObjectTreasury, Treasury_ReceivedObject } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, 
-    GetObjectMain, GetObjectParam, ObjectTypedMain, TypeNamedObjectWithPermission } from "./base.js";
+    GetObjectMain, GetObjectParam, ObjectTypedMain, PayParam, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { get_object_address } from '../common.js';
@@ -14,7 +13,7 @@ export interface ReceiverParam {
     amount: string|number;
 }
 
-export interface TreasuryWithdrawParam extends WithdrawParam {
+export interface TreasuryWithdrawParam extends PayParam {
     receiver: ReceiverParam[];
     withdraw_guard?: string,
 }
@@ -22,7 +21,7 @@ export interface TreasuryWithdrawParam extends WithdrawParam {
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallTreasury_Data {
     object: ObjectTypedMain;
-    deposit?: {balance:string|number; index?:number|string; remark?:string; for_object?:string; for_guard?:string};
+    deposit?: {balance:string|number; param?:PayParam};
     receive?: {received_objects:string[]} | 'recently';
     withdraw?: TreasuryWithdrawParam;
 
@@ -132,9 +131,9 @@ export class CallTreasury extends CallBase {
         if (this.data.deposit !== undefined) {
             const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.balance, account, this.type_parameter);
             if (coin) {
-                const index = this.data.deposit?.index ?? 0;
-                const [for_guard, for_object] = await LocalMark.Instance().get_many_address([this.data.deposit?.for_guard, this.data.deposit?.for_object])
-                obj?.deposit({coin:coin, index:BigInt(index), remark:this.data.deposit.remark ??'', for_guard, for_object});
+                const index = this.data.deposit?.param?.index ?? 0;
+                const [for_guard, for_object] = await LocalMark.Instance().get_many_address([this.data.deposit?.param?.for_guard, this.data.deposit?.param?.for_object])
+                obj?.deposit({coin:coin, index:BigInt(index), remark:this.data.deposit?.param?.remark ??'', for_guard, for_object});
             }
         }
         if (this.data?.receive !== undefined && this.object_address) {

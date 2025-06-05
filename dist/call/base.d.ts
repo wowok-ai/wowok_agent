@@ -22,20 +22,26 @@ export type ObjectParam = string | NamedObjectWithDescription;
 export declare const GetObjectExisted: (object: ObjectMain | ObjectTypedMain | ObjectParam | ObjectPermissionMain | undefined) => string | undefined;
 export declare const GetObjectMain: (object: ObjectMain | ObjectTypedMain | ObjectPermissionMain | undefined) => NamedObjectWithPermission | TypeNamedObjectWithPermission | Namedbject | undefined;
 export declare const GetObjectParam: (object: ObjectParam | undefined) => NamedObjectWithDescription | undefined;
-export type AccountOrMark_Address = {
-    account?: string;
+export type ObjectsOp = {
+    op: 'set' | 'add' | 'remove';
+    objects: string[];
 } | {
-    name_or_address: string;
+    op: 'removeall';
+};
+export type AccountOrMark_Address = {
+    account_name?: string;
+} | {
+    mark_name: string;
 };
 export declare const GetAccountOrMark_Address: (entity?: AccountOrMark_Address) => Promise<string | undefined>;
-export declare const GetManyAccountOrMark_Address: (entities: AccountOrMark_Address[]) => Promise<(string | undefined)[]>;
-export interface WithdrawParam {
+export declare const GetManyAccountOrMark_Address: (entities: AccountOrMark_Address[]) => Promise<string[]>;
+export interface PayParam {
     index: bigint | string | number;
     remark: string;
     for_object?: string;
     for_guard?: string;
 }
-export declare const SetWithdrawFee: (param: WithdrawParam, treasury?: TreasuryObject) => Promise<WithdrawFee>;
+export declare const SetWithdrawFee: (param: PayParam, treasury?: TreasuryObject) => Promise<WithdrawFee>;
 export interface AddressMark {
     address: TxbAddress;
     name?: string;

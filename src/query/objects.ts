@@ -5,10 +5,11 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, IsValidAddress, Bcs, Entity_Info, Tags, uint2address,
-    TreasuryReceivedObject} from 'wowok';
-import { CacheExpireType, CacheName, CachedData, Cache } from '../local/cache.js'
+    Progress, History, ERROR, Errors, Bcs, Entity_Info, Tags, uint2address,
+} from 'wowok';
+import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
+import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
@@ -246,7 +247,7 @@ export interface ObjectsQuery {
 }
 
 export interface PersonalQuery {
-    address: string;
+    address: AccountOrMark_Address;
     no_cache?: boolean;
 }
 export interface ObjectsAnswer {
@@ -351,15 +352,14 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
 }
 
 export const query_personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
-    const addr = await LocalMark.Instance().get_address(query.address);
+    const addr = await GetAccountOrMark_Address(query.address);
     if (!addr)  {
-        ERROR(Errors.InvalidParam, 'query_personal.query.address')
+        ERROR(Errors.InvalidParam, 'query_personal.address')
     }
-    query.address = addr;
 
     if (!query.no_cache) {
         try {
-            const cache = await Cache.Instance().cache_get(query.address, CacheName.personal);
+            const cache = await Cache.Instance().cache_get(addr, CacheName.personal);
             if (cache) {
                 const d = JSON.parse(cache.data) as ObjectPersonal;
                 d.cache_expire = cache.expire;  
@@ -367,9 +367,9 @@ export const query_personal = async (query:PersonalQuery) : Promise<ObjectPerson
             }                 
         } catch (e) {/*console.log(e)*/}
     } 
-    const res = await tableItemQuery_byAddress({parent:Protocol.Instance().objectEntity(), address:query.address});
+    const res = await tableItemQuery_byAddress({parent:Protocol.Instance().objectEntity(), address:addr});
     if (res.type === 'Personal') {
-        await Cache.Instance().put(query.address, {expire:Cache.ExpireTime(), data:JSON.stringify(res)}, CacheName.personal);
+        await Cache.Instance().put(addr, {expire:Cache.ExpireTime(), data:JSON.stringify(res)}, CacheName.personal);
         return res as ObjectPersonal;
     }
 }

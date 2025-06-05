@@ -22,12 +22,11 @@ export const GetObjectParam = (object) => {
     return (typeof object === 'object' && object !== null && 'description' in object) ? object : undefined;
 };
 export const GetAccountOrMark_Address = async (entity) => {
-    if (typeof (entity?.name_or_address) === 'string') {
-        return await LocalMark.Instance().get_address(entity.name_or_address);
+    if (typeof (entity?.mark_name) === 'string') {
+        return await LocalMark.Instance().get_address(entity.mark_name);
     }
     else {
-        const acc = await Account.Instance().get(entity?.account);
-        return acc?.address;
+        return (await Account.Instance().get(entity?.account_name))?.address;
     }
 };
 export const GetManyAccountOrMark_Address = async (entities) => {
@@ -94,10 +93,7 @@ export class CallBase {
     async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, account) {
         var guards = [];
         if (permIndex.length > 0 || checkOwner) {
-            const addr = await Account.Instance().get(account);
-            if (!addr)
-                ERROR(Errors.InvalidParam, 'check_permission_and_call: account invalid');
-            const p = await query_permission({ object_address_or_name: permission, entity_address_or_name: addr.address });
+            const p = await query_permission({ permission_object: permission, address: { account_name: account } });
             if (checkOwner && !p.owner)
                 ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin)
@@ -149,19 +145,13 @@ export class CallBase {
             return;
         // onchain mark
         if (!this.resouceObject) {
-            const addr = await Account.Instance().get(account);
-            if (addr) {
-                const r = await query_personal({ address: addr.address }); //@ use cache
-                if (!r?.mark_object) {
-                    this.resouceObject = Entity.From(txb).create_resource2(); // new 
-                    Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
-                }
-                else {
-                    Resource.From(txb, r.mark_object).add(object, tags, named_new?.name);
-                }
+            const r = await query_personal({ address: { account_name: account } });
+            if (!r?.mark_object) {
+                this.resouceObject = Entity.From(txb).create_resource2(); // new 
+                Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
             }
             else {
-                ERROR(Errors.InvalidParam, 'account - ' + account);
+                Resource.From(txb, r.mark_object).add(object, tags, named_new?.name);
             }
         }
         else {

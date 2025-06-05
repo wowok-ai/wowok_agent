@@ -1,5 +1,9 @@
-import { PassportObject, TransactionBlock, Machine_Forward, Machine_Node, Deliverable, ParentProgress, ProgressNext } from 'wowok';
-import { CallBase, CallResult, Namedbject, ObjectMain } from "./base.js";
+import { PassportObject, TransactionBlock, Machine_Forward, Machine_Node, ParentProgress, ProgressNext } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp } from "./base.js";
+export interface ProgressDeliverable {
+    msg: string;
+    orders: string[];
+}
 export interface CallMachine_Data {
     object?: ObjectMain;
     progress_new?: {
@@ -14,7 +18,7 @@ export interface CallMachine_Data {
         progress?: string;
         data: {
             name: string;
-            operators: string[];
+            operators: AccountOrMark_Address[];
         }[];
     };
     progress_parent?: {
@@ -34,16 +38,11 @@ export interface CallMachine_Data {
     progress_next?: {
         progress: string;
         operation: ProgressNext;
-        deliverable: Deliverable;
+        deliverable: ProgressDeliverable;
     };
     description?: string;
     endpoint?: string;
-    consensus_repository?: {
-        op: 'set' | 'add' | 'remove';
-        repositories: string[];
-    } | {
-        op: 'removeall';
-    };
+    consensus_repository?: ObjectsOp;
     nodes?: {
         op: 'add';
         data: Machine_Node[];

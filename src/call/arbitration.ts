@@ -1,25 +1,25 @@
 import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Treasury, Arbitration, VotingGuard, ArbObject, Service,
+    PermissionIndexType, Treasury, Arbitration, ArbObject, Service,
     PermissionObject,
+    VotingGuard,
 } from 'wowok';
 import { ObjectArbitration, query_objects, } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, 
-    ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, WithdrawParam } from "./base.js";
+    ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, PayParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 export interface DisputeData {
     order: string,
     description: string,
     votable_proposition: string[],
-    max_fee: string | number,
+    max_fee?: string | number,
 }
-
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallArbitration_Data {
     object: ObjectTypedMain;
     arb_new?: {data: DisputeData; namedNew?: Namedbject}; // dispute an order, and a Arb object will be created.
-    arb_withdraw_fee?: {arb:string; data:WithdrawParam};
+    arb_withdraw_fee?: {arb:string; data:PayParam};
     arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
     arb_arbitration?: {arb?:string; feedback:string; indemnity?:string|number};
 
@@ -152,11 +152,11 @@ export class CallArbitration extends CallBase {
         var arb_new : ArbObject | undefined;
         if (this.data?.arb_new !== undefined) {
             const d = this.data?.arb_new.data; 
-            const order = await LocalMark.Instance().get_address(d.order);
             const fee = BigInt((this.object_address ? (this.content as ObjectArbitration)?.fee : this.data?.fee) ?? 0);
-            const max_fee = BigInt(d.max_fee);
-            if (!order) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order');
-            const r = await query_objects({objects:[order]});
+            const max_fee = BigInt(d.max_fee ?? fee);
+            if (fee > max_fee) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.fee > max_fee');
+            
+            const r = await query_objects({objects:[d.order]});
             if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Order') {
                 ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order is not an Order object');
             }
@@ -164,8 +164,6 @@ export class CallArbitration extends CallBase {
             if (!order_type) {
                 ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.order type invalid');
             }
-
-            if (fee > max_fee) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_new.fee > max_fee');
 
             arb_new = obj?.arb({order:d.order, order_token_type:order_type, description:d.description, votable_proposition:d.votable_proposition, 
                 fee: fee>BigInt(0) ? await Account.Instance().get_coin_object(txb, fee, account, this.type_parameter) : undefined

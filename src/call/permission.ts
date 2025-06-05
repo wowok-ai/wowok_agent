@@ -17,12 +17,12 @@ export interface Entity_Permission {
 }
 
 export interface Permission_Entity {
-    entity: AccountOrMark_Address;
+    address: AccountOrMark_Address;
     permissions:Entity_Permission[];
 }
 
 export interface Permission_Index_Entity {
-    entity: AccountOrMark_Address;
+    address: AccountOrMark_Address;
     guard?: string;
 }
 
@@ -36,9 +36,9 @@ export interface CallPermission_Data {
     description?: string;
     biz_permission?: {op:'add'; data: BizPermission[]} | {op:'remove'; permissions: PermissionIndexType[]};
     permission?: {op:'add entity'; entities:Permission_Entity[]} | {op:'add permission'; permissions:Permission_Index[]} 
-        | {op:'remove entity'; entities:AccountOrMark_Address[]} | {op:'remove permission'; entity:AccountOrMark_Address; index:PermissionIndexType[]} 
-        | {op:'transfer permission', from_entity: AccountOrMark_Address; to_entity: AccountOrMark_Address};
-    admin?: {op:'add' | 'remove' | 'set', entities:AccountOrMark_Address[]} | {op:'removeall'};
+        | {op:'remove entity'; addresses:AccountOrMark_Address[]} | {op:'remove permission'; address:AccountOrMark_Address; index:PermissionIndexType[]} 
+        | {op:'transfer permission', from: AccountOrMark_Address, to: AccountOrMark_Address};
+    admin?: {op:'add' | 'remove' | 'set', addresses:AccountOrMark_Address[]} | {op:'removeall'};
     builder?: AccountOrMark_Address;
 }
 export class CallPermission extends CallBase {
@@ -106,7 +106,7 @@ export class CallPermission extends CallBase {
                     var add_entity:Wowok_Permission_Entity[] = [];
                     for (let i = 0; i < this.data.permission.entities.length; ++i) {
                         const v = this.data.permission.entities[i];
-                        const addr = await GetAccountOrMark_Address(v.entity);
+                        const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             add_entity.push({address:addr, permissions:v.permissions});
                         }
@@ -119,7 +119,7 @@ export class CallPermission extends CallBase {
                         const v = this.data.permission.permissions[i];
                         const e:Wowok_Permission_Index_Entity[] = [];
                         for (let j = 0; j < v.entities.length; ++j) {
-                            const addr = await GetAccountOrMark_Address(v.entities[j].entity);
+                            const addr = await GetAccountOrMark_Address(v.entities[j].address);
                             const guard = await LocalMark.Instance().get_address(v.entities[j].guard as string) ;
                             if (addr) {
                                 e.push({address:addr, guard:guard})
@@ -130,16 +130,16 @@ export class CallPermission extends CallBase {
                     obj?.add_entity3(add_permission);
                     break;
                 case 'remove entity':
-                    const entities:string[] = (await GetManyAccountOrMark_Address(this.data.permission.entities)).filter((v): v is string => v!== undefined);
+                    const entities:string[] = (await GetManyAccountOrMark_Address(this.data.permission.addresses)).filter((v): v is string => v!== undefined);
                     obj?.remove_entity(entities);
                     break;
                 case 'remove permission':
-                    const addr = await GetAccountOrMark_Address(this.data.permission.entity);
+                    const addr = await GetAccountOrMark_Address(this.data.permission.address);
                     if (addr) obj?.remove_index(addr, this.data.permission.index);
                     break;
                 case 'transfer permission':
-                    const from = await GetAccountOrMark_Address(this.data.permission.from_entity);
-                    const to = await GetAccountOrMark_Address(this.data.permission.to_entity);
+                    const from = await GetAccountOrMark_Address(this.data.permission.from);
+                    const to = await GetAccountOrMark_Address(this.data.permission.to);
                     if (from && to)  obj?.transfer_permission(from, to);
                     break;
             }
@@ -149,11 +149,11 @@ export class CallPermission extends CallBase {
                 case 'add':
                 case 'set': 
                     if (this.data.admin?.op === 'set') obj?.remove_admin([], true);
-                    const add = await GetManyAccountOrMark_Address(this.data.admin.entities);
+                    const add = await GetManyAccountOrMark_Address(this.data.admin.addresses);
                     obj?.add_admin(add.filter((v): v is string => v!== undefined));
                     break;
                 case 'remove':
-                    const remove = await GetManyAccountOrMark_Address(this.data.admin.entities);
+                    const remove = await GetManyAccountOrMark_Address(this.data.admin.addresses);
                     obj?.remove_admin(remove.filter((v): v is string => typeof(v) === 'string'));
                     break;
                 case 'removeall':

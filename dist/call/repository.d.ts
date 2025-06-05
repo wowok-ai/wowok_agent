@@ -1,14 +1,29 @@
-import { TransactionBlock, PassportObject, Repository_Policy, Repository_Policy_Data, Repository_Policy_Data2, Repository_Policy_Data_Remove, Repository_Policy_Mode } from 'wowok';
-import { CallBase, CallResult, ObjectMain } from "./base.js";
+import { TransactionBlock, PassportObject, Repository_Policy_Mode, ValueType, Repository_Policy, Repository_Value2 } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, ObjectMain, ObjectsOp } from "./base.js";
+export type AddressID = AccountOrMark_Address | number | bigint;
+export declare const GetAddressID: (key: AddressID) => Promise<string | undefined>;
+export interface Repository_Value {
+    address: AddressID;
+    bcsBytes: Uint8Array;
+}
+export interface Repository_Policy_Data {
+    key: string;
+    data: Repository_Value[];
+    value_type?: ValueType;
+}
+export interface Repository_Policy_Data2 {
+    address: AddressID;
+    data: Repository_Value2[];
+    value_type?: ValueType;
+}
+export interface Repository_Policy_Data_Remove {
+    key: string;
+    address: AddressID;
+}
 export interface CallRepository_Data {
     object?: ObjectMain;
     description?: string;
-    reference?: {
-        op: 'set' | 'add' | 'remove';
-        addresses: string[];
-    } | {
-        op: 'removeall';
-    };
+    reference?: ObjectsOp;
     mode?: Repository_Policy_Mode;
     policy?: {
         op: 'add' | 'set';

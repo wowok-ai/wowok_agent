@@ -3,12 +3,13 @@
  * not only the permission table, but also the administrator or Builder identity.
  */
 
+import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
 import { LocalMark } from '../local/local.js';
-import { TransactionBlock, Protocol, Bcs, IsValidAddress, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
+import { TransactionBlock, Protocol, Bcs, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
 
 export interface PermissionQuery {
-    object_address_or_name: string;
-    entity_address_or_name: string;
+    permission_object: string;
+    address: AccountOrMark_Address;
 }
 
 /*json: PermissionQuery; return PermissionAnswer */
@@ -22,11 +23,13 @@ export const query_permission_json = async (json:string) : Promise<string> => {
 }
 
 export const query_permission = async (query:PermissionQuery) : Promise<PermissionAnswer> => {
-    const object_address = await LocalMark.Instance().get_address(query.object_address_or_name);
-    const entity_address = await LocalMark.Instance().get_address(query.entity_address_or_name);
+    const [object_address, entity_address] = await Promise.all([
+        LocalMark.Instance().get_address(query.permission_object),
+        GetAccountOrMark_Address(query.address),
+    ]);
 
     if (!object_address || !entity_address) {
-        ERROR(Errors.InvalidParam, 'query.object_address_or_name or query.entity_address_or_name');
+        ERROR(Errors.InvalidParam, 'permission.query_permission');
     }
     
     const txb = new TransactionBlock();

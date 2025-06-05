@@ -5,11 +5,11 @@ export interface Entity_Permission {
     guard?: string;
 }
 export interface Permission_Entity {
-    entity: AccountOrMark_Address;
+    address: AccountOrMark_Address;
     permissions: Entity_Permission[];
 }
 export interface Permission_Index_Entity {
-    entity: AccountOrMark_Address;
+    address: AccountOrMark_Address;
     guard?: string;
 }
 export interface Permission_Index {
@@ -34,19 +34,19 @@ export interface CallPermission_Data {
         permissions: Permission_Index[];
     } | {
         op: 'remove entity';
-        entities: AccountOrMark_Address[];
+        addresses: AccountOrMark_Address[];
     } | {
         op: 'remove permission';
-        entity: AccountOrMark_Address;
+        address: AccountOrMark_Address;
         index: PermissionIndexType[];
     } | {
         op: 'transfer permission';
-        from_entity: AccountOrMark_Address;
-        to_entity: AccountOrMark_Address;
+        from: AccountOrMark_Address;
+        to: AccountOrMark_Address;
     };
     admin?: {
         op: 'add' | 'remove' | 'set';
-        entities: AccountOrMark_Address[];
+        addresses: AccountOrMark_Address[];
     } | {
         op: 'removeall';
     };
