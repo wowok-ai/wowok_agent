@@ -13,16 +13,16 @@ export class CallMachine extends CallBase {
     async prepare() {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data?.object)));
-            if (this.object_address) {
-                await this.update_content('Machine', this.object_address);
-                if (!this.content)
-                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object:' + this.object_address);
-                this.permission_address = this.content.permission;
-            }
-            else {
-                const n = GetObjectMain(this.data?.object);
-                this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            }
+        }
+        if (this.object_address) {
+            await this.update_content('Machine', this.object_address);
+            if (!this.content)
+                ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object:' + this.object_address);
+            this.permission_address = this.content.permission;
+        }
+        else {
+            const n = GetObjectMain(this.data?.object);
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
         }
     }
     async call(account) {

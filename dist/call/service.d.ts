@@ -1,4 +1,4 @@
-import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Buy, Service_Guard_Percent, Service_Sale, Service_Discount } from 'wowok';
+import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Guard_Percent, Service_Sale, Service_Discount } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp, PayParam } from "./base.js";
 export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;
@@ -16,6 +16,11 @@ export interface RefundWithArb {
     order: string;
     arb: string;
 }
+export type Service_Buy = {
+    item: string;
+    max_price: string | number | bigint;
+    count: string | number | bigint;
+};
 export interface CallService_Data {
     object: ObjectTypedMain;
     order_new?: {

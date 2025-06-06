@@ -45,21 +45,22 @@ export class CallArbitration extends CallBase {
 
     protected async prepare()  {
         if (!this.object_address) {
-            this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
-            if (this.object_address) {
-                await this.update_content('Arbitration', this.object_address);
-                if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.data.object);
-                this.permission_address = (this.content as ObjectArbitration).permission;
-                this.type_parameter = Arbitration.parseObjectType(this.content.type_raw);
-            } else {
-                const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
-                if (!IsValidArgType(n?.type_parameter)) {
-                    ERROR(Errors.IsValidArgType, 'CallArbitration_Data.data.object.type_parameter');
-                }          
-                this.permission_address = await LocalMark.Instance().get_address(GetObjectExisted(n?.permission));
-                this.type_parameter = n.type_parameter;
-            }             
+            this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));           
         }
+
+        if (this.object_address) {
+            await this.update_content('Arbitration', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.data.object);
+            this.permission_address = (this.content as ObjectArbitration).permission;
+            this.type_parameter = Arbitration.parseObjectType((this.content as ObjectArbitration).type_raw);
+        } else {
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!IsValidArgType(n?.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallArbitration_Data.data.object.type_parameter');
+            }          
+            this.permission_address = await LocalMark.Instance().get_address(GetObjectExisted(n?.permission));
+            this.type_parameter = Arbitration.parseObjectType(n.type_parameter);
+        }  
     }
 
     async call(account?:string) : Promise<CallResult> {
@@ -71,32 +72,32 @@ export class CallArbitration extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.arbitration)
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_description)
             }
-            if (this.data?.bPaused !== undefined) {
+            if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.arbitration_pause)
             }
-            if (this.data?.endpoint == undefined) { // publish is an irreversible one-time operation 
+            if (this.data?.endpoint != null) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.arbitration_endpoint)
             }
-            if (this.data?.fee !== undefined && this.object_address) {
+            if (this.data?.fee != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_fee)
             }
-            if (this.data.fee_treasury !== undefined && this.object_address) {
+            if (this.data.fee_treasury != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_treasury)
             }
-            if (this.data?.guard !== undefined) {
+            if (this.data?.guard != null) {
                 perms.push(PermissionIndex.arbitration_guard)
             }
-            if (this.data?.voting_guard !== undefined) {
+            if (this.data?.voting_guard != null) {
                 perms.push(PermissionIndex.arbitration_voting_guard)
             }
-            if (this.data?.arb_arbitration !== undefined) {
+            if (this.data?.arb_arbitration != null) {
                 perms.push(PermissionIndex.arbitration_arbitration)
             }
 
-            if (this.data?.arb_new !== undefined) { // new arb with guard and permission
+            if (this.data?.arb_new != null) { // new arb with guard and permission
                 if (this.object_address) { 
                     if ((this.content as ObjectArbitration)?.usage_guard) {
                         guards.push((this.content as ObjectArbitration).usage_guard!)
@@ -104,7 +105,7 @@ export class CallArbitration extends CallBase {
                 }
             }
 
-            if (this.data?.arb_vote !== undefined) {
+            if (this.data?.arb_vote != null) {
                 perms.push(PermissionIndex.arbitration_vote);
 
                 const voting_guard = await LocalMark.Instance().get_address(this.data?.arb_vote?.voting_guard);
@@ -150,7 +151,7 @@ export class CallArbitration extends CallBase {
             
         const pst = perm?undefined:passport;
         var arb_new : ArbObject | undefined;
-        if (this.data?.arb_new !== undefined) {
+        if (this.data?.arb_new != null) {
             const d = this.data?.arb_new.data; 
             const fee = BigInt((this.object_address ? (this.content as ObjectArbitration)?.fee : this.data?.fee) ?? 0);
             const max_fee = BigInt(d.max_fee ?? fee);
@@ -171,21 +172,21 @@ export class CallArbitration extends CallBase {
             
         }
 
-        if (this.data?.arb_arbitration !== undefined) {
+        if (this.data?.arb_arbitration != null) {
             const a = await LocalMark.Instance().get_address(this.data.arb_arbitration.arb) ?? arb_new;
             if (!a) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_arbitration.arb');
 
             obj?.arbitration({arb:a!, feedback:this.data.arb_arbitration.feedback, indemnity:this.data.arb_arbitration.indemnity}, pst)
         }
 
-        if (this.data?.arb_vote !== undefined) {
+        if (this.data?.arb_vote != null) {
             const a = await LocalMark.Instance().get_address(this.data.arb_vote.arb) ?? arb_new;
             if (!a) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_vote.arb');
 
             obj?.vote({arb:a!, voting_guard:this.data.arb_vote.voting_guard, agrees:this.data.arb_vote.agrees}, pst)
         }
 
-        if (this.data?.arb_withdraw_fee !== undefined) {
+        if (this.data?.arb_withdraw_fee != null) {
             const a = await LocalMark.Instance().get_address(this.data.arb_withdraw_fee.arb);
             if (!a) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.arb_withdraw_fee.arb');
     
@@ -196,16 +197,16 @@ export class CallArbitration extends CallBase {
             await this.new_with_mark('Arb', txb, obj?.arb_launch(arb_new), (this.data?.arb_new as any)?.namedNew, account);
         }
 
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint !== undefined) {
+        if (this.data?.endpoint != null) {
             obj?.set_endpoint(this.data.endpoint, pst)
         }
-        if (this.data?.fee !== undefined && this.object_address) {
+        if (this.data?.fee != null && this.object_address) {
             obj?.set_fee(BigInt(this.data.fee), pst)
         }
-        if (this.data?.fee_treasury !== undefined && this.object_address) {
+        if (this.data?.fee_treasury != null && this.object_address) {
             const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.fee_treasury));
             if (!treasury_address) {
                 withdraw_treasury = Treasury.New(txb, this.type_parameter!, permission, 
@@ -223,7 +224,7 @@ export class CallArbitration extends CallBase {
             obj?.set_guard(guard, pst)
         }
 
-        if (this.data?.voting_guard !== undefined) {
+        if (this.data?.voting_guard != null) {
             switch (this.data.voting_guard.op) {
                 case 'add':
                 case 'set':
@@ -251,7 +252,7 @@ export class CallArbitration extends CallBase {
             }
         }
 
-        if (this.data?.bPaused !== undefined) {
+        if (this.data?.bPaused != null) {
             obj?.pause(this.data.bPaused, pst);
         }
         if (withdraw_treasury) {

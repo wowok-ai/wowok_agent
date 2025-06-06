@@ -44,21 +44,21 @@ export class CallService extends CallBase {
     async prepare() {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
-            if (this.object_address) {
-                await this.update_content('Service', this.object_address);
-                if (!this.content)
-                    ERROR(Errors.InvalidParam, 'CallService_Data.data.object:' + this.object_address);
-                this.permission_address = this.content.permission;
-                this.type_parameter = Service.parseObjectType(this.content.type_raw);
+        }
+        if (this.object_address) {
+            await this.update_content('Service', this.object_address);
+            if (!this.content)
+                ERROR(Errors.InvalidParam, 'CallService_Data.data.object:' + this.object_address);
+            this.permission_address = this.content.permission;
+            this.type_parameter = Service.parseObjectType(this.content.type_raw);
+        }
+        else {
+            const n = GetObjectMain(this.data.object);
+            if (!IsValidArgType(n?.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallService_Data.data.object.type_parameter');
             }
-            else {
-                const n = GetObjectMain(this.data.object);
-                if (!IsValidArgType(n?.type_parameter)) {
-                    ERROR(Errors.IsValidArgType, 'CallService_Data.data.object.type_parameter');
-                }
-                this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-                this.type_parameter = n.type_parameter;
-            }
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
+            this.type_parameter = Service.parseObjectType(n.type_parameter);
         }
     }
     async call(account) {

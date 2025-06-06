@@ -50,16 +50,16 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     protected async prepare()  {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data?.object)));
-
-            if (this.object_address) {
-                await this.update_content('Machine', this.object_address);
-                if (!this.content) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object:' + this.object_address);
-                this.permission_address = (this.content as ObjectMachine).permission;
-            } else {
-                const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission; 
-                this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            } 
         }
+
+        if (this.object_address) {
+            await this.update_content('Machine', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object:' + this.object_address);
+            this.permission_address = (this.content as ObjectMachine).permission;
+        } else {
+            const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission; 
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
+        } 
     }
 
     async call(account?:string) : Promise<CallResult>  {
@@ -71,49 +71,49 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine)
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.machine_description)
             }
-            if (this.data?.endpoint !== undefined && this.object_address) {
+            if (this.data?.endpoint != null && this.object_address) {
                 perms.push(PermissionIndex.machine_endpoint)
             }
-            if (this.data?.consensus_repository !== undefined) {
+            if (this.data?.consensus_repository != null) {
                 perms.push(PermissionIndex.machine_repository)
             }
-            if (this.data?.nodes !== undefined) {
+            if (this.data?.nodes != null) {
                 perms.push(PermissionIndex.machine_node)
             }
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.machine_publish)
             }
-            if (this.data?.progress_new !== undefined) {
+            if (this.data?.progress_new != null) {
                 perms.push(PermissionIndex.progress)
             }
-            if (this.data?.progress_context_repository !== undefined) {
+            if (this.data?.progress_context_repository != null) {
                 perms.push(PermissionIndex.progress_context_repository)
             }
-            if (this.data?.progress_namedOperator !== undefined) {
+            if (this.data?.progress_namedOperator != null) {
                 perms.push(PermissionIndex.progress_namedOperator)
             }
-            if (this.data?.progress_parent !== undefined) {
+            if (this.data?.progress_parent != null) {
                 perms.push(PermissionIndex.progress_parent)
             }
-            if (this.data?.progress_task !== undefined) {
+            if (this.data?.progress_task != null) {
                 perms.push(PermissionIndex.progress_bind_task)
             }
-            if (this.data?.progress_hold !== undefined) {
+            if (this.data?.progress_hold != null) {
                 if (this.data.progress_hold.adminUnhold) {
                     perms.push(PermissionIndex.progress_unhold)
                 } 
             }
-            if (this.data?.bPaused !== undefined) {
+            if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.machine_pause)
             }
-            if (this.data?.clone_new!== undefined) {
+            if (this.data?.clone_new!= null) {
                 perms.push(PermissionIndex.machine_clone)
             }
 
-            if (this.data?.progress_next !== undefined) {
+            if (this.data?.progress_next != null) {
                 if (this.object_address) { // fetch guard
                     const [p, acc] = await Promise.all([
                         LocalMark.Instance().get_address(this.data?.progress_next.progress), 
@@ -159,11 +159,11 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
 
         const pst = perm?undefined:passport;
         var new_progress : Progress | undefined;
-        if (this.data?.progress_new !== undefined) {
+        if (this.data?.progress_new != null) {
             const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
             new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
         }
-        if (this.data?.progress_context_repository !== undefined) {
+        if (this.data?.progress_context_repository != null) {
             const p = this.data?.progress_context_repository.progress 
                 ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
                 : new_progress?.get_object();
@@ -171,7 +171,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
             Progress.From(txb, obj?.get_object(), permission, p!).set_context_repository(rep, pst)
         }
-        if (this.data?.progress_namedOperator !== undefined) {
+        if (this.data?.progress_namedOperator != null) {
             const p = this.data?.progress_namedOperator.progress 
                 ? await LocalMark.Instance().get_address(this.data?.progress_namedOperator.progress)
                 : new_progress?.get_object();
@@ -184,7 +184,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 pp.set_namedOperator(v.name, addrs, pst);
             }
         }
-        if (this.data?.progress_parent !== undefined) {
+        if (this.data?.progress_parent != null) {
             const p = this.data?.progress_parent.progress 
                 ? await LocalMark.Instance().get_address(this.data?.progress_parent.progress)
                 : new_progress?.get_object();
@@ -200,7 +200,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 Progress.From(txb, obj?.get_object(), permission, p!).parent_none();
             }
         }
-        if (this.data?.progress_hold !== undefined) {
+        if (this.data?.progress_hold != null) {
             const p = this.data?.progress_hold.progress 
                 ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
                 : new_progress?.get_object();
@@ -212,11 +212,11 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 Progress.From(txb, obj?.get_object(), permission, p!).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold)
             }
         }            
-        if (this.data?.progress_task !== undefined) {
+        if (this.data?.progress_task != null) {
             const [p, task] = await LocalMark.Instance().get_many_address([this.data?.progress_task.progress, this.data?.progress_task.task_address]);
             if (p && task) Progress.From(txb, obj?.get_object(), permission, p).bind_task(task, pst);
         }
-        if (this.data?.progress_next !== undefined) {
+        if (this.data?.progress_next != null) {
             const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
             var t: OrderWrap[] = [];
@@ -242,14 +242,14 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
         }
 
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint !== undefined && this.object_address) {
+        if (this.data?.endpoint != null && this.object_address) {
             obj?.set_endpoint(this.data.endpoint, pst)
         }
 
-        if (this.data?.consensus_repository !== undefined) {
+        if (this.data?.consensus_repository != null) {
             switch (this.data.consensus_repository.op) {
                 case 'add': 
                 case 'set':
@@ -270,7 +270,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     break;
             }
         }
-        if (this.data?.nodes !== undefined) {
+        if (this.data?.nodes != null) {
             switch (this.data?.nodes?.op) {
                 case 'add':
                     obj?.add_node(this.data.nodes.data, pst)
@@ -299,10 +299,10 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             obj?.publish(passport)
         }
 
-        if (this.data?.bPaused !== undefined) {
+        if (this.data?.bPaused != null) {
             obj?.pause(this.data.bPaused, pst)
         }
-        if (this.data?.clone_new !== undefined && this.object_address) {
+        if (this.data?.clone_new != null && this.object_address) {
             await this.new_with_mark('Machine', txb, obj?.clone(true, pst) as TxbAddress, (this.data?.clone_new as any)?.namedNew, account);
         }
         if (perm) {

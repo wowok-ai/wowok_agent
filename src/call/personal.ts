@@ -33,7 +33,7 @@ export class CallPersonal extends CallBase {
             obj = Resource.From(txb, entity.create_resource2());
         }
 
-        if (this.data?.information !== undefined ) {
+        if (this.data?.information != null ) {
             entity.update(this.data.information)
         }
 

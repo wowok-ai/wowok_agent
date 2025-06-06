@@ -44,20 +44,21 @@ export class CallTreasury extends CallBase {
     protected async prepare(): Promise<void> {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
-            if (this.object_address) {
-                await this.update_content('Treasury', this.object_address);
-                if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.object_address);
-                this.permission_address = (this.content as ObjectTreasury).permission;
-                this.type_parameter = Treasury.parseObjectType(this.content.type_raw);
-            } else {
-                const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
-                if (!IsValidArgType(n?.type_parameter)) {
-                    ERROR(Errors.IsValidArgType, 'CallTreasury_Data.data.object.type_parameter');
-                }          
-                this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-                this.type_parameter = n.type_parameter;
-            } 
         }
+        if (this.object_address) {
+            await this.update_content('Treasury', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.object_address);                
+
+            this.permission_address = (this.content as ObjectTreasury).permission;
+            this.type_parameter = Treasury.parseObjectType((this.content as ObjectTreasury).type_raw);
+        } else {
+            const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
+            if (!IsValidArgType(n?.type_parameter)) {
+                ERROR(Errors.IsValidArgType, 'CallTreasury_Data.data.object.type_parameter');
+            }          
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
+            this.type_parameter = Treasury.parseObjectType(n.type_parameter);
+        } 
     }
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
@@ -68,32 +69,32 @@ export class CallTreasury extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.treasury)
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.treasury_descritption)
             }
-            if (this.data?.withdraw_mode !== undefined) {
+            if (this.data?.withdraw_mode != null) {
                 perms.push(PermissionIndex.treasury_withdraw_mode)
             }
-            if (this.data?.withdraw_guard == undefined) { // publish is an irreversible one-time operation 
+            if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.treasury_withdraw_guard)
             }
-            if (this.data?.deposit_guard !== undefined) {
+            if (this.data?.deposit_guard != null) {
                 perms.push(PermissionIndex.treasury_deposit_guard)
             }
-            if (this.data?.deposit_guard !== undefined) {
+            if (this.data?.deposit_guard != null) {
                 perms.push(PermissionIndex.treasury_deposit_guard)
             }
-            if (this.data?.deposit !== undefined) {
+            if (this.data?.deposit != null) {
                 if (this.object_address) {
                     if ((this.content as ObjectTreasury)?.deposit_guard) {
                         guards.push((this.content as ObjectTreasury).deposit_guard!)
                     }
                 }
             }
-            if (this.data?.receive !== undefined) {
+            if (this.data?.receive != null) {
                 perms.push(PermissionIndex.treasury_receive)
             }
-            if (this.data?.withdraw?.withdraw_guard !== undefined) { // withdraw with guard
+            if (this.data?.withdraw?.withdraw_guard != null) { // withdraw with guard
                 const guard = await get_object_address(this.data.withdraw.withdraw_guard);
                 if (guard) {
                     guards.push(guard)
@@ -128,7 +129,7 @@ export class CallTreasury extends CallBase {
         if (!permission) ERROR(Errors.InvalidParam, 'CallTreasury_Data.permission:' + this.permission_address);
 
         const pst = perm?undefined:passport;
-        if (this.data.deposit !== undefined) {
+        if (this.data.deposit != null) {
             const coin = await Account.Instance().get_coin_object(txb, this.data.deposit.balance, account, this.type_parameter);
             if (coin) {
                 const index = this.data.deposit?.param?.index ?? 0;
@@ -136,7 +137,7 @@ export class CallTreasury extends CallBase {
                 obj?.deposit({coin:coin, index:BigInt(index), remark:this.data.deposit?.param?.remark ??'', for_guard, for_object});
             }
         }
-        if (this.data?.receive !== undefined && this.object_address) {
+        if (this.data?.receive != null && this.object_address) {
             if (this.data.receive === 'recently') {
                 const r = await Treasury.GetTreasuryRecievedObject(this.object_address, this.type_parameter!);
                 if (!r) {
@@ -161,7 +162,7 @@ export class CallTreasury extends CallBase {
             }
         }
 
-        if (this.data?.withdraw !== undefined) {
+        if (this.data?.withdraw != null) {
             const [for_guard, for_object] = await LocalMark.Instance().get_many_address([this.data.withdraw?.for_guard, this.data.withdraw?.for_object]);
             const receiver = [];
             for (let i=0;i < this.data.withdraw.receiver.length; ++i) {
@@ -175,14 +176,14 @@ export class CallTreasury extends CallBase {
                 for_guard, for_object, withdraw_guard: await LocalMark.Instance().get_address(this.data.withdraw.withdraw_guard)}, pst);
         }
 
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.deposit_guard !== undefined) {
+        if (this.data?.deposit_guard != null) {
             const guard = await LocalMark.Instance().get_address(this.data?.deposit_guard);
             obj?.set_deposit_guard(guard, pst);
         }
-        if (this.data?.withdraw_guard !== undefined) {
+        if (this.data?.withdraw_guard != null) {
             switch (this.data.withdraw_guard.op) {
                 case 'add':
                 case 'set':
@@ -202,7 +203,7 @@ export class CallTreasury extends CallBase {
                     break;
             }
         }
-        if (this.data?.withdraw_mode !== undefined) {
+        if (this.data?.withdraw_mode != null) {
             obj?.set_withdraw_mode(this.data.withdraw_mode, pst)
         }
         if (perm) {

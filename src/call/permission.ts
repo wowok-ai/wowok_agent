@@ -59,13 +59,13 @@ export class CallPermission extends CallBase {
         
         await this.prepare();
         if (this.object_address) {
-            if (this.data?.builder !== undefined || this.data?.admin !== undefined) {
+            if (this.data?.builder != null || this.data?.admin != null) {
                 checkOwner = true;
             }
-            if (this.data?.permission !== undefined || this.data?.biz_permission !== undefined) {
+            if (this.data?.permission != null || this.data?.biz_permission != null) {
                 checkAdmin = true;
             }
-            if (this.data?.description !== undefined) {
+            if (this.data?.description != null) {
                 checkAdmin = true;
             }
             return await this.check_permission_and_call(this.object_address, [], [], checkOwner, checkAdmin, account)
@@ -83,10 +83,10 @@ export class CallPermission extends CallBase {
 
         if (!obj)  ERROR(Errors.InvalidParam, 'CallPermission_Data.data.object');
 
-        if (this.data?.description !== undefined && this.data?.object) {
+        if (this.data?.description != null && this.data?.object) {
             obj?.set_description(this.data.description)
         }
-        if (this.data?.biz_permission !== undefined) { // High priority operate
+        if (this.data?.biz_permission != null) { // High priority operate
             switch(this.data.biz_permission.op) {
                 case 'add':
                     this.data.biz_permission.data.forEach(v => {
@@ -100,7 +100,7 @@ export class CallPermission extends CallBase {
                     break;
             }
         }
-        if (this.data?.permission !== undefined) {
+        if (this.data?.permission != null) {
             switch (this.data.permission.op) {
                 case 'add entity':
                     var add_entity:Wowok_Permission_Entity[] = [];
@@ -144,7 +144,7 @@ export class CallPermission extends CallBase {
                     break;
             }
         }
-        if (this.data?.admin !== undefined) {
+        if (this.data?.admin != null) {
             switch(this.data.admin?.op) {
                 case 'add':
                 case 'set': 
@@ -161,7 +161,7 @@ export class CallPermission extends CallBase {
                     break;
             }
         }
-        if (this.data?.builder !== undefined ) {
+        if (this.data?.builder != null ) {
             const b = await GetAccountOrMark_Address(this.data.builder);
             if (b) obj?.change_owner(b);
         }

@@ -60,15 +60,15 @@ export class CallRepository extends CallBase {
 
     protected async prepare(): Promise<void> {
         if (!this.object_address) {
-            this.object_address = (await LocalMark.Instance().get(GetObjectExisted(this.data?.object)))?.address;
-            if (this.object_address) {
-                await this.update_content('Repository', this.object_address);
-                if (!this.content) ERROR(Errors.InvalidParam, 'CallRepository_Data.data.object:' + this.object_address);
-                this.permission_address = (this.content as ObjectRepository).permission;
-            } else {
-                const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission; 
-                this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            }            
+            this.object_address = (await LocalMark.Instance().get(GetObjectExisted(this.data?.object)))?.address;            
+        }
+        if (this.object_address) {
+            await this.update_content('Repository', this.object_address);
+            if (!this.content) ERROR(Errors.InvalidParam, 'CallRepository_Data.data.object:' + this.object_address);
+            this.permission_address = (this.content as ObjectRepository).permission;
+        } else {
+            const n = GetObjectMain(this.data?.object) as TypeNamedObjectWithPermission; 
+            this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
         }
     }
     async call(account?:string) : Promise<CallResult>   {
@@ -80,16 +80,16 @@ export class CallRepository extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.repository)
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.repository_description)
             }
-            if (this.data?.mode !== undefined && this.object_address) {
+            if (this.data?.mode != null && this.object_address) {
                 perms.push(PermissionIndex.repository_mode)
             }
-            if (this.data?.reference !== undefined) {
+            if (this.data?.reference != null) {
                 perms.push(PermissionIndex.repository_reference)
             }
-            if (this.data?.policy !== undefined) {
+            if (this.data?.policy != null) {
                 perms.push(PermissionIndex.repository_policies)
             }
             return await this.check_permission_and_call(this.permission_address, perms, [], checkOwner, undefined, account)
@@ -120,10 +120,10 @@ export class CallRepository extends CallBase {
         if (!permission) ERROR(Errors.InvalidParam, 'CallRepository_Data.permission:' + this.permission_address);
 
         const pst = perm?undefined:passport;
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.reference !== undefined) {
+        if (this.data?.reference != null) {
             switch (this.data.reference.op) {
                 case 'set':
                 case 'add':
@@ -138,10 +138,10 @@ export class CallRepository extends CallBase {
                     break;
             }
         }
-        if (this.data?.mode !== undefined && this.object_address) { //@ priority??
+        if (this.data?.mode != null && this.object_address) { //@ priority??
             obj?.set_policy_mode(this.data.mode, pst)
         }
-        if (this.data?.policy !== undefined) {
+        if (this.data?.policy != null) {
             switch(this.data.policy.op) {
                 case 'set':
                     obj?.remove_policies([], true, pst);
@@ -163,10 +163,10 @@ export class CallRepository extends CallBase {
                     break;
             }
         }
-        if (this.data?.data !== undefined) {
+        if (this.data?.data != null) {
             switch(this.data.data.op) {
                 case 'add':
-                    if ((this.data.data?.data as any)?.key !== undefined) {
+                    if ((this.data.data?.data as any)?.key != null) {
                         const d = (this.data.data.data as Repository_Policy_Data).data;
                         const add: Wowok_Repository_Value[] = [];
                         for (let i=0; i<d.length; ++i) {
@@ -176,7 +176,7 @@ export class CallRepository extends CallBase {
                             }
                         }
                         obj?.add_data({key:(this.data.data.data as Repository_Policy_Data).key, data:add, value_type:(this.data.data.data as Repository_Policy_Data).value_type});
-                    } else if ((this.data.data?.data as any)?.address !== undefined) {
+                    } else if ((this.data.data?.data as any)?.address != null) {
                         const d = this.data.data.data as Repository_Policy_Data2;
                         const addr = await GetAddressID(d.address);
                         if (addr) {
