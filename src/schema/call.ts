@@ -2,10 +2,11 @@
 import { z, ZodAny, ZodUnionDef } from "zod";
 import * as WOWOK from 'wowok';
 import { local_info_operation, local_mark_operation } from "../local/index.js";
-import { AccountOperationSchema, AccountOperationSchemaDescription, LocalInfoOperationSchema, LocalInfoOperationSchemaDescription, LocalMarkOperationSchema, LocalMarkOperationSchemaDescription } from "./local.js";
+import { AccountOperationSchema, LocalMarkOperationSchema } from "./local.js";
 import * as D from './const.js';
+import { zodToJsonSchema } from "zod-to-json-schema";
 
-export const GetMarkNameSchema = (object:string='') => {
+export const GetMarkNameSchema = (object:string='') : z.ZodString=> {
     return z.string().nonempty().describe(D.MarkName_Address_Description(object));
 } 
 
@@ -765,6 +766,9 @@ export const CallDemandSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallDemandSchemaInput = () => {
+    return zodToJsonSchema(CallDemandSchema);
+}
 
 export const CallRepositorySchemaDescription = `Operate the on-chain Repository object using the local account signatures.
 The Repository serves as an on-chain data warehouse, storing and managing consensus data items retrievable and maintained via a dual identifier system: an address (physical locator) and a policy (semantic name defined by multi-party consensus). It can be referenced by Guards for data validation—e.g., verifying an address's medical data in a named medical Repository to release insurance payouts from a Treasury, or using daily weather data from a named weather Repository to adjust service workflows (e.g., sport recommendations). Permissions can be flexibly configured per policy to enhance data comprehension, adoption, and maintenance.`;
@@ -774,6 +778,9 @@ export const CallRepositorySchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallRepositorySchemaInput = () => {
+    return zodToJsonSchema(CallRepositorySchema);
+}
 
 export const CallMachineSchemaDescription = `Operate the on-chain Machine object using the local account signatures. 
     The Machine object is a core workflow management entity in the wowok protocol, designed to enable multi-user collaboration by providing three key capabilities: 
@@ -787,6 +794,9 @@ export const CallMachineSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallMachineSchemaInput = () => {
+    return zodToJsonSchema(CallMachineSchema);
+}
 
 export const CallServiceSchemaDescription = `Operate the on-chain Service object using the local account signatures.
     Service Object enables service providers to:
@@ -804,6 +814,9 @@ export const CallServiceSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallServiceSchemaInput = () => {
+    return zodToJsonSchema(CallServiceSchema);
+}
 
 export const CallTreasurySchemaDescription = `Operate the on-chain Treasury object using the local account signatures. The Treasury object serves as a centralized fund management hub for wowok protocol, supporting multi-scenario financial operations including service incentives distribution, dispute compensation execution, and operational reward disbursement.
 - **Service Reward Mode**: Automatically disburses predefined incentives to service providers via smart contract triggers upon successful completion of service orders (e.g., e-commerce transaction fulfillment, travel service delivery).
@@ -818,6 +831,10 @@ export const CallTreasurySchema = z.object({
     witness: WitnessSchema,
 });
 
+export const CallTreasurySchemaInput = () => {
+    return zodToJsonSchema(CallTreasurySchema);
+}
+
 export const CallPermissionSchemaDescription = `Operate the on-chain Permission object using the local account signatures. The Permission object is designed to manage access control for core wowok protocol entities (e.g., Machine, Service, Repository, Treasury). It defines granular operation permissions (e.g., read, write, management) for specific entities or addresses, ensuring only authorized subjects can perform designated actions on the associated on-chain objects (such as data modification, fund transfer, or configuration updates). This mechanism safeguards the security and compliance of protocol resource operations.`
 export const CallPermissionSchema = z.object({
     name: z.literal('permission'),
@@ -825,6 +842,9 @@ export const CallPermissionSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallPermissionSchemaInput = () => {
+    return zodToJsonSchema(CallPermissionSchema);
+}
 
 export const CallArbitrationSchemaDescription = `Operate the on-chain Arbitration object using the local account signatures. 
 The Arbitration object is designed to handle order disputes, particularly those involving off-chain data, evidence, and proofs. A public arbitration panel reviews the dispute, votes, and determines the compensation amount. If the order's Service object declares support for this Arbitration, the determined compensation amount allows the order payer to immediately withdraw funds from the order.
@@ -835,6 +855,9 @@ export const CallArbitrationSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+export const CallArbitrationSchemaInput = () => {
+    return zodToJsonSchema(CallArbitrationSchema);
+}
 
 export const CallPersonalSchemaDescription = `Operate the on-chain Personal object using local account signatures, including managing public personal information (e.g., avatar URL, personal homepage address, social media accounts like Twitter/Discord, personal introduction) and named tags for addresses/wowok entity objects. The tag management facilitates self/others to understand and manage these addresses/entities, and supports operations such as liking (favoriting) or disliking specific addresses/entity objects.`;
 export const CallPersonalSchema = z.object({
@@ -842,6 +865,9 @@ export const CallPersonalSchema = z.object({
     data:CallPersonalDataSchema,
     account: AccountSchema,
 });
+export const CallPersonalSchemaInput = () => {
+    return zodToJsonSchema(CallPersonalSchema);
+}
 
 export const CallGuardSchemaDescription = `Generate the on-chain Guard object using local account signatures. Guard is designed for conditional verification before critical on-chain operations (e.g., time-based triggers or process completion checks), leveraging Wowok's tools for querying/verifying on-chain data (including entity object content, table data, and oracle inputs).
 Distinct from Permission, Guard provides finer-grained and more flexible permission validation. Once generated, its verification logic is immutable and publicly auditable, enabling reuse across various Wowok object operations.
@@ -851,6 +877,9 @@ export const CallGuardSchema = z.object({
     data:CallGuardDataSchema,
     account: AccountSchema,
 });
+export const CallGuardSchemaInput = () => {
+    return zodToJsonSchema(CallGuardSchema);
+}
 
 export const CallObejctPermissionSchemaDescription = `Batch replace on-chain Permission objects for core wowok protocol entities (Machine, Service, Repository, Treasury, Arbitration, Demand) using local account cryptographic signatures. This operation facilitates centralized access control management by replacing existing Permission objects with new ones, which define granular access rules (e.g., read/write permissions, operation authorizations) for these entity types. Transaction validity requires signers to be the original owners of the target Permission objects, ensuring alignment with wowok protocol's ownership verification mechanism.`; 
 export const CallObejctPermissionSchema = z.object({
@@ -859,6 +888,10 @@ export const CallObejctPermissionSchema = z.object({
     account: AccountSchema,
     witness: WitnessSchema,
 });
+
+export const CallObejctPermissionSchemaInput = () => {
+    return zodToJsonSchema(CallObejctPermissionSchema);
+}
 
 export const OperateSchemaDescription = `Operations on wowok protocol include two categories: 
 

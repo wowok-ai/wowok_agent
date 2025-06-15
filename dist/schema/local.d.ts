@@ -510,4 +510,10 @@ export declare const LocalSchema: z.ZodObject<{
         };
     };
 }>;
+export declare const LocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 //# sourceMappingURL=local.d.ts.map

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { BalanceOrCoin } from "../local/index.js";
 import { LocalInfoNameDefault } from '../local/local.js'
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 export const QueryAccountSchemaDescription = `Query local account information, including on-chain address, token balance, and list of token object addresses.`
 export const QueryAccountSchema = z.object({
@@ -114,3 +115,6 @@ export const LocalSchema = z.object({
         z.object({name:z.literal('info'), data:QueryLocalInfoSchema}).describe(QueryLocalInfoSchemaDescription),
     ])
 });
+export const LocalSchemaInput = () => {
+    return zodToJsonSchema(LocalSchema);
+}

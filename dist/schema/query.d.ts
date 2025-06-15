@@ -11,6 +11,12 @@ export declare const QueryWowokProtocolSchema: z.ZodObject<{
 }, {
     name: WOWOK_PROTOCOL_INFO;
 }>;
+export declare const QueryWowokProtocolSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const Query_TableItems_List_Description = "Retrieves paginated table data records from a Wowok on-chain object, where the table data represents dynamically extensible structured information specific to the object type. \nThe query automatically identifies the object type (one of Permission, Machine, Treasury, Repository, Service, Progress, Arb, PersonalMark, or Demand) and returns data structured according to that specific type's table schema. This enables flexible data retrieval even when the object type of the provided address/name is unknown, with the query result metadata including the identified object type.\nKey details by object type:\n- **Demand**: Records with timestamps, transaction digests, and associated entity details.\n- **Arb**: Arbitration vote entries containing voter addresses, voting weights, and claim lists.\n- **Machine**: Node entries with names, operation paths from previous nodes, and metadata.\n- **PersonalMark**: Address entries with human-readable names and categorical tags.\n- **Permission**: Entries including entity addresses, permission lists (Wowok-defined + custom), and optional Guard constraints.\n- **Repository**: Stored data entries with type-coded fields, searchable addresses, and policy-defined names.\n- **Progress**: Workflow node entries with previous/next node names, timestamps, and operator session logs.\n- **Service**: Product items with names, optional info endpoints, prices, and stock quantities.\n- **Treasury**: Financial transaction records with operation codes, operators, Payment addresses, amounts, and timestamps.";
 export declare const Arb_TableItem_Description = "Retrieves detailed voting information for a specific address within an on-chain Arb object. \nReturns voting details such as voter address, voting weight, and list of voting claims, facilitating transparent tracking of arbitration voting processes.";
 export declare const Demand_TableItem_Description = "Retrieves detailed service recommendation data for a specified address within an on-chain Demand object. \nReturns recommendation details such as service name, recommendation rationale, service provider address, and recommendation timestamp, enabling users to review tailored service suggestions for specific demand requirements.";
@@ -33,6 +39,12 @@ export declare const QueryObjectsSchema: z.ZodObject<{
     objects: string[];
     no_cache?: boolean | undefined;
 }>;
+export declare const QueryObjectsSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryPersonalSchemaDescription = "Query the on-chain personal data by its address.\n    The Personal object contains public information such as the user's homepage URL, social media accounts, avatar, likes and favorites, and object naming tags.";
 export declare const QueryPersonalSchema: z.ZodObject<{
     address: z.ZodUnion<[z.ZodObject<{
@@ -64,6 +76,12 @@ export declare const QueryPersonalSchema: z.ZodObject<{
     };
     no_cache?: boolean | undefined;
 }>;
+export declare const QueryPersonalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryTableItemsSchema: z.ZodObject<{
     parent: z.ZodString;
     cursor: z.ZodNullable<z.ZodOptional<z.ZodString>>;
@@ -80,6 +98,12 @@ export declare const QueryTableItemsSchema: z.ZodObject<{
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
 }>;
+export declare const QueryTableItemsSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const TableItemSchema: z.ZodObject<{
     parent: z.ZodString;
     key: z.ZodObject<{
@@ -139,6 +163,12 @@ export declare const QueryPermissionSchema: z.ZodObject<{
     };
     permission_object: string;
 }>;
+export declare const QueryPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const EventCursorSchema: z.ZodObject<{
     eventSeq: z.ZodString;
     txDigest: z.ZodString;
@@ -166,21 +196,27 @@ export declare const QueryEventSchema: z.ZodObject<{
     order: z.ZodNullable<z.ZodOptional<z.ZodEnum<["ascending", "descending"]>>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }>;
+export declare const QueryEventSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryByAddressSchema: z.ZodObject<{
     parent: z.ZodString;
     address: z.ZodString;
@@ -249,6 +285,12 @@ export declare const QueryTreasuryReceivedSchema: z.ZodObject<{
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
 }>;
+export declare const QueryTreasuryReceivedSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryTableItemSchemaDescription = "Retrieves a specific table data item from a Wowok on-chain object based on query criteria. This schema describes the structured format of individual table items returned by the query, varying according to the object type.\n\nSupported object types and their corresponding item schemas:\n- **Demand**: An item containing timestamp (u64), transaction_digest (string), and associated_entity (address).\n- **Arb**: An item with voter_address (address), voting_weight (u64), and claim_list (array<string>).\n- **Machine**: An item including node_name (string), operation_paths (array<string>), and metadata (string).\n- **PersonalMark**: An item with address (address), name (string), and tags (array<string>).\n- **Permission**: An item containing entity_address (address), permissions (array<string>), and guard_constraints (optional<address>).\n- **Repository**: An item with data_fields (string), searchable_address (address), and field_name (string).\n- **Progress**: An item including prev_node (string), next_node (string), timestamp (u64), and session_logs (array<string>).\n- **Service**: An item with product_name (string), endpoint (optional<string>), price (u64), and stock (u64).\n- **Treasury**: An item containing operation_code (string), operator (address), payment_address (address), amount (u64), and timestamp (u64).";
 export declare const QueryTableItemSchema: z.ZodObject<{
     query: z.ZodUnion<[z.ZodObject<{
@@ -651,4 +693,10 @@ export declare const QueryTableItemSchema: z.ZodObject<{
         };
     };
 }>;
+export declare const QueryTableItemSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 //# sourceMappingURL=query.d.ts.map

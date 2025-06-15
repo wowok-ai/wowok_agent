@@ -1,6 +1,8 @@
 
 import { z } from "zod";
 import { GetMarkNameSchema, AccountNameSchema, AccountOrMarkNameSchema } from "./call.js";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
 
 export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data.`;
 export enum WOWOK_PROTOCOL_INFO {
@@ -14,6 +16,9 @@ export const QueryWowokProtocolSchema = z.object({
         z.literal(WOWOK_PROTOCOL_INFO.GuardQueryCommands).describe("Commands for Guard querying of the Wowok protocol"),     
     ]).describe("Name of the Wowok protocol object to query."),
 });
+export const QueryWowokProtocolSchemaInput = () => {
+    return zodToJsonSchema(QueryWowokProtocolSchema);
+}
 
 export const Query_TableItems_List_Description = `Retrieves paginated table data records from a Wowok on-chain object, where the table data represents dynamically extensible structured information specific to the object type. 
 The query automatically identifies the object type (one of Permission, Machine, Treasury, Repository, Service, Progress, Arb, PersonalMark, or Demand) and returns data structured according to that specific type's table schema. This enables flexible data retrieval even when the object type of the provided address/name is unknown, with the query result metadata including the identified object type.
@@ -56,13 +61,18 @@ export const QueryObjectsSchema = z.object({
     objects: z.array(GetMarkNameSchema()).describe("Wowok object addresses."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
 });
-
+export const QueryObjectsSchemaInput = () => {
+    return zodToJsonSchema(QueryObjectsSchema);
+}
 export const QueryPersonalSchemaDescription = `Query the on-chain personal data by its address.
     The Personal object contains public information such as the user's homepage URL, social media accounts, avatar, likes and favorites, and object naming tags.`;
 export const QueryPersonalSchema = z.object({
     address: AccountOrMarkNameSchema.describe("Personal address to query."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
 });
+export const QueryPersonalSchemaInput = () => {
+    return zodToJsonSchema(QueryPersonalSchema);
+}
 
 export const QueryTableItemsSchema = z.object({
     parent: z.string().describe("The address or name of the on-chain object that owns the table."),
@@ -72,6 +82,9 @@ export const QueryTableItemsSchema = z.object({
     limit: z.number().optional().nullable().describe("Maximum item returned per page, default to 50 if not specified."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
 });
+export const QueryTableItemsSchemaInput = () => {
+    return zodToJsonSchema(QueryTableItemsSchema);
+}
 
 export const TableItemSchema = z.object({
     parent: z.string().describe("The address or name of the on-chain object that owns the table."),
@@ -87,6 +100,9 @@ export const QueryPermissionSchema = z.object({
     permission_object: GetMarkNameSchema('Permission'),
     address: AccountOrMarkNameSchema,
 });
+export const QueryPermissionSchemaInput = () => {
+    return zodToJsonSchema(QueryPermissionSchema);
+}
 
 export const EventCursorSchema = z.object({
     eventSeq: z.string().describe('Event sequence.'),
@@ -100,6 +116,9 @@ export const QueryEventSchema = z.object({
     limit: z.number().optional().nullable().describe('Mmaximum number of items per page, default to 50 if not specified.'),
     order: z.enum(['ascending', 'descending']).optional().nullable().describe('Query result ordering, default to "ascending order", oldest record first.')
 });
+export const QueryEventSchemaInput = () => {
+    return zodToJsonSchema(QueryEventSchema);
+}
 
 export const QueryByAddressSchema = z.object({
     parent: z.string().describe("The address or name of the on-chain object that owns the table."),
@@ -136,6 +155,9 @@ export const QueryTreasuryReceivedSchema = z.object({
     cursor: z.string().optional().nullable().describe('Paging cursor.'),
     limit: z.number().optional().nullable().describe('Mmaximum number of items per page, default to 50 if not specified.'),
 });
+export const QueryTreasuryReceivedSchemaInput = () => {
+    return zodToJsonSchema(QueryTreasuryReceivedSchema);
+}
 
 export const QueryTableItemSchemaDescription = `Retrieves a specific table data item from a Wowok on-chain object based on query criteria. This schema describes the structured format of individual table items returned by the query, varying according to the object type.
 
@@ -162,3 +184,7 @@ export const QueryTableItemSchema = z.object({
         z.object({name:z.literal('progress'), data:QueryByIndexSchema}).describe(Progress_TableItem_Description)
     ])
 })
+
+export const QueryTableItemSchemaInput = () => {
+    return zodToJsonSchema(QueryTableItemSchema);
+}
