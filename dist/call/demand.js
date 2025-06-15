@@ -28,7 +28,7 @@ export class CallDemand extends CallBase {
                 ERROR(Errors.IsValidArgType, 'CallDemand_Data.data.object.type_parameter');
             }
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            this.type_parameter = Demand.parseObjectType(n.type_parameter);
+            this.type_parameter = n?.type_parameter;
         }
     }
     async call(account) {
@@ -40,10 +40,10 @@ export class CallDemand extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.demand);
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.demand_description);
             }
-            if (this.data?.time_expire !== undefined && this.object_address) {
+            if (this.data?.time_expire != null && this.object_address) {
                 perms.push(PermissionIndex.demand_expand_time);
             }
             if (this.data?.bounty?.op === 'reward') {
@@ -52,10 +52,10 @@ export class CallDemand extends CallBase {
             if (this.data?.bounty?.op === 'refund') {
                 perms.push(PermissionIndex.demand_refund);
             }
-            if (this.data?.guard !== undefined) {
+            if (this.data?.guard != null) {
                 perms.push(PermissionIndex.demand_guard);
             }
-            if (this.data?.present !== undefined) {
+            if (this.data?.present != null) {
                 if (this.object_address) {
                     if (this.content?.guard?.object) {
                         guards.push(this.content.guard?.object);
@@ -81,7 +81,7 @@ export class CallDemand extends CallBase {
                 perm = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
                 permission = perm.get_object();
             }
-            if (this.data.time_expire !== undefined) {
+            if (this.data.time_expire != null) {
                 obj = Demand.New(txb, this.type_parameter, this.data.time_expire?.op === 'duration' ? true : false, this.data.time_expire?.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire?.time, permission, this.data?.description ?? '', perm ? undefined : passport);
             }
             else {
@@ -94,8 +94,8 @@ export class CallDemand extends CallBase {
         if (!permission)
             ERROR(Errors.InvalidParam, 'CallDemand_Data.data.object.permission');
         const pst = perm ? undefined : passport;
-        if (this.data?.present !== undefined) {
-            if (this.content?.guard?.service_id_in_guard !== undefined && this.content?.guard?.service_id_in_guard !== null) {
+        if (this.data?.present != null) {
+            if (this.content?.guard?.service_id_in_guard != null && this.content?.guard?.service_id_in_guard !== null) {
                 obj?.present(this.content.guard.service_id_in_guard, undefined, this.data.present.recommend_words, pst);
             }
             else {
@@ -113,19 +113,19 @@ export class CallDemand extends CallBase {
                 obj?.present(service_address, service_type, this.data.present.recommend_words, pst);
             }
         }
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.time_expire !== undefined && this.object_address) {
+        if (this.data?.time_expire != null && this.object_address) {
             obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, pst);
         }
-        if (this.data?.bounty !== undefined) {
+        if (this.data?.bounty != null) {
             if (this.data.bounty.op === 'add') {
                 const bounty = await LocalMark.Instance().get_address(this.data.bounty.object?.address);
                 if (bounty) {
                     obj.deposit(bounty);
                 }
-                else if (this.data.bounty.object?.balance !== undefined) {
+                else if (this.data.bounty.object?.balance != null) {
                     const r = await Account.Instance().get_coin_object(txb, this.data.bounty.object?.balance, account, this.type_parameter);
                     if (r)
                         obj.deposit(r);
@@ -141,12 +141,17 @@ export class CallDemand extends CallBase {
                 obj?.refund(pst);
             }
         }
-        if (this.data?.guard !== undefined) {
-            const guard = await LocalMark.Instance().get_address(this.data?.guard.address);
-            if (!guard) {
-                ERROR(Errors.InvalidParam, 'CallDemand_Data.data.guard.address');
+        if (this.data?.guard != null) {
+            if (!this.data?.guard.guard) {
+                obj?.set_guard(undefined, undefined, pst);
             }
-            obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);
+            else {
+                const guard = await LocalMark.Instance().get_address(this.data?.guard.guard);
+                if (!guard) {
+                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.guard.guard');
+                }
+                obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);
+            }
         }
         if (perm) {
             const n = GetObjectMain(this.data.object);

@@ -20,8 +20,8 @@ export interface CallArbitration_Data {
     object: ObjectTypedMain;
     arb_new?: {data: DisputeData; namedNew?: Namedbject}; // dispute an order, and a Arb object will be created.
     arb_withdraw_fee?: {arb:string; data:PayParam};
-    arb_vote?: {arb?: string; voting_guard?: string; agrees: number[]};
-    arb_arbitration?: {arb?:string; feedback:string; indemnity?:string|number};
+    arb_vote?: {arb: string; voting_guard?: string; agrees: number[]};
+    arb_arbitration?: {arb:string; feedback:string; indemnity?:string|number};
 
     description?: string;
     endpoint?: string;
@@ -59,7 +59,7 @@ export class CallArbitration extends CallBase {
                 ERROR(Errors.IsValidArgType, 'CallArbitration_Data.data.object.type_parameter');
             }          
             this.permission_address = await LocalMark.Instance().get_address(GetObjectExisted(n?.permission));
-            this.type_parameter = Arbitration.parseObjectType(n.type_parameter);
+            this.type_parameter = (n as any)?.type_parameter;
         }  
     }
 

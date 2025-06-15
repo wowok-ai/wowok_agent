@@ -100,7 +100,7 @@ export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
 } 
 export interface GuardInfo_forCall {
-    guard: string[];
+    guards: string[];
     witness: WitnessFill[];
 }
 
@@ -135,8 +135,8 @@ export class CallBase {
     // throw an exception when errors.
     async call(account?:string) : Promise<CallResult>  { return undefined };
     async call_with_witness (info: GuardInfo_forCall, account?:string) : Promise<CallResponse | undefined> {
-        if (info.guard.length > 0) {         // prepare passport
-            const p: GuardParser | undefined = await GuardParser.Create([...info.guard]);
+        if (info.guards.length > 0) {         // prepare passport
+            const p: GuardParser | undefined = await GuardParser.Create([...info.guards]);
 
             if (p) {
                 const query = await p.done(info.witness);
@@ -189,7 +189,7 @@ export class CallBase {
                     return await this.sign_and_commit(txb, account);
                 }
             } 
-            return {guard:[...guards], witness:p!.future_fills()};
+            return {guards:[...guards], witness:p!.future_fills()};
         } else { // no passport needed
             return await this.exec(account)
         }

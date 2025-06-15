@@ -72,8 +72,8 @@ export class CallBase {
     async call(account) { return undefined; }
     ;
     async call_with_witness(info, account) {
-        if (info.guard.length > 0) { // prepare passport
-            const p = await GuardParser.Create([...info.guard]);
+        if (info.guards.length > 0) { // prepare passport
+            const p = await GuardParser.Create([...info.guards]);
             if (p) {
                 const query = await p.done(info.witness);
                 if (query) {
@@ -124,7 +124,7 @@ export class CallBase {
                     return await this.sign_and_commit(txb, account);
                 }
             }
-            return { guard: [...guards], witness: p.future_fills() };
+            return { guards: [...guards], witness: p.future_fills() };
         }
         else { // no passport needed
             return await this.exec(account);

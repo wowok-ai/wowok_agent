@@ -28,7 +28,7 @@ export interface CallDemand_Data {
         op: 'refund';
     };
     guard?: {
-        address: string;
+        guard: string | null;
         service_id_in_guard?: number;
     };
 }

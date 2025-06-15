@@ -51,7 +51,7 @@ export interface ResponseData extends ObjectBase {
     change: 'created' | 'mutated' | string;
 }
 export interface GuardInfo_forCall {
-    guard: string[];
+    guards: string[];
     witness: WitnessFill[];
 }
 export type CallResult = GuardInfo_forCall | CallResponse | undefined;

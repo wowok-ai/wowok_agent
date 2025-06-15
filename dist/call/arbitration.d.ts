@@ -17,12 +17,12 @@ export interface CallArbitration_Data {
         data: PayParam;
     };
     arb_vote?: {
-        arb?: string;
+        arb: string;
         voting_guard?: string;
         agrees: number[];
     };
     arb_arbitration?: {
-        arb?: string;
+        arb: string;
         feedback: string;
         indemnity?: string | number;
     };

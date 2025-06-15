@@ -1,14 +1,35 @@
 import { PassportObject, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
-    PermissionIndexType, Machine, Machine_Forward, Machine_Node, ParentProgress, Progress, ProgressNext,
-    PermissionObject,
-    OrderWrap,
-    Service,
+    PermissionIndexType, Machine, Machine_Forward as Wowok_Machine_Forward, Machine_Node_Pair as Wowok_Machine_Node_Pair,
+    Machine_Node as Wowok_Machine_Node, ParentProgress, Progress, ProgressNext,
+    PermissionObject, OrderWrap, Service,
+    ServiceWrap,
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission } from "./base.js";
 import { ObjectMachine, query_objects } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 import { Account } from '../local/account.js';
 
+export interface Supply {
+    service: string;
+    bRequired?: boolean; // If true, An order at least must be placed from this service provider
+}
+export interface Machine_Forward {
+    name: string; // foward name
+    namedOperator?: string; // dynamic operator
+    permission?: PermissionIndexType; // this.permission-index or named-operator MUST one defined.
+    weight?: number;
+    guard?: string;
+    suppliers?: Supply[]; // List of service providers
+}
+export interface Machine_Node_Pair {
+    prior_node: string;
+    forwards: Machine_Forward[];
+    threshold?: number;
+}
+export interface Machine_Node {
+    name: string;
+    pairs: Machine_Node_Pair[];
+}
 
 export interface ProgressDeliverable {
     msg: string;
@@ -19,9 +40,9 @@ export interface ProgressDeliverable {
 export interface CallMachine_Data {
     object?: ObjectMain;
     progress_new?: {task_address?:string, namedNew?: Namedbject};
-    progress_context_repository?: {progress?:string; repository?:string};
+    progress_context_repository?: {progress?:string; repository:string | null};
     progress_namedOperator?: {progress?:string; data:{name:string, operators:AccountOrMark_Address[]}[]};
-    progress_parent?: {progress?:string, parent?:ParentProgress};
+    progress_parent?: {progress?:string, parent:ParentProgress | null};
     progress_hold?: {progress?:string; operation:ProgressNext; bHold:boolean; adminUnhold?:boolean};
     progress_task?: {progress:string; task_address:string};
     progress_next?: {progress:string; operation:ProgressNext; deliverable:ProgressDeliverable};
@@ -47,6 +68,22 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         super();
         this.data = data;
     }
+
+    private async resolveForward(forward:Machine_Forward) : Promise<Wowok_Machine_Forward> {
+        const res:ServiceWrap[] = [];
+        if (forward?.suppliers && forward.suppliers?.length > 0) {
+            const r = await query_objects({objects:forward.suppliers.map(v=>v.service)});
+            for (let i=0; r.objects && i<r.objects?.length; ++ i) {
+                if (r.objects[i]?.type === 'Service') {
+                    res.push({object:r.objects[i].object, bRequired:forward.suppliers[i].bRequired, 
+                        pay_token_type:Service.parseObjectType(r.objects[i].type_raw)});
+                }
+            }
+        }
+        return {name:forward.name, namedOperator:forward.namedOperator, permission:forward.permission, 
+            weight:forward.weight, guard:forward.guard, suppliers:res.length > 0 ? res: undefined};
+    }
+
     protected async prepare()  {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data?.object)));
@@ -191,7 +228,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_parent.progress');
 
             if (this.data.progress_parent.parent) {
-                const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent.parent_id);
+                const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent?.parent_id);
                 if (parent) {
                     this.data.progress_parent.parent.parent_id = parent;
                     Progress.From(txb, obj?.get_object(), permission, p!).parent(this.data.progress_parent.parent);
@@ -272,9 +309,32 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         }
         if (this.data?.nodes != null) {
             switch (this.data?.nodes?.op) {
-                case 'add':
-                    obj?.add_node(this.data.nodes.data, pst)
-                    break;
+                case 'add': {
+                    const nodes:Wowok_Machine_Node[] = [];
+                    for (let i = 0; i < this.data.nodes.data.length; ++ i) {
+                        const v = this.data.nodes.data[i];
+                        const pairs : Wowok_Machine_Node_Pair[] = []; 
+                        for (let j = 0; j < v.pairs.length; ++ j) {
+                            const f : Wowok_Machine_Forward[] = [];
+
+                            for(let k = 0; k < v.pairs[j].forwards.length; ++ k) {
+                                f.push(await this.resolveForward(v.pairs[j].forwards[k]));                                
+                            }
+
+                            pairs.push({
+                                prior_node: v.pairs[j].prior_node,
+                                threshold: v.pairs[j].threshold,
+                                forwards: f,
+                            })
+                        }
+                        nodes.push({
+                            name: v.name,
+                            pairs: pairs,
+                        })
+                    }
+                    obj?.add_node(nodes, pst);
+                    break;                    
+                }
                 case 'remove':
                     obj?.remove_node(this.data.nodes.names, this.data.nodes?.bTransferMyself, pst)
                     break;
@@ -285,7 +345,11 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                     obj?.add_node2(this.data.nodes.addresses, pst);
                     break;
                 case 'add forward':
-                    this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.remove_forward, pst))
+                    for (let i = 0; i < this.data.nodes.data.length; ++ i) {
+                        const v = this.data.nodes.data[i];
+                        obj?.add_forward(v.prior_node_name, v.node_name, 
+                            await this.resolveForward(v.forward), v.threshold, v.remove_forward, pst);
+                    }
                     break;
                 case 'remove forward':
                     this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, pst))

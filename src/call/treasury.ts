@@ -45,6 +45,7 @@ export class CallTreasury extends CallBase {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
         }
+
         if (this.object_address) {
             await this.update_content('Treasury', this.object_address);
             if (!this.content) ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.object_address);                
@@ -55,16 +56,15 @@ export class CallTreasury extends CallBase {
             const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
             if (!IsValidArgType(n?.type_parameter)) {
                 ERROR(Errors.IsValidArgType, 'CallTreasury_Data.data.object.type_parameter');
-            }          
+            }        
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            this.type_parameter = Treasury.parseObjectType(n.type_parameter);
+            this.type_parameter = (n as any)?.type_parameter;
         } 
     }
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
 
-        await this.prepare();
         if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.treasury)
@@ -109,7 +109,8 @@ export class CallTreasury extends CallBase {
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
         let obj : Treasury | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
-
+        
+        await this.prepare();
         if (this.object_address) {
             obj = Treasury.From(txb, this.type_parameter!, this.permission_address!, this.object_address);
             permission = this.permission_address;
@@ -120,9 +121,8 @@ export class CallTreasury extends CallBase {
                 perm = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
                 permission =  perm.get_object();
             }
-
             obj = Treasury.New(txb, this.type_parameter!, permission,
-                this.data?.description??'', perm?undefined:passport)     
+                this.data?.description??'', perm?undefined:passport)    
         }
 
         if (!obj) ERROR(Errors.InvalidParam, 'CallTreasury_Data.object:' + this.object_address);

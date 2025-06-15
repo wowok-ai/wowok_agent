@@ -19,7 +19,7 @@ export interface CallDemand_Data {
     time_expire?: {op: 'duration'; minutes:number} | {op:'time'; time:number};
     bounty?: {op:'add'; object:{address:string}|{balance:string|number}} | {op:'reward'; service:string} | {op:'refund'} ;
     // If service_id_in_guard is set, the service address must be provided as the service_id_in_guard identifier while Guard verification is performed.
-    guard?: {address:string; service_id_in_guard?:number};
+    guard?: {guard:string | null; service_id_in_guard?:number};
 }
 
 export class CallDemand extends CallBase {
@@ -48,7 +48,7 @@ export class CallDemand extends CallBase {
                 ERROR(Errors.IsValidArgType, 'CallDemand_Data.data.object.type_parameter');
             }          
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            this.type_parameter = Demand.parseObjectType(n.type_parameter);
+            this.type_parameter = (n as any)?.type_parameter;
         }  
     }
     async call(account?:string) : Promise<CallResult> {
@@ -160,11 +160,15 @@ export class CallDemand extends CallBase {
         }
         
         if (this.data?.guard != null) {
-            const guard = await LocalMark.Instance().get_address(this.data?.guard.address);
-            if (!guard) { 
-                ERROR(Errors.InvalidParam, 'CallDemand_Data.data.guard.address')
+            if (!this.data?.guard.guard) {
+                obj?.set_guard(undefined, undefined, pst);
+            } else {
+                const guard = await LocalMark.Instance().get_address(this.data?.guard.guard);
+                if (!guard) { 
+                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.guard.guard')
+                }
+                obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);                
             }
-            obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);
         }
         if (perm) {
             const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;

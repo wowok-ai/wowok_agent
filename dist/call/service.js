@@ -58,7 +58,7 @@ export class CallService extends CallBase {
                 ERROR(Errors.IsValidArgType, 'CallService_Data.data.object.type_parameter');
             }
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            this.type_parameter = Service.parseObjectType(n.type_parameter);
+            this.type_parameter = n?.type_parameter;
         }
     }
     async call(account) {
@@ -70,70 +70,70 @@ export class CallService extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.service);
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.service_description);
             }
-            if (this.data?.bPaused !== undefined) {
+            if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.service_pause);
             }
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.service_publish);
             }
-            if (this.data?.endpoint !== undefined) {
+            if (this.data?.endpoint != null) {
                 perms.push(PermissionIndex.service_endpoint);
             }
-            if (this.data?.repository !== undefined) {
+            if (this.data?.repository != null) {
                 perms.push(PermissionIndex.service_repository);
             }
-            if (this.data?.clone_new !== undefined) {
+            if (this.data?.clone_new != null) {
                 perms.push(PermissionIndex.service_clone);
             }
-            if (this.data?.gen_discount !== undefined) {
+            if (this.data?.gen_discount != null) {
                 perms.push(PermissionIndex.service_discount_transfer);
             }
-            if (this.data?.arbitration !== undefined) {
+            if (this.data?.arbitration != null) {
                 perms.push(PermissionIndex.service_arbitration);
             }
-            if (this.data?.buy_guard !== undefined) {
+            if (this.data?.buy_guard != null) {
                 perms.push(PermissionIndex.service_buyer_guard);
             }
-            if (this.data?.endpoint !== undefined) {
+            if (this.data?.endpoint != null) {
                 perms.push(PermissionIndex.service_endpoint);
             }
-            if (this.data?.extern_withdraw_treasury !== undefined) {
+            if (this.data?.extern_withdraw_treasury != null) {
                 perms.push(PermissionIndex.service_treasury);
             }
-            if (this.data?.machine !== undefined) {
+            if (this.data?.machine != null) {
                 perms.push(PermissionIndex.service_machine);
             }
-            if (this.data?.payee_treasury !== undefined && this.object_address) {
+            if (this.data?.payee_treasury != null && this.object_address) {
                 perms.push(PermissionIndex.service_payee);
             }
-            if (this.data?.withdraw_guard !== undefined) {
+            if (this.data?.withdraw_guard != null) {
                 perms.push(PermissionIndex.service_withdraw_guards);
             }
-            if (this.data?.refund_guard !== undefined) {
+            if (this.data?.refund_guard != null) {
                 perms.push(PermissionIndex.service_refund_guards);
             }
-            if (this.data?.customer_required_info !== undefined) {
+            if (this.data?.customer_required_info != null) {
                 perms.push(PermissionIndex.service_customer_required);
             }
-            if (this.data?.sales !== undefined) {
+            if (this.data?.sales != null) {
                 perms.push(PermissionIndex.service_sales);
             }
-            if (this.data?.order_new !== undefined) {
+            if (this.data?.order_new != null) {
                 if (this.object_address) {
                     if (this.content?.buy_guard) {
                         guards.push(this.content.buy_guard);
                     }
                 }
             }
-            if (this.data?.order_refund?.refund_guard !== undefined) {
+            if (this.data?.order_refund?.refund_guard != null) {
                 const guard = await LocalMark.Instance().get_address(this.data?.order_refund?.refund_guard);
                 if (guard)
                     guards.push(guard);
             }
-            if (this.data.order_withdrawl !== undefined) { // permission(may be guard) + withdraw_guard
+            if (this.data.order_withdrawl != null) { // permission(may be guard) + withdraw_guard
                 perms.push(PermissionIndex.service_withdraw);
             }
             if (typeof (this.data?.order_withdrawl?.data?.withdraw_guard) === 'string') {
@@ -188,7 +188,7 @@ export class CallService extends CallBase {
             ERROR(Errors.InvalidParam, 'CallService_Data.permission:' + this.permission_address);
         const pst = perm ? undefined : passport;
         var order_new;
-        if (this.data?.order_new !== undefined && this.order_allowed()) {
+        if (this.data?.order_new != null && this.order_allowed()) {
             let b = BigInt(0);
             let coin;
             this.data.order_new.buy_items.forEach(v => {
@@ -199,7 +199,7 @@ export class CallService extends CallBase {
                 order_new = obj.order(this.data.order_new.buy_items, coin, await LocalMark.Instance().get_address(this.data.order_new.discount_object), (this?.content).machine, await this.info_crypto(this.data.order_new.customer_info_required), pst);
             }
         }
-        if (this.data?.order_agent !== undefined) {
+        if (this.data?.order_agent != null) {
             const o = this.data.order_agent.order ? await LocalMark.Instance().get_address(this.data.order_agent.order) : order_new?.order;
             if (!o)
                 ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_agent.order}`);
@@ -216,7 +216,7 @@ export class CallService extends CallBase {
                 obj?.update_order_required_info(o, crypto);
             }
         }
-        if (this.data?.order_refund !== undefined) {
+        if (this.data?.order_refund != null) {
             const o = await LocalMark.Instance().get_address(this.data.order_refund.order);
             if (!o)
                 ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_refund.order}`);
@@ -233,7 +233,7 @@ export class CallService extends CallBase {
                     obj?.refund(o, guard, pst);
             }
         }
-        if (this.data?.order_withdrawl !== undefined && pst) { //@ need withdrawal pst
+        if (this.data?.order_withdrawl != null && pst) { //@ need withdrawal pst
             const n = this.data?.order_withdrawl;
             const o = await LocalMark.Instance().get_address(n.order);
             if (!o)
@@ -244,7 +244,7 @@ export class CallService extends CallBase {
             obj?.withdraw(o, { withdraw_guard: withdrawGuard, treasury: this.content.payee_treasury,
                 index: n.data.index, for_guard: for_guard, for_object: for_object, remark: n.data.remark }, pst);
         }
-        if (this.data?.order_payer !== undefined) {
+        if (this.data?.order_payer != null) {
             const o = this.data.order_payer.order ? await LocalMark.Instance().get_address(this.data.order_payer.order) : order_new?.order;
             if (!o)
                 ERROR(Errors.InvalidParam, `CallService_Data.data.order_agent.order:${this.data.order_payer.order}`);
@@ -260,13 +260,13 @@ export class CallService extends CallBase {
                 await this.new_with_mark('Progress', txb, buy.progress, this.data?.order_new?.namedNewProgress, account, [TagName.Launch, 'progress']);
             }
         }
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint !== undefined) {
+        if (this.data?.endpoint != null) {
             obj?.set_endpoint(this.data.endpoint, pst);
         }
-        if (this.data?.payee_treasury !== undefined && this.object_address) {
+        if (this.data?.payee_treasury != null && this.object_address) {
             const treasury_address = await LocalMark.Instance().get_address(GetObjectExisted(this.data.payee_treasury));
             if (!treasury_address) {
                 payee = Treasury.New(txb, this.type_parameter, permission, GetObjectParam(this.data.payee_treasury)?.description ?? '', permission ? undefined : passport);
@@ -277,7 +277,7 @@ export class CallService extends CallBase {
             }
             obj?.set_payee(t, pst);
         }
-        if (this.data?.gen_discount !== undefined) {
+        if (this.data?.gen_discount != null) {
             const add = [];
             for (let i = 0; i < this.data.gen_discount.length; ++i) {
                 let v = this.data.gen_discount[i];
@@ -288,7 +288,7 @@ export class CallService extends CallBase {
             }
             obj?.discount_transfer(add, pst);
         }
-        if (this.data?.repository !== undefined) {
+        if (this.data?.repository != null) {
             switch (this.data.repository.op) {
                 case 'add':
                 case 'set':
@@ -310,7 +310,7 @@ export class CallService extends CallBase {
                     break;
             }
         }
-        if (this.data?.extern_withdraw_treasury !== undefined) {
+        if (this.data?.extern_withdraw_treasury != null) {
             switch (this.data.extern_withdraw_treasury.op) {
                 case 'add':
                 case 'set':
@@ -331,11 +331,11 @@ export class CallService extends CallBase {
                     break;
             }
         }
-        if (this.data?.machine !== undefined) {
+        if (this.data?.machine != null) {
             const machine = await LocalMark.Instance().get_address(this.data.machine);
             obj?.set_machine(machine, pst);
         }
-        if (this.data?.arbitration !== undefined) {
+        if (this.data?.arbitration != null) {
             switch (this.data.arbitration.op) {
                 case 'add':
                 case 'set':
@@ -356,7 +356,7 @@ export class CallService extends CallBase {
                     break;
             }
         }
-        if (this.data?.customer_required_info !== undefined) {
+        if (this.data?.customer_required_info != null) {
             if (this.data.customer_required_info.required_info.length > 0 && this.data.customer_required_info.pubkey) {
                 obj?.set_customer_required(this.data.customer_required_info.pubkey, this.data.customer_required_info.required_info, pst);
             }
@@ -364,7 +364,7 @@ export class CallService extends CallBase {
                 obj?.change_required_pubkey(this.data.customer_required_info.pubkey, pst);
             }
         }
-        if (this.data?.sales !== undefined) {
+        if (this.data?.sales != null) {
             switch (this.data.sales.op) {
                 case 'add':
                     obj?.add_sales(this.data.sales.sales, false, pst);
@@ -374,7 +374,7 @@ export class CallService extends CallBase {
                     break;
             }
         }
-        if (this.data?.withdraw_guard !== undefined) {
+        if (this.data?.withdraw_guard != null) {
             switch (this.data.withdraw_guard.op) {
                 case 'add':
                 case 'set':
@@ -399,7 +399,7 @@ export class CallService extends CallBase {
                     break;
             }
         }
-        if (this.data?.refund_guard !== undefined) {
+        if (this.data?.refund_guard != null) {
             switch (this.data.refund_guard.op) {
                 case 'add':
                 case 'set':
@@ -427,13 +427,13 @@ export class CallService extends CallBase {
         if (this.data?.bPublished) {
             obj?.publish(pst);
         }
-        if (this.data?.buy_guard !== undefined) {
+        if (this.data?.buy_guard != null) {
             obj?.set_buy_guard(this.data.buy_guard, pst);
         }
-        if (this.data?.bPaused !== undefined) {
+        if (this.data?.bPaused != null) {
             obj?.pause(this.data.bPaused, pst);
         }
-        if (this.data?.clone_new !== undefined) {
+        if (this.data?.clone_new != null) {
             await this.new_with_mark('Service', txb, obj.clone(this.data.clone_new?.token_type_new, true, pst), this.data?.clone_new?.namedNew, account);
         }
         if (payee) {

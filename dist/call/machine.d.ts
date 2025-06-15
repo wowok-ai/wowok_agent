@@ -1,5 +1,26 @@
-import { PassportObject, TransactionBlock, Machine_Forward, Machine_Node, ParentProgress, ProgressNext } from 'wowok';
+import { PassportObject, TransactionBlock, PermissionIndexType, ParentProgress, ProgressNext } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp } from "./base.js";
+export interface Supply {
+    service: string;
+    bRequired?: boolean;
+}
+export interface Machine_Forward {
+    name: string;
+    namedOperator?: string;
+    permission?: PermissionIndexType;
+    weight?: number;
+    guard?: string;
+    suppliers?: Supply[];
+}
+export interface Machine_Node_Pair {
+    prior_node: string;
+    forwards: Machine_Forward[];
+    threshold?: number;
+}
+export interface Machine_Node {
+    name: string;
+    pairs: Machine_Node_Pair[];
+}
 export interface ProgressDeliverable {
     msg: string;
     orders: string[];
@@ -12,7 +33,7 @@ export interface CallMachine_Data {
     };
     progress_context_repository?: {
         progress?: string;
-        repository?: string;
+        repository: string | null;
     };
     progress_namedOperator?: {
         progress?: string;
@@ -23,7 +44,7 @@ export interface CallMachine_Data {
     };
     progress_parent?: {
         progress?: string;
-        parent?: ParentProgress;
+        parent: ParentProgress | null;
     };
     progress_hold?: {
         progress?: string;
@@ -93,6 +114,7 @@ export declare class CallMachine extends CallBase {
     object_address: string | undefined;
     permission_address: string | undefined;
     constructor(data: CallMachine_Data);
+    private resolveForward;
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

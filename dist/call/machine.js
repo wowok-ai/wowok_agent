@@ -10,6 +10,20 @@ export class CallMachine extends CallBase {
         this.permission_address = undefined;
         this.data = data;
     }
+    async resolveForward(forward) {
+        const res = [];
+        if (forward?.suppliers && forward.suppliers?.length > 0) {
+            const r = await query_objects({ objects: forward.suppliers.map(v => v.service) });
+            for (let i = 0; r.objects && i < r.objects?.length; ++i) {
+                if (r.objects[i]?.type === 'Service') {
+                    res.push({ object: r.objects[i].object, bRequired: forward.suppliers[i].bRequired,
+                        pay_token_type: Service.parseObjectType(r.objects[i].type_raw) });
+                }
+            }
+        }
+        return { name: forward.name, namedOperator: forward.namedOperator, permission: forward.permission,
+            weight: forward.weight, guard: forward.guard, suppliers: res.length > 0 ? res : undefined };
+    }
     async prepare() {
         if (!this.object_address) {
             this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data?.object)));
@@ -34,48 +48,48 @@ export class CallMachine extends CallBase {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.machine);
             }
-            if (this.data?.description !== undefined && this.object_address) {
+            if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.machine_description);
             }
-            if (this.data?.endpoint !== undefined && this.object_address) {
+            if (this.data?.endpoint != null && this.object_address) {
                 perms.push(PermissionIndex.machine_endpoint);
             }
-            if (this.data?.consensus_repository !== undefined) {
+            if (this.data?.consensus_repository != null) {
                 perms.push(PermissionIndex.machine_repository);
             }
-            if (this.data?.nodes !== undefined) {
+            if (this.data?.nodes != null) {
                 perms.push(PermissionIndex.machine_node);
             }
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.machine_publish);
             }
-            if (this.data?.progress_new !== undefined) {
+            if (this.data?.progress_new != null) {
                 perms.push(PermissionIndex.progress);
             }
-            if (this.data?.progress_context_repository !== undefined) {
+            if (this.data?.progress_context_repository != null) {
                 perms.push(PermissionIndex.progress_context_repository);
             }
-            if (this.data?.progress_namedOperator !== undefined) {
+            if (this.data?.progress_namedOperator != null) {
                 perms.push(PermissionIndex.progress_namedOperator);
             }
-            if (this.data?.progress_parent !== undefined) {
+            if (this.data?.progress_parent != null) {
                 perms.push(PermissionIndex.progress_parent);
             }
-            if (this.data?.progress_task !== undefined) {
+            if (this.data?.progress_task != null) {
                 perms.push(PermissionIndex.progress_bind_task);
             }
-            if (this.data?.progress_hold !== undefined) {
+            if (this.data?.progress_hold != null) {
                 if (this.data.progress_hold.adminUnhold) {
                     perms.push(PermissionIndex.progress_unhold);
                 }
             }
-            if (this.data?.bPaused !== undefined) {
+            if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.machine_pause);
             }
-            if (this.data?.clone_new !== undefined) {
+            if (this.data?.clone_new != null) {
                 perms.push(PermissionIndex.machine_clone);
             }
-            if (this.data?.progress_next !== undefined) {
+            if (this.data?.progress_next != null) {
                 if (this.object_address) { // fetch guard
                     const [p, acc] = await Promise.all([
                         LocalMark.Instance().get_address(this.data?.progress_next.progress),
@@ -118,11 +132,11 @@ export class CallMachine extends CallBase {
             ERROR(Errors.InvalidParam, 'CallMachine_Data.data.object.permission');
         const pst = perm ? undefined : passport;
         var new_progress;
-        if (this.data?.progress_new !== undefined) {
+        if (this.data?.progress_new != null) {
             const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
             new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
         }
-        if (this.data?.progress_context_repository !== undefined) {
+        if (this.data?.progress_context_repository != null) {
             const p = this.data?.progress_context_repository.progress
                 ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
                 : new_progress?.get_object();
@@ -131,7 +145,7 @@ export class CallMachine extends CallBase {
             const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
             Progress.From(txb, obj?.get_object(), permission, p).set_context_repository(rep, pst);
         }
-        if (this.data?.progress_namedOperator !== undefined) {
+        if (this.data?.progress_namedOperator != null) {
             const p = this.data?.progress_namedOperator.progress
                 ? await LocalMark.Instance().get_address(this.data?.progress_namedOperator.progress)
                 : new_progress?.get_object();
@@ -144,14 +158,14 @@ export class CallMachine extends CallBase {
                 pp.set_namedOperator(v.name, addrs, pst);
             }
         }
-        if (this.data?.progress_parent !== undefined) {
+        if (this.data?.progress_parent != null) {
             const p = this.data?.progress_parent.progress
                 ? await LocalMark.Instance().get_address(this.data?.progress_parent.progress)
                 : new_progress?.get_object();
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_parent.progress');
             if (this.data.progress_parent.parent) {
-                const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent.parent_id);
+                const parent = await LocalMark.Instance().get_address(this.data.progress_parent.parent?.parent_id);
                 if (parent) {
                     this.data.progress_parent.parent.parent_id = parent;
                     Progress.From(txb, obj?.get_object(), permission, p).parent(this.data.progress_parent.parent);
@@ -161,7 +175,7 @@ export class CallMachine extends CallBase {
                 Progress.From(txb, obj?.get_object(), permission, p).parent_none();
             }
         }
-        if (this.data?.progress_hold !== undefined) {
+        if (this.data?.progress_hold != null) {
             const p = this.data?.progress_hold.progress
                 ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
                 : new_progress?.get_object();
@@ -174,12 +188,12 @@ export class CallMachine extends CallBase {
                 Progress.From(txb, obj?.get_object(), permission, p).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold);
             }
         }
-        if (this.data?.progress_task !== undefined) {
+        if (this.data?.progress_task != null) {
             const [p, task] = await LocalMark.Instance().get_many_address([this.data?.progress_task.progress, this.data?.progress_task.task_address]);
             if (p && task)
                 Progress.From(txb, obj?.get_object(), permission, p).bind_task(task, pst);
         }
-        if (this.data?.progress_next !== undefined) {
+        if (this.data?.progress_next != null) {
             const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
@@ -202,13 +216,13 @@ export class CallMachine extends CallBase {
         if (addr) {
             await this.new_with_mark('Progress', txb, addr, this.data?.progress_new?.namedNew, account);
         }
-        if (this.data?.description !== undefined && this.object_address) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint !== undefined && this.object_address) {
+        if (this.data?.endpoint != null && this.object_address) {
             obj?.set_endpoint(this.data.endpoint, pst);
         }
-        if (this.data?.consensus_repository !== undefined) {
+        if (this.data?.consensus_repository != null) {
             switch (this.data.consensus_repository.op) {
                 case 'add':
                 case 'set':
@@ -229,11 +243,32 @@ export class CallMachine extends CallBase {
                     break;
             }
         }
-        if (this.data?.nodes !== undefined) {
+        if (this.data?.nodes != null) {
             switch (this.data?.nodes?.op) {
-                case 'add':
-                    obj?.add_node(this.data.nodes.data, pst);
+                case 'add': {
+                    const nodes = [];
+                    for (let i = 0; i < this.data.nodes.data.length; ++i) {
+                        const v = this.data.nodes.data[i];
+                        const pairs = [];
+                        for (let j = 0; j < v.pairs.length; ++j) {
+                            const f = [];
+                            for (let k = 0; k < v.pairs[j].forwards.length; ++k) {
+                                f.push(await this.resolveForward(v.pairs[j].forwards[k]));
+                            }
+                            pairs.push({
+                                prior_node: v.pairs[j].prior_node,
+                                threshold: v.pairs[j].threshold,
+                                forwards: f,
+                            });
+                        }
+                        nodes.push({
+                            name: v.name,
+                            pairs: pairs,
+                        });
+                    }
+                    obj?.add_node(nodes, pst);
                     break;
+                }
                 case 'remove':
                     obj?.remove_node(this.data.nodes.names, this.data.nodes?.bTransferMyself, pst);
                     break;
@@ -244,7 +279,10 @@ export class CallMachine extends CallBase {
                     obj?.add_node2(this.data.nodes.addresses, pst);
                     break;
                 case 'add forward':
-                    this.data.nodes.data.forEach(v => obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.remove_forward, pst));
+                    for (let i = 0; i < this.data.nodes.data.length; ++i) {
+                        const v = this.data.nodes.data[i];
+                        obj?.add_forward(v.prior_node_name, v.node_name, await this.resolveForward(v.forward), v.threshold, v.remove_forward, pst);
+                    }
                     break;
                 case 'remove forward':
                     this.data.nodes.data.forEach(v => obj?.remove_forward(v.prior_node_name, v.node_name, v.forward_name, pst));
@@ -257,10 +295,10 @@ export class CallMachine extends CallBase {
         if (this.data?.bPublished) {
             obj?.publish(passport);
         }
-        if (this.data?.bPaused !== undefined) {
+        if (this.data?.bPaused != null) {
             obj?.pause(this.data.bPaused, pst);
         }
-        if (this.data?.clone_new !== undefined && this.object_address) {
+        if (this.data?.clone_new != null && this.object_address) {
             await this.new_with_mark('Machine', txb, obj?.clone(true, pst), this.data?.clone_new?.namedNew, account);
         }
         if (perm) {

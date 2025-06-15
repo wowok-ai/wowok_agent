@@ -19,5 +19,9 @@ export * from './local/local.js';
 export * from './local/index.js';
 export * from './common.js';
 export * from './query/treasury_received.js';
+export * from './schema/query.js';
+export * from './schema/call.js';
+export * from './schema/util.js';
+export * from './schema/local.js';
 export * as WOWOK from 'wowok';
 //# sourceMappingURL=index.d.ts.map

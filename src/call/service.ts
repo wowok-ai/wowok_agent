@@ -96,7 +96,7 @@ export class CallService extends CallBase {
                 ERROR(Errors.IsValidArgType, 'CallService_Data.data.object.type_parameter');
             }          
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
-            this.type_parameter = Service.parseObjectType(n.type_parameter);
+            this.type_parameter = (n as any)?.type_parameter;
         } 
     }
     async call(account?:string) : Promise<CallResult>  {
