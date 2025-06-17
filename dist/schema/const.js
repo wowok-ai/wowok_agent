@@ -23,7 +23,13 @@ export const useAddressIfNameExist_Description = `In case of naming conflict: pr
 export const onChain_Description = `If true, the name and tags of the object will be made visible on-chain`;
 export const OnchainDescription_Description = `Description content for newly created on-chain wowok object`;
 export const Type_Description = `Generic type for the on-chain object (e.g., specify payment token type '0x2::sui::SUI')`;
-export const ValueType_Description = `Data types of the Wowok protocol`;
+export const ValueType_Description = `Data types of the Wowok protocol:
+    100: Bool, 101: Address, 102: U8, 103: U64, 104: Vec<U8>, 105: U128,
+    106:Vec<Address>, 107: Vec<Bool>, 108: Vec<Vec<U8>>, 
+    109:Vec<U64>, 110: Vec<U128>, 111: Option<Address>, 112: Option<Bool>,
+    113:Option<U8>, 114: Option<U64>, 115: Option<U128>,
+    116:Option<256>, 117: Option<String>, 118:Option<Vec<U8>>,
+    119:Vec<U256>, 120: String, 121: Vec<String>, 122: U256`;
 export const Balance_Description = `The number of tokens`;
 export const Objects_Description = `on-chain objects to be operated on`;
 export const SetList_Description = 'Set, remove, or add objects to the list';

@@ -8989,7 +8989,7 @@ export declare const CallTreasurySchemaInput: () => import("zod-to-json-schema")
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
-export declare const CallPermissionSchemaDescription = "Operate the on-chain Permission object using the local account signatures. The Permission object is designed to manage access control for core wowok protocol entities (e.g., Machine, Service, Repository, Treasury). It defines granular operation permissions (e.g., read, write, management) for specific entities or addresses, ensuring only authorized subjects can perform designated actions on the associated on-chain objects (such as data modification, fund transfer, or configuration updates). This mechanism safeguards the security and compliance of protocol resource operations.";
+export declare const CallPermissionSchemaDescription = "Operate the on-chain Permission object using the local account signatures. The Permission object is designed to manage access control for core wowok protocol entities (e.g., Machine, Service, Repository, Treasur, Arbitration, Demand). \n    It defines granular operation permissions (e.g., read, write, management) for specific entities or addresses, ensuring only authorized subjects can perform designated actions on the associated on-chain objects (such as data modification, fund transfer, or configuration updates). \n    This mechanism safeguards the security and compliance of protocol resource operations.";
 export declare const CallPermissionSchema: z.ZodObject<{
     name: z.ZodLiteral<"permission">;
     data: z.ZodObject<{

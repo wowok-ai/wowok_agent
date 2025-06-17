@@ -12,17 +12,21 @@ export const AccountOrMarkNameSchema = z.union([
     z.object({ account_or_address: AccountNameSchema }),
     z.object({ mark_or_address: GetMarkNameSchema() })
 ]).describe(`AccountOrMarkNameSchema_Description`);
+/*
 const PermissioIndexArray = WOWOK.PermissionInfo.filter(i => i.index !== WOWOK.PermissionIndex.user_defined_start)
     .map(v => z.literal(v.index).describe(`${v.module}.${v.name}`));
+*/
 const GetPermissionIndexSchema = (type = 'all') => {
     if (type === 'built-in') {
-        return z.union([PermissioIndexArray[0], PermissioIndexArray[1], ...PermissioIndexArray.slice(2)]).describe(D.PermissionIndexSchema_Buildin_Description);
+        return z.number().int().min(0).max(WOWOK.PermissionIndex.user_defined_start - 1).describe(D.PermissionIndexSchema_Buildin_Description);
+        //return z.union([PermissioIndexArray[0], PermissioIndexArray[1], ...PermissioIndexArray.slice(2)]).describe(D.PermissionIndexSchema_Buildin_Description);
     }
     else if (type === 'biz') {
         return z.number().int().min(WOWOK.PermissionIndex.user_defined_start).describe(D.PermissionIndexSchema_Biz_Description);
     }
     else {
-        return z.union([z.literal(WOWOK.PermissionIndex.user_defined_start), z.number().int().min(WOWOK.PermissionIndex.user_defined_start + 1), ...PermissioIndexArray]).describe(D.PermissionIndexSchema_Description);
+        return z.number().int().min(0).describe(D.PermissionIndexSchema_Description);
+        //return z.union([z.literal(WOWOK.PermissionIndex.user_defined_start), z.number().int().min(WOWOK.PermissionIndex.user_defined_start+1), ...PermissioIndexArray]).describe(D.PermissionIndexSchema_Description);
     }
 };
 const SafeUint8ArraySchema = z.custom((val) => Object.prototype.toString.call(val) === "[object Uint8Array]");
@@ -781,7 +785,9 @@ export const CallTreasurySchema = z.object({
 export const CallTreasurySchemaInput = () => {
     return zodToJsonSchema(CallTreasurySchema);
 };
-export const CallPermissionSchemaDescription = `Operate the on-chain Permission object using the local account signatures. The Permission object is designed to manage access control for core wowok protocol entities (e.g., Machine, Service, Repository, Treasury). It defines granular operation permissions (e.g., read, write, management) for specific entities or addresses, ensuring only authorized subjects can perform designated actions on the associated on-chain objects (such as data modification, fund transfer, or configuration updates). This mechanism safeguards the security and compliance of protocol resource operations.`;
+export const CallPermissionSchemaDescription = `Operate the on-chain Permission object using the local account signatures. The Permission object is designed to manage access control for core wowok protocol entities (e.g., Machine, Service, Repository, Treasur, Arbitration, Demand). 
+    It defines granular operation permissions (e.g., read, write, management) for specific entities or addresses, ensuring only authorized subjects can perform designated actions on the associated on-chain objects (such as data modification, fund transfer, or configuration updates). 
+    This mechanism safeguards the security and compliance of protocol resource operations.`;
 export const CallPermissionSchema = z.object({
     name: z.literal('permission'),
     data: CallPermissionDataSchema,

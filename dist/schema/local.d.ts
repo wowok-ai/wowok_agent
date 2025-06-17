@@ -114,6 +114,12 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name_or_address_to?: string | undefined;
     } | undefined;
 }>;
+export declare const AccountOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const LocalMarkOperationSchemaDescription = "Local mark operations facilitate efficient object address management by assigning names and tags to addresses, enabling faster querying and organization. \nSupported operations include adding/setting marks (with optional names and tags), removing specific tags, and removing all marks for addresses.";
 export declare const LocalMarkOperationSchema: z.ZodObject<{
     data: z.ZodUnion<[z.ZodObject<{
@@ -197,6 +203,12 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
         op: "remove";
     };
 }>;
+export declare const LocalMarkOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const LocalInfoOperationSchemaDescription = "Local info operations manage on-device storage of personal information (e.g., delivery addresses, phone numbers) for cryptographic processing and secure sharing with service providers. Supported operations include: adding info (requires name and content parameters), removing specific info entries by name, and updating existing entries with new content.";
 export declare const LocalInfoOperationSchema: z.ZodObject<{
     data: z.ZodUnion<[z.ZodObject<{
@@ -273,6 +285,12 @@ export declare const LocalInfoOperationSchema: z.ZodObject<{
         op: "remove";
     };
 }>;
+export declare const LocalInfoOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryLocalMarkSchemaDescription = "Query local mark by name. Accepts a local mark name (string) as input, and returns an object containing: address (on-chain object address), name (assigned human-readable name), and tags (array of string tags). Local marks enable faster address management by mapping addresses to memorable names and categorized tags for efficient querying.";
 export declare const QueryLocalMarkSchema: z.ZodObject<{
     name: z.ZodString;
@@ -281,6 +299,12 @@ export declare const QueryLocalMarkSchema: z.ZodObject<{
 }, {
     name: string;
 }>;
+export declare const QueryLocalMarkSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueryLocalInfoSchemaDescription = "Query local info by name. Local info allows storing personal information (e.g. addresses, phone numbers) on-device, which can be cryptographically processed and shared with service providers.";
 export declare const QueryLocalInfoSchema: z.ZodObject<{
     name: z.ZodDefault<z.ZodString>;
@@ -289,6 +313,12 @@ export declare const QueryLocalInfoSchema: z.ZodObject<{
 }, {
     name?: string | undefined;
 }>;
+export declare const QueryLocalInfoSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const localMarkListDescription = "List local marks. Local marks facilitate efficient object address management by assigning names and tags to addresses, enabling faster querying and organization.";
 export declare const LocalMarkFilterSchemaDescription = "Filter local marks by optional criteria: name (string), tags (array of strings), or object address (string). Parameters can be used individually or in combination for precise queries. Returns an array of local mark objects, each containing: address (on-chain object address), name (human-readable name), and tags (categorical tags). Local marks enhance address management efficiency through flexible multi-condition filtering.";
 export declare const LocalMarkFilterSchema: z.ZodObject<{
@@ -314,8 +344,8 @@ export declare const AccountListSchema: z.ZodObject<{
 }, {
     showSuspendedAccount?: boolean | undefined;
 }>;
-export declare const LocalSchemaDescription = "Local schema for querying accounts, address names/tags, and personal information stored on the device. \n- **Accounts**: Manages local accounts used for signing on-chain transactions.\n- **Address Marks**: Supports naming and tagging of addresses to enable object address retrieval by name.\n- **Personal Information**: Stores private data (e.g., addresses, phone numbers) for on-chain usage.\nSupports both collection-level queries (retrieving multiple entries) and individual item queries (fetching specific records).";
-export declare const LocalSchema: z.ZodObject<{
+export declare const QueryLocalSchemaDescription = "Local schema for querying accounts, address names/tags, and personal information stored on the device. \n- **Accounts**: Manages local accounts used for signing on-chain transactions.\n- **Address Marks**: Supports naming and tagging of addresses to enable object address retrieval by name.\n- **Personal Information**: Stores private data (e.g., addresses, phone numbers) for on-chain usage.\nSupports both collection-level queries (retrieving multiple entries) and individual item queries (fetching specific records).";
+export declare const QueryLocalSchema: z.ZodObject<{
     query: z.ZodUnion<[z.ZodObject<{
         name: z.ZodLiteral<"account_list">;
         data: z.ZodObject<{
@@ -510,7 +540,7 @@ export declare const LocalSchema: z.ZodObject<{
         };
     };
 }>;
-export declare const LocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+export declare const QueryLocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
