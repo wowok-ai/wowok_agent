@@ -1,8 +1,6 @@
 
-import { z, ZodAny, ZodUnionDef } from "zod";
+import { z } from "zod";
 import * as WOWOK from 'wowok';
-import { local_info_operation, local_mark_operation } from "../local/index.js";
-import { AccountOperationSchema, LocalMarkOperationSchema } from "./local.js";
 import * as D from './const.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
 

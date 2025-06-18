@@ -1,8 +1,7 @@
 
 
 import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
-    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock,
-    WithdrawFee, TreasuryObject
+    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';

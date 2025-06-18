@@ -1,6 +1,6 @@
 
 import { z } from "zod";
-import { GetMarkNameSchema, AccountNameSchema, AccountOrMarkNameSchema } from "./call.js";
+import { GetMarkNameSchema, AccountOrMarkNameSchema } from "./call.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 

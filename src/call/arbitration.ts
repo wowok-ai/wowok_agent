@@ -1,13 +1,12 @@
 import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Treasury, Arbitration, ArbObject, Service,
-    PermissionObject,
-    VotingGuard,
+    PermissionIndexType, Treasury, Arbitration, ArbObject, Service, PermissionObject, VotingGuard,
 } from 'wowok';
 import { ObjectArbitration, query_objects, } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, 
     ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, PayParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
+
 export interface DisputeData {
     order: string,
     description: string,

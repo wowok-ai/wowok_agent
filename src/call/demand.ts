@@ -1,11 +1,9 @@
 import { TransactionBlock, IsValidArgType, Service, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Demand,
-    PermissionObject, } from 'wowok';
+    PermissionIndexType, Demand, PermissionObject, } from 'wowok';
 import { ObjectDemand, query_objects } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
-import { off } from 'process';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallDemand_Data {

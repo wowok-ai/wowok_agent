@@ -1,5 +1,5 @@
 import { ERROR, Errors, Protocol, Treasury, TreasuryReceived, TreasuryReceivedObject } from "wowok";
-import { query_objects, Treasury_ReceivedObject } from "./objects.js";
+import { query_objects } from "./objects.js";
 
 
 export interface QueryTreasuryReceived {

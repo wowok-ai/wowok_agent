@@ -1,5 +1,5 @@
 import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, Errors, ERROR, Permission, 
-    PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, Service_Buy as Wowok_Service_Buy, 
+    PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, 
     Service_Guard_Percent, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
     ProgressObject, Arbitration, Service_Discount, PermissionObject, 
 } from 'wowok';
