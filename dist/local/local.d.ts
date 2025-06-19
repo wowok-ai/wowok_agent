@@ -20,7 +20,7 @@ export declare const LocalMarkNameMaxLength = 32;
 export declare const LocalInfoNameDefault = "Address of delivery";
 export declare class LocalMark {
     static _instance: any;
-    private storage;
+    private location;
     constructor();
     static Instance(): LocalMark;
     put(name: string | undefined | null, mark: MarkData, useAddressIfNameExist?: boolean): Promise<string>;
@@ -41,7 +41,7 @@ export interface QueryNameData {
 }
 export declare class LocalInfo {
     static _instance: any;
-    private storage;
+    private location;
     constructor();
     static Instance(): LocalInfo;
     put(name: string | undefined, content: string, bDefault?: boolean): Promise<void>;

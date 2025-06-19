@@ -1,8 +1,8 @@
 /**
  * account management and use
  */
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, getFaucetHost, requestSuiFromFaucetV0, Errors, ERROR, IsValidName } from 'wowok';
-import { isBrowser } from '../common.js';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, getFaucetHost, requestSuiFromFaucetV2, Errors, ERROR, IsValidName } from 'wowok';
+import { get_level_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
 import { Level } from 'level';
@@ -77,13 +77,12 @@ export class Account {
                 return r?.objectChanges.find((v) => v?.type === 'created' && (v?.objectType).includes(t))?.objectId;
             }
         };
-        var location = AccountLocation;
+        this.location = AccountLocation;
         if (!isBrowser()) {
-            location = path.join(path.join(os.homedir(), '.wowok'), AccountLocation);
+            this.location = path.join(path.join(os.homedir(), '.wowok'), AccountLocation);
         }
-        this.storage = new Level(location, { valueEncoding: 'json' });
     }
-    location() { return this.storage.location; }
+    get_location() { return this.location; }
     static Instance() {
         if (!Account._instance) {
             Account._instance = new Account();
@@ -99,57 +98,69 @@ export class Account {
         return data;
     }
     async set_default(address_or_name) {
-        const r = await this.storage.get(AccountKey);
-        var found = false;
-        if (r) {
-            const s = JSON.parse(r);
-            for (let i = 0; i < s.length; i++) {
-                if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
-                    s[i].default = true;
-                    found = true;
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            var found = false;
+            if (r) {
+                const s = JSON.parse(r);
+                for (let i = 0; i < s.length; i++) {
+                    if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
+                        s[i].default = true;
+                        found = true;
+                    }
+                    else {
+                        s[i].default = false;
+                    }
                 }
-                else {
-                    s[i].default = false;
-                }
+                await storage.put(AccountKey, JSON.stringify(s));
             }
-            await this.storage.put(AccountKey, JSON.stringify(s));
+            return found;
         }
-        return found;
+        finally {
+            await storage.close();
+        }
     }
     async gen(bDefault, name) {
-        if (name && !IsValidName(name)) {
-            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
-        }
-        var secret = '0x' + toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
-        var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            if (name) {
-                if (s.find(v => v.name === name)) {
-                    ERROR(Errors.IsValidName, `Name ${name} already exists`);
-                }
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            if (name && !IsValidName(name)) {
+                ERROR(Errors.IsValidName, `Name ${name} is not valid`);
             }
-            if (bDefault) {
-                s.forEach(v => {
-                    if (v.default) {
-                        v.default = false;
+            var secret = '0x' + toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+            var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (name) {
+                    if (s.find(v => v.name === name)) {
+                        ERROR(Errors.IsValidName, `Name ${name} already exists`);
                     }
-                });
+                }
+                if (bDefault) {
+                    s.forEach(v => {
+                        if (v.default) {
+                            v.default = false;
+                        }
+                    });
+                }
+                const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
+                s.push(ret);
+                await storage.put(AccountKey, JSON.stringify(s));
+                return this.accountData(ret);
             }
-            const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
-            s.push(ret);
-            await this.storage.put(AccountKey, JSON.stringify(s));
-            return this.accountData(ret);
+            else {
+                const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
+                await storage.put(AccountKey, JSON.stringify([ret]));
+                return this.accountData(ret);
+            }
         }
-        else {
-            const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
-            await this.storage.put(AccountKey, JSON.stringify([ret]));
-            return this.accountData(ret);
+        finally {
+            await storage.close();
         }
     }
     async default() {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
         if (r) {
             const s = JSON.parse(r);
             return this.accountData(s.find(v => v.default));
@@ -160,7 +171,7 @@ export class Account {
         return this.accountData(await this.get_imp(address_or_name));
     }
     async get_imp(address_or_name) {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
         if (r) {
             const s = JSON.parse(r);
             if (!address_or_name) {
@@ -173,7 +184,7 @@ export class Account {
         return await this.get_many_imp(address_or_names).then(v => v.map(i => this.accountData(i)));
     }
     async get_many_imp(address_or_names) {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
         if (r) {
             const s = JSON.parse(r);
             return address_or_names.map(i => {
@@ -191,33 +202,39 @@ export class Account {
         if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            if (s.find(v => v.name === name)) {
-                ERROR(Errors.IsValidName, `Name ${name} already exists`);
-            }
-            if (!address_or_name) {
-                const f = s.find(v => v.default);
-                if (f) {
-                    f.name = name;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                    return true;
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (s.find(v => v.name === name)) {
+                    ERROR(Errors.IsValidName, `Name ${name} already exists`);
+                }
+                if (!address_or_name) {
+                    const f = s.find(v => v.default);
+                    if (f) {
+                        f.name = name;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                        return true;
+                    }
+                }
+                else {
+                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                    if (f) {
+                        f.name = name;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                        return true;
+                    }
                 }
             }
-            else {
-                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                if (f) {
-                    f.name = name;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                    return true;
-                }
-            }
+        }
+        finally {
+            await storage.close();
         }
         return false;
     }
     async list(showSuspended) {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
         if (r) {
             const s = JSON.parse(r);
             if (showSuspended) {
@@ -230,31 +247,37 @@ export class Account {
         return [];
     }
     async suspend(address_or_name, suspend = true) {
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            if (!address_or_name) {
-                const f = s.find(v => v.default);
-                if (f) {
-                    f.suspended = suspend;
-                    f.name = undefined;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (!address_or_name) {
+                    const f = s.find(v => v.default);
+                    if (f) {
+                        f.suspended = suspend;
+                        f.name = undefined;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                    }
+                }
+                else {
+                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                    if (f) {
+                        f.suspended = suspend;
+                        f.name = undefined;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                    }
                 }
             }
-            else {
-                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                if (f) {
-                    f.suspended = suspend;
-                    f.name = undefined;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                }
-            }
+        }
+        finally {
+            await storage.close();
         }
     }
     async faucet(address_or_name) {
         const a = await this.get(address_or_name);
         if (a) {
-            await requestSuiFromFaucetV0({ host: getFaucetHost('testnet'), recipient: a.address }).catch(e => { });
+            await requestSuiFromFaucetV2({ host: getFaucetHost('testnet'), recipient: a.address }).catch(e => { });
         }
     }
     async sign_and_commit(txb, address_or_name) {

@@ -63,7 +63,10 @@ export const GetAccountOrMark_Address = async (entity?: AccountOrMark_Address) :
     if (typeof((entity as any)?.mark_or_address) === 'string') {
         return await LocalMark.Instance().get_address((entity as any).mark_or_address);
     } else {
-        return (await Account.Instance().get((entity as any)?.account_or_address))?.address;
+        const r = (await Account.Instance().get((entity as any)?.account_or_address))?.address;
+        if (!r) {
+            return await LocalMark.Instance().get_address((entity as any).account_or_address)
+        }
     }
 }
 

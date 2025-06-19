@@ -11,9 +11,9 @@ export interface AccountData {
     default?: boolean;
 }
 export declare class Account {
-    private storage;
+    private location;
     constructor();
-    location(): string;
+    get_location(): string;
     static _instance: any;
     static Instance(): Account;
     private accountData;

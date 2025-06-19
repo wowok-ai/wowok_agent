@@ -9,12 +9,13 @@ export const GetMarkNameSchema = (object:string='') : z.ZodString=> {
 } 
 
 export const AccountNameSchema = z.string().optional().describe(D.AccountName_Address_Description);
-
-//export const AccountOrMarkNameDescription = 'Either a specifically specified address or a name used to look up the address from the local account or mark.';
+export const AccountOrMarkNameSchema_Description = `Represents an account address: 
+1. It can be obtained by querying 'account_or_address' (account name or address) from the local Account. Note: The default account name is "". 
+2. It can be obtained by querying 'mark_or_address' (mark name or address) from the Local mark. Note: The mark name cannot be ""`;
 export const AccountOrMarkNameSchema = z.union([
     z.object({account_or_address: AccountNameSchema}),
     z.object({mark_or_address: GetMarkNameSchema()})
-]).describe(`AccountOrMarkNameSchema_Description`);   
+]).describe(AccountOrMarkNameSchema_Description);   
 /*
 const PermissioIndexArray = WOWOK.PermissionInfo.filter(i => i.index !== WOWOK.PermissionIndex.user_defined_start)
     .map(v => z.literal(v.index).describe(`${v.module}.${v.name}`));

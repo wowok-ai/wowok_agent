@@ -7,7 +7,7 @@ import { Protocol } from "wowok";
 import path from "path";
 import os from "os";
 import { Level } from "level";
-import { isBrowser } from "../common.js";
+import { get_level_db, isBrowser } from "../common.js";
 export interface CachedData {
     expire: number | 'INFINITE';
     data: string | any; 
@@ -26,15 +26,14 @@ export const CacheLocation = 'wowok-cache';
 
 export class Cache {
     static _instance: any;
-    private storage;
+    private location: string;;
     static _expire_time_ms = 60000; // default
 
     constructor() {
-        var location = CacheLocation;
+        this.location = CacheLocation;
         if (!isBrowser()) {
-            location = path.join(path.join(os.homedir(), '.wowok'), CacheLocation);
+            this.location = path.join(path.join(os.homedir(), '.wowok'), CacheLocation);
         }
-        this.storage = new Level(location, { valueEncoding: 'json' });
     }
 
     static Instance() : Cache {
@@ -64,16 +63,28 @@ export class Cache {
     }
 
     async put(object:string, data:CachedData, prefix:CacheNameType) {
-        return await this.storage.put(Cache.Key(object, prefix), JSON.stringify(data))
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            await storage.put(Cache.Key(object, prefix), JSON.stringify(data));
+        } finally {
+            await storage.close();
+        }
     }
 
     async get(object:string, prefix:CacheNameType) : Promise<CachedData | undefined> {
-        const r = await this.storage.get(prefix+object);
-        if (r) return JSON.parse(r) as CachedData;
+        const r = await get_level_db(this.location, Cache.Key(object, prefix));
+        if (r) {
+            return JSON.parse(r) as CachedData;
+        }
     }
 
     async del(object:string, prefix:CacheNameType)  {
-        return await this.storage.del(prefix+object)
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            await storage.del(Cache.Key(object, prefix))
+        } finally {
+            await storage.close();
+        }
     }
 
     async cache_get(object:string, prefix:CacheNameType, force_cache?:boolean) : Promise<CachedData | undefined> {

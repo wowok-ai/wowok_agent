@@ -26,7 +26,10 @@ export const GetAccountOrMark_Address = async (entity) => {
         return await LocalMark.Instance().get_address(entity.mark_or_address);
     }
     else {
-        return (await Account.Instance().get(entity?.account_or_address))?.address;
+        const r = (await Account.Instance().get(entity?.account_or_address))?.address;
+        if (!r) {
+            return await LocalMark.Instance().get_address(entity.account_or_address);
+        }
     }
 };
 export const GetManyAccountOrMark_Address = async (entities) => {

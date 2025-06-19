@@ -53,6 +53,7 @@ export class CallPermission extends CallBase {
         var checkOwner = false; var checkAdmin = false;
         
         await this.prepare();
+
         if (this.object_address) {
             if (this.data?.builder != null || this.data?.admin != null) {
                 checkOwner = true;
@@ -78,9 +79,10 @@ export class CallPermission extends CallBase {
 
         if (!obj)  ERROR(Errors.InvalidParam, 'CallPermission_Data.data.object');
 
-        if (this.data?.description != null && this.data?.object) {
+        if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description)
         }
+        
         if (this.data?.biz_permission != null) { // High priority operate
             switch(this.data.biz_permission.op) {
                 case 'add':

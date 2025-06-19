@@ -6,7 +6,7 @@
 import path from "path";
 import os from "os";
 import { Level } from "level";
-import { isBrowser } from "../common.js";
+import { get_level_db, getMany_level_db, isBrowser } from "../common.js";
 import { ERROR, Errors, IsValidAddress, TagName } from "wowok";
 
 export interface MarkData {
@@ -31,14 +31,13 @@ export const LocalMarkNameMaxLength = 32;
 export const LocalInfoNameDefault = 'Address of delivery';
 export class LocalMark {
     static _instance: any;
-    private storage;
+    private location: string;
 
     constructor() {
-        var location = LocalMarkLocation;
+        this.location = LocalMarkLocation;
         if (!isBrowser()) {
-            location = path.join(path.join(os.homedir(), '.wowok'), LocalMarkLocation);
+            this.location = path.join(path.join(os.homedir(), '.wowok'), LocalMarkLocation);
         }
-        this.storage = new Level(location, { valueEncoding: 'json' });
     }
 
     static Instance() : LocalMark {
@@ -55,29 +54,34 @@ export class LocalMark {
         ERROR(Errors.InvalidParam, `LocalMark.put.mark.address: ${mark.address}`)
       };
 
-      // use address as name if name is undefined or null
-      if (name === undefined || name === null) {
-        this.storage.put(mark.address, JSON.stringify(mark));
-        return mark.address
-      }
-
-      if (name.length > LocalMarkNameMaxLength) {
-        name = name.substring(0, LocalMarkNameMaxLength); 
-      };
-
-      const r = await this.storage.get(name);
-      if (r) {
-        if (useAddressIfNameExist) {
-          this.storage.put(mark.address, JSON.stringify(mark));
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        // use address as name if name is undefined or null
+        if (name === undefined || name === null) {
+          await storage.put(mark.address, JSON.stringify(mark));
           return mark.address
-        } else {
-          const obj = JSON.parse(r) as MarkData;
-          await this.storage.put(obj.address, r)
         }
-      }
 
-      await this.storage.put(name, JSON.stringify(mark));
-      return name
+        if (name.length > LocalMarkNameMaxLength) {
+          name = name.substring(0, LocalMarkNameMaxLength); 
+        };
+
+        const r = await storage.get(name);
+        if (r) {
+          if (useAddressIfNameExist) {
+            storage.put(mark.address, JSON.stringify(mark));
+            return mark.address
+          } else {
+            const obj = JSON.parse(r) as MarkData;
+            await storage.put(obj.address, r)
+          }
+        }
+
+        await storage.put(name, JSON.stringify(mark));
+      } finally {
+        await storage.close();
+      }
+      return name        
     }
 
     async get(name?: string) : Promise<MarkData | undefined> {
@@ -85,7 +89,7 @@ export class LocalMark {
         return undefined;
       }
 
-      const r = await this.storage.get(name);
+      const r = await get_level_db(this.location, name);
       if (r) {
           return JSON.parse(r);
       }
@@ -97,7 +101,7 @@ export class LocalMark {
       }
 
       if (name_or_address !== undefined && name_or_address !== null) {
-        const r = await this.storage.get(name_or_address);
+        const r = await get_level_db(this.location, name_or_address);
         if (r) {
             return JSON.parse(r).address;
         }     
@@ -108,12 +112,14 @@ export class LocalMark {
       const check = (v: string | null | undefined) : boolean => {
         return v!==undefined && v!==null && !IsValidAddress(v)
       }
-      const q = await this.storage.getMany((name_or_addresses.filter(v => check(v)) as string[]));
+      const q = await getMany_level_db(this.location, (name_or_addresses.filter(v => check(v)) as string[]));
+      if (q!) ERROR(Errors.Fail, `LocalMark.get_many_address: ${q}`);
+
       return name_or_addresses.map(v => {
         if (check(v)) {
-          const r = q.shift();
+          const r = q!.shift();
           if (r) {
-            return JSON.parse(q.shift()!)?.address;
+            return JSON.parse(q!.shift()!)?.address;
           } 
         } 
         return v
@@ -125,44 +131,70 @@ export class LocalMark {
     }
 
     async del(name:string)  {
-      return await this.storage.del(name);
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        await storage.del(name);
+      } finally {
+        await storage.close();
+      }
     }
 
     async clear() {
-      return await this.storage.clear();
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        await storage.clear();
+      } finally {
+        await storage.close();
+      }
     }
 
     async rename(name:string, new_name:string) : Promise<boolean> {
       if (new_name.length > LocalMarkNameMaxLength) {
         new_name = new_name.substring(0, LocalMarkNameMaxLength);
       };
-
-      const r = await this.storage.getMany([name, new_name]);
-      if (r[0] && !r[1]) {
-        await this.storage.put(new_name, r[0]);
-        await this.storage.del(name);
-        return true;
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        const r = await storage.getMany([name, new_name]);
+        if (r[0] && !r[1]) {
+          await storage.put(new_name, r[0]);
+          await storage.del(name);
+          return true;
+        }
+      } finally {
+        await  storage.close()
       }
       return false;
+
     }
 
     async swap_name(name1:string, name2:string) : Promise<boolean> {
-      const r = await this.storage.getMany([name1, name2]);
-      if (r[0] && r[1]) {
-        await this.storage.put(name1, r[1]);
-        await this.storage.put(name2, r[0]);
-        return true;
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        const r = await storage.getMany([name1, name2]);
+        if (r[0] && r[1]) {
+          await storage.put(name1, r[1]);
+          await storage.put(name2, r[0]);
+          return true;
+        }        
+      } finally {
+        await storage.close();
       }
+
       return false;
     }
 
     async set_tags(name:string, tags:string[] | undefined) : Promise<boolean> {
-      const r  = await this.storage.get(name);
-      if (r) {
-        const obj = JSON.parse(r) as MarkData;
-        obj.tags = tags;
-        await this.storage.put(name, JSON.stringify(obj));
-        return true;
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        const r  = await storage.get(name);
+        if (r) {
+          const obj = JSON.parse(r) as MarkData;
+          obj.tags = tags;
+          await storage.put(name, JSON.stringify(obj));
+          return true;
+        }        
+      } finally {
+        await storage.close();  
       }
       return false;
     }
@@ -170,23 +202,29 @@ export class LocalMark {
     async list(filter?: LocalMarkFilter) : Promise<QueryNameData[]> {
       if (filter && filter.tags) filter.tags = filter.tags.filter(v => v !== '' && v);
 
-      return (await this.storage.iterator().all()).filter(v => {
-        const obj = JSON.parse(v[1]) as MarkData;
-        if (filter?.name && v[0] !== filter.name) return false;
-        if (filter?.address && obj.address !== filter.address) return false;
+      const storage = new Level(this.location, { valueEncoding: 'json' });
+      try {
+        return (await storage.iterator().all()).filter(v => {
+          const obj = JSON.parse(v[1]) as MarkData;
+          if (filter?.name && v[0] !== filter.name) return false;
+          if (filter?.address && obj.address !== filter.address) return false;
 
-        if (filter?.tags && filter.tags.length > 0) {
-          if (!obj.tags || obj.tags.length === 0) return false;
+          if (filter?.tags && filter.tags.length > 0) {
+            if (!obj.tags || obj.tags.length === 0) return false;
 
-          for (let i = 0; i < filter.tags.length; ++ i) {
-            if (!obj.tags.includes(filter.tags[i])) {
-              return false
+            for (let i = 0; i < filter.tags.length; ++ i) {
+              if (!obj.tags.includes(filter.tags[i])) {
+                return false
+              }
             }
           }
-        }
-        return true;
-      }).map(v => {return {name:v[0], data:v[1]}});
-    }
+          return true;
+        }).map(v => {return {name:v[0], data:v[1]}});        
+      } finally {
+        await storage.close();
+      }
+      return [];
+    } 
 }
 
 export interface QueryNameData {
@@ -196,14 +234,13 @@ export interface QueryNameData {
 
 export class LocalInfo {
   static _instance: any;
-  private storage;
+  private location: string;
 
   constructor() {
-      var location = LocalInfoLocation;
+      this.location = LocalInfoLocation;
       if (!isBrowser()) {
-          location = path.join(path.join(os.homedir(), '.wowok'), LocalInfoLocation);
+          this.location = path.join(path.join(os.homedir(), '.wowok'), LocalInfoLocation);
       }
-      this.storage = new Level(location, { valueEncoding: 'json' });
   }
 
   static Instance() : LocalInfo {
@@ -213,58 +250,84 @@ export class LocalInfo {
   } 
 
   async put(name:string = LocalInfoNameDefault, content:string, bDefault:boolean=true) : Promise<void> {
-    const r = await this.storage.get(name);
-    if (r)  {
-      const obj = JSON.parse(r) as InfoData;
-      obj.others = obj.others ? [...obj.others, content] : [content];
+    const storage = new Level(this.location, { valueEncoding: 'json' });
+    try {
+      const r = await storage.get(name);
+      if (r)  {
+        const obj = JSON.parse(r) as InfoData;
+        obj.others = obj.others ? [...obj.others, content] : [content];
 
-      if (bDefault) {
-        obj.default = content;
-      } 
-      await this.storage.put(name, JSON.stringify(obj));
-    } else {
-      const obj : InfoData = {default:content, others:[content]};
-      await this.storage.put(name, JSON.stringify(obj));
+        if (bDefault) {
+          obj.default = content;
+        } 
+        await storage.put(name, JSON.stringify(obj));
+      } else {
+        const obj : InfoData = {default:content, others:[content]};
+        await storage.put(name, JSON.stringify(obj));
+      }
+    } finally {
+      await storage.close();
     }
   }
 
   async get(name: string = LocalInfoNameDefault) : Promise<LocalInfo | undefined> {
-    const r = await this.storage.get(name);
+    const r = await get_level_db(this.location, name);
     if (r) {
         return JSON.parse(r);
     }
   }
 
   async get_default(name: string = LocalInfoNameDefault) : Promise<string | undefined> {
-    const r = await this.storage.get(name);
+    const r = await get_level_db(this.location, name);
     if (r) {
         return (JSON.parse(r) as InfoData).default;
     }
   }
 
   async del(name:string = LocalInfoNameDefault) : Promise<void> {
-    await this.storage.del(name);
+    const storage = new Level(this.location, { valueEncoding: 'json' });
+    try {
+      await storage.del(name);
+    } finally {
+      await storage.close();
+    }
   }
 
   async del_content(name:string = LocalInfoNameDefault, index:number) : Promise<boolean> {
-    const r = await this.storage.get(name);
-    if (r) {
-        const obj =  JSON.parse(r) as InfoData;
-        if (obj.others && index < obj.others.length) {
-          obj.others.splice(index, 1);
-          await this.storage.put(name, JSON.stringify(obj));
-          return true;
-        }
+    const storage = new Level(this.location, { valueEncoding: 'json' });
+    try {
+      const r = await storage.get(name);
+      if (r) {
+          const obj =  JSON.parse(r) as InfoData;
+          if (obj.others && index < obj.others.length) {
+            obj.others.splice(index, 1);
+            await storage.put(name, JSON.stringify(obj));
+            return true;
+          }
+      }
+    } finally {
+      await storage.close();
     }
     return false;
   }
 
   async clear() {
-    return await this.storage.clear();
+    const storage = new Level(this.location, { valueEncoding: 'json' });
+    try {
+      await storage.clear();  
+    } finally {
+      await storage.close();
+    }
   }
 
   async list() : Promise<QueryNameData[]> {
-    return (await this.storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}});
+    const storage = new Level(this.location, { valueEncoding: 'json' });
+    try {
+      return (await storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}});
+    } finally {
+      await storage.close();
+    }
+    return []
   }
 }
 

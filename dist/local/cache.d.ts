@@ -15,7 +15,7 @@ export type CacheNameType = CacheName | string;
 export declare const CacheLocation = "wowok-cache";
 export declare class Cache {
     static _instance: any;
-    private storage;
+    private location;
     static _expire_time_ms: number;
     constructor();
     static Instance(): Cache;

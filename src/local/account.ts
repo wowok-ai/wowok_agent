@@ -3,9 +3,9 @@
  */
 
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, 
-    getFaucetHost, requestSuiFromFaucetV0, requestSuiFromFaucetV1, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
+    getFaucetHost, requestSuiFromFaucetV2, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
     CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName} from 'wowok';
-import { isBrowser } from '../common.js';
+import { get_level_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
 import { Level } from 'level';
@@ -23,17 +23,16 @@ export interface AccountData {
     default?: boolean;
 }
 export class Account {
-    private storage;
+    private location:string;
 
     constructor() {
-        var location = AccountLocation;
+        this.location = AccountLocation;
         if (!isBrowser()) {
-            location = path.join(path.join(os.homedir(), '.wowok'), AccountLocation);
+            this.location = path.join(path.join(os.homedir(), '.wowok'), AccountLocation);
         }
-        this.storage = new Level(location, { valueEncoding: 'json' });
     }
 
-    location() : string { return this.storage.location; }
+    get_location() : string { return this.location; }
 
     static _instance: any;
     static Instance() : Account {
@@ -51,66 +50,76 @@ export class Account {
     }
 
     async set_default(address_or_name: string) : Promise<boolean> {
-        const r = await this.storage.get(AccountKey);
-        var found = false;
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            for (let i = 0; i < s.length; i++) {
-                if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
-                    s[i].default = true;
-                    found = true;
-                } else {
-                    s[i].default = false;
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            var found = false;
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                for (let i = 0; i < s.length; i++) {
+                    if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
+                        s[i].default = true;
+                        found = true;
+                    } else {
+                        s[i].default = false;
+                    }
                 }
+                await storage.put(AccountKey, JSON.stringify(s));
             }
-            await this.storage.put(AccountKey, JSON.stringify(s));
+            return found;            
+        } finally {
+            await storage.close();
         }
-
-        return found;
     }
 
     async gen(bDefault?: boolean, name?:string) : Promise<AccountData> {    
-        if (name && !IsValidName(name)) {
-            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
-        }   
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            if (name && !IsValidName(name)) {
+                ERROR(Errors.IsValidName, `Name ${name} is not valid`);
+            }   
 
-        var secret = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
-        var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            if (name) {
-                if (s.find(v => v.name === name)) {
-                    ERROR(Errors.IsValidName, `Name ${name} already exists`);
-                }
-            }
-            
-            if (bDefault) {
-                s.forEach(v => {
-                    if (v.default) {
-                        v.default = false;
+            var secret = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+            var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                if (name) {
+                    if (s.find(v => v.name === name)) {
+                        ERROR(Errors.IsValidName, `Name ${name} already exists`);
                     }
-                })
-            }
+                }
+                
+                if (bDefault) {
+                    s.forEach(v => {
+                        if (v.default) {
+                            v.default = false;
+                        }
+                    })
+                }
 
-            const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
-            s.push(ret);
+                const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
+                s.push(ret);
 
-            await this.storage.put(AccountKey, JSON.stringify(s));
-            return this.accountData(ret)!;
-        } else {
-            const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
-            await this.storage.put(AccountKey, JSON.stringify([ret]));
-            return this.accountData(ret)!;
+                await storage.put(AccountKey, JSON.stringify(s));
+                return this.accountData(ret)!;
+            } else {
+                const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
+                await storage.put(AccountKey, JSON.stringify([ret]));
+                return this.accountData(ret)!;
+            }            
+        } finally {
+            await storage.close();
         }
     }
 
     async default() : Promise<AccountData | undefined> {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
+
         if (r) {
             const s = JSON.parse(r) as AccountData[];
             return this.accountData(s.find(v => v.default));
-        } 
+        }             
     }
 
     // address: if undefined, the default returned.
@@ -119,7 +128,8 @@ export class Account {
     }
 
     private async get_imp(address_or_name?: string) : Promise<AccountData | undefined> {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
+
         if (r) {
             const s = JSON.parse(r) as AccountData[];
             if (!address_or_name) {
@@ -134,7 +144,8 @@ export class Account {
         return await this.get_many_imp(address_or_names).then(v => v.map(i => this.accountData(i)));
     }
     private async get_many_imp(address_or_names: (string | null | undefined)[]) : Promise<(AccountData | undefined)[]> {
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
+
         if (r) {
             const s = JSON.parse(r) as AccountData[];
             return address_or_names.map(i => {
@@ -147,39 +158,46 @@ export class Account {
         }
         return address_or_names.map(v => undefined);
     }
+    
     async set_name(name:string, address_or_name?:string) : Promise<boolean> {
         if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
 
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            if (s.find(v => v.name === name)) {
-                ERROR(Errors.IsValidName, `Name ${name} already exists`); 
-            }
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                if (s.find(v => v.name === name)) {
+                    ERROR(Errors.IsValidName, `Name ${name} already exists`); 
+                }
 
-            if (!address_or_name) {
-                const f = s.find(v => v.default);
-                if (f) {
-                    f.name = name;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                    return true;
-                } 
-            } else {
-                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                if (f) {
-                    f.name = name;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                    return true;
-                } 
-            }
-        } 
+                if (!address_or_name) {
+                    const f = s.find(v => v.default);
+                    if (f) {
+                        f.name = name;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                        return true;
+                    } 
+                } else {
+                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                    if (f) {
+                        f.name = name;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                        return true;
+                    } 
+                }
+            } 
+        } finally {
+            await storage.close();
+        }
+
         return false;
     }
 
     async list(showSuspended?:boolean) : Promise<AccountData[]> {        
-        const r = await this.storage.get(AccountKey);
+        const r = await get_level_db(this.location, AccountKey);
         if (r) {
             const s = JSON.parse(r) as AccountData[];
             if (showSuspended) {
@@ -187,29 +205,35 @@ export class Account {
             } else {
                 return s.filter(v => !v.suspended).map(v => this.accountData(v)!);
             }
+
         } 
         return [];
     }
     
     async suspend(address_or_name?:string, suspend:boolean=true) : Promise<void> {
-        const r = await this.storage.get(AccountKey);
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            if (!address_or_name) {
-                const f = s.find(v => v.default);
-                if (f) {
-                    f.suspended = suspend;
-                    f.name = undefined;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                } 
-            } else {
-                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                if (f) {
-                    f.suspended = suspend;
-                    f.name = undefined;
-                    await this.storage.put(AccountKey, JSON.stringify(s));
-                } 
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                if (!address_or_name) {
+                    const f = s.find(v => v.default);
+                    if (f) {
+                        f.suspended = suspend;
+                        f.name = undefined;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                    } 
+                } else {
+                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                    if (f) {
+                        f.suspended = suspend;
+                        f.name = undefined;
+                        await storage.put(AccountKey, JSON.stringify(s));
+                    } 
+                }
             }
+        } finally {
+            await storage.close();
         }
     }
 
@@ -217,7 +241,7 @@ export class Account {
         const a = await this.get(address_or_name);
 
         if (a) {
-            await requestSuiFromFaucetV0({host:getFaucetHost('testnet'), recipient:a.address}).catch(e => {})
+            await requestSuiFromFaucetV2({host:getFaucetHost('testnet'), recipient:a.address}).catch(e => {})
         }
     }
 

@@ -5,7 +5,7 @@ import { Protocol } from "wowok";
 import path from "path";
 import os from "os";
 import { Level } from "level";
-import { isBrowser } from "../common.js";
+import { get_level_db, isBrowser } from "../common.js";
 export var CacheName;
 (function (CacheName) {
     CacheName["object"] = "object";
@@ -14,12 +14,12 @@ export var CacheName;
 })(CacheName || (CacheName = {}));
 export const CacheLocation = 'wowok-cache';
 export class Cache {
+    ;
     constructor() {
-        var location = CacheLocation;
+        this.location = CacheLocation;
         if (!isBrowser()) {
-            location = path.join(path.join(os.homedir(), '.wowok'), CacheLocation);
+            this.location = path.join(path.join(os.homedir(), '.wowok'), CacheLocation);
         }
-        this.storage = new Level(location, { valueEncoding: 'json' });
     }
     static Instance() {
         if (!Cache._instance) {
@@ -39,15 +39,28 @@ export class Cache {
         return cache.expire <= Date.now();
     }
     async put(object, data, prefix) {
-        return await this.storage.put(Cache.Key(object, prefix), JSON.stringify(data));
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            await storage.put(Cache.Key(object, prefix), JSON.stringify(data));
+        }
+        finally {
+            await storage.close();
+        }
     }
     async get(object, prefix) {
-        const r = await this.storage.get(prefix + object);
-        if (r)
+        const r = await get_level_db(this.location, Cache.Key(object, prefix));
+        if (r) {
             return JSON.parse(r);
+        }
     }
     async del(object, prefix) {
-        return await this.storage.del(prefix + object);
+        const storage = new Level(this.location, { valueEncoding: 'json' });
+        try {
+            await storage.del(Cache.Key(object, prefix));
+        }
+        finally {
+            await storage.close();
+        }
     }
     async cache_get(object, prefix, force_cache) {
         const r = await this.get(object, prefix);
