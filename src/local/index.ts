@@ -1,6 +1,6 @@
 import { CallResponse, CoinBalance, CoinStruct, Protocol } from "wowok"
 import { Account, AccountData } from "./account.js"
-import { LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
+import { InfoData, LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
 
 export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
     return JSON.stringify(await LocalMark.Instance().list(filter))
@@ -57,7 +57,7 @@ export const query_account = async (query: QueryAccount) : Promise<QueryAccountR
     return res;
 }
 
-export const query_local_info = async (name: string = LocalInfoNameDefault) : Promise<LocalInfo | undefined> => { 
+export const query_local_info = async (name: string = LocalInfoNameDefault) : Promise<InfoData  | undefined> => { 
     return await LocalInfo.Instance().get(name)
 }
 

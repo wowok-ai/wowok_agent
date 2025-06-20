@@ -2,10 +2,9 @@
  * account management and use
  */
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, getFaucetHost, requestSuiFromFaucetV2, Errors, ERROR, IsValidName } from 'wowok';
-import { get_level_db, isBrowser } from '../common.js';
+import { retry_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
-import { Level } from 'level';
 const AccountLocation = 'wowok-acc';
 const AccountKey = 'account';
 export class Account {
@@ -98,8 +97,7 @@ export class Account {
         return data;
     }
     async set_default(address_or_name) {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             var found = false;
             if (r) {
@@ -116,19 +114,15 @@ export class Account {
                 await storage.put(AccountKey, JSON.stringify(s));
             }
             return found;
-        }
-        finally {
-            await storage.close();
-        }
+        });
     }
     async gen(bDefault, name) {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
-            if (name && !IsValidName(name)) {
-                ERROR(Errors.IsValidName, `Name ${name} is not valid`);
-            }
-            var secret = '0x' + toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
-            var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+        if (name && !IsValidName(name)) {
+            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
+        }
+        var secret = '0x' + toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+        var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+        return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
@@ -154,56 +148,58 @@ export class Account {
                 await storage.put(AccountKey, JSON.stringify([ret]));
                 return this.accountData(ret);
             }
-        }
-        finally {
-            await storage.close();
-        }
+        });
     }
     async default() {
-        const r = await get_level_db(this.location, AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            return this.accountData(s.find(v => v.default));
-        }
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                return this.accountData(s.find(v => v.default));
+            }
+        });
     }
     // address: if undefined, the default returned.
     async get(address_or_name) {
         return this.accountData(await this.get_imp(address_or_name));
     }
     async get_imp(address_or_name) {
-        const r = await get_level_db(this.location, AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            if (!address_or_name) {
-                return s.find(v => v.default);
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (!address_or_name) {
+                    return s.find(v => v.default);
+                }
+                return s.find(v => v.address === address_or_name || v.name === address_or_name);
             }
-            return s.find(v => v.address === address_or_name || v.name === address_or_name);
-        }
+        });
     }
     async get_many(address_or_names) {
         return await this.get_many_imp(address_or_names).then(v => v.map(i => this.accountData(i)));
     }
     async get_many_imp(address_or_names) {
-        const r = await get_level_db(this.location, AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            return address_or_names.map(i => {
-                if (!i) {
-                    return s.find(v => v.default);
-                }
-                else {
-                    return s.find(v => v.address === i || v.name === i);
-                }
-            });
-        }
-        return address_or_names.map(v => undefined);
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                return address_or_names.map(i => {
+                    if (!i) {
+                        return s.find(v => v.default);
+                    }
+                    else {
+                        return s.find(v => v.address === i || v.name === i);
+                    }
+                });
+            }
+            return address_or_names.map(v => undefined);
+        });
     }
     async set_name(name, address_or_name) {
         if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
@@ -227,28 +223,26 @@ export class Account {
                     }
                 }
             }
-        }
-        finally {
-            await storage.close();
-        }
-        return false;
+            return false;
+        });
     }
     async list(showSuspended) {
-        const r = await get_level_db(this.location, AccountKey);
-        if (r) {
-            const s = JSON.parse(r);
-            if (showSuspended) {
-                return s.map(v => this.accountData(v));
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (showSuspended) {
+                    return s.map(v => this.accountData(v));
+                }
+                else {
+                    return s.filter(v => !v.suspended).map(v => this.accountData(v));
+                }
             }
-            else {
-                return s.filter(v => !v.suspended).map(v => this.accountData(v));
-            }
-        }
-        return [];
+            return [];
+        });
     }
     async suspend(address_or_name, suspend = true) {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
@@ -269,10 +263,7 @@ export class Account {
                     }
                 }
             }
-        }
-        finally {
-            await storage.close();
-        }
+        });
     }
     async faucet(address_or_name) {
         const a = await this.get(address_or_name);

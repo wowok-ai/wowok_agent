@@ -57,16 +57,24 @@ export const GetObjectParam = (object: ObjectParam | undefined) : NamedObjectWit
 export type ObjectsOp = {op:'set' | 'add' | 'remove' ; objects:string[]} | {op:'removeall'};
 
 // address from local Account or local Mark.
-export type AccountOrMark_Address = {account_or_address?: string} | {mark_or_address: string};
+export type AccountOrMark_Address = {name_or_address?: string, local_mark_first?: boolean}  ;
 
 export const GetAccountOrMark_Address = async (entity?: AccountOrMark_Address) : Promise<string | undefined> => {
-    if (typeof((entity as any)?.mark_or_address) === 'string') {
-        return await LocalMark.Instance().get_address((entity as any).mark_or_address);
-    } else {
-        const r = (await Account.Instance().get((entity as any)?.account_or_address))?.address;
+    if (!entity || !entity.name_or_address) {
+        return (await Account.Instance().get())?.address
+    } 
+    if (entity?.local_mark_first) {
+        const r =  await LocalMark.Instance().get_address(entity.name_or_address);
         if (!r) {
-            return await LocalMark.Instance().get_address((entity as any).account_or_address)
+            return (await Account.Instance().get(entity.name_or_address))?.address;
         }
+        return r
+    } else {
+        const r = (await Account.Instance().get(entity.name_or_address))?.address;
+        if (!r) {
+            return await LocalMark.Instance().get_address(entity.name_or_address);
+        }        
+        return r
     }
 }
 
@@ -162,7 +170,7 @@ export class CallBase {
         var guards : string[] = [];
 
         if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({permission_object:permission, address:{account_or_address:account}});
+            const p = await query_permission({permission_object:permission, address:{name_or_address:account}});
             if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
@@ -213,7 +221,7 @@ export class CallBase {
 
         // onchain mark
         if (!this.resouceObject) {
-            const r = await query_personal({address:{account_or_address:account}}); 
+            const r = await query_personal({address:{name_or_address:account}}); 
             if (!r?.mark_object) {
                 this.resouceObject = Entity.From(txb).create_resource2(); // new 
                 Resource.From(txb, this.resouceObject).add(object, tags, named_new?.name);
@@ -247,16 +255,17 @@ export class CallBase {
         }
         // save the mark locally, anyway
         const res = ResponseData(r);
-        res.forEach(v => {
+        for (let i = 0; i < res.length; ++i) {
+            const v = res[i];
             if (v.type && v.change === 'created') {
                 const namedNew = this.traceMarkNew.get(v.type);
                 if (namedNew) {
-                    LocalMark.Instance().put(namedNew.name, 
+                    await LocalMark.Instance().put(namedNew.name, 
                         {address:v.object, tags:namedNew?.tags ? [...namedNew?.tags, v.type] : [v.type]}, 
                         namedNew?.useAddressIfNameExist);
                 }
             }
-        })
+        }
         return r
     }
 }

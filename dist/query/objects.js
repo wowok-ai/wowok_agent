@@ -78,7 +78,7 @@ export const query_objects = async (query) => {
     return { objects: ret };
 };
 export const query_personal = async (query) => {
-    const addr = await GetAccountOrMark_Address(query.address);
+    const addr = await GetAccountOrMark_Address(query?.address);
     if (!addr) {
         ERROR(Errors.InvalidParam, 'query_personal.address');
     }

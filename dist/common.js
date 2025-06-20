@@ -17,24 +17,30 @@ export const crypto_string = (str, pubkey) => {
     rsa.importKey(pubkey, 'pkcs8-public-pem');
     return rsa.encrypt(str, 'base64');
 };
-export const get_level_db = async (db_name, key) => {
-    const db = new Level(db_name, { valueEncoding: 'json' });
-    try {
-        const r = await db.get(key);
-        return r;
-    }
-    finally {
-        await db.close();
-    }
+const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
-export const getMany_level_db = async (db_name, key) => {
-    const db = new Level(db_name, { valueEncoding: 'json' });
-    try {
-        const r = await db.getMany(key);
-        return r;
+export const retry_db = async (name_or_db, command) => {
+    if (typeof name_or_db === 'string') {
+        name_or_db = new Level(name_or_db, { valueEncoding: 'json' });
     }
-    finally {
-        await db.close();
+    for (let i = 0; i < 3; ++i) {
+        try {
+            const r = await command(name_or_db);
+            return r;
+        }
+        catch (e) {
+            if (e?.code === 'LEVEL_DATABASE_NOT_OPEN') {
+                await sleep(1000);
+            }
+            else {
+                throw e;
+            }
+        }
+        finally {
+            await name_or_db.close();
+        }
     }
+    throw ('LEVEL_DATABASE_NOT_OPEN');
 };
 //# sourceMappingURL=common.js.map

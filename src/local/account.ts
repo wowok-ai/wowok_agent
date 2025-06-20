@@ -5,7 +5,7 @@
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, 
     getFaucetHost, requestSuiFromFaucetV2, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
     CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName} from 'wowok';
-import { get_level_db, isBrowser } from '../common.js';
+import { retry_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
 import { Level } from 'level';
@@ -50,8 +50,7 @@ export class Account {
     }
 
     async set_default(address_or_name: string) : Promise<boolean> {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        return await retry_db(this.location, async(storage:Level) => {
             const r = await storage.get(AccountKey);
             var found = false;
             if (r) {
@@ -66,21 +65,19 @@ export class Account {
                 }
                 await storage.put(AccountKey, JSON.stringify(s));
             }
-            return found;            
-        } finally {
-            await storage.close();
-        }
+            return found;    
+        })
     }
 
-    async gen(bDefault?: boolean, name?:string) : Promise<AccountData> {    
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
-            if (name && !IsValidName(name)) {
-                ERROR(Errors.IsValidName, `Name ${name} is not valid`);
-            }   
+    async gen(bDefault?: boolean, name?:string) : Promise<AccountData> {   
+        if (name && !IsValidName(name)) {
+            ERROR(Errors.IsValidName, `Name ${name} is not valid`);
+        }   
 
-            var secret = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
-            var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+        var secret = '0x'+toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+        var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+
+        return await retry_db(this.location, async(storage:Level) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r) as AccountData[];
@@ -107,19 +104,18 @@ export class Account {
                 const ret:AccountData = {address: address, secret:secret, name: name ? name:undefined, default: bDefault};
                 await storage.put(AccountKey, JSON.stringify([ret]));
                 return this.accountData(ret)!;
-            }            
-        } finally {
-            await storage.close();
-        }
+            }    
+        }) 
     }
 
     async default() : Promise<AccountData | undefined> {
-        const r = await get_level_db(this.location, AccountKey);
-
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            return this.accountData(s.find(v => v.default));
-        }             
+        return await retry_db(this.location, async(storage:Level) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                return this.accountData(s.find(v => v.default));
+            }                  
+        })
     }
 
     // address: if undefined, the default returned.
@@ -128,35 +124,37 @@ export class Account {
     }
 
     private async get_imp(address_or_name?: string) : Promise<AccountData | undefined> {
-        const r = await get_level_db(this.location, AccountKey);
-
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            if (!address_or_name) {
-                return s.find(v => v.default);
+        return await retry_db(this.location, async(storage:Level) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                if (!address_or_name) {
+                    return s.find(v => v.default);
+                }
+    
+                return s.find(v => v.address === address_or_name || v.name === address_or_name);
             }
-
-            return s.find(v => v.address === address_or_name || v.name === address_or_name);
-        } 
+        })
     }
     
     async get_many(address_or_names: (string | null | undefined)[]) : Promise<(AccountData | undefined)[]> {
         return await this.get_many_imp(address_or_names).then(v => v.map(i => this.accountData(i)));
     }
     private async get_many_imp(address_or_names: (string | null | undefined)[]) : Promise<(AccountData | undefined)[]> {
-        const r = await get_level_db(this.location, AccountKey);
-
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            return address_or_names.map(i => {
-                if (!i) {
-                    return s.find(v => v.default);
-                } else {
-                    return s.find(v => v.address === i || v.name === i);
-                }
-            })
-        }
-        return address_or_names.map(v => undefined);
+        return await retry_db(this.location, async(storage:Level) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                return address_or_names.map(i => {
+                    if (!i) {
+                        return s.find(v => v.default);
+                    } else {
+                        return s.find(v => v.address === i || v.name === i);
+                    }
+                })
+            }
+            return address_or_names.map(v => undefined);
+        })
     }
     
     async set_name(name:string, address_or_name?:string) : Promise<boolean> {
@@ -164,8 +162,7 @@ export class Account {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
 
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        return await retry_db(this.location, async(storage:Level) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r) as AccountData[];
@@ -188,31 +185,28 @@ export class Account {
                         return true;
                     } 
                 }
-            } 
-        } finally {
-            await storage.close();
-        }
-
-        return false;
+            }
+            return false;
+        })
     }
 
-    async list(showSuspended?:boolean) : Promise<AccountData[]> {        
-        const r = await get_level_db(this.location, AccountKey);
-        if (r) {
-            const s = JSON.parse(r) as AccountData[];
-            if (showSuspended) {
-                return s.map(v => this.accountData(v)!);
-            } else {
-                return s.filter(v => !v.suspended).map(v => this.accountData(v)!);
+    async list(showSuspended?:boolean) : Promise<AccountData[]> {      
+        return await retry_db(this.location, async(storage:Level) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r) as AccountData[];
+                if (showSuspended) {
+                    return s.map(v => this.accountData(v)!);
+                } else {
+                    return s.filter(v => !v.suspended).map(v => this.accountData(v)!);
+                }
             }
-
-        } 
-        return [];
+            return [];
+        }) 
     }
     
     async suspend(address_or_name?:string, suspend:boolean=true) : Promise<void> {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        await retry_db(this.location, async(storage:Level) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r) as AccountData[];
@@ -232,9 +226,7 @@ export class Account {
                     } 
                 }
             }
-        } finally {
-            await storage.close();
-        }
+        })
     }
 
     async faucet(address_or_name?:string) {

@@ -24,8 +24,8 @@ export const query_permission_json = async (json:string) : Promise<string> => {
 
 export const query_permission = async (query:PermissionQuery) : Promise<PermissionAnswer> => {
     const [object_address, entity_address] = await Promise.all([
-        LocalMark.Instance().get_address(query.permission_object),
-        GetAccountOrMark_Address(query.address),
+        await LocalMark.Instance().get_address(query.permission_object),
+        await GetAccountOrMark_Address(query.address),
     ]);
 
     if (!object_address || !entity_address) {

@@ -352,7 +352,7 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
 }
 
 export const query_personal = async (query:PersonalQuery) : Promise<ObjectPersonal | undefined> => {
-    const addr = await GetAccountOrMark_Address(query.address);
+    const addr = await GetAccountOrMark_Address(query?.address);
     if (!addr)  {
         ERROR(Errors.InvalidParam, 'query_personal.address')
     }

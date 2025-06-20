@@ -4,8 +4,7 @@
 import { Protocol } from "wowok";
 import path from "path";
 import os from "os";
-import { Level } from "level";
-import { get_level_db, isBrowser } from "../common.js";
+import { retry_db, isBrowser } from "../common.js";
 export var CacheName;
 (function (CacheName) {
     CacheName["object"] = "object";
@@ -39,28 +38,22 @@ export class Cache {
         return cache.expire <= Date.now();
     }
     async put(object, data, prefix) {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        await retry_db(this.location, async (storage) => {
             await storage.put(Cache.Key(object, prefix), JSON.stringify(data));
-        }
-        finally {
-            await storage.close();
-        }
+        });
     }
     async get(object, prefix) {
-        const r = await get_level_db(this.location, Cache.Key(object, prefix));
-        if (r) {
-            return JSON.parse(r);
-        }
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(Cache.Key(object, prefix));
+            if (r) {
+                return JSON.parse(r);
+            }
+        });
     }
     async del(object, prefix) {
-        const storage = new Level(this.location, { valueEncoding: 'json' });
-        try {
+        await retry_db(this.location, async (storage) => {
             await storage.del(Cache.Key(object, prefix));
-        }
-        finally {
-            await storage.close();
-        }
+        });
     }
     async cache_get(object, prefix, force_cache) {
         const r = await this.get(object, prefix);

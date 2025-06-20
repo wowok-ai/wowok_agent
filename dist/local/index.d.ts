@@ -1,6 +1,6 @@
 import { CallResponse, CoinBalance, CoinStruct } from "wowok";
 import { AccountData } from "./account.js";
-import { LocalInfo, LocalMarkFilter, MarkData } from "./local.js";
+import { InfoData, LocalMarkFilter, MarkData } from "./local.js";
 export declare const query_local_mark_list: (filter?: LocalMarkFilter) => Promise<string>;
 export declare const query_account_list: (showSuspendedAccount?: boolean) => Promise<AccountData[]>;
 export declare const query_local_info_list: () => Promise<string>;
@@ -21,7 +21,7 @@ export interface QueryAccountResult {
     coin?: CoinStruct[];
 }
 export declare const query_account: (query: QueryAccount) => Promise<QueryAccountResult>;
-export declare const query_local_info: (name?: string) => Promise<LocalInfo | undefined>;
+export declare const query_local_info: (name?: string) => Promise<InfoData | undefined>;
 export interface AccountOperation {
     gen?: {
         name?: string;

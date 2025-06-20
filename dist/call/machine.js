@@ -92,8 +92,8 @@ export class CallMachine extends CallBase {
             if (this.data?.progress_next != null) {
                 if (this.object_address) { // fetch guard
                     const [p, acc] = await Promise.all([
-                        LocalMark.Instance().get_address(this.data?.progress_next.progress),
-                        Account.Instance().get(account)
+                        await LocalMark.Instance().get_address(this.data?.progress_next.progress),
+                        await Account.Instance().get(account)
                     ]);
                     if (!p)
                         ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');

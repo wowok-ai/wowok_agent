@@ -24,7 +24,7 @@ export declare class LocalMark {
     constructor();
     static Instance(): LocalMark;
     put(name: string | undefined | null, mark: MarkData, useAddressIfNameExist?: boolean): Promise<string>;
-    get(name?: string): Promise<MarkData | undefined>;
+    get(name?: string | null): Promise<MarkData | undefined>;
     get_address(name_or_address?: string | null): Promise<string | undefined>;
     get_many_address(name_or_addresses: (string | null | undefined)[]): Promise<(string | undefined)[]>;
     get_many_address2(name_or_addresses: (string | null | undefined)[]): Promise<string[]>;
@@ -45,11 +45,11 @@ export declare class LocalInfo {
     constructor();
     static Instance(): LocalInfo;
     put(name: string | undefined, content: string, bDefault?: boolean): Promise<void>;
-    get(name?: string): Promise<LocalInfo | undefined>;
+    get(name?: string): Promise<InfoData | undefined>;
     get_default(name?: string): Promise<string | undefined>;
     del(name?: string): Promise<void>;
     del_content(name: string | undefined, index: number): Promise<boolean>;
-    clear(): Promise<void>;
+    clear(): Promise<any>;
     list(): Promise<QueryNameData[]>;
 }
 //# sourceMappingURL=local.d.ts.map

@@ -6,7 +6,7 @@
 import path from "path";
 import os from "os";
 import { Level } from "level";
-import { get_level_db, getMany_level_db, isBrowser } from "../common.js";
+import { isBrowser, retry_db } from "../common.js";
 import { ERROR, Errors, IsValidAddress, TagName } from "wowok";
 
 export interface MarkData {
@@ -54,8 +54,7 @@ export class LocalMark {
         ERROR(Errors.InvalidParam, `LocalMark.put.mark.address: ${mark.address}`)
       };
 
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      return await retry_db (this.location, async(storage:Level) => {
         // use address as name if name is undefined or null
         if (name === undefined || name === null) {
           await storage.put(mark.address, JSON.stringify(mark));
@@ -69,30 +68,28 @@ export class LocalMark {
         const r = await storage.get(name);
         if (r) {
           if (useAddressIfNameExist) {
-            storage.put(mark.address, JSON.stringify(mark));
+            await storage.put(mark.address, JSON.stringify(mark));
             return mark.address
           } else {
             const obj = JSON.parse(r) as MarkData;
             await storage.put(obj.address, r)
           }
         }
-
         await storage.put(name, JSON.stringify(mark));
-      } finally {
-        await storage.close();
-      }
-      return name        
+        return name  
+      })
     }
 
-    async get(name?: string) : Promise<MarkData | undefined> {
+    async get(name?: string|null) : Promise<MarkData | undefined> {
       if (name === undefined || name === null) {
         return undefined;
       }
-
-      const r = await get_level_db(this.location, name);
-      if (r) {
-          return JSON.parse(r);
-      }
+      return await retry_db(this.location, async(storage:Level) => {
+        const r = await storage.get(name);
+        if (r) {
+            return JSON.parse(r);
+        }        
+      })
     }
 
     async get_address(name_or_address?: string | null) : Promise<string | undefined> {
@@ -101,10 +98,7 @@ export class LocalMark {
       }
 
       if (name_or_address !== undefined && name_or_address !== null) {
-        const r = await get_level_db(this.location, name_or_address);
-        if (r) {
-            return JSON.parse(r).address;
-        }     
+        return (await this.get(name_or_address))?.address;   
       }
     }
 
@@ -112,14 +106,15 @@ export class LocalMark {
       const check = (v: string | null | undefined) : boolean => {
         return v!==undefined && v!==null && !IsValidAddress(v)
       }
-      const q = await getMany_level_db(this.location, (name_or_addresses.filter(v => check(v)) as string[]));
-      if (q!) ERROR(Errors.Fail, `LocalMark.get_many_address: ${q}`);
+      const q = await retry_db(this.location, async(storage:Level) => {
+        return (await storage.getMany(name_or_addresses.filter(v => check(v)) as string[]));
+      });
 
       return name_or_addresses.map(v => {
         if (check(v)) {
-          const r = q!.shift();
+          const r = q.shift();
           if (r) {
-            return JSON.parse(q!.shift()!)?.address;
+            return JSON.parse(q.shift()!)?.address;
           } 
         } 
         return v
@@ -131,79 +126,61 @@ export class LocalMark {
     }
 
     async del(name:string)  {
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      await retry_db(this.location, async(storage:Level) => {
         await storage.del(name);
-      } finally {
-        await storage.close();
-      }
+      });
     }
 
     async clear() {
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      await retry_db(this.location, async(storage:Level) => {
         await storage.clear();
-      } finally {
-        await storage.close();
-      }
+      })
     }
 
     async rename(name:string, new_name:string) : Promise<boolean> {
       if (new_name.length > LocalMarkNameMaxLength) {
         new_name = new_name.substring(0, LocalMarkNameMaxLength);
       };
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
-        const r = await storage.getMany([name, new_name]);
+      return await retry_db(this.location, async(storage:Level) => {
+        const r = (await storage.getMany([name, new_name]));
         if (r[0] && !r[1]) {
           await storage.put(new_name, r[0]);
           await storage.del(name);
           return true;
         }
-      } finally {
-        await  storage.close()
-      }
-      return false;
-
+        return false;
+      })
     }
 
     async swap_name(name1:string, name2:string) : Promise<boolean> {
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      return await retry_db(this.location, async(storage:Level) => {
         const r = await storage.getMany([name1, name2]);
         if (r[0] && r[1]) {
           await storage.put(name1, r[1]);
           await storage.put(name2, r[0]);
           return true;
-        }        
-      } finally {
-        await storage.close();
-      }
-
-      return false;
+        }       
+        return false; 
+      })
     }
 
     async set_tags(name:string, tags:string[] | undefined) : Promise<boolean> {
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      return await retry_db(this.location, async(storage:Level) => {
         const r  = await storage.get(name);
         if (r) {
           const obj = JSON.parse(r) as MarkData;
           obj.tags = tags;
           await storage.put(name, JSON.stringify(obj));
           return true;
-        }        
-      } finally {
-        await storage.close();  
-      }
-      return false;
+        }    
+        return false;
+      })
     }
 
     async list(filter?: LocalMarkFilter) : Promise<QueryNameData[]> {
       if (filter && filter.tags) filter.tags = filter.tags.filter(v => v !== '' && v);
 
-      const storage = new Level(this.location, { valueEncoding: 'json' });
-      try {
+      return await retry_db(this.location, async(storage:Level) => {
         return (await storage.iterator().all()).filter(v => {
           const obj = JSON.parse(v[1]) as MarkData;
           if (filter?.name && v[0] !== filter.name) return false;
@@ -219,13 +196,10 @@ export class LocalMark {
             }
           }
           return true;
-        }).map(v => {return {name:v[0], data:v[1]}});        
-      } finally {
-        await storage.close();
-      }
-      return [];
-    } 
-}
+        }).map(v => {return {name:v[0], data:v[1]}});    
+      })
+    }
+  }
 
 export interface QueryNameData {
   name: string;
@@ -250,8 +224,7 @@ export class LocalInfo {
   } 
 
   async put(name:string = LocalInfoNameDefault, content:string, bDefault:boolean=true) : Promise<void> {
-    const storage = new Level(this.location, { valueEncoding: 'json' });
-    try {
+    await retry_db(this.location, async(storage:Level) => {
       const r = await storage.get(name);
       if (r)  {
         const obj = JSON.parse(r) as InfoData;
@@ -265,37 +238,35 @@ export class LocalInfo {
         const obj : InfoData = {default:content, others:[content]};
         await storage.put(name, JSON.stringify(obj));
       }
-    } finally {
-      await storage.close();
-    }
+    })
   }
 
-  async get(name: string = LocalInfoNameDefault) : Promise<LocalInfo | undefined> {
-    const r = await get_level_db(this.location, name);
-    if (r) {
-        return JSON.parse(r);
-    }
+  async get(name: string = LocalInfoNameDefault) : Promise<InfoData | undefined> {
+    return await retry_db(this.location, async(storage:Level) => {
+      const r = (await storage.get(name));
+      if (r) {
+          return JSON.parse(r);
+      }
+    })
   }
 
   async get_default(name: string = LocalInfoNameDefault) : Promise<string | undefined> {
-    const r = await get_level_db(this.location, name);
-    if (r) {
-        return (JSON.parse(r) as InfoData).default;
-    }
+    return await retry_db(this.location, async(storage:Level) => {
+      const r = await storage.get(name);
+      if (r) {
+          return (JSON.parse(r) as InfoData)?.default;
+      }      
+    })
   }
 
   async del(name:string = LocalInfoNameDefault) : Promise<void> {
-    const storage = new Level(this.location, { valueEncoding: 'json' });
-    try {
+    return await retry_db(this.location, async(storage:Level) => {
       await storage.del(name);
-    } finally {
-      await storage.close();
-    }
+    })
   }
 
   async del_content(name:string = LocalInfoNameDefault, index:number) : Promise<boolean> {
-    const storage = new Level(this.location, { valueEncoding: 'json' });
-    try {
+    return await retry_db(this.location, async(storage:Level) => {
       const r = await storage.get(name);
       if (r) {
           const obj =  JSON.parse(r) as InfoData;
@@ -305,29 +276,20 @@ export class LocalInfo {
             return true;
           }
       }
-    } finally {
-      await storage.close();
-    }
-    return false;
+      return false
+    })
   }
 
   async clear() {
-    const storage = new Level(this.location, { valueEncoding: 'json' });
-    try {
+    return await retry_db(this.location, async(storage:Level) => {
       await storage.clear();  
-    } finally {
-      await storage.close();
-    }
+    })
   }
 
   async list() : Promise<QueryNameData[]> {
-    const storage = new Level(this.location, { valueEncoding: 'json' });
-    try {
+    return await retry_db(this.location, async(storage:Level) => {
       return (await storage.iterator().all()).map(v => {return {name:v[0], data:v[1]}});
-    } finally {
-      await storage.close();
-    }
-    return []
+    })
   }
 }
 
