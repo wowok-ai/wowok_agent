@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, } from "wowok";
 import { CallBase } from "./base.js";
 import { LocalMark } from "../local/local.js";
 export class CallGuard extends CallBase {
@@ -124,7 +124,7 @@ const buildNode = (guard_node, type_required, table, output) => {
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
             }
         }
-        output.push(Bcs.getInstance().ser('u16', q.query_id)); // cmd(u16)
+        output.push(BCS.bcs.u16().serialize(q.query_id).toBytes()); // cmd(u16)
     }
     else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool

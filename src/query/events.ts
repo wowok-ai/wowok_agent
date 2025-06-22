@@ -123,7 +123,7 @@ const events = async(type:string, cursor?: EventCursor | null, limit?: number | 
                     id: v?.id, time: v?.timestampMs, type_raw:v?.type, sender:v?.sender, type:'NewOrderEvent',
                     arb:v?.parsedJson?.object, arbitration:v?.parsedJson?.arbitration, order:v?.parsedJson?.order
                 } as NewArbEvent
-            } else if (v?.type?.includes('::entity::NewEntityEvent')) {
+            } else if (v?.type?.includes('::entity::NewEntityEvent')) { //@ .some
                 return {
                     id: v?.id, time: v?.timestampMs, type_raw:v?.type, sender:v?.sender, type:'NewOrderEvent',
                     resource:v?.parsedJson?.resource?.some, address:v?.parsedJson?.target, 

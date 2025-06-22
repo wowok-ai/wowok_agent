@@ -186,20 +186,20 @@ export declare const QueryEventSchema: z.ZodObject<{
     order: z.ZodNullable<z.ZodOptional<z.ZodEnum<["ascending", "descending"]>>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }>;
 export declare const QueryEventSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;

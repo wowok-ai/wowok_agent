@@ -30,7 +30,7 @@ export const query_permission = async (query) => {
     if (res.results && res.results[0].returnValues && res.results[0].returnValues.length !== 2) {
         ERROR(Errors.Fail, 'permission.retValues');
     }
-    const perm = Bcs.getInstance().de(BCS.U8, Uint8Array.from(res.results[0].returnValues[0][0]));
+    const perm = BCS.bcs.u8().parse(Uint8Array.from(res.results[0].returnValues[0][0]));
     if (perm === Permission.PERMISSION_ADMIN || perm === Permission.PERMISSION_OWNER_AND_ADMIN) {
         return { who: entity_address, admin: true, owner: perm % 2 === 1, items: [], object: object_address };
     }

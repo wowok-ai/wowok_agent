@@ -5,7 +5,7 @@
 
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
-    IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, 
+    IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, BCS,
     } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { LocalMark } from "../local/local.js";
@@ -152,7 +152,7 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
             }
         }
-        output.push(Bcs.getInstance().ser('u16', q!.query_id)); // cmd(u16)
+        output.push(BCS.bcs.u16().serialize(q!.query_id).toBytes()); // cmd(u16)
     } else if (node?.logic !== undefined) {
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {

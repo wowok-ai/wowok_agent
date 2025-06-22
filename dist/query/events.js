@@ -70,7 +70,7 @@ const events = async (type, cursor, limit, order) => {
                     arb: v?.parsedJson?.object, arbitration: v?.parsedJson?.arbitration, order: v?.parsedJson?.order
                 };
             }
-            else if (v?.type?.includes('::entity::NewEntityEvent')) {
+            else if (v?.type?.includes('::entity::NewEntityEvent')) { //@ .some
                 return {
                     id: v?.id, time: v?.timestampMs, type_raw: v?.type, sender: v?.sender, type: 'NewOrderEvent',
                     resource: v?.parsedJson?.resource?.some, address: v?.parsedJson?.target,
