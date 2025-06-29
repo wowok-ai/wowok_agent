@@ -1,7 +1,7 @@
 /**
  * account management and use
  */
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, getFaucetHost, requestSuiFromFaucetV2, Errors, ERROR, IsValidName } from 'wowok';
+import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName } from 'wowok';
 import { retry_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
@@ -268,7 +268,7 @@ export class Account {
     async faucet(address_or_name) {
         const a = await this.get(address_or_name);
         if (a) {
-            await requestSuiFromFaucetV2({ host: getFaucetHost('testnet'), recipient: a.address }).catch(e => { });
+            await FAUCET.requestSuiFromFaucetV2({ host: FAUCET.getFaucetHost('testnet'), recipient: a.address }).catch(e => { });
         }
     }
     async sign_and_commit(txb, address_or_name) {
