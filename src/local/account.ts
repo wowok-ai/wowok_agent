@@ -3,7 +3,7 @@
  */
 
 import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, 
-    getFaucetHost, requestSuiFromFaucetV2, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
+    FAUCET, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
     CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName} from 'wowok';
 import { retry_db, isBrowser } from '../common.js';
 import path from 'path';
@@ -233,7 +233,7 @@ export class Account {
         const a = await this.get(address_or_name);
 
         if (a) {
-            await requestSuiFromFaucetV2({host:getFaucetHost('testnet'), recipient:a.address}).catch(e => {})
+            await FAUCET.requestSuiFromFaucetV2({host:  FAUCET.getFaucetHost('testnet'), recipient:a.address}).catch(e => {})
         }
     }
 

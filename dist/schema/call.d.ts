@@ -169,10 +169,6 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: {
-        guard: string | null;
-        service_id_in_guard?: number | undefined;
-    } | undefined;
     present?: {
         recommend_words: string;
         service?: string | undefined;
@@ -197,6 +193,10 @@ export declare const CallDemandDataSchema: z.ZodObject<{
     } | {
         op: "refund";
     } | undefined;
+    guard?: {
+        guard: string | null;
+        service_id_in_guard?: number | undefined;
+    } | undefined;
 }, {
     object: string | {
         type_parameter: string;
@@ -213,10 +213,6 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: {
-        guard: string | null;
-        service_id_in_guard?: number | undefined;
-    } | undefined;
     present?: {
         service?: string | undefined;
         recommend_words?: string | undefined;
@@ -240,6 +236,10 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         op: "reward";
     } | {
         op: "refund";
+    } | undefined;
+    guard?: {
+        guard: string | null;
+        service_id_in_guard?: number | undefined;
     } | undefined;
 }>;
 export declare const CallGuardDataSchema: z.ZodObject<{
@@ -268,13 +268,13 @@ export declare const CallGuardDataSchema: z.ZodObject<{
         value: z.ZodOptional<z.ZodAny>;
     }, "strip", z.ZodTypeAny, {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
     }, {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
@@ -288,8 +288,8 @@ export declare const CallGuardDataSchema: z.ZodObject<{
     } | undefined;
     table?: {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
     }[] | undefined;
 }, {
@@ -303,8 +303,8 @@ export declare const CallGuardDataSchema: z.ZodObject<{
     } | undefined;
     table?: {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
     }[] | undefined;
 }>;
@@ -630,9 +630,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 }, "strip", z.ZodTypeAny, {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -640,9 +640,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 }, {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -654,9 +654,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -668,9 +668,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -685,9 +685,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -702,9 +702,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -722,9 +722,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -742,9 +742,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -810,17 +810,17 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             node_name: string;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        op: "remove pair";
         pairs: {
             prior_node_name: string;
             node_name: string;
         }[];
-        op: "remove pair";
     }, {
+        op: "remove pair";
         pairs: {
             prior_node_name: string;
             node_name: string;
         }[];
-        op: "remove pair";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"add forward">;
         data: z.ZodArray<z.ZodObject<{
@@ -845,9 +845,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -855,9 +855,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             }, {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -869,9 +869,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -885,9 +885,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -904,9 +904,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -923,9 +923,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -1090,9 +1090,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -1114,20 +1114,20 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         op: "add from myself";
         addresses: string[];
     } | {
+        op: "remove pair";
         pairs: {
             prior_node_name: string;
             node_name: string;
         }[];
-        op: "remove pair";
     } | {
         op: "add forward";
         data: {
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -1246,9 +1246,9 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -1270,20 +1270,20 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         op: "add from myself";
         addresses: string[];
     } | {
+        op: "remove pair";
         pairs: {
             prior_node_name: string;
             node_name: string;
         }[];
-        op: "remove pair";
     } | {
         op: "add forward";
         data: {
             forward: {
                 name: string;
                 permission?: any;
+                guard?: string | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
                 suppliers?: {
                     service: string;
                     bRequired?: boolean | undefined;
@@ -4289,15 +4289,15 @@ export declare const GuardWitness: z.ZodObject<{
         identifier: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
     }, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4306,8 +4306,8 @@ export declare const GuardWitness: z.ZodObject<{
     guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4316,8 +4316,8 @@ export declare const GuardWitness: z.ZodObject<{
     guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4335,15 +4335,15 @@ export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
         identifier: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
     }, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4352,8 +4352,8 @@ export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
     guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4362,8 +4362,8 @@ export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
     guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: number[];
         cited: number;
         witness?: any;
@@ -4528,10 +4528,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             recommend_words: string;
             service?: string | undefined;
@@ -4556,6 +4552,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     }, {
         object: string | {
             type_parameter: string;
@@ -4572,10 +4572,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             service?: string | undefined;
             recommend_words?: string | undefined;
@@ -4600,6 +4596,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     }>;
     account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
@@ -4613,15 +4613,15 @@ export declare const CallDemandSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -4630,8 +4630,8 @@ export declare const CallDemandSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -4640,8 +4640,8 @@ export declare const CallDemandSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -4664,10 +4664,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             recommend_words: string;
             service?: string | undefined;
@@ -4692,13 +4688,17 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     };
     witness?: {
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -4722,10 +4722,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             service?: string | undefined;
             recommend_words?: string | undefined;
@@ -4750,13 +4746,17 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     };
     witness?: {
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5266,15 +5266,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5283,8 +5283,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5293,8 +5293,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5381,8 +5381,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5470,8 +5470,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -5809,9 +5809,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     }, "strip", z.ZodTypeAny, {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5819,9 +5819,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     }, {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5833,9 +5833,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5847,9 +5847,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5864,9 +5864,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5881,9 +5881,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5901,9 +5901,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5921,9 +5921,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -5989,17 +5989,17 @@ export declare const CallMachineSchema: z.ZodObject<{
                 node_name: string;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         }, {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         }>, z.ZodObject<{
             op: z.ZodLiteral<"add forward">;
             data: z.ZodArray<z.ZodObject<{
@@ -6024,9 +6024,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 }, "strip", z.ZodTypeAny, {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6034,9 +6034,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 }, {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6048,9 +6048,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6064,9 +6064,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6083,9 +6083,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6102,9 +6102,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6269,9 +6269,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -6293,20 +6293,20 @@ export declare const CallMachineSchema: z.ZodObject<{
             op: "add from myself";
             addresses: string[];
         } | {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         } | {
             op: "add forward";
             data: {
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6425,9 +6425,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -6449,20 +6449,20 @@ export declare const CallMachineSchema: z.ZodObject<{
             op: "add from myself";
             addresses: string[];
         } | {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         } | {
             op: "add forward";
             data: {
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6504,15 +6504,15 @@ export declare const CallMachineSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -6521,8 +6521,8 @@ export declare const CallMachineSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -6531,8 +6531,8 @@ export declare const CallMachineSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -6629,9 +6629,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -6653,20 +6653,20 @@ export declare const CallMachineSchema: z.ZodObject<{
             op: "add from myself";
             addresses: string[];
         } | {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         } | {
             op: "add forward";
             data: {
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6700,8 +6700,8 @@ export declare const CallMachineSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -6799,9 +6799,9 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: string | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
                         suppliers?: {
                             service: string;
                             bRequired?: boolean | undefined;
@@ -6823,20 +6823,20 @@ export declare const CallMachineSchema: z.ZodObject<{
             op: "add from myself";
             addresses: string[];
         } | {
+            op: "remove pair";
             pairs: {
                 prior_node_name: string;
                 node_name: string;
             }[];
-            op: "remove pair";
         } | {
             op: "add forward";
             data: {
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: string | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
                     suppliers?: {
                         service: string;
                         bRequired?: boolean | undefined;
@@ -6870,8 +6870,8 @@ export declare const CallMachineSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -7803,15 +7803,15 @@ export declare const CallServiceSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -7820,8 +7820,8 @@ export declare const CallServiceSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -7830,8 +7830,8 @@ export declare const CallServiceSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8009,8 +8009,8 @@ export declare const CallServiceSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8189,8 +8189,8 @@ export declare const CallServiceSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8531,15 +8531,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8548,8 +8548,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8558,8 +8558,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8627,8 +8627,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -8697,8 +8697,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9210,15 +9210,15 @@ export declare const CallPermissionSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9227,8 +9227,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9237,8 +9237,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9329,8 +9329,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9422,8 +9422,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9838,15 +9838,15 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9855,8 +9855,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9865,8 +9865,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -9950,8 +9950,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10036,8 +10036,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10462,13 +10462,13 @@ export declare const CallGuardSchema: z.ZodObject<{
             value: z.ZodOptional<z.ZodAny>;
         }, "strip", z.ZodTypeAny, {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }, {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
@@ -10482,8 +10482,8 @@ export declare const CallGuardSchema: z.ZodObject<{
         } | undefined;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }[] | undefined;
     }, {
@@ -10497,8 +10497,8 @@ export declare const CallGuardSchema: z.ZodObject<{
         } | undefined;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }[] | undefined;
     }>;
@@ -10515,8 +10515,8 @@ export declare const CallGuardSchema: z.ZodObject<{
         } | undefined;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }[] | undefined;
     };
@@ -10533,8 +10533,8 @@ export declare const CallGuardSchema: z.ZodObject<{
         } | undefined;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
         }[] | undefined;
     };
@@ -10570,15 +10570,15 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             identifier: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10587,8 +10587,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10597,8 +10597,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10613,8 +10613,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
@@ -10630,8 +10630,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
         guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: number[];
             cited: number;
             witness?: any;
