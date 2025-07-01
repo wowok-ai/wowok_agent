@@ -105,6 +105,7 @@ export class CallBase {
         var guards = [];
         if (permIndex.length > 0 || checkOwner) {
             const p = await query_permission({ permission_object: permission, address: { name_or_address: account } });
+            console.log(p);
             if (checkOwner && !p.owner)
                 ERROR(Errors.noPermission, 'owner');
             if (checkAdmin && !p.admin)

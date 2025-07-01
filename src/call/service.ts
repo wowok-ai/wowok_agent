@@ -104,6 +104,7 @@ export class CallService extends CallBase {
         const perms : PermissionIndexType[] = []; 
 
         await this.prepare();  
+        console.log(this)
         if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.service)
@@ -399,6 +400,7 @@ export class CallService extends CallBase {
                 case 'set':
                     if (this.data.arbitration.op === 'set') obj?.remove_arbitration([], true, pst);
                     const r = await query_objects({objects:this.data.arbitration.objects, no_cache:true});
+                    console.log(r)
                     r.objects?.forEach(v => {
                         if (v.type ==='Arbitration') {
                             obj?.add_arbitration(v.object, Arbitration.parseObjectType(v.type_raw), pst)

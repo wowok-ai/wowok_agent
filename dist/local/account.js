@@ -1,10 +1,11 @@
 /**
  * account management and use
  */
-import { Ed25519Keypair, fromHEX, toHEX, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName } from 'wowok';
+import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName } from 'wowok';
 import { retry_db, isBrowser } from '../common.js';
 import path from 'path';
 import os from 'os';
+export const DEFAULT_ACCOUNT_NAME = 'default';
 const AccountLocation = 'wowok-acc';
 const AccountKey = 'account';
 export class Account {
@@ -60,7 +61,7 @@ export class Account {
             const a = await this.get_imp(address_or_name);
             if (!a)
                 return undefined;
-            const pair = Ed25519Keypair.fromSecretKey(fromHEX(a.secret));
+            const pair = Ed25519Keypair.fromSecretKey(fromHex(a.secret));
             if (!pair)
                 return undefined;
             const txb = new TransactionBlock();
@@ -92,36 +93,19 @@ export class Account {
     accountData(data) {
         if (!data)
             return;
-        data.pubkey = Ed25519Keypair.fromSecretKey(fromHEX(data.secret)).getPublicKey().toSuiPublicKey();
+        data.pubkey = Ed25519Keypair.fromSecretKey(fromHex(data.secret)).getPublicKey().toSuiPublicKey();
         data.secret = undefined;
         return data;
     }
-    async set_default(address_or_name) {
-        return await retry_db(this.location, async (storage) => {
-            const r = await storage.get(AccountKey);
-            var found = false;
-            if (r) {
-                const s = JSON.parse(r);
-                for (let i = 0; i < s.length; i++) {
-                    if (s[i].address === address_or_name || s[i].name === address_or_name && !found) {
-                        s[i].default = true;
-                        found = true;
-                    }
-                    else {
-                        s[i].default = false;
-                    }
-                }
-                await storage.put(AccountKey, JSON.stringify(s));
-            }
-            return found;
-        });
-    }
-    async gen(bDefault, name) {
-        if (name && !IsValidName(name)) {
+    async gen(name) {
+        if (!name) {
+            name = DEFAULT_ACCOUNT_NAME;
+        }
+        if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
-        var secret = '0x' + toHEX(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
-        var address = Ed25519Keypair.fromSecretKey(fromHEX(secret)).getPublicKey().toSuiAddress();
+        var secret = '0x' + toHex(decodeSuiPrivateKey(Ed25519Keypair.generate().getSecretKey()).secretKey);
+        var address = Ed25519Keypair.fromSecretKey(fromHex(secret)).getPublicKey().toSuiAddress();
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
@@ -131,20 +115,13 @@ export class Account {
                         ERROR(Errors.IsValidName, `Name ${name} already exists`);
                     }
                 }
-                if (bDefault) {
-                    s.forEach(v => {
-                        if (v.default) {
-                            v.default = false;
-                        }
-                    });
-                }
-                const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
+                const ret = { address: address, secret: secret, name };
                 s.push(ret);
                 await storage.put(AccountKey, JSON.stringify(s));
                 return this.accountData(ret);
             }
             else {
-                const ret = { address: address, secret: secret, name: name ? name : undefined, default: bDefault };
+                const ret = { address: address, secret: secret, name: name };
                 await storage.put(AccountKey, JSON.stringify([ret]));
                 return this.accountData(ret);
             }
@@ -155,7 +132,7 @@ export class Account {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
-                return this.accountData(s.find(v => v.default));
+                return this.accountData(s.find(v => v.name === DEFAULT_ACCOUNT_NAME));
             }
         });
     }
@@ -164,13 +141,12 @@ export class Account {
         return this.accountData(await this.get_imp(address_or_name));
     }
     async get_imp(address_or_name) {
+        if (!address_or_name)
+            address_or_name = DEFAULT_ACCOUNT_NAME;
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
-                if (!address_or_name) {
-                    return s.find(v => v.default);
-                }
                 return s.find(v => v.address === address_or_name || v.name === address_or_name);
             }
         });
@@ -185,7 +161,7 @@ export class Account {
                 const s = JSON.parse(r);
                 return address_or_names.map(i => {
                     if (!i) {
-                        return s.find(v => v.default);
+                        return s.find(v => v.name === DEFAULT_ACCOUNT_NAME);
                     }
                     else {
                         return s.find(v => v.address === i || v.name === i);
@@ -195,7 +171,43 @@ export class Account {
             return address_or_names.map(v => undefined);
         });
     }
+    async swap_names(name1, name2) {
+        if (!name1)
+            name1 = DEFAULT_ACCOUNT_NAME;
+        if (!name2)
+            name2 = DEFAULT_ACCOUNT_NAME;
+        if (name1 === name2)
+            return false;
+        if (!IsValidName(name1)) {
+            ERROR(Errors.IsValidName, `Name ${name1} is not valid`);
+        }
+        if (!IsValidName(name2)) {
+            ERROR(Errors.IsValidName, `Name ${name2} is not valid`);
+        }
+        return await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                const f1 = s.find(v => v.name === name1);
+                const f2 = s.find(v => v.name === name2);
+                if (f1 && f2) {
+                    const t = f1.name;
+                    f1.name = f2.name;
+                    f2.name = t;
+                    await storage.put(AccountKey, JSON.stringify(s));
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
     async set_name(name, address_or_name) {
+        if (!address_or_name)
+            address_or_name = DEFAULT_ACCOUNT_NAME;
+        if (!name)
+            name = DEFAULT_ACCOUNT_NAME;
+        if (address_or_name === name)
+            return true;
         if (!IsValidName(name)) {
             ERROR(Errors.IsValidName, `Name ${name} is not valid`);
         }
@@ -206,21 +218,11 @@ export class Account {
                 if (s.find(v => v.name === name)) {
                     ERROR(Errors.IsValidName, `Name ${name} already exists`);
                 }
-                if (!address_or_name) {
-                    const f = s.find(v => v.default);
-                    if (f) {
-                        f.name = name;
-                        await storage.put(AccountKey, JSON.stringify(s));
-                        return true;
-                    }
-                }
-                else {
-                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                    if (f) {
-                        f.name = name;
-                        await storage.put(AccountKey, JSON.stringify(s));
-                        return true;
-                    }
+                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                if (f) {
+                    f.name = name;
+                    await storage.put(AccountKey, JSON.stringify(s));
+                    return true;
                 }
             }
             return false;
@@ -241,26 +243,37 @@ export class Account {
             return [];
         });
     }
-    async suspend(address_or_name, suspend = true) {
+    async suspend(address_or_name) {
+        if (!address_or_name)
+            address_or_name = DEFAULT_ACCOUNT_NAME;
         await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
-                if (!address_or_name) {
-                    const f = s.find(v => v.default);
-                    if (f) {
-                        f.suspended = suspend;
-                        f.name = undefined;
-                        await storage.put(AccountKey, JSON.stringify(s));
-                    }
+                const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
+                if (f) {
+                    f.suspended = true;
+                    f.name = undefined;
+                    await storage.put(AccountKey, JSON.stringify(s));
                 }
-                else {
-                    const f = s.find(v => v.address === address_or_name || v.name === address_or_name);
-                    if (f) {
-                        f.suspended = suspend;
-                        f.name = undefined;
-                        await storage.put(AccountKey, JSON.stringify(s));
-                    }
+            }
+        });
+    }
+    async resume(address, name) {
+        if (!name)
+            name = DEFAULT_ACCOUNT_NAME;
+        await retry_db(this.location, async (storage) => {
+            const r = await storage.get(AccountKey);
+            if (r) {
+                const s = JSON.parse(r);
+                if (s.find(v => v.name === name)) {
+                    ERROR(Errors.IsValidName, `Name ${name} already exists`);
+                }
+                const f = s.find(v => v.address === address);
+                if (f) {
+                    f.suspended = false;
+                    f.name = name;
+                    await storage.put(AccountKey, JSON.stringify(s));
                 }
             }
         });
@@ -274,7 +287,7 @@ export class Account {
     async sign_and_commit(txb, address_or_name) {
         const a = await this.get_imp(address_or_name);
         if (a) {
-            const pair = Ed25519Keypair.fromSecretKey(fromHEX(a.secret));
+            const pair = Ed25519Keypair.fromSecretKey(fromHex(a.secret));
             if (pair) {
                 return await Protocol.Client().signAndExecuteTransaction({
                     transaction: txb,
@@ -291,7 +304,7 @@ export class Account {
         const to_address = to?.address ?? to_address_or_name;
         if (!to_address)
             ERROR(Errors.InvalidParam, `Invalid to address or name ${to_address_or_name}`);
-        const pair = Ed25519Keypair.fromSecretKey(fromHEX(from.secret));
+        const pair = Ed25519Keypair.fromSecretKey(fromHex(from.secret));
         if (pair) {
             const txb = new TransactionBlock();
             const coin = await this.get_coin_object(txb, amount, from.address, token_type);

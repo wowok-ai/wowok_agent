@@ -40,20 +40,23 @@ export const query_local_info = async (name = LocalInfoNameDefault) => {
 };
 export const account_operation = async (op) => {
     var res = {};
-    if (op.gen) {
-        const acc = await Account.Instance().gen(op.gen?.default, op.gen?.name);
-        res.gen = { address: acc?.address, default: acc?.default, name: acc?.name };
+    if (op.gen != null) {
+        const acc = await Account.Instance().gen(op.gen?.name);
+        res.gen = { address: acc?.address, name: acc?.name };
     }
-    if (op.default) {
-        await Account.Instance().set_default(op.default.name_or_address);
+    if (op.suspend != null) {
+        await Account.Instance().suspend(op.suspend.name_or_address);
     }
-    if (op.suspend) {
-        await Account.Instance().suspend(op.suspend.name_or_address, op.suspend.suspend);
+    if (op.resume != null) {
+        await Account.Instance().resume(op.resume.address, op.resume.name);
     }
-    if (op.name) {
+    if (op.name != null) {
         await Account.Instance().set_name(op.name.new_name, op.name.name_or_address);
     }
-    if (op.transfer) {
+    if (op.swap_names != null) {
+        await Account.Instance().swap_names(op.swap_names.name1, op.swap_names.name2);
+    }
+    if (op.transfer != null) {
         res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from);
     }
     return res;

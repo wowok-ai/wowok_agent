@@ -1,5 +1,5 @@
 import { CallResponse, CoinBalance, CoinStruct, Protocol } from "wowok"
-import { Account, AccountData } from "./account.js"
+import { Account, AccountData, DEFAULT_NAME } from "./account.js"
 import { InfoData, LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
 
 export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
@@ -62,35 +62,38 @@ export const query_local_info = async (name: string = LocalInfoNameDefault) : Pr
 }
 
 export interface AccountOperation {
-    gen?: {name?:string, default?: boolean} | null; // generate a new account, if not specified, generate a new default account.
-    default?: {name_or_address: string} | null; // set the default account.
-    suspend?: {name_or_address?: string, suspend?:boolean} | null; // suspend the account, if not specified, suspend the default account.
-    name?: {new_name:string, name_or_address?:string} | null; // name the account, if not specified, name the default account.
+    gen?: {name?:string | DEFAULT_NAME} | null; // generate a new account, if not specified, generate a new default account.
+    suspend?: {name_or_address?: string | DEFAULT_NAME, suspend?:boolean} | null; // suspend the account, if not specified, suspend the default account.
+    resume?: {address:string, name?: string | DEFAULT_NAME} | null; // resume the account and specify the name. if name not specified, use 'default'.
+    name?: {new_name:string | DEFAULT_NAME, name_or_address?:string | DEFAULT_NAME} | null; // name the account, if not specified, name the default account.
+    swap_names?: {name1?:string | DEFAULT_NAME, name2?:string | DEFAULT_NAME} | null; // swap the name of two accounts, if not specified, swap the default account.
     transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null;   // transfer the token.
 }
 
 export interface AccountOperationResult {
-    gen?: {address:string, default?:boolean, name?: string};
+    gen?: {address:string, name?: string | DEFAULT_NAME};
     transfer?: CallResponse;
 }
 
 export const account_operation = async(op: AccountOperation) : Promise<AccountOperationResult> => {
     var res : AccountOperationResult = {}; 
-    if (op.gen) {
-        const acc = await Account.Instance().gen(op.gen?.default, op.gen?.name);
-        res.gen =  {address: acc?.address, default: acc?.default, name:acc?.name};
+    if (op.gen != null) {
+        const acc = await Account.Instance().gen(op.gen?.name);
+        res.gen =  {address: acc?.address, name:acc?.name};
     } 
-    if (op.default) {
-        await Account.Instance().set_default(op.default.name_or_address); 
+    if (op.suspend != null) {
+        await Account.Instance().suspend(op.suspend.name_or_address);
     }
-    if (op.suspend) {
-        await Account.Instance().suspend(op.suspend.name_or_address, op.suspend.suspend);
+    if (op.resume != null) {
+        await Account.Instance().resume(op.resume.address, op.resume.name);
     }
-    if (op.name) {
+    if (op.name != null) {
         await Account.Instance().set_name(op.name.new_name, op.name.name_or_address); 
     }
-
-    if(op.transfer) {
+    if (op.swap_names != null) {
+        await Account.Instance().swap_names(op.swap_names.name1, op.swap_names.name2);
+    }
+    if(op.transfer != null) {
         res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from);
     }
     return res;

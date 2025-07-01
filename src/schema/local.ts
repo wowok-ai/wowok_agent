@@ -12,29 +12,33 @@ export const QueryAccountSchema = z.object({
     token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified."),
 });
 
-export const AccountOperationSchemaDescription = `Account operations, including generating new accounts, setting default accounts, suspending/reactivating accounts, naming accounts, and transferring tokens between accounts.`;
+export const AccountOperationSchemaDescription = `Account operations, including generating new accounts, suspending/resume accounts, naming accounts, 
+swapping names of two accounts, and transferring tokens between accounts. Note that the 'name' or 'name_or_address' undefined or equal to '' means the 'default' account`;
 export const AccountOperationSchema = z.object({
     gen: z.object({
-            name: z.string().nonempty().optional().describe("Account name."),
-            default: z.boolean().optional().describe("Whether to set the generated account as the default account."),
-        }).optional().describe("Generate a new account."),
-    default: z.object({
-            name_or_address: z.string().nonempty().describe("The name or address of the account to set as the default account."),
-        }).optional().describe("Set the default account."),
+            name: z.string().optional().describe("Account name"),
+        }).optional().describe("Generate a new account"),
     suspend: z.object({
-            name_or_address: z.string().optional().describe("The name or address of the account to suspend. undefined means default account."),
-            suspend: z.boolean().optional().describe("Whether to suspend the account. If not specified, suspend the default account."),
-        }).optional().describe("Suspend or reactivate the account."),
+            name_or_address: z.string().optional().describe("The name or address of the account to suspend"),
+        }).optional().describe("Suspend an account."),
+    resume: z.object({
+            address: z.string().describe("The address of the account to resume"),
+            name: z.string().optional().describe("The name to set for the account"),
+        }).optional().describe("Resume an account"),
     name: z.object({
-            new_name: z.string().nonempty().describe("The name to set for the account."),
-            name_or_address: z.string().optional().describe("The name or address of the account to set the name for. undefined means default account."), 
-    }).optional().describe("Set the name of the account."),
+            new_name: z.string().nonempty().describe("The name to set for the account"),
+            name_or_address: z.string().optional().describe("The name or address of the account to set the name for"), 
+    }).optional().describe("Set the name of the account"),
+    swap_names: z.object({
+        name1: z.string().optional().describe("The name of the first account"),
+        name2: z.string().optional().describe("The name of the second account"),
+    }).optional().describe("Swap the names of two accounts"),
     transfer: z.object({
-            name_or_address_from: z.string().optional().describe("The name or address of the account to transfer from. undefined means default account."),
-            name_or_address_to: z.string().optional().describe("The name or address of the account to transfer to. undefined means default account."),
-            amount: z.union([z.string(), z.number()]).describe("The amount to transfer. Must be a positive integer."),
-            token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified."),
-        }).optional().describe("Transfer tokens from one account to another."),        
+            name_or_address_from: z.string().optional().describe("The name or address of the account to transfer from"),
+            name_or_address_to: z.string().optional().describe("The name or address of the account to transfer to"),
+            amount: z.union([z.string(), z.number()]).describe("The amount to transfer. Must be a positive integer"),
+            token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified"),
+        }).optional().describe("Transfer tokens from one account to another"),        
 });
 export const AccountOperationSchemaInput = () => {
     return zodToJsonSchema(AccountOperationSchema);

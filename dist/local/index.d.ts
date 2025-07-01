@@ -1,5 +1,5 @@
 import { CallResponse, CoinBalance, CoinStruct } from "wowok";
-import { AccountData } from "./account.js";
+import { AccountData, DEFAULT_NAME } from "./account.js";
 import { InfoData, LocalMarkFilter, MarkData } from "./local.js";
 export declare const query_local_mark_list: (filter?: LocalMarkFilter) => Promise<string>;
 export declare const query_account_list: (showSuspendedAccount?: boolean) => Promise<AccountData[]>;
@@ -24,19 +24,23 @@ export declare const query_account: (query: QueryAccount) => Promise<QueryAccoun
 export declare const query_local_info: (name?: string) => Promise<InfoData | undefined>;
 export interface AccountOperation {
     gen?: {
-        name?: string;
-        default?: boolean;
-    } | null;
-    default?: {
-        name_or_address: string;
+        name?: string | DEFAULT_NAME;
     } | null;
     suspend?: {
-        name_or_address?: string;
+        name_or_address?: string | DEFAULT_NAME;
         suspend?: boolean;
     } | null;
+    resume?: {
+        address: string;
+        name?: string | DEFAULT_NAME;
+    } | null;
     name?: {
-        new_name: string;
-        name_or_address?: string;
+        new_name: string | DEFAULT_NAME;
+        name_or_address?: string | DEFAULT_NAME;
+    } | null;
+    swap_names?: {
+        name1?: string | DEFAULT_NAME;
+        name2?: string | DEFAULT_NAME;
     } | null;
     transfer?: {
         name_or_address_from?: string;
@@ -48,8 +52,7 @@ export interface AccountOperation {
 export interface AccountOperationResult {
     gen?: {
         address: string;
-        default?: boolean;
-        name?: string;
+        name?: string | DEFAULT_NAME;
     };
     transfer?: CallResponse;
 }
