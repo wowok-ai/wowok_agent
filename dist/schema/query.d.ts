@@ -238,12 +238,12 @@ export declare const QueryByIndexSchema: z.ZodObject<{
     index: z.ZodNumber;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    parent: string;
     index: number;
+    parent: string;
     no_cache?: boolean | undefined;
 }, {
-    parent: string;
     index: number;
+    parent: string;
     no_cache?: boolean | undefined;
 }>;
 export declare const QueryByAddressNameSchema: z.ZodObject<{
@@ -290,26 +290,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }>, z.ZodObject<{
@@ -527,26 +527,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }>]>;
@@ -554,8 +554,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -611,8 +611,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     };
@@ -620,8 +620,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -677,8 +677,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     };

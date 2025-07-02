@@ -86,7 +86,7 @@ export class LocalMark {
             if (check(v)) {
                 const r = q.shift();
                 if (r) {
-                    return JSON.parse(q.shift())?.address;
+                    return JSON.parse(r)?.address;
                 }
             }
             return v;

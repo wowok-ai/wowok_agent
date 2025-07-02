@@ -109,12 +109,11 @@ export class LocalMark {
       const q = await retry_db(this.location, async(storage:Level) => {
         return (await storage.getMany(name_or_addresses.filter(v => check(v)) as string[]));
       });
-
       return name_or_addresses.map(v => {
         if (check(v)) {
           const r = q.shift();
           if (r) {
-            return JSON.parse(q.shift()!)?.address;
+            return JSON.parse(r)?.address;
           } 
         } 
         return v
@@ -122,7 +121,7 @@ export class LocalMark {
     }
 
     async get_many_address2(name_or_addresses: (string | null | undefined)[]) : Promise<string[]> {
-      return (await this.get_many_address(name_or_addresses)).filter((v):v is string => v!==undefined && v!== null) as string[]
+      return (await this.get_many_address(name_or_addresses)).filter((v) => v!==undefined && v!== null) as string[]
     }
 
     async del(name:string)  {

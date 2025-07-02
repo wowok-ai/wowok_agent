@@ -312,7 +312,6 @@ export const query_personal_json = async (json:string) : Promise<string> => {
 export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer> => {
     var ret:ObjectBase[] = []; var pending : string[] = [];
     query.objects = await LocalMark.Instance().get_many_address2(query.objects);
-
     if (!query.no_cache) { // showType only, use cache
         for (let i = 0; i < query.objects.length; ++i) {
             try {
@@ -336,7 +335,6 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
     if (pending.length > 0) {
         const res = await Protocol.Client().multiGetObjects({ids:[...pending], 
             options:{showContent:true, showOwner:true}});
-
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
             if (d) {
