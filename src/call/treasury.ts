@@ -1,5 +1,5 @@
 import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permission, PermissionIndex,
-    PermissionIndexType, Treasury, Treasury_WithdrawMode, PermissionObject, 
+    PermissionIndexType, Treasury, Treasury_WithdrawMode, PermissionObject, GetRecievedBalanceObject
 } from 'wowok';
 import { query_objects, ObjectTreasury, Treasury_ReceivedObject } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, 
@@ -139,7 +139,7 @@ export class CallTreasury extends CallBase {
         }
         if (this.data?.receive != null && this.object_address) {
             if (this.data.receive === 'recently') {
-                const r = await Treasury.GetTreasuryRecievedObject(this.object_address, this.type_parameter!);
+                const r = await GetRecievedBalanceObject(this.object_address, this.type_parameter!);
                 if (!r) {
                     ERROR(Errors.InvalidParam, 'CallTreasury_Data.data.receive.received_objects');
                 }

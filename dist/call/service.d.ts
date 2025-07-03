@@ -30,6 +30,10 @@ export interface CallService_Data {
         namedNewOrder?: Namedbject;
         namedNewProgress?: Namedbject;
     };
+    order_receive?: {
+        order: string;
+        token_type?: string;
+    };
     order_agent?: {
         order?: string;
         agents: AccountOrMark_Address[];

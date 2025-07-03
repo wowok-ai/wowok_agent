@@ -1,4 +1,4 @@
-import { IsValidArgType, Errors, ERROR, Permission, PermissionIndex, Treasury, } from 'wowok';
+import { IsValidArgType, Errors, ERROR, Permission, PermissionIndex, Treasury, GetRecievedBalanceObject } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
@@ -111,7 +111,7 @@ export class CallTreasury extends CallBase {
         }
         if (this.data?.receive != null && this.object_address) {
             if (this.data.receive === 'recently') {
-                const r = await Treasury.GetTreasuryRecievedObject(this.object_address, this.type_parameter);
+                const r = await GetRecievedBalanceObject(this.object_address, this.type_parameter);
                 if (!r) {
                     ERROR(Errors.InvalidParam, 'CallTreasury_Data.data.receive.received_objects');
                 }
