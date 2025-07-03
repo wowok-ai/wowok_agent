@@ -66,7 +66,7 @@ export enum ToolName {
     QUERY_TREASURY_HISTORY = 'treasury_table_item_query',
     QUERY_REPOSITORY_DATA = 'repository_table_item_query',
     QUERY_PERSONAL_MARK = 'personalmark_table_item_query',
-    QUERY_TREASURY_RECEIVED = 'treasury_received_query',
+    QUERY_RECEIVED = 'received_query',
     QUERY_LOCAL = 'local_query',
     QUERY_TABLE_ITEM = 'table_item_query',
     QUERY_WOWOK_PROTOCOL = 'wowok_protocol',

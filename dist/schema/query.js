@@ -49,7 +49,7 @@ export const Service_TableItem_Description = `Retrieves current information for 
 Returns detailed product data such as product name, optional info endpoint URL, price, and stock quantity, enabling users to access up-to-date sales information for specific products to support display or transaction decisions.`;
 export const Treasury_TableItem_Description = `Retrieves specific financial transaction records from an on-chain Treasury object by sequential flow number. 
 Returns a detailed transaction entry containing: operation code (e.g., 'DEPOSIT' or 'WITHDRAW'), operator address, Payment address (bill details), total amount (in Wowok-defined currency units), and transaction timestamp.`;
-export const Treasury_ReceivedObject_Description = `Retrieves the list of Treasury_ReceivedObject objects received by the Treasury. The query results can be used to deposit the coins within the Treasury_ReceivedObject objects into the Treasury and update the Treasury's payment transaction records.`;
+export const ReceivedObject_Description = `Retrieves the list of ReceivedObject objects received by the Treasury or Order. The query results can be used to deposit the coins within the ReceivedObject objects into the Treasury or Order.`;
 export const QueryObjectsSchemaDescription = `Retrieves the on-chain content of specified wowok objects. 
 Returns detailed on-chain content data(excluding table data) for each queried object, enabling accurate and up-to-date data retrieval.`;
 export const QueryObjectsSchema = z.object({
@@ -133,13 +133,13 @@ export const QueryByAddressNameSchema = z.object({
     name: z.string().nonempty().describe('Data field name.'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
 }).describe('Query the data by the address and the name from the on-chain Repository object.');
-export const QueryTreasuryReceivedSchema = z.object({
-    treasury_object: GetMarkNameSchema('Treasury'),
+export const QueryReceivedSchema = z.object({
+    object: GetMarkNameSchema('Treasury or Order'),
     cursor: z.string().optional().nullable().describe('Paging cursor.'),
     limit: z.number().optional().nullable().describe('Mmaximum number of items per page, default to 50 if not specified.'),
 });
-export const QueryTreasuryReceivedSchemaInput = () => {
-    return zodToJsonSchema(QueryTreasuryReceivedSchema);
+export const QueryReceivedSchemaInput = () => {
+    return zodToJsonSchema(QueryReceivedSchema);
 };
 export const QueryTableItemSchemaDescription = `Retrieves a specific table data item from a Wowok on-chain object based on query criteria. This schema describes the structured format of individual table items returned by the query, varying according to the object type.
 

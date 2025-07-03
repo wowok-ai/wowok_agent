@@ -67,7 +67,7 @@ export var ToolName;
     ToolName["QUERY_TREASURY_HISTORY"] = "treasury_table_item_query";
     ToolName["QUERY_REPOSITORY_DATA"] = "repository_table_item_query";
     ToolName["QUERY_PERSONAL_MARK"] = "personalmark_table_item_query";
-    ToolName["QUERY_TREASURY_RECEIVED"] = "treasury_received_query";
+    ToolName["QUERY_RECEIVED"] = "received_query";
     ToolName["QUERY_LOCAL"] = "local_query";
     ToolName["QUERY_TABLE_ITEM"] = "table_item_query";
     ToolName["QUERY_WOWOK_PROTOCOL"] = "wowok_protocol";

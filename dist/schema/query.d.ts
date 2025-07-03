@@ -27,7 +27,7 @@ export declare const Repository_TableItem_Description = "Retrieves specific stor
 export declare const Progress_TableItem_Description = "Retrieves historical session data for specific workflow nodes within an on-chain Progress object. \nReturns detailed session records such as operation timestamps, operator addresses, and operation behavior logs, enabling comprehensive tracking and analysis of workflow progression across sequential nodes.";
 export declare const Service_TableItem_Description = "Retrieves current information for a specific on-sale product within an on-chain Service object. \nReturns detailed product data such as product name, optional info endpoint URL, price, and stock quantity, enabling users to access up-to-date sales information for specific products to support display or transaction decisions.";
 export declare const Treasury_TableItem_Description = "Retrieves specific financial transaction records from an on-chain Treasury object by sequential flow number. \nReturns a detailed transaction entry containing: operation code (e.g., 'DEPOSIT' or 'WITHDRAW'), operator address, Payment address (bill details), total amount (in Wowok-defined currency units), and transaction timestamp.";
-export declare const Treasury_ReceivedObject_Description = "Retrieves the list of Treasury_ReceivedObject objects received by the Treasury. The query results can be used to deposit the coins within the Treasury_ReceivedObject objects into the Treasury and update the Treasury's payment transaction records.";
+export declare const ReceivedObject_Description = "Retrieves the list of ReceivedObject objects received by the Treasury or Order. The query results can be used to deposit the coins within the ReceivedObject objects into the Treasury or Order.";
 export declare const QueryObjectsSchemaDescription = "Retrieves the on-chain content of specified wowok objects. \nReturns detailed on-chain content data(excluding table data) for each queried object, enabling accurate and up-to-date data retrieval.";
 export declare const QueryObjectsSchema: z.ZodObject<{
     objects: z.ZodArray<z.ZodString, "many">;
@@ -186,20 +186,20 @@ export declare const QueryEventSchema: z.ZodObject<{
     order: z.ZodNullable<z.ZodOptional<z.ZodEnum<["ascending", "descending"]>>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
+    order?: "ascending" | "descending" | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
+    order?: "ascending" | "descending" | null | undefined;
 }>;
 export declare const QueryEventSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -238,12 +238,12 @@ export declare const QueryByIndexSchema: z.ZodObject<{
     index: z.ZodNumber;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    index: number;
     parent: string;
+    index: number;
     no_cache?: boolean | undefined;
 }, {
-    index: number;
     parent: string;
+    index: number;
     no_cache?: boolean | undefined;
 }>;
 export declare const QueryByAddressNameSchema: z.ZodObject<{
@@ -262,20 +262,20 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     parent: string;
     no_cache?: boolean | undefined;
 }>;
-export declare const QueryTreasuryReceivedSchema: z.ZodObject<{
-    treasury_object: z.ZodString;
+export declare const QueryReceivedSchema: z.ZodObject<{
+    object: z.ZodString;
     cursor: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     limit: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
 }, "strip", z.ZodTypeAny, {
-    treasury_object: string;
+    object: string;
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
 }, {
-    treasury_object: string;
+    object: string;
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
 }>;
-export declare const QueryTreasuryReceivedSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+export declare const QueryReceivedSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
@@ -290,26 +290,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         }, {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "treasury";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "treasury";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     }>, z.ZodObject<{
@@ -527,26 +527,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         }, {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "progress";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "progress";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     }>]>;
@@ -554,8 +554,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -611,8 +611,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     };
@@ -620,8 +620,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -677,8 +677,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            index: number;
             parent: string;
+            index: number;
             no_cache?: boolean | undefined;
         };
     };
