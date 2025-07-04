@@ -5,9 +5,17 @@ export const query_received = async (query) => {
     if (r1?.objects?.length !== 1 || (r1.objects[0].type !== 'Treasury' && r1.objects[0].type !== 'Order')) {
         ERROR(Errors.InvalidParam, 'query_received: Only Treasury or Order object supported.');
     }
-    const t = r1.objects[0].type === 'Treasury' ? Treasury.parseObjectType(r1.objects[0].type_raw) : Service.parseOrderObjectType(r1.objects[0].type_raw);
-    const type = Protocol.Instance().package('wowok') + '::payment::CoinWrapper<' + t + '>';
-    const r2 = await Protocol.Client().getOwnedObjects({ owner: r1.objects[0].object, filter: { StructType: type },
+    var t = '';
+    var type;
+    if (r1.objects[0].type === 'Treasury') {
+        t = Treasury.parseObjectType(r1.objects[0].type_raw);
+        type = Protocol.Instance().package('wowok') + '::payment::CoinWrapper<' + t + '>';
+    }
+    else if (r1.objects[0].type === 'Order') {
+        t = Service.parseOrderObjectType(r1.objects[0].type_raw);
+    }
+    const filter = type ? { StructType: type } : undefined;
+    const r2 = await Protocol.Client().getOwnedObjects({ owner: r1.objects[0].object, filter: filter,
         options: { showContent: true, showType: true }, cursor: query.cursor, limit: query.limit });
     let receive = BigInt(0);
     const res = r2.data.map((v) => {
@@ -15,6 +23,6 @@ export const query_received = async (query) => {
         receive += BigInt(i?.coin?.fields?.balance);
         return { payment: i?.payment, balance: i?.coin?.fields?.balance, id: v?.data?.objectId };
     });
-    return { balance: receive.toString(), received: res, token_type: t };
+    return { balance: filter ? receive.toString() : '', received: res, token_type: t };
 };
 //# sourceMappingURL=received.js.map
