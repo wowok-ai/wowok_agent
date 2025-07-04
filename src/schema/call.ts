@@ -600,6 +600,9 @@ export const CallServiceDataSchema = z.object({
         namedNewOrder:GetNamedObjectSchema('Order').optional(),
         namedNewProgress: GetNamedObjectSchema('Progress').optional()
     }).optional().describe(D.Service_Order_New),
+    order_receive: z.object({
+        order: GetMarkNameSchema('Order'),
+    }).optional().describe(D.Service_Order_Receive),
     order_agent: z.object({
         order: OptionOrderObjectSchema,
         agents: z.array(AccountOrMarkNameSchema),

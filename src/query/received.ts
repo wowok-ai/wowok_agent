@@ -1,4 +1,4 @@
-import { ERROR, Errors, Protocol, Treasury, Service, ReceivedBalance, ReceivedBalanceObject,  } from "wowok";
+import { ERROR, Errors, Protocol, Treasury, Service, ReceivedBalance, ReceivedBalanceObject, GetRecievedBalanceObject,  } from "wowok";
 
 import { query_objects } from "./objects.js";
 
@@ -15,30 +15,17 @@ export interface QueryReceived {
     limit?: number | null | undefined;
 }
 
-export const query_received = async (query: QueryReceived) : Promise<ReceivedBalance> => {
+// receive Treasury or Order object Payments
+export const query_received = async (query: QueryReceived) : Promise<ReceivedBalance | undefined> => {
     const r1 = await query_objects({objects:[query.object]});
     if (r1?.objects?.length !== 1 || (r1.objects[0].type !== 'Treasury' && r1.objects[0].type !== 'Order')) {
         ERROR(Errors.InvalidParam, 'query_received: Only Treasury or Order object supported.');
     }
     
-    var t: string = ''; var type : string | undefined;
+    var t: string | undefined;
     if (r1.objects[0].type === 'Treasury') {
         t = Treasury.parseObjectType(r1.objects[0].type_raw);
-        type = Protocol.Instance().package('wowok')+'::payment::CoinWrapper<'+t+'>';
-    } else if (r1.objects[0].type === 'Order') {
-        t = Service.parseOrderObjectType(r1.objects[0].type_raw);
-    }
+    } 
 
-    const filter = type ? {StructType: type} : undefined;
-    const r2 = await Protocol.Client().getOwnedObjects({owner:r1.objects[0].object, filter:filter, 
-        options:{showContent:true, showType:true}, cursor:query.cursor, limit:query.limit});
-
-    let receive = BigInt(0);
-    const res: ReceivedBalanceObject[] = r2.data.map((v:any) => {
-        const i = v?.data?.content?.fields;
-        receive += BigInt(i?.coin?.fields?.balance);
-        return {payment:i?.payment, balance:i?.coin?.fields?.balance, id:v?.data?.objectId} 
-    });
-
-    return {balance: filter ? receive.toString() : '', received:res, token_type:t};    
+    return await GetRecievedBalanceObject(r1.objects[0].object, t)
 }

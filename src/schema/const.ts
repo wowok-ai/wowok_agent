@@ -242,6 +242,7 @@ export const Order_Customer = `Customer information required for the order`;
 export const Service_Order_New = `Goods purchase and payment, generate new order object and Progress object`;
 export const Service_Order_Agent = `Set up agents for the order. The agent may exercise the power on behalf of the order owner`;
 export const Service_Order_Customer = `Set ${Order_Customer}`;
+export const Service_Order_Receive = `Extract the tokens from the Payments sent to Order and transfer them to the address of the Order owner`;
 export const Order_Refund_Arb = `Refund through the Arb object`;
 export const Order_Refund_Guard = `Refund through the refund Guard object`;
 export const Service_Order_Refund = `Refund order`;
