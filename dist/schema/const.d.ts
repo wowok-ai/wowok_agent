@@ -208,6 +208,7 @@ export declare const Order_Customer = "Customer information required for the ord
 export declare const Service_Order_New = "Goods purchase and payment, generate new order object and Progress object";
 export declare const Service_Order_Agent = "Set up agents for the order. The agent may exercise the power on behalf of the order owner";
 export declare const Service_Order_Customer = "Set Customer information required for the order";
+export declare const Service_Order_Receive = "Extract the tokens from the Payments sent to Order and transfer them to the address of the Order owner";
 export declare const Order_Refund_Arb = "Refund through the Arb object";
 export declare const Order_Refund_Guard = "Refund through the refund Guard object";
 export declare const Service_Order_Refund = "Refund order";

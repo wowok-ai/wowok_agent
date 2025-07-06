@@ -32,7 +32,6 @@ export interface CallService_Data {
     };
     order_receive?: {
         order: string;
-        token_type?: string;
     };
     order_agent?: {
         order?: string;

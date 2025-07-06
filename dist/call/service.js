@@ -1,9 +1,10 @@
-import { IsValidArgType, TagName, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, Arbitration, GetRecievedBalanceObject, } from 'wowok';
+import { IsValidArgType, TagName, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, Arbitration, ParseType } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase, GetAccountOrMark_Address, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { crypto_string } from '../common.js';
+import { query_received } from '../query/received.js';
 export class CallService extends CallBase {
     constructor(data) {
         super();
@@ -203,12 +204,12 @@ export class CallService extends CallBase {
             const o = await LocalMark.Instance().get_address(this.data.order_receive.order);
             if (!o)
                 ERROR(Errors.InvalidParam, `CallService_Data.data.order_receive.order:${this.data.order_receive.order}`);
-            const r = await GetRecievedBalanceObject(o, this.data.order_receive?.token_type ?? this.type_parameter);
+            const r = await query_received({ object: o });
             if (!r) {
                 ERROR(Errors.InvalidParam, 'CallService_Data.data.order_receive.received_objects');
             }
             r.received.forEach(v => {
-                Service.OrderReceive(txb, this.type_parameter, o, v.payment, v.id, this.data.order_receive?.token_type ?? this.type_parameter);
+                Service.OrderReceive(txb, this.type_parameter, o, v.payment, v.id, ParseType(v.type).coin);
             });
         }
         if (this.data?.order_agent != null) {

@@ -10,7 +10,7 @@ import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, 
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { crypto_string } from '../common.js';
-import { query_received } from 'src/query/received.js';
+import { query_received } from '../query/received.js';
 
 export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;

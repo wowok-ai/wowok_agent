@@ -149,71 +149,71 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
             tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             useAddressIfNameExist: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }, {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        op: "add";
         data: {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
-        op: "add";
     }, {
+        op: "add";
         data: {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
-        op: "add";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"remove">;
         data: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        data: string[];
         op: "remove";
+        data: string[];
     }, {
-        data: string[];
         op: "remove";
+        data: string[];
     }>]>;
 }, "strip", z.ZodTypeAny, {
     data: {
         op: "removeall";
     } | {
+        op: "add";
         data: {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
-        op: "add";
     } | {
-        data: string[];
         op: "remove";
+        data: string[];
     };
 }, {
     data: {
         op: "removeall";
     } | {
+        op: "add";
         data: {
-            name: string;
             address: string;
+            name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
-        op: "add";
     } | {
-        data: string[];
         op: "remove";
+        data: string[];
     };
 }>;
 export declare const LocalMarkOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -246,56 +246,56 @@ export declare const LocalInfoOperationSchema: z.ZodObject<{
             bdefault?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        op: "add";
         data: {
             name: string;
             content: string;
             bdefault?: boolean | undefined;
         }[];
-        op: "add";
     }, {
+        op: "add";
         data: {
             content: string;
             name?: string | undefined;
             bdefault?: boolean | undefined;
         }[];
-        op: "add";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"remove">;
         data: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        data: string[];
         op: "remove";
+        data: string[];
     }, {
-        data: string[];
         op: "remove";
+        data: string[];
     }>]>;
 }, "strip", z.ZodTypeAny, {
     data: {
         op: "removeall";
     } | {
+        op: "add";
         data: {
             name: string;
             content: string;
             bdefault?: boolean | undefined;
         }[];
-        op: "add";
     } | {
-        data: string[];
         op: "remove";
+        data: string[];
     };
 }, {
     data: {
         op: "removeall";
     } | {
+        op: "add";
         data: {
             content: string;
             name?: string | undefined;
             bdefault?: boolean | undefined;
         }[];
-        op: "add";
     } | {
-        data: string[];
         op: "remove";
+        data: string[];
     };
 }>;
 export declare const LocalInfoOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -339,13 +339,13 @@ export declare const LocalMarkFilterSchema: z.ZodObject<{
     tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     address: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    tags?: string[] | undefined;
-    name?: string | undefined;
     address?: string | undefined;
+    name?: string | undefined;
+    tags?: string[] | undefined;
 }, {
-    tags?: string[] | undefined;
-    name?: string | undefined;
     address?: string | undefined;
+    name?: string | undefined;
+    tags?: string[] | undefined;
 }>;
 export declare const LocalInfoListSchemaDescription = "List local information entries. Local info enables on-device storage of personal data (e.g., addresses, phone numbers) structured as name-content pairs, supporting cryptographic processing and secure sharing with service providers.";
 export declare const LocalInfoListSchema: z.ZodObject<{}, "strip", z.ZodTypeAny, {}, {}>;
@@ -369,24 +369,24 @@ export declare const QueryLocalSchema: z.ZodObject<{
             showSuspendedAccount?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
-    }, {
         name: "account_list";
+    }, {
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
+        name: "account_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info_list">;
         data: z.ZodObject<{}, "strip", z.ZodTypeAny, {}, {}>;
     }, "strip", z.ZodTypeAny, {
-        name: "info_list";
         data: {};
+        name: "info_list";
     }, {
-        name: "info_list";
         data: {};
+        name: "info_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark_list">;
         data: z.ZodObject<{
@@ -394,28 +394,28 @@ export declare const QueryLocalSchema: z.ZodObject<{
             tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             address: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         }, {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "mark_list";
         data: {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         };
+        name: "mark_list";
     }, {
-        name: "mark_list";
         data: {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         };
+        name: "mark_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"account">;
         data: z.ZodObject<{
@@ -432,19 +432,19 @@ export declare const QueryLocalSchema: z.ZodObject<{
             token_type?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     }, {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark">;
         data: z.ZodObject<{
@@ -455,15 +455,15 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name: string;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     }, {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info">;
         data: z.ZodObject<{
@@ -474,83 +474,83 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "info";
         data: {
             name: string;
         };
-    }, {
         name: "info";
+    }, {
         data: {
             name?: string | undefined;
         };
+        name: "info";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     query: {
-        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
+        name: "account_list";
     } | {
-        name: "info_list";
         data: {};
+        name: "info_list";
     } | {
-        name: "mark_list";
         data: {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         };
+        name: "mark_list";
     } | {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     } | {
+        data: {
+            name: string;
+        };
         name: "mark";
-        data: {
-            name: string;
-        };
     } | {
-        name: "info";
         data: {
             name: string;
         };
+        name: "info";
     };
 }, {
     query: {
-        name: "account_list";
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
+        name: "account_list";
     } | {
-        name: "info_list";
         data: {};
+        name: "info_list";
     } | {
-        name: "mark_list";
         data: {
-            tags?: string[] | undefined;
-            name?: string | undefined;
             address?: string | undefined;
+            name?: string | undefined;
+            tags?: string[] | undefined;
         };
+        name: "mark_list";
     } | {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     } | {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     } | {
-        name: "info";
         data: {
             name?: string | undefined;
         };
+        name: "info";
     };
 }>;
 export declare const QueryLocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {

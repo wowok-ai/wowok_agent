@@ -10,5 +10,5 @@ export interface QueryReceived {
     /** Max number of items returned per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
     limit?: number | null | undefined;
 }
-export declare const query_received: (query: QueryReceived) => Promise<ReceivedBalance>;
+export declare const query_received: (query: QueryReceived) => Promise<ReceivedBalance | undefined>;
 //# sourceMappingURL=received.d.ts.map
