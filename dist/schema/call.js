@@ -372,7 +372,7 @@ export const CallPermissionDataSchema = z.object({
             op: z.literal('removeall')
         }).describe(D.Admin_Removeall)
     ]).optional().describe(D.Permission_Admin_Description),
-    builder: AccountOrMarkNameSchema.describe(D.Permission_Builder_Description)
+    builder: AccountOrMarkNameSchema.optional().describe(D.Permission_Builder_Description)
 }).describe(D.GetObjectDataDescription('Permission'));
 export const RepositoryAddressID = z.union([
     z.number().int().min(0),

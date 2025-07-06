@@ -27,46 +27,46 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     } & {
         type_parameter: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     present: z.ZodOptional<z.ZodObject<{
         service: z.ZodOptional<z.ZodString>;
@@ -131,11 +131,11 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         op: z.ZodLiteral<"reward">;
         service: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        op: "reward";
         service: string;
+        op: "reward";
     }, {
-        op: "reward";
         service: string;
+        op: "reward";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"refund">;
     }, "strip", z.ZodTypeAny, {
@@ -156,17 +156,17 @@ export declare const CallDemandDataSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     present?: {
@@ -188,8 +188,8 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         };
         op: "add";
     } | {
-        op: "reward";
         service: string;
+        op: "reward";
     } | {
         op: "refund";
     } | undefined;
@@ -200,17 +200,17 @@ export declare const CallDemandDataSchema: z.ZodObject<{
 }, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     present?: {
@@ -232,8 +232,8 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         };
         op: "add";
     } | {
-        op: "reward";
         service: string;
+        op: "reward";
     } | {
         op: "refund";
     } | undefined;
@@ -323,42 +323,42 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     }, "strip", z.ZodTypeAny, {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     progress_new: z.ZodOptional<z.ZodObject<{
         task_address: z.ZodOptional<z.ZodString>;
@@ -537,11 +537,11 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         progress: z.ZodString;
         task_address: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        progress: string;
         task_address: string;
+        progress: string;
     }, {
-        progress: string;
         task_address: string;
+        progress: string;
     }>>;
     progress_next: z.ZodOptional<z.ZodObject<{
         progress: z.ZodString;
@@ -592,10 +592,10 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
         objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
@@ -1002,17 +1002,17 @@ export declare const CallMachineDataSchema: z.ZodObject<{
     }>>;
 }, "strip", z.ZodTypeAny, {
     object: string | {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     progress_new?: {
@@ -1059,8 +1059,8 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         adminUnhold?: boolean | undefined;
     } | undefined;
     progress_task?: {
-        progress: string;
         task_address: string;
+        progress: string;
     } | undefined;
     progress_next?: {
         progress: string;
@@ -1075,7 +1075,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
     } | undefined;
     endpoint?: string | undefined;
     consensus_repository?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
@@ -1158,17 +1158,17 @@ export declare const CallMachineDataSchema: z.ZodObject<{
     } | undefined;
 }, {
     object: string | {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     progress_new?: {
@@ -1215,8 +1215,8 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         adminUnhold?: boolean | undefined;
     } | undefined;
     progress_task?: {
-        progress: string;
         task_address: string;
+        progress: string;
     } | undefined;
     progress_next?: {
         progress: string;
@@ -1231,7 +1231,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
     } | undefined;
     endpoint?: string | undefined;
     consensus_repository?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
@@ -1610,13 +1610,13 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         addresses: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         }[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         addresses: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
@@ -1628,7 +1628,7 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
     }, {
         op: "removeall";
     }>]>>;
-    builder: z.ZodObject<{
+    builder: z.ZodOptional<z.ZodObject<{
         name_or_address: z.ZodOptional<z.ZodString>;
         local_mark_first: z.ZodOptional<z.ZodBoolean>;
     }, "strip", z.ZodTypeAny, {
@@ -1637,17 +1637,13 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
     }, {
         name_or_address?: string | undefined;
         local_mark_first?: boolean | undefined;
-    }>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     object: string | {
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
-    };
-    builder: {
-        name_or_address?: string | undefined;
-        local_mark_first?: boolean | undefined;
     };
     description?: string | undefined;
     permission?: {
@@ -1709,7 +1705,7 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
         permissions: number[];
     } | undefined;
     admin?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         addresses: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
@@ -1717,16 +1713,16 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
     } | {
         op: "removeall";
     } | undefined;
+    builder?: {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    } | undefined;
 }, {
     object: string | {
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
-    };
-    builder: {
-        name_or_address?: string | undefined;
-        local_mark_first?: boolean | undefined;
     };
     description?: string | undefined;
     permission?: {
@@ -1788,13 +1784,17 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
         permissions: any[];
     } | undefined;
     admin?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         addresses: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         }[];
     } | {
         op: "removeall";
+    } | undefined;
+    builder?: {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
     } | undefined;
 }>;
 export declare const RepositoryAddressID: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
@@ -1815,13 +1815,13 @@ export declare const PayParamSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     index: string | number | bigint;
     remark: string;
-    for_guard?: string | undefined;
     for_object?: string | undefined;
+    for_guard?: string | undefined;
 }, {
     remark: string;
-    for_guard?: string | undefined;
-    for_object?: string | undefined;
     index?: string | number | bigint | undefined;
+    for_object?: string | undefined;
+    for_guard?: string | undefined;
 }>;
 export declare const CallRepositoryDataSchema: z.ZodObject<{
     object: z.ZodUnion<[z.ZodString, z.ZodObject<{
@@ -1838,52 +1838,52 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     }, "strip", z.ZodTypeAny, {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     description: z.ZodOptional<z.ZodString>;
     reference: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
         objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
@@ -1912,7 +1912,7 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             permissionIndex?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             description: string;
             key: string;
@@ -1920,7 +1920,7 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             permissionIndex?: number | null | undefined;
         }[];
     }, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             description: string;
             key: string;
@@ -1931,11 +1931,11 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
         op: z.ZodLiteral<"remove">;
         keys: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "remove";
         keys: string[];
+        op: "remove";
     }, {
-        op: "remove";
         keys: string[];
+        op: "remove";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
     }, "strip", z.ZodTypeAny, {
@@ -2042,24 +2042,24 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }>, "many">;
             value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
         }, "strip", z.ZodTypeAny, {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         }, {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         }>]>;
     }, "strip", z.ZodTypeAny, {
@@ -2075,14 +2075,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }[];
             key: string;
         } | {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         };
     }, {
@@ -2098,14 +2098,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }[];
             key: string;
         } | {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         };
     }>, z.ZodObject<{
@@ -2156,24 +2156,18 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     }>]>>;
 }, "strip", z.ZodTypeAny, {
     object: string | {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
-    reference?: {
-        op: "add" | "remove" | "set";
-        objects: string[];
-    } | {
-        op: "removeall";
-    } | undefined;
     description?: string | undefined;
     data?: {
         op: "add";
@@ -2188,14 +2182,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }[];
             key: string;
         } | {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         };
     } | {
@@ -2208,9 +2202,15 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             key: string;
         }[];
     } | undefined;
+    reference?: {
+        op: "set" | "add" | "remove";
+        objects: string[];
+    } | {
+        op: "removeall";
+    } | undefined;
     mode?: WOWOK.Repository_Policy_Mode | undefined;
     policy?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             description: string;
             key: string;
@@ -2218,8 +2218,8 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             permissionIndex?: number | null | undefined;
         }[];
     } | {
-        op: "remove";
         keys: string[];
+        op: "remove";
     } | {
         op: "removeall";
     } | {
@@ -2231,24 +2231,18 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     } | undefined;
 }, {
     object: string | {
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
-    reference?: {
-        op: "add" | "remove" | "set";
-        objects: string[];
-    } | {
-        op: "removeall";
-    } | undefined;
     description?: string | undefined;
     data?: {
         op: "add";
@@ -2263,14 +2257,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }[];
             key: string;
         } | {
-            data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            data: {
+                key: string;
+                bcsBytes: Uint8Array<ArrayBufferLike>;
+            }[];
             value_type?: WOWOK.ValueType | undefined;
         };
     } | {
@@ -2283,9 +2277,15 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             key: string;
         }[];
     } | undefined;
+    reference?: {
+        op: "set" | "add" | "remove";
+        objects: string[];
+    } | {
+        op: "removeall";
+    } | undefined;
     mode?: WOWOK.Repository_Policy_Mode | undefined;
     policy?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             description: string;
             key: string;
@@ -2293,8 +2293,8 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             permissionIndex?: any;
         }[];
     } | {
-        op: "remove";
         keys: string[];
+        op: "remove";
     } | {
         op: "removeall";
     } | {
@@ -2320,46 +2320,46 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     } & {
         type_parameter: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     arb_new: z.ZodOptional<z.ZodObject<{
         data: z.ZodObject<{
@@ -2368,13 +2368,13 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
             votable_proposition: z.ZodArray<z.ZodString, "many">;
             max_fee: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodNumber]>>;
         }, "strip", z.ZodTypeAny, {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         }, {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         }>;
@@ -2396,8 +2396,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         }>>;
     }, "strip", z.ZodTypeAny, {
         data: {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         };
@@ -2409,8 +2409,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         } | undefined;
     }, {
         data: {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         };
@@ -2431,28 +2431,28 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             index: string | number | bigint;
             remark: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         }, {
             remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         data: {
             index: string | number | bigint;
             remark: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
         arb: string;
     }, {
         data: {
             remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
         arb: string;
     }>>;
@@ -2493,17 +2493,17 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     } & {
         description: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     }, {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     }>]>>;
     guard: z.ZodOptional<z.ZodString>;
     voting_guard: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
@@ -2519,13 +2519,13 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
             voting_weight?: string | number | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             voting_weight: string | number;
         }[];
     }, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             voting_weight?: string | number | undefined;
@@ -2550,17 +2550,17 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     guard?: string | undefined;
@@ -2568,8 +2568,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     bPaused?: boolean | undefined;
     arb_new?: {
         data: {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         };
@@ -2584,13 +2584,13 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         data: {
             index: string | number | bigint;
             remark: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
         arb: string;
     } | undefined;
     voting_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             voting_weight: string | number;
@@ -2613,26 +2613,26 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     } | undefined;
     fee?: string | number | undefined;
     fee_treasury?: string | {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     } | undefined;
 }, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
     guard?: string | undefined;
@@ -2640,8 +2640,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     bPaused?: boolean | undefined;
     arb_new?: {
         data: {
-            order: string;
             description: string;
+            order: string;
             votable_proposition: string[];
             max_fee?: string | number | undefined;
         };
@@ -2655,14 +2655,14 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     arb_withdraw_fee?: {
         data: {
             remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
         arb: string;
     } | undefined;
     voting_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             voting_weight?: string | number | undefined;
@@ -2685,11 +2685,11 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
     } | undefined;
     fee?: string | number | undefined;
     fee_treasury?: string | {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     } | undefined;
 }>;
 export declare const ReceiverParamSchema: z.ZodObject<{
@@ -2759,8 +2759,8 @@ export declare const TreasuryWithdrawParamSchema: z.ZodObject<{
         };
         amount: string | number;
     }[];
-    for_guard?: string | undefined;
     for_object?: string | undefined;
+    for_guard?: string | undefined;
     withdraw_guard?: string | undefined;
 }, {
     remark: string;
@@ -2771,9 +2771,9 @@ export declare const TreasuryWithdrawParamSchema: z.ZodObject<{
         };
         amount: string | number;
     }[];
-    for_guard?: string | undefined;
-    for_object?: string | undefined;
     index?: string | number | bigint | undefined;
+    for_object?: string | undefined;
+    for_guard?: string | undefined;
     withdraw_guard?: string | undefined;
 }>;
 export declare const CallTreasuryDataSchema: z.ZodObject<{
@@ -2791,46 +2791,46 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     } & {
         type_parameter: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     deposit: z.ZodOptional<z.ZodObject<{
         balance: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
@@ -2842,29 +2842,29 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             index: string | number | bigint;
             remark: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         }, {
             remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         }>>;
     }, "strip", z.ZodTypeAny, {
         balance: string | number;
         param?: {
             index: string | number | bigint;
             remark: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         } | undefined;
     }, {
         balance: string | number;
         param?: {
             remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         } | undefined;
     }>>;
     receive: z.ZodUnion<[z.ZodObject<{
@@ -2916,8 +2916,8 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             };
             amount: string | number;
         }[];
-        for_guard?: string | undefined;
         for_object?: string | undefined;
+        for_guard?: string | undefined;
         withdraw_guard?: string | undefined;
     }, {
         remark: string;
@@ -2928,9 +2928,9 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             };
             amount: string | number;
         }[];
-        for_guard?: string | undefined;
-        for_object?: string | undefined;
         index?: string | number | bigint | undefined;
+        for_object?: string | undefined;
+        for_guard?: string | undefined;
         withdraw_guard?: string | undefined;
     }>;
     description: z.ZodOptional<z.ZodString>;
@@ -2948,13 +2948,13 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             amount: string | number;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             amount: string | number;
         }[];
     }, {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             amount: string | number;
@@ -2979,18 +2979,21 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
+    receive: {
+        received_objects: string[];
+    } | "recently";
     withdraw: {
         index: string | number | bigint;
         remark: string;
@@ -3001,26 +3004,14 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             };
             amount: string | number;
         }[];
-        for_guard?: string | undefined;
         for_object?: string | undefined;
+        for_guard?: string | undefined;
         withdraw_guard?: string | undefined;
     };
-    receive: {
-        received_objects: string[];
-    } | "recently";
     withdraw_mode: WOWOK.Treasury_WithdrawMode;
     description?: string | undefined;
-    deposit?: {
-        balance: string | number;
-        param?: {
-            index: string | number | bigint;
-            remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
-        } | undefined;
-    } | undefined;
     withdraw_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             amount: string | number;
@@ -3031,22 +3022,34 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
     } | {
         op: "removeall";
     } | undefined;
+    deposit?: {
+        balance: string | number;
+        param?: {
+            index: string | number | bigint;
+            remark: string;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+        } | undefined;
+    } | undefined;
     deposit_guard?: string | undefined;
 }, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
+    receive: {
+        received_objects: string[];
+    } | "recently";
     withdraw: {
         remark: string;
         receiver: {
@@ -3056,27 +3059,15 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             };
             amount: string | number;
         }[];
-        for_guard?: string | undefined;
-        for_object?: string | undefined;
         index?: string | number | bigint | undefined;
+        for_object?: string | undefined;
+        for_guard?: string | undefined;
         withdraw_guard?: string | undefined;
     };
-    receive: {
-        received_objects: string[];
-    } | "recently";
     withdraw_mode: WOWOK.Treasury_WithdrawMode;
     description?: string | undefined;
-    deposit?: {
-        balance: string | number;
-        param?: {
-            remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
-            index?: string | number | bigint | undefined;
-        } | undefined;
-    } | undefined;
     withdraw_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         data: {
             guard: string;
             amount: string | number;
@@ -3086,6 +3077,15 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         guards: string[];
     } | {
         op: "removeall";
+    } | undefined;
+    deposit?: {
+        balance: string | number;
+        param?: {
+            remark: string;
+            index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+        } | undefined;
     } | undefined;
     deposit_guard?: string | undefined;
 }>;
@@ -3104,46 +3104,46 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
     } & {
         type_parameter: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }, {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     }>]>;
     order_new: z.ZodOptional<z.ZodObject<{
         buy_items: z.ZodArray<z.ZodObject<{
@@ -3199,8 +3199,8 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             max_price: string | number;
             count: string | number;
         }[];
-        customer_info_required?: string | undefined;
         discount_object?: string | undefined;
+        customer_info_required?: string | undefined;
         namedNewOrder?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -3219,8 +3219,8 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             max_price: string | number;
             count: string | number;
         }[];
-        customer_info_required?: string | undefined;
         discount_object?: string | undefined;
+        customer_info_required?: string | undefined;
         namedNewOrder?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -3308,33 +3308,33 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             index: string | number | bigint;
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         }, {
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        order: string;
         data: {
             index: string | number | bigint;
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
-    }, {
         order: string;
+    }, {
         data: {
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
+        order: string;
     }>>;
     order_payer: z.ZodOptional<z.ZodObject<{
         order: z.ZodOptional<z.ZodString>;
@@ -3371,17 +3371,17 @@ export declare const CallServiceDataSchema: z.ZodObject<{
     } & {
         description: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     }, {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     }>]>>;
     gen_discount: z.ZodOptional<z.ZodArray<z.ZodObject<{
         receiver: z.ZodObject<{
@@ -3450,10 +3450,10 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
         objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
@@ -3466,10 +3466,10 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
         objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
@@ -3483,10 +3483,10 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
         objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }, {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"removeall">;
@@ -3562,13 +3562,13 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             percent: number;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
         }[];
     }, {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3602,13 +3602,13 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             percent: number;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
         }[];
     }, {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3651,46 +3651,40 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             onChain?: boolean | undefined;
         }>>;
     }, "strip", z.ZodTypeAny, {
-        token_type_new?: string | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
         } | undefined;
+        token_type_new?: string | undefined;
     }, {
-        token_type_new?: string | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
         } | undefined;
+        token_type_new?: string | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
-    arbitration?: {
-        op: "add" | "remove" | "set";
-        objects: string[];
-    } | {
-        op: "removeall";
-    } | undefined;
     repository?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
@@ -3699,16 +3693,16 @@ export declare const CallServiceDataSchema: z.ZodObject<{
     bPublished?: boolean | undefined;
     bPaused?: boolean | undefined;
     clone_new?: {
-        token_type_new?: string | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
         } | undefined;
+        token_type_new?: string | undefined;
     } | undefined;
     withdraw_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3725,8 +3719,8 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             max_price: string | number;
             count: string | number;
         }[];
-        customer_info_required?: string | undefined;
         discount_object?: string | undefined;
+        customer_info_required?: string | undefined;
         namedNewOrder?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -3755,7 +3749,7 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         customer_info_required?: string | undefined;
     } | undefined;
     refund_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3774,14 +3768,14 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         refund_guard: string;
     } | undefined;
     order_withdrawl?: {
-        order: string;
         data: {
             index: string | number | bigint;
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
+        order: string;
     } | undefined;
     order_payer?: {
         payer_new: {
@@ -3791,11 +3785,11 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         order?: string | undefined;
     } | undefined;
     payee_treasury?: string | {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     } | undefined;
     gen_discount?: {
         receiver: {
@@ -3813,12 +3807,18 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         };
     }[] | undefined;
     extern_withdraw_treasury?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
     } | undefined;
     machine?: string | undefined;
+    arbitration?: {
+        op: "set" | "add" | "remove";
+        objects: string[];
+    } | {
+        op: "removeall";
+    } | undefined;
     customer_required_info?: {
         pubkey: string;
         required_info: string[];
@@ -3839,27 +3839,21 @@ export declare const CallServiceDataSchema: z.ZodObject<{
 }, {
     object: string | {
         type_parameter: string;
-        permission?: string | {
-            description?: string | undefined;
-            name?: string | undefined;
-            tags?: string[] | undefined;
-            useAddressIfNameExist?: boolean | undefined;
-            onChain?: boolean | undefined;
-        } | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        permission?: string | {
+            name?: string | undefined;
+            tags?: string[] | undefined;
+            useAddressIfNameExist?: boolean | undefined;
+            onChain?: boolean | undefined;
+            description?: string | undefined;
+        } | undefined;
     };
     description?: string | undefined;
-    arbitration?: {
-        op: "add" | "remove" | "set";
-        objects: string[];
-    } | {
-        op: "removeall";
-    } | undefined;
     repository?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
@@ -3868,16 +3862,16 @@ export declare const CallServiceDataSchema: z.ZodObject<{
     bPublished?: boolean | undefined;
     bPaused?: boolean | undefined;
     clone_new?: {
-        token_type_new?: string | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
         } | undefined;
+        token_type_new?: string | undefined;
     } | undefined;
     withdraw_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3894,8 +3888,8 @@ export declare const CallServiceDataSchema: z.ZodObject<{
             max_price: string | number;
             count: string | number;
         }[];
-        customer_info_required?: string | undefined;
         discount_object?: string | undefined;
+        customer_info_required?: string | undefined;
         namedNewOrder?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -3924,7 +3918,7 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         customer_info_required?: string | undefined;
     } | undefined;
     refund_guard?: {
-        op: "add" | "set";
+        op: "set" | "add";
         guards: {
             guard: string;
             percent: number;
@@ -3943,14 +3937,14 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         refund_guard: string;
     } | undefined;
     order_withdrawl?: {
-        order: string;
         data: {
             remark: string;
             withdraw_guard: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
         };
+        order: string;
     } | undefined;
     order_payer?: {
         payer_new: {
@@ -3960,11 +3954,11 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         order?: string | undefined;
     } | undefined;
     payee_treasury?: string | {
-        description?: string | undefined;
         name?: string | undefined;
         tags?: string[] | undefined;
         useAddressIfNameExist?: boolean | undefined;
         onChain?: boolean | undefined;
+        description?: string | undefined;
     } | undefined;
     gen_discount?: {
         receiver: {
@@ -3982,12 +3976,18 @@ export declare const CallServiceDataSchema: z.ZodObject<{
         count?: number | undefined;
     }[] | undefined;
     extern_withdraw_treasury?: {
-        op: "add" | "remove" | "set";
+        op: "set" | "add" | "remove";
         objects: string[];
     } | {
         op: "removeall";
     } | undefined;
     machine?: string | undefined;
+    arbitration?: {
+        op: "set" | "add" | "remove";
+        objects: string[];
+    } | {
+        op: "removeall";
+    } | undefined;
     customer_required_info?: {
         pubkey: string;
         required_info: string[];
@@ -4399,46 +4399,46 @@ export declare const CallDemandSchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         } & {
             type_parameter: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         present: z.ZodOptional<z.ZodObject<{
             service: z.ZodOptional<z.ZodString>;
@@ -4503,11 +4503,11 @@ export declare const CallDemandSchema: z.ZodObject<{
             op: z.ZodLiteral<"reward">;
             service: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            op: "reward";
             service: string;
+            op: "reward";
         }, {
-            op: "reward";
             service: string;
+            op: "reward";
         }>, z.ZodObject<{
             op: z.ZodLiteral<"refund">;
         }, "strip", z.ZodTypeAny, {
@@ -4528,17 +4528,17 @@ export declare const CallDemandSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         present?: {
@@ -4560,8 +4560,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             };
             op: "add";
         } | {
-            op: "reward";
             service: string;
+            op: "reward";
         } | {
             op: "refund";
         } | undefined;
@@ -4572,17 +4572,17 @@ export declare const CallDemandSchema: z.ZodObject<{
     }, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         present?: {
@@ -4604,8 +4604,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             };
             op: "add";
         } | {
-            op: "reward";
             service: string;
+            op: "reward";
         } | {
             op: "refund";
         } | undefined;
@@ -4664,17 +4664,17 @@ export declare const CallDemandSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         present?: {
@@ -4696,8 +4696,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             };
             op: "add";
         } | {
-            op: "reward";
             service: string;
+            op: "reward";
         } | {
             op: "refund";
         } | undefined;
@@ -4722,17 +4722,17 @@ export declare const CallDemandSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         present?: {
@@ -4754,8 +4754,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             };
             op: "add";
         } | {
-            op: "reward";
             service: string;
+            op: "reward";
         } | {
             op: "refund";
         } | undefined;
@@ -4800,52 +4800,52 @@ export declare const CallRepositorySchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         }, "strip", z.ZodTypeAny, {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         description: z.ZodOptional<z.ZodString>;
         reference: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
             objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
@@ -4874,7 +4874,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: any;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -4882,7 +4882,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: number | null | undefined;
             }[];
         }, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -4893,11 +4893,11 @@ export declare const CallRepositorySchema: z.ZodObject<{
             op: z.ZodLiteral<"remove">;
             keys: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "remove";
             keys: string[];
+            op: "remove";
         }, {
-            op: "remove";
             keys: string[];
+            op: "remove";
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
         }, "strip", z.ZodTypeAny, {
@@ -5004,24 +5004,24 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }>, "many">;
                 value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
             }, "strip", z.ZodTypeAny, {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             }, {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             }>]>;
         }, "strip", z.ZodTypeAny, {
@@ -5037,14 +5037,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         }, {
@@ -5060,14 +5060,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         }>, z.ZodObject<{
@@ -5118,24 +5118,18 @@ export declare const CallRepositorySchema: z.ZodObject<{
         }>]>>;
     }, "strip", z.ZodTypeAny, {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
-        reference?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         description?: string | undefined;
         data?: {
             op: "add";
@@ -5150,14 +5144,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         } | {
@@ -5170,9 +5164,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }[];
         } | undefined;
+        reference?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         mode?: WOWOK.Repository_Policy_Mode | undefined;
         policy?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -5180,8 +5180,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: number | null | undefined;
             }[];
         } | {
-            op: "remove";
             keys: string[];
+            op: "remove";
         } | {
             op: "removeall";
         } | {
@@ -5193,24 +5193,18 @@ export declare const CallRepositorySchema: z.ZodObject<{
         } | undefined;
     }, {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
-        reference?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         description?: string | undefined;
         data?: {
             op: "add";
@@ -5225,14 +5219,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         } | {
@@ -5245,9 +5239,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }[];
         } | undefined;
+        reference?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         mode?: WOWOK.Repository_Policy_Mode | undefined;
         policy?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -5255,8 +5255,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: any;
             }[];
         } | {
-            op: "remove";
             keys: string[];
+            op: "remove";
         } | {
             op: "removeall";
         } | {
@@ -5316,24 +5316,18 @@ export declare const CallRepositorySchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
-        reference?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         description?: string | undefined;
         data?: {
             op: "add";
@@ -5348,14 +5342,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         } | {
@@ -5368,9 +5362,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }[];
         } | undefined;
+        reference?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         mode?: WOWOK.Repository_Policy_Mode | undefined;
         policy?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -5378,8 +5378,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: number | null | undefined;
             }[];
         } | {
-            op: "remove";
             keys: string[];
+            op: "remove";
         } | {
             op: "removeall";
         } | {
@@ -5405,24 +5405,18 @@ export declare const CallRepositorySchema: z.ZodObject<{
 }, {
     data: {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
-        reference?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         description?: string | undefined;
         data?: {
             op: "add";
@@ -5437,14 +5431,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }[];
                 key: string;
             } | {
-                data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
+                data: {
+                    key: string;
+                    bcsBytes: Uint8Array<ArrayBufferLike>;
+                }[];
                 value_type?: WOWOK.ValueType | undefined;
             };
         } | {
@@ -5457,9 +5451,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }[];
         } | undefined;
+        reference?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         mode?: WOWOK.Repository_Policy_Mode | undefined;
         policy?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 description: string;
                 key: string;
@@ -5467,8 +5467,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 permissionIndex?: any;
             }[];
         } | {
-            op: "remove";
             keys: string[];
+            op: "remove";
         } | {
             op: "removeall";
         } | {
@@ -5515,42 +5515,42 @@ export declare const CallMachineSchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         }, "strip", z.ZodTypeAny, {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         progress_new: z.ZodOptional<z.ZodObject<{
             task_address: z.ZodOptional<z.ZodString>;
@@ -5729,11 +5729,11 @@ export declare const CallMachineSchema: z.ZodObject<{
             progress: z.ZodString;
             task_address: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            progress: string;
             task_address: string;
+            progress: string;
         }, {
-            progress: string;
             task_address: string;
+            progress: string;
         }>>;
         progress_next: z.ZodOptional<z.ZodObject<{
             progress: z.ZodString;
@@ -5784,10 +5784,10 @@ export declare const CallMachineSchema: z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
             objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
@@ -6194,17 +6194,17 @@ export declare const CallMachineSchema: z.ZodObject<{
         }>>;
     }, "strip", z.ZodTypeAny, {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         progress_new?: {
@@ -6251,8 +6251,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             adminUnhold?: boolean | undefined;
         } | undefined;
         progress_task?: {
-            progress: string;
             task_address: string;
+            progress: string;
         } | undefined;
         progress_next?: {
             progress: string;
@@ -6267,7 +6267,7 @@ export declare const CallMachineSchema: z.ZodObject<{
         } | undefined;
         endpoint?: string | undefined;
         consensus_repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -6350,17 +6350,17 @@ export declare const CallMachineSchema: z.ZodObject<{
         } | undefined;
     }, {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         progress_new?: {
@@ -6407,8 +6407,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             adminUnhold?: boolean | undefined;
         } | undefined;
         progress_task?: {
-            progress: string;
             task_address: string;
+            progress: string;
         } | undefined;
         progress_next?: {
             progress: string;
@@ -6423,7 +6423,7 @@ export declare const CallMachineSchema: z.ZodObject<{
         } | undefined;
         endpoint?: string | undefined;
         consensus_repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -6554,17 +6554,17 @@ export declare const CallMachineSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         progress_new?: {
@@ -6611,8 +6611,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             adminUnhold?: boolean | undefined;
         } | undefined;
         progress_task?: {
-            progress: string;
             task_address: string;
+            progress: string;
         } | undefined;
         progress_next?: {
             progress: string;
@@ -6627,7 +6627,7 @@ export declare const CallMachineSchema: z.ZodObject<{
         } | undefined;
         endpoint?: string | undefined;
         consensus_repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -6724,17 +6724,17 @@ export declare const CallMachineSchema: z.ZodObject<{
 }, {
     data: {
         object: string | {
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         progress_new?: {
@@ -6781,8 +6781,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             adminUnhold?: boolean | undefined;
         } | undefined;
         progress_task?: {
-            progress: string;
             task_address: string;
+            progress: string;
         } | undefined;
         progress_next?: {
             progress: string;
@@ -6797,7 +6797,7 @@ export declare const CallMachineSchema: z.ZodObject<{
         } | undefined;
         endpoint?: string | undefined;
         consensus_repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -6915,46 +6915,46 @@ export declare const CallServiceSchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         } & {
             type_parameter: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         order_new: z.ZodOptional<z.ZodObject<{
             buy_items: z.ZodArray<z.ZodObject<{
@@ -7010,8 +7010,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -7030,8 +7030,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -7119,33 +7119,33 @@ export declare const CallServiceSchema: z.ZodObject<{
                 index: string | number | bigint;
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             }, {
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             }>;
         }, "strip", z.ZodTypeAny, {
-            order: string;
             data: {
                 index: string | number | bigint;
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
-        }, {
             order: string;
+        }, {
             data: {
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
+            order: string;
         }>>;
         order_payer: z.ZodOptional<z.ZodObject<{
             order: z.ZodOptional<z.ZodString>;
@@ -7182,17 +7182,17 @@ export declare const CallServiceSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
         gen_discount: z.ZodOptional<z.ZodArray<z.ZodObject<{
             receiver: z.ZodObject<{
@@ -7261,10 +7261,10 @@ export declare const CallServiceSchema: z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
             objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
@@ -7277,10 +7277,10 @@ export declare const CallServiceSchema: z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
             objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
@@ -7294,10 +7294,10 @@ export declare const CallServiceSchema: z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"set">, z.ZodLiteral<"remove">, z.ZodLiteral<"add">]>;
             objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"removeall">;
@@ -7373,13 +7373,13 @@ export declare const CallServiceSchema: z.ZodObject<{
                 percent: number;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
             }[];
         }, {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7413,13 +7413,13 @@ export declare const CallServiceSchema: z.ZodObject<{
                 percent: number;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
             }[];
         }, {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7462,46 +7462,40 @@ export declare const CallServiceSchema: z.ZodObject<{
                 onChain?: boolean | undefined;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         }, {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         }>>;
     }, "strip", z.ZodTypeAny, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
-        arbitration?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -7510,16 +7504,16 @@ export declare const CallServiceSchema: z.ZodObject<{
         bPublished?: boolean | undefined;
         bPaused?: boolean | undefined;
         clone_new?: {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7536,8 +7530,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -7566,7 +7560,7 @@ export declare const CallServiceSchema: z.ZodObject<{
             customer_info_required?: string | undefined;
         } | undefined;
         refund_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7585,14 +7579,14 @@ export declare const CallServiceSchema: z.ZodObject<{
             refund_guard: string;
         } | undefined;
         order_withdrawl?: {
-            order: string;
             data: {
                 index: string | number | bigint;
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
+            order: string;
         } | undefined;
         order_payer?: {
             payer_new: {
@@ -7602,11 +7596,11 @@ export declare const CallServiceSchema: z.ZodObject<{
             order?: string | undefined;
         } | undefined;
         payee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
         gen_discount?: {
             receiver: {
@@ -7624,12 +7618,18 @@ export declare const CallServiceSchema: z.ZodObject<{
             };
         }[] | undefined;
         extern_withdraw_treasury?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
         } | undefined;
         machine?: string | undefined;
+        arbitration?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         customer_required_info?: {
             pubkey: string;
             required_info: string[];
@@ -7650,27 +7650,21 @@ export declare const CallServiceSchema: z.ZodObject<{
     }, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
-        arbitration?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -7679,16 +7673,16 @@ export declare const CallServiceSchema: z.ZodObject<{
         bPublished?: boolean | undefined;
         bPaused?: boolean | undefined;
         clone_new?: {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7705,8 +7699,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -7735,7 +7729,7 @@ export declare const CallServiceSchema: z.ZodObject<{
             customer_info_required?: string | undefined;
         } | undefined;
         refund_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7754,14 +7748,14 @@ export declare const CallServiceSchema: z.ZodObject<{
             refund_guard: string;
         } | undefined;
         order_withdrawl?: {
-            order: string;
             data: {
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
+            order: string;
         } | undefined;
         order_payer?: {
             payer_new: {
@@ -7771,11 +7765,11 @@ export declare const CallServiceSchema: z.ZodObject<{
             order?: string | undefined;
         } | undefined;
         payee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
         gen_discount?: {
             receiver: {
@@ -7793,12 +7787,18 @@ export declare const CallServiceSchema: z.ZodObject<{
             count?: number | undefined;
         }[] | undefined;
         extern_withdraw_treasury?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
         } | undefined;
         machine?: string | undefined;
+        arbitration?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         customer_required_info?: {
             pubkey: string;
             required_info: string[];
@@ -7867,27 +7867,21 @@ export declare const CallServiceSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
-        arbitration?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -7896,16 +7890,16 @@ export declare const CallServiceSchema: z.ZodObject<{
         bPublished?: boolean | undefined;
         bPaused?: boolean | undefined;
         clone_new?: {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7922,8 +7916,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -7952,7 +7946,7 @@ export declare const CallServiceSchema: z.ZodObject<{
             customer_info_required?: string | undefined;
         } | undefined;
         refund_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -7971,14 +7965,14 @@ export declare const CallServiceSchema: z.ZodObject<{
             refund_guard: string;
         } | undefined;
         order_withdrawl?: {
-            order: string;
             data: {
                 index: string | number | bigint;
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
+            order: string;
         } | undefined;
         order_payer?: {
             payer_new: {
@@ -7988,11 +7982,11 @@ export declare const CallServiceSchema: z.ZodObject<{
             order?: string | undefined;
         } | undefined;
         payee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
         gen_discount?: {
             receiver: {
@@ -8010,12 +8004,18 @@ export declare const CallServiceSchema: z.ZodObject<{
             };
         }[] | undefined;
         extern_withdraw_treasury?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
         } | undefined;
         machine?: string | undefined;
+        arbitration?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         customer_required_info?: {
             pubkey: string;
             required_info: string[];
@@ -8050,27 +8050,21 @@ export declare const CallServiceSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
-        arbitration?: {
-            op: "add" | "remove" | "set";
-            objects: string[];
-        } | {
-            op: "removeall";
-        } | undefined;
         repository?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
@@ -8079,16 +8073,16 @@ export declare const CallServiceSchema: z.ZodObject<{
         bPublished?: boolean | undefined;
         bPaused?: boolean | undefined;
         clone_new?: {
-            token_type_new?: string | undefined;
             namedNew?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
             } | undefined;
+            token_type_new?: string | undefined;
         } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -8105,8 +8099,8 @@ export declare const CallServiceSchema: z.ZodObject<{
                 max_price: string | number;
                 count: string | number;
             }[];
-            customer_info_required?: string | undefined;
             discount_object?: string | undefined;
+            customer_info_required?: string | undefined;
             namedNewOrder?: {
                 name?: string | undefined;
                 tags?: string[] | undefined;
@@ -8135,7 +8129,7 @@ export declare const CallServiceSchema: z.ZodObject<{
             customer_info_required?: string | undefined;
         } | undefined;
         refund_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             guards: {
                 guard: string;
                 percent: number;
@@ -8154,14 +8148,14 @@ export declare const CallServiceSchema: z.ZodObject<{
             refund_guard: string;
         } | undefined;
         order_withdrawl?: {
-            order: string;
             data: {
                 remark: string;
                 withdraw_guard: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
+            order: string;
         } | undefined;
         order_payer?: {
             payer_new: {
@@ -8171,11 +8165,11 @@ export declare const CallServiceSchema: z.ZodObject<{
             order?: string | undefined;
         } | undefined;
         payee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
         gen_discount?: {
             receiver: {
@@ -8193,12 +8187,18 @@ export declare const CallServiceSchema: z.ZodObject<{
             count?: number | undefined;
         }[] | undefined;
         extern_withdraw_treasury?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             objects: string[];
         } | {
             op: "removeall";
         } | undefined;
         machine?: string | undefined;
+        arbitration?: {
+            op: "set" | "add" | "remove";
+            objects: string[];
+        } | {
+            op: "removeall";
+        } | undefined;
         customer_required_info?: {
             pubkey: string;
             required_info: string[];
@@ -8253,46 +8253,46 @@ export declare const CallTreasurySchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         } & {
             type_parameter: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         deposit: z.ZodOptional<z.ZodObject<{
             balance: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
@@ -8304,29 +8304,29 @@ export declare const CallTreasurySchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             }, {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             }>>;
         }, "strip", z.ZodTypeAny, {
             balance: string | number;
             param?: {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             } | undefined;
         }, {
             balance: string | number;
             param?: {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             } | undefined;
         }>>;
         receive: z.ZodUnion<[z.ZodObject<{
@@ -8378,8 +8378,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         }, {
             remark: string;
@@ -8390,9 +8390,9 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         }>;
         description: z.ZodOptional<z.ZodString>;
@@ -8410,13 +8410,13 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 amount: string | number;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
             }[];
         }, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
@@ -8441,18 +8441,21 @@ export declare const CallTreasurySchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
+        receive: {
+            received_objects: string[];
+        } | "recently";
         withdraw: {
             index: string | number | bigint;
             remark: string;
@@ -8463,26 +8466,14 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
         withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                index: string | number | bigint;
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-            } | undefined;
-        } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
@@ -8493,22 +8484,34 @@ export declare const CallTreasurySchema: z.ZodObject<{
         } | {
             op: "removeall";
         } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                index: string | number | bigint;
+                remark: string;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
+            } | undefined;
+        } | undefined;
         deposit_guard?: string | undefined;
     }, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
+        receive: {
+            received_objects: string[];
+        } | "recently";
         withdraw: {
             remark: string;
             receiver: {
@@ -8518,27 +8521,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
         withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-                index?: string | number | bigint | undefined;
-            } | undefined;
-        } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
@@ -8548,6 +8539,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             guards: string[];
         } | {
             op: "removeall";
+        } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
+            } | undefined;
         } | undefined;
         deposit_guard?: string | undefined;
     }>;
@@ -8601,18 +8601,21 @@ export declare const CallTreasurySchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
+        receive: {
+            received_objects: string[];
+        } | "recently";
         withdraw: {
             index: string | number | bigint;
             remark: string;
@@ -8623,26 +8626,14 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
             for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
         withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                index: string | number | bigint;
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-            } | undefined;
-        } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
@@ -8652,6 +8643,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             guards: string[];
         } | {
             op: "removeall";
+        } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                index: string | number | bigint;
+                remark: string;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
+            } | undefined;
         } | undefined;
         deposit_guard?: string | undefined;
     };
@@ -8671,18 +8671,21 @@ export declare const CallTreasurySchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
+        receive: {
+            received_objects: string[];
+        } | "recently";
         withdraw: {
             remark: string;
             receiver: {
@@ -8692,27 +8695,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 };
                 amount: string | number;
             }[];
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
             index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
         withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-                index?: string | number | bigint | undefined;
-            } | undefined;
-        } | undefined;
         withdraw_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 amount: string | number;
@@ -8722,6 +8713,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             guards: string[];
         } | {
             op: "removeall";
+        } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
+            } | undefined;
         } | undefined;
         deposit_guard?: string | undefined;
     };
@@ -9043,13 +9043,13 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             }[];
         }, {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -9061,7 +9061,7 @@ export declare const CallPermissionSchema: z.ZodObject<{
         }, {
             op: "removeall";
         }>]>>;
-        builder: z.ZodObject<{
+        builder: z.ZodOptional<z.ZodObject<{
             name_or_address: z.ZodOptional<z.ZodString>;
             local_mark_first: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
@@ -9070,17 +9070,13 @@ export declare const CallPermissionSchema: z.ZodObject<{
         }, {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
-        }>;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         object: string | {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
-        };
-        builder: {
-            name_or_address?: string | undefined;
-            local_mark_first?: boolean | undefined;
         };
         description?: string | undefined;
         permission?: {
@@ -9142,7 +9138,7 @@ export declare const CallPermissionSchema: z.ZodObject<{
             permissions: number[];
         } | undefined;
         admin?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -9150,16 +9146,16 @@ export declare const CallPermissionSchema: z.ZodObject<{
         } | {
             op: "removeall";
         } | undefined;
+        builder?: {
+            name_or_address?: string | undefined;
+            local_mark_first?: boolean | undefined;
+        } | undefined;
     }, {
         object: string | {
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
-        };
-        builder: {
-            name_or_address?: string | undefined;
-            local_mark_first?: boolean | undefined;
         };
         description?: string | undefined;
         permission?: {
@@ -9221,13 +9217,17 @@ export declare const CallPermissionSchema: z.ZodObject<{
             permissions: any[];
         } | undefined;
         admin?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
             op: "removeall";
+        } | undefined;
+        builder?: {
+            name_or_address?: string | undefined;
+            local_mark_first?: boolean | undefined;
         } | undefined;
     }>;
     account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
@@ -9284,10 +9284,6 @@ export declare const CallPermissionSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
         };
-        builder: {
-            name_or_address?: string | undefined;
-            local_mark_first?: boolean | undefined;
-        };
         description?: string | undefined;
         permission?: {
             op: "add entity";
@@ -9348,13 +9344,17 @@ export declare const CallPermissionSchema: z.ZodObject<{
             permissions: number[];
         } | undefined;
         admin?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
             op: "removeall";
+        } | undefined;
+        builder?: {
+            name_or_address?: string | undefined;
+            local_mark_first?: boolean | undefined;
         } | undefined;
     };
     witness?: {
@@ -9376,10 +9376,6 @@ export declare const CallPermissionSchema: z.ZodObject<{
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
-        };
-        builder: {
-            name_or_address?: string | undefined;
-            local_mark_first?: boolean | undefined;
         };
         description?: string | undefined;
         permission?: {
@@ -9441,13 +9437,17 @@ export declare const CallPermissionSchema: z.ZodObject<{
             permissions: any[];
         } | undefined;
         admin?: {
-            op: "add" | "remove" | "set";
+            op: "set" | "add" | "remove";
             addresses: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
             op: "removeall";
+        } | undefined;
+        builder?: {
+            name_or_address?: string | undefined;
+            local_mark_first?: boolean | undefined;
         } | undefined;
     };
     witness?: {
@@ -9486,46 +9486,46 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } & {
                 description: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }, {
-                description?: string | undefined;
                 name?: string | undefined;
                 tags?: string[] | undefined;
                 useAddressIfNameExist?: boolean | undefined;
                 onChain?: boolean | undefined;
+                description?: string | undefined;
             }>]>>;
         } & {
             type_parameter: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }, {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         }>]>;
         arb_new: z.ZodOptional<z.ZodObject<{
             data: z.ZodObject<{
@@ -9534,13 +9534,13 @@ export declare const CallArbitrationSchema: z.ZodObject<{
                 votable_proposition: z.ZodArray<z.ZodString, "many">;
                 max_fee: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodNumber]>>;
             }, "strip", z.ZodTypeAny, {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             }, {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             }>;
@@ -9562,8 +9562,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             }>>;
         }, "strip", z.ZodTypeAny, {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -9575,8 +9575,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } | undefined;
         }, {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -9597,28 +9597,28 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             }, {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             }>;
         }, "strip", z.ZodTypeAny, {
             data: {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         }, {
             data: {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         }>>;
@@ -9659,17 +9659,17 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         } & {
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }, {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         }>]>>;
         guard: z.ZodOptional<z.ZodString>;
         voting_guard: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
@@ -9685,13 +9685,13 @@ export declare const CallArbitrationSchema: z.ZodObject<{
                 voting_weight?: string | number | undefined;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight: string | number;
             }[];
         }, {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight?: string | number | undefined;
@@ -9716,17 +9716,17 @@ export declare const CallArbitrationSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         guard?: string | undefined;
@@ -9734,8 +9734,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         bPaused?: boolean | undefined;
         arb_new?: {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -9750,13 +9750,13 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             data: {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         } | undefined;
         voting_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight: string | number;
@@ -9779,26 +9779,26 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         } | undefined;
         fee?: string | number | undefined;
         fee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
     }, {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         guard?: string | undefined;
@@ -9806,8 +9806,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         bPaused?: boolean | undefined;
         arb_new?: {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -9821,14 +9821,14 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         arb_withdraw_fee?: {
             data: {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         } | undefined;
         voting_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight?: string | number | undefined;
@@ -9851,11 +9851,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         } | undefined;
         fee?: string | number | undefined;
         fee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
     }>;
     account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
@@ -9908,17 +9908,17 @@ export declare const CallArbitrationSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         guard?: string | undefined;
@@ -9926,8 +9926,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         bPaused?: boolean | undefined;
         arb_new?: {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -9942,13 +9942,13 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             data: {
                 index: string | number | bigint;
                 remark: string;
-                for_guard?: string | undefined;
                 for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         } | undefined;
         voting_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight: string | number;
@@ -9971,11 +9971,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         } | undefined;
         fee?: string | number | undefined;
         fee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
     };
     witness?: {
@@ -9994,17 +9994,17 @@ export declare const CallArbitrationSchema: z.ZodObject<{
     data: {
         object: string | {
             type_parameter: string;
-            permission?: string | {
-                description?: string | undefined;
-                name?: string | undefined;
-                tags?: string[] | undefined;
-                useAddressIfNameExist?: boolean | undefined;
-                onChain?: boolean | undefined;
-            } | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            permission?: string | {
+                name?: string | undefined;
+                tags?: string[] | undefined;
+                useAddressIfNameExist?: boolean | undefined;
+                onChain?: boolean | undefined;
+                description?: string | undefined;
+            } | undefined;
         };
         description?: string | undefined;
         guard?: string | undefined;
@@ -10012,8 +10012,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         bPaused?: boolean | undefined;
         arb_new?: {
             data: {
-                order: string;
                 description: string;
+                order: string;
                 votable_proposition: string[];
                 max_fee?: string | number | undefined;
             };
@@ -10027,14 +10027,14 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         arb_withdraw_fee?: {
             data: {
                 remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
                 index?: string | number | bigint | undefined;
+                for_object?: string | undefined;
+                for_guard?: string | undefined;
             };
             arb: string;
         } | undefined;
         voting_guard?: {
-            op: "add" | "set";
+            op: "set" | "add";
             data: {
                 guard: string;
                 voting_weight?: string | number | undefined;
@@ -10057,11 +10057,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
         } | undefined;
         fee?: string | number | undefined;
         fee_treasury?: string | {
-            description?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
             onChain?: boolean | undefined;
+            description?: string | undefined;
         } | undefined;
     };
     witness?: {

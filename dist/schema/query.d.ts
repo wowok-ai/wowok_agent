@@ -252,13 +252,13 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     name: z.ZodString;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     no_cache?: boolean | undefined;
 }, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     no_cache?: boolean | undefined;
 }>;
@@ -299,19 +299,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "treasury";
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
-        name: "treasury";
     }, {
+        name: "treasury";
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
-        name: "treasury";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"service">;
         data: z.ZodObject<{
@@ -328,19 +328,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "service";
         data: {
             name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "service";
     }, {
+        name: "service";
         data: {
             name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "service";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"arb">;
         data: z.ZodObject<{
@@ -357,19 +357,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "arb";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "arb";
     }, {
+        name: "arb";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "arb";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"demand">;
         data: z.ZodObject<{
@@ -386,19 +386,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "demand";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "demand";
     }, {
+        name: "demand";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "demand";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"machine">;
         data: z.ZodObject<{
@@ -415,19 +415,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "machine";
         data: {
             name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "machine";
     }, {
+        name: "machine";
         data: {
             name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "machine";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"personalmark">;
         data: z.ZodObject<{
@@ -444,19 +444,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "personalmark";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "personalmark";
     }, {
+        name: "personalmark";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "personalmark";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"permission">;
         data: z.ZodObject<{
@@ -473,19 +473,19 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "permission";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "permission";
     }, {
+        name: "permission";
         data: {
             address: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "permission";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"repository">;
         data: z.ZodObject<{
@@ -494,32 +494,32 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             name: z.ZodString;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         }, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "repository";
     }, {
+        name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };
-        name: "repository";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"progress">;
         data: z.ZodObject<{
@@ -536,151 +536,151 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "progress";
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
-        name: "progress";
     }, {
+        name: "progress";
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
-        name: "progress";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     query: {
-        data: {
-            parent: string;
-            index: number;
-            no_cache?: boolean | undefined;
-        };
         name: "treasury";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "service";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "arb";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "demand";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "machine";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "personalmark";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "permission";
-    } | {
-        data: {
-            address: string | number;
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "repository";
-    } | {
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
+    } | {
+        name: "service";
+        data: {
+            name: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "arb";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "demand";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "machine";
+        data: {
+            name: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "personalmark";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "permission";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "repository";
+        data: {
+            name: string;
+            address: string | number;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
         name: "progress";
+        data: {
+            parent: string;
+            index: number;
+            no_cache?: boolean | undefined;
+        };
     };
 }, {
     query: {
-        data: {
-            parent: string;
-            index: number;
-            no_cache?: boolean | undefined;
-        };
         name: "treasury";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "service";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "arb";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "demand";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "machine";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "personalmark";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "permission";
-    } | {
-        data: {
-            address: string | number;
-            name: string;
-            parent: string;
-            no_cache?: boolean | undefined;
-        };
-        name: "repository";
-    } | {
         data: {
             parent: string;
             index: number;
             no_cache?: boolean | undefined;
         };
+    } | {
+        name: "service";
+        data: {
+            name: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "arb";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "demand";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "machine";
+        data: {
+            name: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "personalmark";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "permission";
+        data: {
+            address: string;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "repository";
+        data: {
+            name: string;
+            address: string | number;
+            parent: string;
+            no_cache?: boolean | undefined;
+        };
+    } | {
         name: "progress";
+        data: {
+            parent: string;
+            index: number;
+            no_cache?: boolean | undefined;
+        };
     };
 }>;
 export declare const QueryTableItemSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
