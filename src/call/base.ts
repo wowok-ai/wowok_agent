@@ -114,8 +114,11 @@ export interface GuardInfo_forCall {
     witness: WitnessFill[];
 }
 
-export type CallResult = GuardInfo_forCall | CallResponse | undefined;
+export interface CallResponseError {
+    error: string;
+}
 
+export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 
 export function ResponseData(response: CallResponse | undefined) : ResponseData[] {
     const res : ResponseData[] = [];

@@ -13,94 +13,74 @@ import { CallTreasury } from "./treasury.js";
 import { CallGuard } from "./guard.js";
 import { CallObjectPermission } from "./object_permission.js";
 export const call_demand_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_demand(c) });
+    const r = await call_demand(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_service_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_service(c) });
+    const r = await call_service(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_machine_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_machine(c) });
+    const r = await call_machine(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_repository_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_repository(c) });
+    const r = await call_repository(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_permission_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_permission(c) });
+    const r = await call_permission(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_transferpermission_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_transfer_permission(c) });
+    const r = await call_transfer_permission(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_treasury_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_treasury(c) });
+    const r = await call_treasury(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_arbitration_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_arbitration(c) });
+    const r = await call_arbitration(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_personal_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_personal(c) });
+    const r = await call_personal(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_guard_json = async (json) => {
-    try {
-        const c = JSON.parse(json);
-        return JSON.stringify({ data: await call_guard(c) });
+    const r = await call_guard(JSON.parse(json));
+    if (r?.error) {
+        return JSON.stringify({ error: r?.error });
     }
-    catch (e) {
-        return JSON.stringify({ error: e?.toString() });
-    }
+    return JSON.stringify({ data: r });
 };
 export const call_demand = async (call) => {
     const obj = new CallDemand(call.data);
@@ -143,11 +123,16 @@ export const call_arbitration = async (call) => {
     return await call_object(obj, call.account, call.witness);
 };
 const call_object = async (object, account, witness) => {
-    if (witness) {
-        return await object.call_with_witness(witness, account ?? undefined);
+    try {
+        if (witness) {
+            return await object.call_with_witness(witness, account ?? undefined);
+        }
+        else {
+            return await object.call(account ?? undefined);
+        }
     }
-    else {
-        return await object.call(account ?? undefined);
+    catch (e) {
+        return { error: e?.toString() };
     }
 };
 //# sourceMappingURL=call.js.map

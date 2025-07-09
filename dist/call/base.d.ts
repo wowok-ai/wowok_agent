@@ -53,7 +53,10 @@ export interface GuardInfo_forCall {
     guards: string[];
     witness: WitnessFill[];
 }
-export type CallResult = GuardInfo_forCall | CallResponse | undefined;
+export interface CallResponseError {
+    error: string;
+}
+export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 export declare function ResponseData(response: CallResponse | undefined): ResponseData[];
 export declare class CallBase {
     private resouceObject;

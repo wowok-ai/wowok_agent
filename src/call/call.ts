@@ -12,7 +12,7 @@ import { CallPersonal, CallPersonal_Data } from "./personal.js";
 import { CallRepository, CallRepository_Data } from "./repository.js";
 import { CallService, CallService_Data } from "./service.js";
 import { CallTreasury, CallTreasury_Data } from "./treasury.js";
-import { CallBase, CallResult, GuardInfo_forCall } from "./base.js";
+import { CallBase, CallResponseError, CallResult, GuardInfo_forCall } from "./base.js";
 import { CallGuard, CallGuard_Data } from "./guard.js";
 import { CallObjectPermission, CallObjectPermission_Data } from "./object_permission.js";
 
@@ -74,85 +74,81 @@ export interface CallTransferPermissionObject {
 }
 
 export const call_demand_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallDemandObject = JSON.parse(json);
-        return JSON.stringify({data:await call_demand(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_demand(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
 
 export const call_service_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallServiceObject = JSON.parse(json);
-        return JSON.stringify({data:await call_service(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_service(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
 export const call_machine_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallMachineObject = JSON.parse(json);
-        return JSON.stringify({data:await call_machine(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_machine(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_repository_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallRepositoryObject = JSON.parse(json);
-        return JSON.stringify({data:await call_repository(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_repository(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_permission_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallPermissionObject = JSON.parse(json);
-        return JSON.stringify({data:await call_permission(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_permission(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_transferpermission_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallTransferPermissionObject = JSON.parse(json);
-        return JSON.stringify({data:await call_transfer_permission(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_transfer_permission(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_treasury_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallTreasuryObject = JSON.parse(json);
-        return JSON.stringify({data:await call_treasury(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_treasury(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
 export const call_arbitration_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallArbitrationObject = JSON.parse(json);
-        return JSON.stringify({data:await call_arbitration(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_arbitration(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_personal_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallPersonalObject = JSON.parse(json);
-        return JSON.stringify({data:await call_personal(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_personal(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
+
 export const call_guard_json = async (json: string) : Promise<string> => {
-    try {
-        const c : CallGuardObject = JSON.parse(json);
-        return JSON.stringify({data:await call_guard(c)});
-    } catch (e) {
-        return JSON.stringify({error:e?.toString()})
+    const r = await call_guard(JSON.parse(json));
+    if ((r as any)?.error) {
+        return JSON.stringify({error:(r as any)?.error});
     }
+    return JSON.stringify({data:r});
 }
 
 export const call_demand = async (call:CallDemandObject) : Promise<CallResult> => {
@@ -197,9 +193,13 @@ export const call_arbitration = async (call:CallArbitrationObject) : Promise<Cal
 }
 
 const call_object = async (object: CallBase, account?: string | null, witness?: GuardInfo_forCall | null) : Promise<CallResult> => {
-    if (witness) {
-        return await object.call_with_witness(witness, account ?? undefined);
-    } else {
-        return await object.call(account ?? undefined);
+    try {
+        if (witness) {
+            return await object.call_with_witness(witness, account ?? undefined);
+        } else {
+            return await object.call(account ?? undefined);
+        }        
+    } catch (e) {
+        return {error:e?.toString()} as CallResponseError;
     }
 }
