@@ -147,7 +147,7 @@ const MachineNode_ForwardSchema = z.object({
 const MachineNodeSchema = z.object({
     name: z.string().nonempty().describe(D.Node_Name_Description),
     pairs: z.array(z.object({
-        prior_node:z.string().describe(D.Pair_PriorNode_Description),
+        prior_node:z.string().default("").describe(D.Pair_PriorNode_Description),
         threshold: z.number().int().min(0).describe(D.Pair_Threshold_Description),
         forwards: z.array(MachineNode_ForwardSchema).describe(D.Forwards_Description)
     })).describe(D.Pairs_Description)
@@ -754,7 +754,6 @@ export const ObjectChangedSchema = z.array(z.object({
     type: z.string().describe('Object type'),
     change: z.string().describe('created or changed'),
     url: z.string().describe('Object URL to access'),
-    raw_data: z.string().optional().describe('raw data')
 })).describe('The changed or created objects and their access links');
 
 export const ObjectChangedSchemaOutput = () => {

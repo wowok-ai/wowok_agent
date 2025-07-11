@@ -76,7 +76,7 @@ export enum ToolName {
 
 export const ObjectUrl = (id:string | undefined) : string | undefined => {
   if (WOWOK.IsValidAddress(id)) {
-    return 'https://wowok/' + id;
+    return 'https://wowok.net/' + id;
   }
 }
 
@@ -95,5 +95,5 @@ export const ObjectOperationResult = (r: CallResult) : string => {
           url: ObjectUrl(v.object)
       }
   })
-  return JSON.stringify({objects:output, raw_data:JSON.stringify(r)}) 
+  return JSON.stringify({objects:output, raw_data:r}) 
 }
