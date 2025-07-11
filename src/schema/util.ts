@@ -96,6 +96,6 @@ export const ObjectOperationResult = (r: CallResult) => {
       }
   })
   return {
-      content: [{ type: "text", text: JSON.stringify(r) }, output],    
+      content: [{ type: "text", text: JSON.stringify(r) }], output    
   };
 }

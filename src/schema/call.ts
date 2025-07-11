@@ -759,7 +759,7 @@ export const ObjectChangedSchema = z.array(z.object({
 export const ObjectChangedSchemaOutput = () => {
     return zodToJsonSchema(ObjectChangedSchema);
 }
-export const UrlResultMaker = (object:string | undefined) => {
+export const UrlResultMaker = (object:string | undefined) : {object:string | undefined, url: string | undefined } => {
     return {object:object, url: ObjectUrl(object)}
 }
 export const ObjectsUrlMaker = (objects: (string | undefined)[]) => {

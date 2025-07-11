@@ -93,7 +93,7 @@ export const ObjectOperationResult = (r) => {
         };
     });
     return {
-        content: [{ type: "text", text: JSON.stringify(r) }, output],
+        content: [{ type: "text", text: JSON.stringify(r) }], output
     };
 };
 //# sourceMappingURL=util.js.map
