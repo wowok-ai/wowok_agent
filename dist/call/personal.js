@@ -24,10 +24,16 @@ export class CallPersonal extends CallBase {
             entity.update(this.data.information);
         }
         if (this.data?.mark === undefined) {
+            if (!entity_data?.mark_object) {
+                obj.launch();
+            }
             return;
         }
         if (this.data?.mark?.op === 'destroy') {
             entity.destroy_resource(obj);
+            if (!entity_data?.mark_object) {
+                obj.launch();
+            }
             return; //@ return 
         }
         if (obj && obj?.get_object()) {

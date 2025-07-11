@@ -95,7 +95,7 @@ export const QueryObjectsSchema = z.object({
 export const QueryObjectsSchemaInput = () => {
     return zodToJsonSchema(QueryObjectsSchema);
 };
-export const QueryPersonalSchemaDescription = `Query the on-chain personal data by its address.
+export const QueryPersonalSchemaDescription = `Query the on-chain personal data by its name, account or address.
     The Personal object contains public information such as the user's homepage URL, social media accounts, avatar, likes and favorites, and object naming tags.`;
 export const QueryPersonalSchema = z.object({
     address: AccountOrMarkNameSchema.describe("Personal address to query."),

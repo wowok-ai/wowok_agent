@@ -4,7 +4,7 @@
  */
 import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Entity_Info, Tags } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
-import { AccountOrMark_Address } from '../call/base.js';
+import { AccountOrMark_Address, CallResponseError } from '../call/base.js';
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark' | 'Treasury_ReceivedObject';
 export interface ObjectBase {
     object: string;
@@ -314,15 +314,15 @@ export interface QueryTableItem_Address {
     address: string;
     no_cache?: boolean;
 }
-export declare const queryTableItem_RepositoryData: (query: QueryTableItem_AddressName) => Promise<ObjectBase>;
-export declare const queryTableItem_DemandService: (query: QueryTableItem_Address) => Promise<ObjectBase>;
-export declare const queryTableItem_PermissionEntity: (query: QueryTableItem_Address) => Promise<ObjectBase>;
-export declare const queryTableItem_ArbVoting: (query: QueryTableItem_Address) => Promise<ObjectBase>;
-export declare const queryTableItem_MachineNode: (query: QueryTableItem_Name) => Promise<ObjectBase>;
-export declare const queryTableItem_ServiceSale: (query: QueryTableItem_Name) => Promise<ObjectBase>;
-export declare const queryTableItem_ProgressHistory: (query: QueryTableItem_Index) => Promise<ObjectBase>;
-export declare const queryTableItem_TreasuryHistory: (query: QueryTableItem_Index) => Promise<ObjectBase>;
-export declare const queryTableItem_MarkTag: (query: QueryTableItem_Address) => Promise<ObjectBase>;
+export declare const queryTableItem_RepositoryData: (query: QueryTableItem_AddressName) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_DemandService: (query: QueryTableItem_Address) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_PermissionEntity: (query: QueryTableItem_Address) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_ArbVoting: (query: QueryTableItem_Address) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_MachineNode: (query: QueryTableItem_Name) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_ServiceSale: (query: QueryTableItem_Name) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_ProgressHistory: (query: QueryTableItem_Index) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_TreasuryHistory: (query: QueryTableItem_Index) => Promise<ObjectBase | CallResponseError>;
+export declare const queryTableItem_MarkTag: (query: QueryTableItem_Address) => Promise<ObjectBase | CallResponseError>;
 export declare function raw2type(type_raw: string | undefined): ObjectBaseType | undefined;
 export declare function data2object(data?: any): ObjectBase;
 //# sourceMappingURL=objects.d.ts.map

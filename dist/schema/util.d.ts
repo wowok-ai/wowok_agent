@@ -1,5 +1,5 @@
-import { CallResult } from "src/call/base.js";
-import { ObjectBaseType } from "src/query/objects.js";
+import { CallResult } from "../call/base.js";
+import { ObjectBaseType } from "../query/objects.js";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)
  * @param url - The full URL or query parameter string

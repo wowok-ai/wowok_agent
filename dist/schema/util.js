@@ -1,4 +1,4 @@
-import { ResponseData } from "src/call/base.js";
+import { ResponseData } from "../call/base.js";
 import * as WOWOK from "wowok";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)

@@ -23,9 +23,11 @@ export class CallPersonal extends CallBase {
     async call(account?:string) : Promise<CallResult> {
         return await this.exec(account)
     }
+
     protected async operate (txb:TransactionBlock, passport?:PassportObject, account?: string) {
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);
         const entity_data = await query_personal({address:{name_or_address:account}});
+
         if (entity_data?.mark_object) {
             obj = Resource.From(txb, entity_data.mark_object);
         } else {
@@ -37,11 +39,17 @@ export class CallPersonal extends CallBase {
         }
 
         if (this.data?.mark === undefined) {
+            if (!entity_data?.mark_object) {
+                obj.launch();
+            }
             return ;
         }
 
         if (this.data?.mark?.op === 'destroy') {
             entity.destroy_resource(obj)
+            if (!entity_data?.mark_object) {
+                obj.launch();
+            }
             return ; //@ return 
         }
 

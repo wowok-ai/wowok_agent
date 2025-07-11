@@ -1,5 +1,5 @@
-import { CallResult, ResponseData } from "src/call/base.js";
-import { ObjectBaseType } from "src/query/objects.js";
+import { CallResult, ResponseData } from "../call/base.js";
+import { ObjectBaseType } from "../query/objects.js";
 import * as WOWOK from "wowok";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)
