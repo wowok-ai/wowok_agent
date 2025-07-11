@@ -717,14 +717,13 @@ export const ObjectChangedSchema = z.array(z.object({
 export const ObjectChangedSchemaOutput = () => {
     return zodToJsonSchema(ObjectChangedSchema);
 };
-export const UrlResultMaker = (object, raw_data) => {
-    return { object: object, url: ObjectUrl(object), raw_data: raw_data };
+export const UrlResultMaker = (object) => {
+    return { object: object, url: ObjectUrl(object) };
 };
-export const ObjectsUrlMaker = (objects, raw_data) => {
-    const r = objects.map(v => {
+export const ObjectsUrlMaker = (objects) => {
+    return objects.map(v => {
         return { object: v, url: ObjectUrl(v) };
     });
-    return { objects: r, raw_data: raw_data };
 };
 export const UrlResultSchema = z.object({
     object: z.string().optional().describe('Object address'),

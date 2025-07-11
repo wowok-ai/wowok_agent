@@ -4361,18 +4361,14 @@ export declare const ObjectChangedSchemaOutput: () => import("zod-to-json-schema
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
-export declare const UrlResultMaker: (object: string | undefined, raw_data: string | undefined) => {
+export declare const UrlResultMaker: (object: string | undefined) => {
     object: string | undefined;
     url: string | undefined;
-    raw_data: string | undefined;
 };
-export declare const ObjectsUrlMaker: (objects: (string | undefined)[], raw_data: string | undefined) => {
-    objects: {
-        object: string | undefined;
-        url: string | undefined;
-    }[];
-    raw_data: string | undefined;
-};
+export declare const ObjectsUrlMaker: (objects: (string | undefined)[]) => {
+    object: string | undefined;
+    url: string | undefined;
+}[];
 export declare const UrlResultSchema: z.ZodObject<{
     object: z.ZodOptional<z.ZodString>;
     url: z.ZodOptional<z.ZodString>;
