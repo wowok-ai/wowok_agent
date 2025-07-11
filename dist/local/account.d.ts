@@ -21,6 +21,7 @@ export declare class Account {
     gen(name?: string | DEFAULT_NAME): Promise<AccountData>;
     default(): Promise<AccountData | undefined>;
     get(address_or_name?: string): Promise<AccountData | undefined>;
+    get_address(address_or_name?: string): Promise<string | undefined>;
     private get_imp;
     get_many(address_or_names: (string | null | undefined)[]): Promise<(AccountData | undefined)[]>;
     private get_many_imp;

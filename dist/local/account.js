@@ -140,6 +140,9 @@ export class Account {
     async get(address_or_name) {
         return this.accountData(await this.get_imp(address_or_name));
     }
+    async get_address(address_or_name) {
+        return (await this.get_imp(address_or_name))?.address;
+    }
     async get_imp(address_or_name) {
         if (!address_or_name)
             address_or_name = DEFAULT_ACCOUNT_NAME;

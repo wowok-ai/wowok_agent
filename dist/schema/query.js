@@ -2,20 +2,56 @@ import { z } from "zod";
 import { GetMarkNameSchema, AccountOrMarkNameSchema } from "./call.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
 export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data.`;
-export var WOWOK_PROTOCOL_INFO;
-(function (WOWOK_PROTOCOL_INFO) {
-    WOWOK_PROTOCOL_INFO["BuiltInPermissions"] = "built_in_permissions";
-    WOWOK_PROTOCOL_INFO["GuardQueryCommands"] = "guard_query_commands";
-})(WOWOK_PROTOCOL_INFO || (WOWOK_PROTOCOL_INFO = {}));
-;
+export const ModuleEnumSchema = z.enum([
+    'machine',
+    'progress',
+    'repository',
+    'permission',
+    'demand',
+    'order',
+    'service',
+    'wowok',
+    'treasury',
+    'payment',
+    'arbitration',
+    'arb',
+]);
 export const QueryWowokProtocolSchema = z.object({
-    name: z.union([
-        z.literal(WOWOK_PROTOCOL_INFO.BuiltInPermissions).describe("Built-in permissions of the Wowok protocol"),
-        z.literal(WOWOK_PROTOCOL_INFO.GuardQueryCommands).describe("Commands for Guard querying of the Wowok protocol"),
-    ]).describe("Name of the Wowok protocol object to query."),
+    built_in_permissions: z.object({
+        module: z.union([z.array(ModuleEnumSchema).describe("Modules of the built-in permissions"), z.literal('all')]),
+    }).optional().describe("Built-in permissions of the Wowok protocol"),
+    queries_for_guard: z.object({
+        module: z.union([z.array(ModuleEnumSchema).describe("Modules of the Guard queries"), z.literal('all')]),
+    }).optional().describe("Guard queries of the Wowok protocol"),
+});
+export const ValueTypeSchema = z.object({
+    name: z.string().describe("Name of the value type"),
+    type: z.number().int().describe("Value type of the Wowok protocol"),
+    description: z.string().optional().describe("Description of the value type"),
+});
+export const PermissionItemSchema = z.object({
+    index: z.number().int().describe("Index of the built-in permission"),
+    name: z.string().describe("Name of the built-in permission"),
+    description: z.string().describe("Description of the built-in permission"),
+    module: z.string().describe("Module of the built-in permission"),
+    guard: z.string().optional().describe("Additional Guard verification"),
+});
+export const QueryWowokProtocolResultSchema = z.object({
+    built_in_permissions: z.array(PermissionItemSchema).describe("Built-in permissions of the Wowok protocol"),
+    queries_for_guard: z.array(z.object({
+        module: z.string().describe("Module of the Guard query"),
+        query_name: z.string().describe("Name of the Guard query"),
+        query_id: z.number().int().describe("ID of the Guard query"),
+        parameters: z.array(ValueTypeSchema).describe("Parameters of the Guard query"),
+        return: ValueTypeSchema.describe("Return type of the Guard query"),
+        description: z.string().describe("Description of the Guard query"),
+    }))
 });
 export const QueryWowokProtocolSchemaInput = () => {
     return zodToJsonSchema(QueryWowokProtocolSchema);
+};
+export const QueryWowokProtocolResultSchemaOutput = () => {
+    return zodToJsonSchema(QueryWowokProtocolResultSchema);
 };
 export const Query_TableItems_List_Description = `Retrieves paginated table data records from a Wowok on-chain object, where the table data represents dynamically extensible structured information specific to the object type. 
 The query automatically identifies the object type (one of Permission, Machine, Treasury, Repository, Service, Progress, Arb, PersonalMark, or Demand) and returns data structured according to that specific type's table schema. This enables flexible data retrieval even when the object type of the provided address/name is unknown, with the query result metadata including the identified object type.
@@ -92,8 +128,18 @@ export const QueryPermissionSchema = z.object({
     permission_object: GetMarkNameSchema('Permission'),
     address: AccountOrMarkNameSchema,
 });
+export const QueryPermissionResultSchema = z.object({
+    who: z.string().describe('Address to query permissions'),
+    owner: z.boolean().optional().describe('Is the owner? Note:The owner has the permission to set the admin'),
+    admin: z.boolean().optional().describe('Is an admin? Note:Admin has all the permissions.'),
+    items: z.array(PermissionItemSchema).optional().describe('Permissions of the address'),
+    object: z.string().describe('permission object'),
+});
 export const QueryPermissionSchemaInput = () => {
     return zodToJsonSchema(QueryPermissionSchema);
+};
+export const QueryPermissionResultSchemaOutput = () => {
+    return zodToJsonSchema(QueryPermissionResultSchema);
 };
 export const EventCursorSchema = z.object({
     eventSeq: z.string().describe('Event sequence.'),

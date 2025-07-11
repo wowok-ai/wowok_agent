@@ -1,3 +1,4 @@
+import { ResponseData } from "src/call/base.js";
 import * as WOWOK from "wowok";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)
@@ -72,4 +73,27 @@ export var ToolName;
     ToolName["QUERY_TABLE_ITEM"] = "table_item_query";
     ToolName["QUERY_WOWOK_PROTOCOL"] = "wowok_protocol";
 })(ToolName || (ToolName = {}));
+export const ObjectUrl = (id) => {
+    if (WOWOK.IsValidAddress(id)) {
+        return 'https://wowok/' + id;
+    }
+};
+export const BaseTypeFilter = (type) => {
+    return type === 'Demand' || type === 'Progress' || type === 'Service' || type === 'Machine' || type === 'Order' || type === 'Treasury' || type === 'Arbitration' || type === 'Arb'
+        || type === 'Payment' || type === 'Guard' || type === 'Discount' ||
+        type === 'Personal' || type === 'Permission' || type === 'PersonalMark' || type === 'Repository';
+};
+export const ObjectOperationResult = (r) => {
+    const output = ResponseData(r).filter(v => BaseTypeFilter(v.type)).map(v => {
+        return {
+            type: v.type,
+            object: v.object,
+            change: v.change,
+            url: ObjectUrl(v.object)
+        };
+    });
+    return {
+        content: [{ type: "text", text: JSON.stringify(r) }, output],
+    };
+};
 //# sourceMappingURL=util.js.map

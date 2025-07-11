@@ -3,6 +3,7 @@ import { z } from "zod";
 import * as WOWOK from 'wowok';
 import * as D from './const.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
+import { ObjectUrl } from "./util.js";
 
 export const GetMarkNameSchema = (object:string='') : z.ZodString=> {
     return z.string().nonempty().describe(D.MarkName_Address_Description(object));
@@ -748,6 +749,37 @@ export const GuardWitness = z.object({
         identifier: GuardIndentifierSchema.describe(D.Guard_Table_Id),
     })).describe('All the witnesses.')
 })
+export const ObjectChangedSchema = z.array(z.object({
+    object: z.string().describe('Object address'),
+    type: z.string().describe('Object type'),
+    change: z.string().describe('created or changed'),
+    url: z.string().describe('Object URL to access'),
+})).describe('The changed or created objects and their access links');
+
+export const ObjectChangedSchemaOutput = () => {
+    return zodToJsonSchema(ObjectChangedSchema);
+}
+export const UrlResultMaker = (object:string | undefined) => {
+    return {object:object, url: ObjectUrl(object)}
+}
+export const ObjectsUrlMaker = (objects: (string | undefined)[]) => {
+    return objects.map(v => {
+        return {object: v, url: ObjectUrl(v)}
+    })
+}
+
+export const UrlResultSchema = z.object({
+    object: z.string().optional().describe('Object address'),
+    url: z.string().optional().describe('Object URL to access'),
+}).describe('Object URL to access')
+export const ObjectsUrlSchema = z.array(UrlResultSchema);
+
+export const UrlResultSchemaOutput = () => {
+    return zodToJsonSchema(UrlResultSchema);
+}
+export const ObjectsUrlSchemaOutput = () => {
+    return zodToJsonSchema(ObjectsUrlSchema);
+}
 
 export const AccountSchema = z.string().optional().nullable().describe('The account name or address that initiated the operation.');
 export const WitnessSchema = GuardWitness.optional().nullable().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');

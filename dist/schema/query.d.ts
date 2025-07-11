@@ -1,17 +1,206 @@
 import { z } from "zod";
 export declare const QueryWowokProtocolSchemaDescription = "Retrieves the Wowok protocol data.";
-export declare enum WOWOK_PROTOCOL_INFO {
-    BuiltInPermissions = "built_in_permissions",
-    GuardQueryCommands = "guard_query_commands"
-}
+export declare const ModuleEnumSchema: z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>;
 export declare const QueryWowokProtocolSchema: z.ZodObject<{
-    name: z.ZodUnion<[z.ZodLiteral<WOWOK_PROTOCOL_INFO.BuiltInPermissions>, z.ZodLiteral<WOWOK_PROTOCOL_INFO.GuardQueryCommands>]>;
+    built_in_permissions: z.ZodOptional<z.ZodObject<{
+        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>, "many">, z.ZodLiteral<"all">]>;
+    }, "strip", z.ZodTypeAny, {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    }, {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    }>>;
+    queries_for_guard: z.ZodOptional<z.ZodObject<{
+        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>, "many">, z.ZodLiteral<"all">]>;
+    }, "strip", z.ZodTypeAny, {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    }, {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    }>>;
 }, "strip", z.ZodTypeAny, {
-    name: WOWOK_PROTOCOL_INFO;
+    built_in_permissions?: {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    } | undefined;
+    queries_for_guard?: {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    } | undefined;
 }, {
-    name: WOWOK_PROTOCOL_INFO;
+    built_in_permissions?: {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    } | undefined;
+    queries_for_guard?: {
+        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+    } | undefined;
+}>;
+export declare const ValueTypeSchema: z.ZodObject<{
+    name: z.ZodString;
+    type: z.ZodNumber;
+    description: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    type: number;
+    name: string;
+    description?: string | undefined;
+}, {
+    type: number;
+    name: string;
+    description?: string | undefined;
+}>;
+export declare const PermissionItemSchema: z.ZodObject<{
+    index: z.ZodNumber;
+    name: z.ZodString;
+    description: z.ZodString;
+    module: z.ZodString;
+    guard: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    description: string;
+    index: number;
+    module: string;
+    guard?: string | undefined;
+}, {
+    name: string;
+    description: string;
+    index: number;
+    module: string;
+    guard?: string | undefined;
+}>;
+export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
+    built_in_permissions: z.ZodArray<z.ZodObject<{
+        index: z.ZodNumber;
+        name: z.ZodString;
+        description: z.ZodString;
+        module: z.ZodString;
+        guard: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }, {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }>, "many">;
+    queries_for_guard: z.ZodArray<z.ZodObject<{
+        module: z.ZodString;
+        query_name: z.ZodString;
+        query_id: z.ZodNumber;
+        parameters: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            type: z.ZodNumber;
+            description: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }, {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }>, "many">;
+        return: z.ZodObject<{
+            name: z.ZodString;
+            type: z.ZodNumber;
+            description: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }, {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }>;
+        description: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        description: string;
+        parameters: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }[];
+        module: string;
+        query_name: string;
+        query_id: number;
+        return: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        };
+    }, {
+        description: string;
+        parameters: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }[];
+        module: string;
+        query_name: string;
+        query_id: number;
+        return: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        };
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    built_in_permissions: {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }[];
+    queries_for_guard: {
+        description: string;
+        parameters: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }[];
+        module: string;
+        query_name: string;
+        query_id: number;
+        return: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        };
+    }[];
+}, {
+    built_in_permissions: {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }[];
+    queries_for_guard: {
+        description: string;
+        parameters: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        }[];
+        module: string;
+        query_name: string;
+        query_id: number;
+        return: {
+            type: number;
+            name: string;
+            description?: string | undefined;
+        };
+    }[];
 }>;
 export declare const QueryWowokProtocolSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const QueryWowokProtocolResultSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
@@ -153,7 +342,62 @@ export declare const QueryPermissionSchema: z.ZodObject<{
     };
     permission_object: string;
 }>;
+export declare const QueryPermissionResultSchema: z.ZodObject<{
+    who: z.ZodString;
+    owner: z.ZodOptional<z.ZodBoolean>;
+    admin: z.ZodOptional<z.ZodBoolean>;
+    items: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        index: z.ZodNumber;
+        name: z.ZodString;
+        description: z.ZodString;
+        module: z.ZodString;
+        guard: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }, {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }>, "many">>;
+    object: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    object: string;
+    who: string;
+    admin?: boolean | undefined;
+    owner?: boolean | undefined;
+    items?: {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }[] | undefined;
+}, {
+    object: string;
+    who: string;
+    admin?: boolean | undefined;
+    owner?: boolean | undefined;
+    items?: {
+        name: string;
+        description: string;
+        index: number;
+        module: string;
+        guard?: string | undefined;
+    }[] | undefined;
+}>;
 export declare const QueryPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const QueryPermissionResultSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;

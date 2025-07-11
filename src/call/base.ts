@@ -120,18 +120,21 @@ export interface CallResponseError {
 
 export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 
-export function ResponseData(response: CallResponse | undefined) : ResponseData[] {
-    const res : ResponseData[] = [];
-    response?.objectChanges?.forEach(v => {
-        const type_raw: string | undefined = (v as any)?.objectType;
-        const type = raw2type(type_raw);
-        if (type) {
-            res.push({type:type, type_raw:type_raw, object:(v as any)?.objectId, version:(v as any)?.version,
-                owner:(v as any)?.owner, change:v.type
-            })
-        }
-    })
-    return res;
+export function ResponseData(response: CallResult | undefined) : ResponseData[]  {
+    if ((response as any)?.digest) {
+        const res : ResponseData[] = [];
+        (response as CallResponse)?.objectChanges?.forEach(v => {
+            const type_raw: string | undefined = (v as any)?.objectType;
+            const type = raw2type(type_raw);
+            if (type) {
+                res.push({type:type, type_raw:type_raw, object:(v as any)?.objectId, version:(v as any)?.version,
+                    owner:(v as any)?.owner, change:v.type
+                })
+            }
+        })
+        return res;
+    }
+    return []
 }
 
 export class CallBase {

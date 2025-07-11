@@ -4336,6 +4336,68 @@ export declare const GuardWitness: z.ZodObject<{
         witness?: any;
     }[];
 }>;
+export declare const ObjectChangedSchema: z.ZodArray<z.ZodObject<{
+    object: z.ZodString;
+    type: z.ZodString;
+    change: z.ZodString;
+    url: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    object: string;
+    type: string;
+    change: string;
+    url: string;
+}, {
+    object: string;
+    type: string;
+    change: string;
+    url: string;
+}>, "many">;
+export declare const ObjectChangedSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const UrlResultMaker: (object: string | undefined) => {
+    object: string | undefined;
+    url: string | undefined;
+};
+export declare const ObjectsUrlMaker: (objects: (string | undefined)[]) => {
+    object: string | undefined;
+    url: string | undefined;
+}[];
+export declare const UrlResultSchema: z.ZodObject<{
+    object: z.ZodOptional<z.ZodString>;
+    url: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    object?: string | undefined;
+    url?: string | undefined;
+}, {
+    object?: string | undefined;
+    url?: string | undefined;
+}>;
+export declare const ObjectsUrlSchema: z.ZodArray<z.ZodObject<{
+    object: z.ZodOptional<z.ZodString>;
+    url: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    object?: string | undefined;
+    url?: string | undefined;
+}, {
+    object?: string | undefined;
+    url?: string | undefined;
+}>, "many">;
+export declare const UrlResultSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const ObjectsUrlSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const AccountSchema: z.ZodNullable<z.ZodOptional<z.ZodString>>;
 export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
     guards: z.ZodArray<z.ZodString, "many">;

@@ -252,7 +252,6 @@ export interface PersonalQuery {
 }
 export interface ObjectsAnswer {
     objects?: ObjectBase[];
-    error?: string;
 }
 
 export interface TableQuery {

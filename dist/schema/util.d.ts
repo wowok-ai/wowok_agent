@@ -1,3 +1,5 @@
+import { CallResult } from "src/call/base.js";
+import { ObjectBaseType } from "src/query/objects.js";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)
  * @param url - The full URL or query parameter string
@@ -44,4 +46,17 @@ export declare enum ToolName {
     QUERY_TABLE_ITEM = "table_item_query",
     QUERY_WOWOK_PROTOCOL = "wowok_protocol"
 }
+export declare const ObjectUrl: (id: string | undefined) => string | undefined;
+export declare const BaseTypeFilter: (type?: ObjectBaseType) => boolean;
+export declare const ObjectOperationResult: (r: CallResult) => {
+    content: ({
+        type: ObjectBaseType | undefined;
+        object: string;
+        change: string;
+        url: string | undefined;
+    }[] | {
+        type: string;
+        text: string;
+    })[];
+};
 //# sourceMappingURL=util.d.ts.map

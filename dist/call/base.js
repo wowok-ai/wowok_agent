@@ -57,16 +57,19 @@ export const SetWithdrawFee = async (param, treasury) => {
     return { index: BigInt(param.index), remark: param.remark, for_object: object, for_guard: guard, treasury: treasury };
 };
 export function ResponseData(response) {
-    const res = [];
-    response?.objectChanges?.forEach(v => {
-        const type_raw = v?.objectType;
-        const type = raw2type(type_raw);
-        if (type) {
-            res.push({ type: type, type_raw: type_raw, object: v?.objectId, version: v?.version,
-                owner: v?.owner, change: v.type });
-        }
-    });
-    return res;
+    if (response?.digest) {
+        const res = [];
+        response?.objectChanges?.forEach(v => {
+            const type_raw = v?.objectType;
+            const type = raw2type(type_raw);
+            if (type) {
+                res.push({ type: type, type_raw: type_raw, object: v?.objectId, version: v?.version,
+                    owner: v?.owner, change: v.type });
+            }
+        });
+        return res;
+    }
+    return [];
 }
 export class CallBase {
     async operate(txb, passport, account) { }

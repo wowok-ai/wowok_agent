@@ -1,3 +1,5 @@
+import { CallResult, ResponseData } from "src/call/base.js";
+import { ObjectBaseType } from "src/query/objects.js";
 import * as WOWOK from "wowok";
 /**
  * Parses URL parameters and converts them to specified types (supports automatic conversion of strings, numbers, arrays, etc.)
@@ -70,4 +72,30 @@ export enum ToolName {
     QUERY_LOCAL = 'local_query',
     QUERY_TABLE_ITEM = 'table_item_query',
     QUERY_WOWOK_PROTOCOL = 'wowok_protocol',
+}
+
+export const ObjectUrl = (id:string | undefined) : string | undefined => {
+  if (WOWOK.IsValidAddress(id)) {
+    return 'https://wowok/' + id;
+  }
+}
+
+export const BaseTypeFilter = (type?:ObjectBaseType) : boolean => {
+    return type === 'Demand' || type === 'Progress' || type === 'Service' || type === 'Machine' || type === 'Order' || type === 'Treasury' || type === 'Arbitration' || type === 'Arb' 
+      || type === 'Payment' || type === 'Guard' || type === 'Discount' ||
+        type === 'Personal' || type === 'Permission' || type === 'PersonalMark' || type === 'Repository' 
+}
+
+export const ObjectOperationResult = (r: CallResult) => {
+  const output = ResponseData(r).filter(v => BaseTypeFilter(v.type)).map(v => {
+      return {
+          type:v.type,
+          object:v.object,
+          change:v.change,
+          url: ObjectUrl(v.object)
+      }
+  })
+  return {
+      content: [{ type: "text", text: JSON.stringify(r) }, output],    
+  };
 }
