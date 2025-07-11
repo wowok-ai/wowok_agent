@@ -116,14 +116,14 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         description: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        module: string;
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -131,14 +131,14 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         };
     }, {
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        module: string;
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -155,14 +155,14 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }[];
     queries_for_guard: {
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        module: string;
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -179,14 +179,14 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }[];
     queries_for_guard: {
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        module: string;
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;

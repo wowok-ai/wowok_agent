@@ -92,8 +92,6 @@ export const ObjectOperationResult = (r) => {
             url: ObjectUrl(v.object)
         };
     });
-    return {
-        content: [{ type: "text", text: JSON.stringify(r) }], output
-    };
+    return JSON.stringify({ objects: output, raw_data: JSON.stringify(r) });
 };
 //# sourceMappingURL=util.js.map

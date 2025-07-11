@@ -86,7 +86,7 @@ export const BaseTypeFilter = (type?:ObjectBaseType) : boolean => {
         type === 'Personal' || type === 'Permission' || type === 'PersonalMark' || type === 'Repository' 
 }
 
-export const ObjectOperationResult = (r: CallResult) => {
+export const ObjectOperationResult = (r: CallResult) : string => {
   const output = ResponseData(r).filter(v => BaseTypeFilter(v.type)).map(v => {
       return {
           type:v.type,
@@ -95,7 +95,5 @@ export const ObjectOperationResult = (r: CallResult) => {
           url: ObjectUrl(v.object)
       }
   })
-  return {
-      content: [{ type: "text", text: JSON.stringify(r) }], output    
-  };
+  return JSON.stringify({objects:output, raw_data:JSON.stringify(r)}) 
 }
