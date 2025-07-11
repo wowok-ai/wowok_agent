@@ -9,7 +9,7 @@ import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operat
 } from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
-import { AccountOrMark_Address, CallResponseError, GetAccountOrMark_Address } from '../call/base.js';
+import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
@@ -365,7 +365,7 @@ export const query_personal = async (query:PersonalQuery) : Promise<ObjectPerson
         } catch (e) {/*console.log(e)*/}
     } 
     const res = await tableItemQuery_byAddress({parent:Protocol.Instance().objectEntity(), address:addr});
-    if ((res as ObjectPersonal)?.type === 'Personal') {
+    if (res.type === 'Personal') {
         await Cache.Instance().put(addr, {expire:Cache.ExpireTime(), data:JSON.stringify(res)}, CacheName.personal);
         return res as ObjectPersonal;
     } 
@@ -402,7 +402,7 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
     return r;
 }
 
-const tableItem = async (query:TableItemQuery) : Promise<ObjectBase | CallResponseError> => {
+const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
     const addr = await LocalMark.Instance().get_address(query.parent);
     if (!addr)  {
         ERROR(Errors.InvalidParam, 'tableItem.query.parent')
@@ -421,12 +421,8 @@ const tableItem = async (query:TableItemQuery) : Promise<ObjectBase | CallRespon
         } catch (e) {/*console.log(e)*/}
     } 
     const res = await Protocol.Client().getDynamicFieldObject({parentId:query.parent, name:{type:query.key.type, value:query.key.value}});
-    if (res?.error?.code === 'dynamicFieldNotFound') {
-        return {error: `Item(${query.key.value}) not found from the on-chain table object(${query.parent})`};
-    }
     return data2object(res?.data)
 }
-
 
 export interface QueryTableItem_Name {
     parent: string | ObjectService;
@@ -450,8 +446,7 @@ export interface QueryTableItem_Address {
     no_cache?: boolean;
 }
 
-export const queryTableItem_RepositoryData = async (query:QueryTableItem_AddressName) : Promise<ObjectBase | CallResponseError> => {
-
+export const queryTableItem_RepositoryData = async (query:QueryTableItem_AddressName) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
 
     if (typeof(query.address) !== 'string') {
@@ -461,47 +456,47 @@ export const queryTableItem_RepositoryData = async (query:QueryTableItem_Address
     return await tableItem({parent:parent, key:{type:Protocol.Instance().package('wowok')+'::repository::DataKey', value:{id:query.address, key:query.name}}})
 }
 
-export const queryTableItem_DemandService = async (query: QueryTableItem_Address) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_DemandService = async (query: QueryTableItem_Address) : Promise<ObjectBase> => {
     return await tableItemQuery_byAddress(query)
 }
 
-export const queryTableItem_PermissionEntity = async (query: QueryTableItem_Address) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_PermissionEntity = async (query: QueryTableItem_Address) : Promise<ObjectBase> => {
     return await tableItemQuery_byAddress(query)
 }
 
-export const queryTableItem_ArbVoting = async (query:QueryTableItem_Address) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_ArbVoting = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
     return await tableItemQuery_byAddress(query)
 }
 
-export const queryTableItem_MachineNode = async (query:QueryTableItem_Name) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_MachineNode = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
     return await tableItemQuery_byName(query)
 }
 
-export const queryTableItem_ServiceSale = async (query:QueryTableItem_Name) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_ServiceSale = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
     return await tableItemQuery_byName(query)
 }
 
-export const queryTableItem_ProgressHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_ProgressHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
     return await tableItemQuery_byIndex(query)
 }
-export const queryTableItem_TreasuryHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_TreasuryHistory = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
     return await tableItemQuery_byIndex(query)
 }
-export const queryTableItem_MarkTag = async (query:QueryTableItem_Address) : Promise<ObjectBase | CallResponseError> => {
+export const queryTableItem_MarkTag = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
     return await tableItemQuery_byAddress(query)
 }
 
-const tableItemQuery_byAddress = async (query:QueryTableItem_Address) : Promise<ObjectBase | CallResponseError> => {
+const tableItemQuery_byAddress = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
     return await tableItem({parent:parent, key:{type:'address', value:query.address}, no_cache:query.no_cache});
 }
 
-const tableItemQuery_byName = async (query:QueryTableItem_Name) : Promise<ObjectBase | CallResponseError> => {
+const tableItemQuery_byName = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
     return await tableItem({parent:parent, key:{type:'0x1::string::String', value:query.name}, no_cache:query.no_cache});
 }
 
-const tableItemQuery_byIndex = async (query:QueryTableItem_Index) : Promise<ObjectBase | CallResponseError> => {
+const tableItemQuery_byIndex = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
     return await tableItem({parent:parent, key:{type:'u64', value:query.index}, no_cache:query.no_cache});
 }

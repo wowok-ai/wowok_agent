@@ -94,7 +94,7 @@ export const query_personal = async (query) => {
         catch (e) { /*console.log(e)*/ }
     }
     const res = await tableItemQuery_byAddress({ parent: Protocol.Instance().objectEntity(), address: addr });
-    if (res?.type === 'Personal') {
+    if (res.type === 'Personal') {
         await Cache.Instance().put(addr, { expire: Cache.ExpireTime(), data: JSON.stringify(res) }, CacheName.personal);
         return res;
     }
@@ -143,9 +143,6 @@ const tableItem = async (query) => {
         catch (e) { /*console.log(e)*/ }
     }
     const res = await Protocol.Client().getDynamicFieldObject({ parentId: query.parent, name: { type: query.key.type, value: query.key.value } });
-    if (res?.error?.code === 'dynamicFieldNotFound') {
-        return { error: `Item(${query.key.value}) not found from the on-chain table object(${query.parent})` };
-    }
     return data2object(res?.data);
 };
 export const queryTableItem_RepositoryData = async (query) => {
