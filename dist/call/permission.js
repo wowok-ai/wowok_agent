@@ -67,6 +67,9 @@ export class CallPermission extends CallBase {
                         if (addr) {
                             add_entity.push({ address: addr, permissions: v.permissions });
                         }
+                        else {
+                            ERROR(Errors.InvalidParam, `CallPermission_Data.data.permission.entities.address ${i}: ${v.address.name_or_address} NOT found `);
+                        }
                     }
                     obj?.add_entity(add_entity);
                     break;

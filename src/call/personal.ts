@@ -56,31 +56,24 @@ export class CallPersonal extends CallBase {
         if (obj && obj?.get_object()) {
             switch(this.data.mark.op) {
                 case 'add':
-                    const add  = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
                         const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
-                            add.push({address:addr, tags:v.tags, name:v.name})
+                            obj?.add(addr, v.tags ?? [], v.name);
+                            await LocalMark.Instance().put(v.name, {address:addr, tags:v.tags});
                         }
                     }
-
-                    add.forEach(v => {
-                        obj?.add(v.address, v.tags ?? [], v.name)
-                    })
                     break;
                 case 'remove':
-                    const remove = [];
                     for (let i = 0; i < this.data.mark.data.length; ++i) {
                         const v = this.data.mark.data[i];
                         const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
-                            remove.push({address:addr, tags:v.tags})
+                            obj?.remove(addr, v.tags ?? []);
+                            //@ dont del from local
                         }
-                    }
-                    remove.forEach(v => {
-                        obj?.remove(v.address, v.tags ?? [])
-                    })                        
+                    }                  
                     break;
                 case 'removeall':
                     for (let i = 0; i < this.data.mark.addresses.length; ++i) {

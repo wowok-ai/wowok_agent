@@ -27,7 +27,7 @@ export declare class Account {
     private get_many_imp;
     swap_names(name1?: string | DEFAULT_NAME, name2?: string | DEFAULT_NAME): Promise<boolean>;
     set_name(name?: string | DEFAULT_NAME, address_or_name?: string): Promise<boolean>;
-    list(showSuspended?: boolean): Promise<AccountData[]>;
+    list(showSuspended?: boolean, showSecret?: boolean): Promise<AccountData[]>;
     suspend(address_or_name?: string): Promise<void>;
     resume(address: string, name?: string | DEFAULT_NAME): Promise<void>;
     faucet(address_or_name?: string | DEFAULT_NAME): Promise<void>;

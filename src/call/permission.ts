@@ -104,8 +104,11 @@ export class CallPermission extends CallBase {
                     for (let i = 0; i < this.data.permission.entities.length; ++i) {
                         const v = this.data.permission.entities[i];
                         const addr = await GetAccountOrMark_Address(v.address);
+                        
                         if (addr) {
                             add_entity.push({address:addr, permissions:v.permissions});
+                        } else {
+                            ERROR(Errors.InvalidParam, `CallPermission_Data.data.permission.entities.address ${i}: ${v.address.name_or_address} NOT found `);
                         }
                     }
                     obj?.add_entity(add_entity);

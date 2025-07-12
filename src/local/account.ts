@@ -42,11 +42,11 @@ export class Account {
         }; return Account._instance
     }
     
-    private accountData(data:AccountData | undefined) : AccountData | undefined {
+    private accountData(data:AccountData | undefined, showSecret:boolean=false) : AccountData | undefined {
         if (!data) return ;
         const r = Ed25519Keypair.fromSecretKey(fromHex(data.secret!));
         data.pubkey = r.getPublicKey().toSuiPublicKey();
-        data.secret = undefined; //r.getSecretKey();
+        data.secret = showSecret ? r.getSecretKey() : undefined;
         return data;
     }
 
@@ -192,15 +192,15 @@ export class Account {
         })
     }
 
-    async list(showSuspended?:boolean) : Promise<AccountData[]> {      
+    async list(showSuspended?:boolean, showSecret:boolean=false) : Promise<AccountData[]> {      
         return await retry_db(this.location, async(storage:Level) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r) as AccountData[];
                 if (showSuspended) {
-                    return s.map(v => this.accountData(v)!);
+                    return s.map(v => this.accountData(v, showSecret)!);
                 } else {
-                    return s.filter(v => !v.suspended).map(v => this.accountData(v)!);
+                    return s.filter(v => !v.suspended).map(v => this.accountData(v, showSecret)!);
                 }
             }
             return [];

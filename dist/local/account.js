@@ -90,12 +90,12 @@ export class Account {
         ;
         return Account._instance;
     }
-    accountData(data) {
+    accountData(data, showSecret = false) {
         if (!data)
             return;
         const r = Ed25519Keypair.fromSecretKey(fromHex(data.secret));
         data.pubkey = r.getPublicKey().toSuiPublicKey();
-        data.secret = undefined; //r.getSecretKey();
+        data.secret = showSecret ? r.getSecretKey() : undefined;
         return data;
     }
     async gen(name) {
@@ -232,16 +232,16 @@ export class Account {
             return false;
         });
     }
-    async list(showSuspended) {
+    async list(showSuspended, showSecret = false) {
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(AccountKey);
             if (r) {
                 const s = JSON.parse(r);
                 if (showSuspended) {
-                    return s.map(v => this.accountData(v));
+                    return s.map(v => this.accountData(v, showSecret));
                 }
                 else {
-                    return s.filter(v => !v.suspended).map(v => this.accountData(v));
+                    return s.filter(v => !v.suspended).map(v => this.accountData(v, showSecret));
                 }
             }
             return [];
