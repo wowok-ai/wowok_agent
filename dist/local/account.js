@@ -95,7 +95,7 @@ export class Account {
             return;
         const r = Ed25519Keypair.fromSecretKey(fromHex(data.secret));
         data.pubkey = r.getPublicKey().toSuiPublicKey();
-        data.secret = r.getSecretKey();
+        data.secret = undefined; //r.getSecretKey();
         return data;
     }
     async gen(name) {

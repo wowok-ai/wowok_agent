@@ -55,12 +55,12 @@ export declare const ValueTypeSchema: z.ZodObject<{
     type: z.ZodNumber;
     description: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    type: number;
     name: string;
+    type: number;
     description?: string | undefined;
 }, {
-    type: number;
     name: string;
+    type: number;
     description?: string | undefined;
 }>;
 export declare const PermissionItemSchema: z.ZodObject<{
@@ -70,16 +70,16 @@ export declare const PermissionItemSchema: z.ZodObject<{
     module: z.ZodString;
     guard: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    module: string;
     name: string;
     description: string;
     index: number;
+    module: string;
     guard?: string | undefined;
 }, {
-    module: string;
     name: string;
     description: string;
     index: number;
+    module: string;
     guard?: string | undefined;
 }>;
 export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
@@ -90,16 +90,16 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }>, "many">;
     queries_for_guard: z.ZodArray<z.ZodObject<{
@@ -111,12 +111,12 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
             type: z.ZodNumber;
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }, {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }>, "many">;
         return: z.ZodObject<{
@@ -124,91 +124,91 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
             type: z.ZodNumber;
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }, {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }>;
         description: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         description: string;
-        query_name: string;
-        query_id: number;
+        module: string;
         parameters: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }[];
+        query_name: string;
+        query_id: number;
         return: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         };
     }, {
-        module: string;
         description: string;
-        query_name: string;
-        query_id: number;
+        module: string;
         parameters: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }[];
+        query_name: string;
+        query_id: number;
         return: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         };
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     built_in_permissions: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        module: string;
         description: string;
-        query_name: string;
-        query_id: number;
+        module: string;
         parameters: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }[];
+        query_name: string;
+        query_id: number;
         return: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         };
     }[];
 }, {
     built_in_permissions: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        module: string;
         description: string;
-        query_name: string;
-        query_id: number;
+        module: string;
         parameters: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         }[];
+        query_name: string;
+        query_id: number;
         return: {
-            type: number;
             name: string;
+            type: number;
             description?: string | undefined;
         };
     }[];
@@ -372,41 +372,41 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }>, "many">>;
     object: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     object: string;
     who: string;
-    owner?: boolean | undefined;
     admin?: boolean | undefined;
+    owner?: boolean | undefined;
     items?: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }, {
     object: string;
     who: string;
-    owner?: boolean | undefined;
     admin?: boolean | undefined;
+    owner?: boolean | undefined;
     items?: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }>;
@@ -449,20 +449,20 @@ export declare const QueryEventSchema: z.ZodObject<{
     order: z.ZodNullable<z.ZodOptional<z.ZodEnum<["ascending", "descending"]>>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
-    order?: "ascending" | "descending" | null | undefined;
 }>;
 export declare const QueryEventSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
