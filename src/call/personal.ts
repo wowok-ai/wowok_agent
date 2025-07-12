@@ -61,6 +61,7 @@ export class CallPersonal extends CallBase {
                         const addr = await GetAccountOrMark_Address(v.address);
                         if (addr) {
                             obj?.add(addr, v.tags ?? [], v.name);
+                            //@ always add to local, for easy using
                             await LocalMark.Instance().put(v.name, {address:addr, tags:v.tags});
                         }
                     }
