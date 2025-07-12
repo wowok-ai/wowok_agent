@@ -1,28 +1,38 @@
 import { z } from "zod";
 import { GetMarkNameSchema, AccountOrMarkNameSchema } from "./call.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
-export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data.`;
-export const ModuleEnumSchema = z.enum([
-    'machine',
-    'progress',
-    'repository',
-    'permission',
-    'demand',
-    'order',
-    'service',
-    'wowok',
-    'treasury',
-    'payment',
-    'arbitration',
-    'arb',
-]);
+import { GUARD_QUERIES, PermissionInfo } from "wowok";
+export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data`;
+const PermissionModules = () => {
+    const ret = [];
+    PermissionInfo.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+};
+const GuardQueryModules = () => {
+    const ret = [];
+    GUARD_QUERIES.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+};
+export const BuiltInPermissionSchema = z.object({
+    module: z.union([z.array(z.enum(PermissionModules())).describe("Modules of the built-in permissions"), z.literal('all').describe('All modules')]),
+}).describe("Built-in permissions within the modules of the Wowok protocol");
+export const BuiltInPermissionSchemaInput = () => {
+    return zodToJsonSchema(BuiltInPermissionSchema);
+};
+export const QueriesForGuardSchema = z.object({
+    module: z.union([z.array(z.enum(GuardQueryModules())).describe("Modules of the Guard queries"), z.literal('all').describe('All modules')]),
+}).describe("Guard queries within the modules of the Wowok protocol");
 export const QueryWowokProtocolSchema = z.object({
-    built_in_permissions: z.object({
-        module: z.union([z.array(ModuleEnumSchema).describe("Modules of the built-in permissions"), z.literal('all')]),
-    }).optional().describe("Built-in permissions of the Wowok protocol"),
-    queries_for_guard: z.object({
-        module: z.union([z.array(ModuleEnumSchema).describe("Modules of the Guard queries"), z.literal('all')]),
-    }).optional().describe("Guard queries of the Wowok protocol"),
+    built_in_permissions: BuiltInPermissionSchema.optional(),
+    queries_for_guard: QueriesForGuardSchema.optional(),
 });
 export const ValueTypeSchema = z.object({
     name: z.string().describe("Name of the value type"),

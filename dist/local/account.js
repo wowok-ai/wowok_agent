@@ -93,8 +93,9 @@ export class Account {
     accountData(data) {
         if (!data)
             return;
-        data.pubkey = Ed25519Keypair.fromSecretKey(fromHex(data.secret)).getPublicKey().toSuiPublicKey();
-        data.secret = undefined;
+        const r = Ed25519Keypair.fromSecretKey(fromHex(data.secret));
+        data.pubkey = r.getPublicKey().toSuiPublicKey();
+        data.secret = r.getSecretKey();
         return data;
     }
     async gen(name) {

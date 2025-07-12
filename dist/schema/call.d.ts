@@ -609,7 +609,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         data: z.ZodArray<z.ZodObject<{
             name: z.ZodString;
             pairs: z.ZodArray<z.ZodObject<{
-                prior_node: z.ZodString;
+                prior_node: z.ZodDefault<z.ZodString>;
                 threshold: z.ZodNumber;
                 forwards: z.ZodArray<z.ZodObject<{
                     name: z.ZodString;
@@ -663,7 +663,6 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                     }[] | undefined;
                 }[];
             }, {
-                prior_node: string;
                 threshold: number;
                 forwards: {
                     name: string;
@@ -676,6 +675,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                         bRequired?: boolean | undefined;
                     }[] | undefined;
                 }[];
+                prior_node?: string | undefined;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
             name: string;
@@ -697,7 +697,6 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         }, {
             name: string;
             pairs: {
-                prior_node: string;
                 threshold: number;
                 forwards: {
                     name: string;
@@ -710,6 +709,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                         bRequired?: boolean | undefined;
                     }[] | undefined;
                 }[];
+                prior_node?: string | undefined;
             }[];
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
@@ -737,7 +737,6 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         data: {
             name: string;
             pairs: {
-                prior_node: string;
                 threshold: number;
                 forwards: {
                     name: string;
@@ -750,6 +749,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                         bRequired?: boolean | undefined;
                     }[] | undefined;
                 }[];
+                prior_node?: string | undefined;
             }[];
         }[];
     }>, z.ZodObject<{
@@ -1241,7 +1241,6 @@ export declare const CallMachineDataSchema: z.ZodObject<{
         data: {
             name: string;
             pairs: {
-                prior_node: string;
                 threshold: number;
                 forwards: {
                     name: string;
@@ -1254,6 +1253,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                         bRequired?: boolean | undefined;
                     }[] | undefined;
                 }[];
+                prior_node?: string | undefined;
             }[];
         }[];
     } | {
@@ -4341,19 +4341,16 @@ export declare const ObjectChangedSchema: z.ZodArray<z.ZodObject<{
     type: z.ZodString;
     change: z.ZodString;
     url: z.ZodString;
-    raw_data: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     object: string;
     type: string;
     change: string;
     url: string;
-    raw_data?: string | undefined;
 }, {
     object: string;
     type: string;
     change: string;
     url: string;
-    raw_data?: string | undefined;
 }>, "many">;
 export declare const ObjectChangedSchemaOutput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -5866,7 +5863,7 @@ export declare const CallMachineSchema: z.ZodObject<{
             data: z.ZodArray<z.ZodObject<{
                 name: z.ZodString;
                 pairs: z.ZodArray<z.ZodObject<{
-                    prior_node: z.ZodString;
+                    prior_node: z.ZodDefault<z.ZodString>;
                     threshold: z.ZodNumber;
                     forwards: z.ZodArray<z.ZodObject<{
                         name: z.ZodString;
@@ -5920,7 +5917,6 @@ export declare const CallMachineSchema: z.ZodObject<{
                         }[] | undefined;
                     }[];
                 }, {
-                    prior_node: string;
                     threshold: number;
                     forwards: {
                         name: string;
@@ -5933,6 +5929,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                             bRequired?: boolean | undefined;
                         }[] | undefined;
                     }[];
+                    prior_node?: string | undefined;
                 }>, "many">;
             }, "strip", z.ZodTypeAny, {
                 name: string;
@@ -5954,7 +5951,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             }, {
                 name: string;
                 pairs: {
-                    prior_node: string;
                     threshold: number;
                     forwards: {
                         name: string;
@@ -5967,6 +5963,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                             bRequired?: boolean | undefined;
                         }[] | undefined;
                     }[];
+                    prior_node?: string | undefined;
                 }[];
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
@@ -5994,7 +5991,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             data: {
                 name: string;
                 pairs: {
-                    prior_node: string;
                     threshold: number;
                     forwards: {
                         name: string;
@@ -6007,6 +6003,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                             bRequired?: boolean | undefined;
                         }[] | undefined;
                     }[];
+                    prior_node?: string | undefined;
                 }[];
             }[];
         }>, z.ZodObject<{
@@ -6498,7 +6495,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             data: {
                 name: string;
                 pairs: {
-                    prior_node: string;
                     threshold: number;
                     forwards: {
                         name: string;
@@ -6511,6 +6507,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                             bRequired?: boolean | undefined;
                         }[] | undefined;
                     }[];
+                    prior_node?: string | undefined;
                 }[];
             }[];
         } | {
@@ -6872,7 +6869,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             data: {
                 name: string;
                 pairs: {
-                    prior_node: string;
                     threshold: number;
                     forwards: {
                         name: string;
@@ -6885,6 +6881,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                             bRequired?: boolean | undefined;
                         }[] | undefined;
                     }[];
+                    prior_node?: string | undefined;
                 }[];
             }[];
         } | {

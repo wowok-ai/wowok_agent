@@ -1,34 +1,53 @@
 import { z } from "zod";
-export declare const QueryWowokProtocolSchemaDescription = "Retrieves the Wowok protocol data.";
-export declare const ModuleEnumSchema: z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>;
+export declare const QueryWowokProtocolSchemaDescription = "Retrieves the Wowok protocol data";
+export declare const BuiltInPermissionSchema: z.ZodObject<{
+    module: z.ZodUnion<[z.ZodArray<z.ZodEnum<[string, ...string[]]>, "many">, z.ZodLiteral<"all">]>;
+}, "strip", z.ZodTypeAny, {
+    module: string[] | "all";
+}, {
+    module: string[] | "all";
+}>;
+export declare const BuiltInPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const QueriesForGuardSchema: z.ZodObject<{
+    module: z.ZodUnion<[z.ZodArray<z.ZodEnum<[string, ...string[]]>, "many">, z.ZodLiteral<"all">]>;
+}, "strip", z.ZodTypeAny, {
+    module: string[] | "all";
+}, {
+    module: string[] | "all";
+}>;
 export declare const QueryWowokProtocolSchema: z.ZodObject<{
     built_in_permissions: z.ZodOptional<z.ZodObject<{
-        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>, "many">, z.ZodLiteral<"all">]>;
+        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<[string, ...string[]]>, "many">, z.ZodLiteral<"all">]>;
     }, "strip", z.ZodTypeAny, {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     }, {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     }>>;
     queries_for_guard: z.ZodOptional<z.ZodObject<{
-        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<["machine", "progress", "repository", "permission", "demand", "order", "service", "wowok", "treasury", "payment", "arbitration", "arb"]>, "many">, z.ZodLiteral<"all">]>;
+        module: z.ZodUnion<[z.ZodArray<z.ZodEnum<[string, ...string[]]>, "many">, z.ZodLiteral<"all">]>;
     }, "strip", z.ZodTypeAny, {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     }, {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     }>>;
 }, "strip", z.ZodTypeAny, {
     built_in_permissions?: {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     } | undefined;
     queries_for_guard?: {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     } | undefined;
 }, {
     built_in_permissions?: {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     } | undefined;
     queries_for_guard?: {
-        module: "all" | ("permission" | "service" | "progress" | "repository" | "order" | "arb" | "machine" | "arbitration" | "demand" | "wowok" | "treasury" | "payment")[];
+        module: string[] | "all";
     } | undefined;
 }>;
 export declare const ValueTypeSchema: z.ZodObject<{
@@ -51,16 +70,16 @@ export declare const PermissionItemSchema: z.ZodObject<{
     module: z.ZodString;
     guard: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    module: string;
     name: string;
     description: string;
     index: number;
-    module: string;
     guard?: string | undefined;
 }, {
+    module: string;
     name: string;
     description: string;
     index: number;
-    module: string;
     guard?: string | undefined;
 }>;
 export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
@@ -71,16 +90,16 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }, {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }>, "many">;
     queries_for_guard: z.ZodArray<z.ZodObject<{
@@ -115,8 +134,8 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         }>;
         description: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        description: string;
         module: string;
+        description: string;
         query_name: string;
         query_id: number;
         parameters: {
@@ -130,8 +149,8 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
             description?: string | undefined;
         };
     }, {
-        description: string;
         module: string;
+        description: string;
         query_name: string;
         query_id: number;
         parameters: {
@@ -147,15 +166,15 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     built_in_permissions: {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        description: string;
         module: string;
+        description: string;
         query_name: string;
         query_id: number;
         parameters: {
@@ -171,15 +190,15 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }[];
 }, {
     built_in_permissions: {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        description: string;
         module: string;
+        description: string;
         query_name: string;
         query_id: number;
         parameters: {
@@ -353,41 +372,41 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }, {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }>, "many">>;
     object: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     object: string;
     who: string;
-    admin?: boolean | undefined;
     owner?: boolean | undefined;
+    admin?: boolean | undefined;
     items?: {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }, {
     object: string;
     who: string;
-    admin?: boolean | undefined;
     owner?: boolean | undefined;
+    admin?: boolean | undefined;
     items?: {
+        module: string;
         name: string;
         description: string;
         index: number;
-        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }>;
@@ -430,20 +449,20 @@ export declare const QueryEventSchema: z.ZodObject<{
     order: z.ZodNullable<z.ZodOptional<z.ZodEnum<["ascending", "descending"]>>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
+    order?: "ascending" | "descending" | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
     } | null | undefined;
     limit?: number | null | undefined;
+    order?: "ascending" | "descending" | null | undefined;
 }>;
 export declare const QueryEventSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -482,12 +501,12 @@ export declare const QueryByIndexSchema: z.ZodObject<{
     index: z.ZodNumber;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    parent: string;
     index: number;
+    parent: string;
     no_cache?: boolean | undefined;
 }, {
-    parent: string;
     index: number;
+    parent: string;
     no_cache?: boolean | undefined;
 }>;
 export declare const QueryByAddressNameSchema: z.ZodObject<{
@@ -534,26 +553,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }>, z.ZodObject<{
@@ -771,26 +790,26 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             index: z.ZodNumber;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }, {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     }>]>;
@@ -798,8 +817,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -855,8 +874,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     };
@@ -864,8 +883,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     query: {
         name: "treasury";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     } | {
@@ -921,8 +940,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "progress";
         data: {
-            parent: string;
             index: number;
+            parent: string;
             no_cache?: boolean | undefined;
         };
     };
