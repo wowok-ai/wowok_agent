@@ -95,7 +95,7 @@ const buildNode = async (guard_node, type_required, table, output) => {
             q = GUARD_QUERIES.find(v => v.module === node.query.module && v.query_name === node.query.function);
         }
         if (!q)
-            ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
+            ERROR(Errors.InvalidParam, `${node.query}  invalid. Its a query number or a struct that module and function name specified`);
         checkType(q.return, type_required, node); // Return type checking
         if (q.parameters.length === node.parameters.length) {
             for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
