@@ -210,7 +210,7 @@ export const CallDemandDataSchema = z.object({
         z.object({
             op:z.literal('add'),
             object:z.union([
-                z.object({address:z.string().nonempty()}), 
+                z.object({address:z.string().nonempty()}).describe(`NFT object address, or coin object address`), 
                 z.object({balance:TokenBalanceSchema}).describe('The token quantity owned by the transaction signer. This parameter is valid only if the Demand generic type is FT (0x2::coin::Coin<...>); if the Demand generic type is not FT, using this parameter will fail.')
             ]).describe('Specify the address of an existing object or generate a new object address (which includes the specified quantity of tokens).'),  
         }).describe('Add the object owned by the transaction signer to the bounty pool of the Demand'), 
@@ -791,9 +791,10 @@ export const AccountSchema = z.string().optional().nullable().describe('The acco
 export const WitnessSchema = GuardWitness.optional().nullable().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');
 
 export const CallDemandSchemaDescription = `Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. 
-The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 
-It supports transaction models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. 
-Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.`; 
+    The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 
+    It supports transaction models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. 
+    Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.
+    IMPORTANT: If 'data.object.type_parameter' specified, it must be of the NFT or Coin type, such as '0x2::coin::Coin<0x2::sui::SUI>', and the token type (0x2::sui::SUI) cannot be used.`; 
 export const CallDemandSchema = z.object({
     data:CallDemandDataSchema,
     account: AccountSchema,
