@@ -3,7 +3,7 @@ import { z } from "zod";
 import * as WOWOK from 'wowok';
 import * as D from './const.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { ObjectUrl } from "./util.js";
+import { GuardQueryModules, ObjectUrl } from "./util.js";
 
 export const GetMarkNameSchema = (object:string='') : z.ZodString=> {
     return z.string().nonempty().describe(D.MarkName_Address_Description(object));
@@ -83,12 +83,17 @@ const ObjectsOperationSchema = (object:string='') => {
     ]) 
 };
 
+export const ModuleSchema = z.enum(GuardQueryModules() as [string, ...string[]]).describe("Modules of the Guard queries");
+
 const GuardNodeSchema: z.ZodType = z.lazy(() => z.union([
     z.object({
         identifier: GuardIndentifierSchema
     }).describe(D.Identifier_Description), 
     z.object({
-        query: z.number().int().describe(D.QueryId_Description),
+        query: z.union([z.number().int().describe(D.QueryId_Description), z.object({
+            module: ModuleSchema,
+            function: z.string().nonempty(),
+        }).describe(D.QueryName_Description)]),
         object: z.union([GetMarkNameSchema(), GuardIndentifierSchema.describe(D.ObjectIdentifier_Description)
         ]).describe(D.ObjectQuery_Description),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeParams_Description)

@@ -97,3 +97,22 @@ export const ObjectOperationResult = (r: CallResult) : string => {
   })
   return JSON.stringify({objects:output, raw_data:r}) 
 }
+
+export const PermissionModules = () : string[] => {
+    const ret : string[] = [];
+    WOWOK.PermissionInfo.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+}
+export const GuardQueryModules = () : string[] => {
+    const ret : string[] = [];
+    WOWOK.GUARD_QUERIES.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+}

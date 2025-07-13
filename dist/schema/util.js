@@ -94,4 +94,22 @@ export const ObjectOperationResult = (r) => {
     });
     return JSON.stringify({ objects: output, raw_data: r });
 };
+export const PermissionModules = () => {
+    const ret = [];
+    WOWOK.PermissionInfo.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+};
+export const GuardQueryModules = () => {
+    const ret = [];
+    WOWOK.GUARD_QUERIES.forEach(v => {
+        if (!ret.find(i => i === v.module)) {
+            ret.push(v.module);
+        }
+    });
+    return ret;
+};
 //# sourceMappingURL=util.js.map

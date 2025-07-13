@@ -49,4 +49,6 @@ export declare enum ToolName {
 export declare const ObjectUrl: (id: string | undefined) => string | undefined;
 export declare const BaseTypeFilter: (type?: ObjectBaseType) => boolean;
 export declare const ObjectOperationResult: (r: CallResult) => string;
+export declare const PermissionModules: () => string[];
+export declare const GuardQueryModules: () => string[];
 //# sourceMappingURL=util.d.ts.map

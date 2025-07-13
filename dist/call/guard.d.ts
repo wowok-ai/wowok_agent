@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { ContextType, OperatorType, ValueType, TransactionBlock, PassportObject } from "wowok";
+import { ContextType, OperatorType, ValueType, TransactionBlock, PassportObject, MODULES } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 export interface GuardConst {
     identifier: number;
@@ -9,10 +9,14 @@ export interface GuardConst {
     value_type: ValueType;
     value?: any;
 }
+interface FunctiionQuery {
+    module: MODULES;
+    function: string;
+}
 export type GuardNode = {
     identifier: number;
 } | {
-    query: number;
+    query: number | FunctiionQuery;
     object: string | number;
     parameters: GuardNode[];
 } | {
@@ -39,4 +43,5 @@ export declare class CallGuard extends CallBase {
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }
+export {};
 //# sourceMappingURL=guard.d.ts.map

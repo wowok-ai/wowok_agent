@@ -1,26 +1,8 @@
 import { z } from "zod";
 import { GetMarkNameSchema, AccountOrMarkNameSchema } from "./call.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { GUARD_QUERIES, PermissionInfo } from "wowok";
+import { GuardQueryModules, PermissionModules } from "./util.js";
 export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data`;
-const PermissionModules = () => {
-    const ret = [];
-    PermissionInfo.forEach(v => {
-        if (!ret.find(i => i === v.module)) {
-            ret.push(v.module);
-        }
-    });
-    return ret;
-};
-const GuardQueryModules = () => {
-    const ret = [];
-    GUARD_QUERIES.forEach(v => {
-        if (!ret.find(i => i === v.module)) {
-            ret.push(v.module);
-        }
-    });
-    return ret;
-};
 export const BuiltInPermissionSchema = z.object({
     module: z.union([z.array(z.enum(PermissionModules())).describe("Modules of the built-in permissions"), z.literal('all').describe('All modules')]),
 }).describe("Built-in permissions within the modules of the Wowok protocol");

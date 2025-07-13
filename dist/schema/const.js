@@ -23,7 +23,7 @@ export const useAddressIfNameExist_Description = `In case of naming conflict: pr
 export const onChain_Description = `If true, the name and tags of the object will be made visible on-chain`;
 export const OnchainDescription_Description = `Description content for newly created on-chain wowok object`;
 export const Type_Description = `Generic type for the on-chain object (e.g., specify payment token type '0x2::sui::SUI')`;
-export const ValueType_Description = `Data types of the Wowok protocol:
+export const ValueType_Description = `Data types of the Wowok protocol.
     100: Bool, 101: Address, 102: U8, 103: U64, 104: Vec<U8>, 105: U128,
     106:Vec<Address>, 107: Vec<Bool>, 108: Vec<Vec<U8>>, 
     109:Vec<U64>, 110: Vec<U128>, 111: Option<Address>, 112: Option<Bool>,
@@ -38,7 +38,8 @@ export const Permission_Description = `Operation permissions for the new object 
 export const Identifier_Description = `Data from the Guard table corresponding to the identifier`;
 export const ObjectIdentifier_Description = 'Object address corresponding to the identifier in the Guard table';
 export const ObjectQuery_Description = 'Object to query';
-export const QueryId_Description = `query ID. SSE: wowok://guard_queries/`;
+export const QueryId_Description = `Guard query by the ID specified`;
+export const QueryName_Description = 'Guard query by the Module and function Name specified';
 export const GuardNodeParams_Description = `Query parameters are sourced from their respective child nodes, with child node return types matching the parameter data types`;
 export const GuardQuery_Description = 'Data from querying the on-chain object';
 export const GuardLogic_Description = `Logical operators for parameters`;

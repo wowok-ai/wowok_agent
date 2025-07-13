@@ -6,6 +6,7 @@
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
     IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, BCS,
+    MODULES,
     } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { LocalMark } from "../local/local.js";
@@ -17,9 +18,14 @@ export interface GuardConst {
     value?: any; // if bWitness true, value ignores; otherwise, data.
 }
 
+interface FunctiionQuery {
+    module:MODULES, 
+    function:string,
+}
+
 // parameters: Child nodes arranged in parameter order, with each child node providing the type and data for that parameter
 export type GuardNode = { identifier: number; } // Data from GuardConst
-    | {query: number, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
+    | {query: number | FunctiionQuery, object: string | number; parameters: GuardNode[];} // object: address string or identifier in GuardConst that value_type = ValueType.address
     | {logic: OperatorType.TYPE_LOGIC_AS_U256_GREATER | OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL
         | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL 
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
@@ -65,7 +71,7 @@ export class CallGuard extends CallBase {
     
         // check root
         var output : Uint8Array[]= [];
-        buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data?.table ?? [], output);
+        await buildNode(this.data.root!, ValueType.TYPE_BOOL, this.data?.table ?? [], output);
         const bytes = (concatenate(Uint8Array, ...output) as Uint8Array); 
 
         const obj = txb.moveCall({
@@ -83,7 +89,7 @@ export class CallGuard extends CallBase {
                     }) 
                 } else {
                     if (v.value_type === ValueType.TYPE_ADDRESS) {
-                        v.value = await LocalMark.Instance().get_address(v.value);
+                        v.value = await LocalMark.Instance().get_address(v.value); // address or name
                         if (!v.value) { ERROR(Errors.InvalidParam, `CallGuard_Data.data.table address`)}
                     };
                     const tmp = Uint8Array.from(Bcs.getInstance().ser(v.value_type, v.value));
@@ -106,7 +112,7 @@ export class CallGuard extends CallBase {
 
 //export const MAX_CHILD_NODE_COUNT = 6;
 
-const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'variable', table:GuardConst[], output:Uint8Array[]) => {
+const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number' | 'variable', table:GuardConst[], output:Uint8Array[]) => {
     const node: any = guard_node as any;
     if (node?.identifier !== undefined) {
         const f = table.find(v=>v.identifier === node.identifier);
@@ -119,17 +125,18 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         }
     } else if (node?.query !== undefined) {
         var q: GuardQuery | undefined;
-        if (typeof(node.query) === 'string') {
-            q = GUARD_QUERIES.find(v=>v.query_name === node.query);
-        } else if (typeof(node.query) === 'number') {
+        if (typeof(node.query) === 'number') {
             q = GUARD_QUERIES.find(v=>v.query_id === node.query);
+        } else {
+            q = GUARD_QUERIES.find(v=> v.module === node.query.module && v.query_name === node.query.function);
         }
+
         if (!q) ERROR(Errors.InvalidParam, 'query invalid - ' + node?.query);
         
         checkType(q!.return, type_required, node); // Return type checking
         if (q!.parameters.length === node.parameters.length) {
             for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
-                buildNode(node.parameters[i], q!.parameters[i], table, output); // Recursive check
+                await buildNode(node.parameters[i], q!.parameters[i], table, output); // Recursive check
             }
         } else {
             ERROR(Errors.InvalidParam, 'node query parameters length not match - ' + JSON.stringify(node))
@@ -137,11 +144,12 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
 
         output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, OperatorType.TYPE_QUERY)); // QUERY TYPE + addr + cmd
         if (typeof(node.object) === 'string') {
-            if (!IsValidAddress(node.object)) {
-                ERROR(Errors.InvalidParam, 'node object from address string - ' + JSON.stringify(node))
+            const object = await LocalMark.Instance().get_address(node.object); // object name or address
+            if (!IsValidAddress(object)) {
+                ERROR(Errors.InvalidParam, 'node object from string - ' + JSON.stringify(node))
             }
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_ADDRESS)); 
-            output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, node.object)); // object address             
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, object)); // object address             
         } else {
             const f = table.find(v=>v.identifier === node.object);
             if (f) {
@@ -157,51 +165,77 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
         checkType(ValueType.TYPE_BOOL, type_required, node); // bool
         switch (node?.logic) {
             case OperatorType.TYPE_LOGIC_AND:
-            case OperatorType.TYPE_LOGIC_OR:
+            case OperatorType.TYPE_LOGIC_OR: {
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node)); 
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); // reserve
+                const p = (node.parameters as GuardNode[]).reverse();  // reserve
+                for (let i = 0; i < p.length; ++i) {
+                    await buildNode(p[i], ValueType.TYPE_BOOL, table, output);
+                }
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
-            case OperatorType.TYPE_LOGIC_NOT:
+            }
+            case OperatorType.TYPE_LOGIC_NOT: {
                 if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node logic parameters length must be 1'+ JSON.stringify(node));
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_BOOL, table, output)); // reserve
+                const p = (node.parameters as GuardNode[]).reverse();
+                for (let i = 0; i < p.length; ++i) {
+                    await buildNode(p[i], ValueType.TYPE_BOOL, table, output);
+                }
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 break;
+            }
             case OperatorType.TYPE_LOGIC_AS_U256_GREATER:
             case OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL:
             case OperatorType.TYPE_LOGIC_AS_U256_LESSER:
             case OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL:
-            case OperatorType.TYPE_LOGIC_AS_U256_EQUAL:
+            case OperatorType.TYPE_LOGIC_AS_U256_EQUAL: {
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
+                const p = (node.parameters as GuardNode[]).reverse(); 
+                for (let i = 0; i < p.length; ++i) {
+                    await buildNode(p[i], 'number', table, output);
+                }
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
-            case OperatorType.TYPE_LOGIC_EQUAL:
+            }
+            case OperatorType.TYPE_LOGIC_EQUAL: {
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
                 var any_type: any = 'variable';
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, any_type, table, output)); 
+                const p = (node.parameters as GuardNode[]).reverse(); 
+                for (let i = 0; i < p.length; ++i) {
+                    await buildNode(p[i], any_type, table, output);
+                }
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
-                break;               
-            case OperatorType.TYPE_LOGIC_HAS_SUBSTRING:
+                break;         
+            }      
+            case OperatorType.TYPE_LOGIC_HAS_SUBSTRING: {
                 if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node logic parameters length must >= 2'+ JSON.stringify(node));
-                (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, ValueType.TYPE_STRING, table, output)); 
+                const p = (node.parameters as GuardNode[]).reverse(); 
+                for (let i = 0; i < p.length; ++i) {
+                    await buildNode(p[i], ValueType.TYPE_STRING, table, output);
+                }
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.logic)); // TYPE 
                 output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));
                 break;
+            }
         }
     } else if (node?.calc !== undefined) {
         if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
             checkType(ValueType.TYPE_ADDRESS, type_required, node);
             if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1'+ JSON.stringify(node));
-            (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
+            const p = (node.parameters as GuardNode[]).reverse(); 
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], 'number', table, output);
+            }
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
         } else {
             checkType(ValueType.TYPE_U256, type_required, node);
             if (node.parameters.length < 2) ERROR(Errors.InvalidParam, 'node calc parameters length must >= 2'+ JSON.stringify(node));
-            (node.parameters as GuardNode[]).reverse().forEach(v => buildNode(v, 'number', table, output)); 
+            const p = (node.parameters as GuardNode[]).reverse(); 
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], 'number', table, output);
+            }
             output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
             output.push((Bcs.getInstance().ser(ValueType.TYPE_U8, node.parameters.length)));            
         }
@@ -216,6 +250,12 @@ const buildNode = (guard_node:GuardNode, type_required:ValueType | 'number' | 'v
             } else {
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_VEC_U8, node.value));
             }
+        } else if (node.value_type === ValueType.TYPE_ADDRESS) {
+            const addr = await LocalMark.Instance().get_address(node.value); // address or name
+            if (!IsValidAddress(addr)) {
+                ERROR(Errors.IsValidAddress, 'node value from string - ' + JSON.stringify(node))
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, addr));
         } else {
             output.push(Bcs.getInstance().ser(node?.value_type, node.value));            
         }
