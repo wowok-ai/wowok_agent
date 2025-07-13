@@ -889,6 +889,7 @@ export const CallArbitrationSchemaInput = () => {
 }
 
 export const CallPersonalSchemaDescription = `Operations to create or modify on-chain personal information(including name, avatar, website, social media accounts, etc.) , and on-chain address favorites (such as naming, tagging, and favoriting addresses to facilitate easier management of these addresses and objects), where the 'account' field is used to sign transactions and the 'data' field defines object details.`;
+
 export const CallPersonalSchema = z.object({
     data:CallPersonalDataSchema,
     account: AccountSchema,
@@ -908,6 +909,14 @@ export const CallGuardSchema = z.object({
 export const CallGuardSchemaInput = () => {
     return zodToJsonSchema(CallGuardSchema);
 }
+/*
+export const GuardDataCloneSchema = z.object({
+    guard: z.string().nonempty().describe('Guard object id to clone'),
+});
+
+export const GuardDataCloneSchemaInput = () => {
+    return zodToJsonSchema(GuardDataCloneSchema);
+}*/
 
 export const CallObejctPermissionSchemaDescription = `Enables the use of the account field to sign transactions and leverages the data field to batch replace the permission management objects for objects of types including Machine, Service, Repository, Treasury, Arbitration, and Demand on-chain. 
 This operation facilitates centralized access control by managing the assignment of operation permissions (both built-in and custom) for these objects through the Permission object. 

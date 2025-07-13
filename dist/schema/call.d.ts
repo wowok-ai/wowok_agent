@@ -1542,18 +1542,18 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
         }>;
         index: z.ZodArray<z.ZodEffects<z.ZodTypeAny, number, any>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
+        op: "remove permission";
         index: number[];
     }, {
-        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
+        op: "remove permission";
         index: any[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"transfer permission">;
@@ -1678,11 +1678,11 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         }[];
     } | {
-        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
+        op: "remove permission";
         index: number[];
     } | {
         op: "transfer permission";
@@ -1757,11 +1757,11 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         }[];
     } | {
-        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
+        op: "remove permission";
         index: any[];
     } | {
         op: "transfer permission";
@@ -9037,18 +9037,18 @@ export declare const CallPermissionSchema: z.ZodObject<{
             }>;
             index: z.ZodArray<z.ZodEffects<z.ZodTypeAny, number, any>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: number[];
         }, {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: any[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"transfer permission">;
@@ -9173,11 +9173,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: number[];
         } | {
             op: "transfer permission";
@@ -9252,11 +9252,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: any[];
         } | {
             op: "transfer permission";
@@ -9379,11 +9379,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: number[];
         } | {
             op: "transfer permission";
@@ -9472,11 +9472,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
-            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
+            op: "remove permission";
             index: any[];
         } | {
             op: "transfer permission";

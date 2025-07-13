@@ -1,5 +1,5 @@
 import { TransactionBlock, IsValidArgType, Service, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Demand, PermissionObject, } from 'wowok';
+    PermissionIndexType, Demand, PermissionObject, ParseType} from 'wowok';
 import { ObjectDemand, query_objects } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
@@ -144,8 +144,8 @@ export class CallDemand extends CallBase {
                 const bounty = await LocalMark.Instance().get_address((this.data.bounty.object as any)?.address)
                 if (bounty) {
                     obj.deposit(bounty)
-                } else if ((this.data.bounty.object as any)?.balance != null){
-                    const r = await Account.Instance().get_coin_object(txb, (this.data.bounty.object as any)?.balance, account, this.type_parameter);
+                } else if ((this.data.bounty.object as any)?.balance != null) {
+                    const r = await Account.Instance().get_coin_object(txb, (this.data.bounty.object as any)?.balance, account, ParseType(this.type_parameter!).coin);
                     if (r) obj.deposit(r)
                 }
             } else if (this.data.bounty.op === 'reward') {
@@ -172,7 +172,7 @@ export class CallDemand extends CallBase {
             const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
             await this.new_with_mark('Permission', txb, perm.launch(), GetObjectParam(n?.permission), account);
         }
-        if (!this.data.object) {
+        if (!this.object_address) {
             await this.new_with_mark('Demand', txb, obj.launch(), GetObjectMain(this.data?.object), account);
         }
     }

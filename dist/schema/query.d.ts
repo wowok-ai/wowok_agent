@@ -13,6 +13,12 @@ export declare const BuiltInPermissionSchemaInput: () => import("zod-to-json-sch
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
+export declare const QueriesForGuardSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
 export declare const QueriesForGuardSchema: z.ZodObject<{
     module: z.ZodUnion<[z.ZodArray<z.ZodEnum<[string, ...string[]]>, "many">, z.ZodLiteral<"all">]>;
 }, "strip", z.ZodTypeAny, {
@@ -515,13 +521,13 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     name: z.ZodString;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     address: string | number;
+    name: string;
     parent: string;
     no_cache?: boolean | undefined;
 }, {
-    name: string;
     address: string | number;
+    name: string;
     parent: string;
     no_cache?: boolean | undefined;
 }>;
@@ -757,29 +763,29 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             name: z.ZodString;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         }, {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
@@ -866,8 +872,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };
@@ -932,8 +938,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             no_cache?: boolean | undefined;
         };

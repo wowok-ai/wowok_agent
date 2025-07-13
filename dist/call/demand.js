@@ -1,4 +1,4 @@
-import { IsValidArgType, Service, Errors, ERROR, Permission, PermissionIndex, Demand, } from 'wowok';
+import { IsValidArgType, Service, Errors, ERROR, Permission, PermissionIndex, Demand, ParseType } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
@@ -126,7 +126,7 @@ export class CallDemand extends CallBase {
                     obj.deposit(bounty);
                 }
                 else if (this.data.bounty.object?.balance != null) {
-                    const r = await Account.Instance().get_coin_object(txb, this.data.bounty.object?.balance, account, this.type_parameter);
+                    const r = await Account.Instance().get_coin_object(txb, this.data.bounty.object?.balance, account, ParseType(this.type_parameter).coin);
                     if (r)
                         obj.deposit(r);
                 }
@@ -157,7 +157,7 @@ export class CallDemand extends CallBase {
             const n = GetObjectMain(this.data.object);
             await this.new_with_mark('Permission', txb, perm.launch(), GetObjectParam(n?.permission), account);
         }
-        if (!this.data.object) {
+        if (!this.object_address) {
             await this.new_with_mark('Demand', txb, obj.launch(), GetObjectMain(this.data?.object), account);
         }
     }

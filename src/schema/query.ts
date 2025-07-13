@@ -15,6 +15,10 @@ export const BuiltInPermissionSchemaInput = () => {
     return zodToJsonSchema(BuiltInPermissionSchema);
 }
 
+export const QueriesForGuardSchemaInput = () => {
+    return zodToJsonSchema(QueriesForGuardSchema);
+}
+
 export const QueriesForGuardSchema = z.object({
     module:z.union([z.array(z.enum(GuardQueryModules() as [string, ...string[]])).describe("Modules of the Guard queries"), z.literal('all').describe('All modules')]),
 }).describe("Guard queries within the modules of the Wowok protocol");

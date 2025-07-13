@@ -850,6 +850,14 @@ export const CallGuardSchema = z.object({
 export const CallGuardSchemaInput = () => {
     return zodToJsonSchema(CallGuardSchema);
 };
+/*
+export const GuardDataCloneSchema = z.object({
+    guard: z.string().nonempty().describe('Guard object id to clone'),
+});
+
+export const GuardDataCloneSchemaInput = () => {
+    return zodToJsonSchema(GuardDataCloneSchema);
+}*/
 export const CallObejctPermissionSchemaDescription = `Enables the use of the account field to sign transactions and leverages the data field to batch replace the permission management objects for objects of types including Machine, Service, Repository, Treasury, Arbitration, and Demand on-chain. 
 This operation facilitates centralized access control by managing the assignment of operation permissions (both built-in and custom) for these objects through the Permission object. 
 For the operation to succeed, the transaction signer must be the owner of the original Permission objects associated with these target objects.`;
