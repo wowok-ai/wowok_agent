@@ -1,7 +1,8 @@
-import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Entity_Info, Resource} from 'wowok';
+import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Entity_Info, Resource, FAUCET} from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
+import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
@@ -11,7 +12,8 @@ export interface CallPersonal_Data {
         | {op:'removeall'; addresses:AccountOrMark_Address[]}
         | {op:'transfer'; to: AccountOrMark_Address}
         | {op:'replace'; mark_object: string}
-        | {op:'destroy'}
+        | {op:'destroy'};
+    faucet?: boolean;
 }
 
 export class CallPersonal extends CallBase {
@@ -95,7 +97,10 @@ export class CallPersonal extends CallBase {
                 const addr = await LocalMark.Instance().get_address(this.data.mark.mark_object);
                 if (addr) entity.use_resource(Resource.From(txb, addr));
             }
-
+            if (this.data?.faucet) {
+                await Account.Instance().faucet(account);
+            }
+            
             if (!entity_data?.mark_object) {
                 obj.launch();
             }

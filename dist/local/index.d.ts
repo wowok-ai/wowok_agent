@@ -48,6 +48,7 @@ export interface AccountOperation {
         amount: number | string;
         token_type?: string;
     } | null;
+    faucet?: boolean;
 }
 export interface AccountOperationResult {
     gen?: {

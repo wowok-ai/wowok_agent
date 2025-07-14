@@ -106,7 +106,7 @@ export class CallDemand extends CallBase {
                 if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Service') {
                     ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service: ' + service_address);
                 }
-                const service_type = Service.parseOrderObjectType(r.objects[0].type_raw);
+                const service_type = Service.parseObjectType(r.objects[0].type_raw);
                 if (!service_type) {
                     ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service: ' + service_address);
                 }
@@ -117,6 +117,7 @@ export class CallDemand extends CallBase {
             obj?.set_description(this.data.description, pst);
         }
         if (this.data?.time_expire != null && this.object_address) {
+            console.log(this.data.time_expire);
             obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, pst);
         }
         if (this.data?.bounty != null) {
@@ -126,13 +127,16 @@ export class CallDemand extends CallBase {
                     obj.deposit(bounty);
                 }
                 else if (this.data.bounty.object?.balance != null) {
-                    const r = await Account.Instance().get_coin_object(txb, this.data.bounty.object?.balance, account, ParseType(this.type_parameter).coin);
+                    const c = ParseType(this.type_parameter);
+                    if (!c.isCoin)
+                        ERROR(Errors.Fail, `Deamnd type_parameter is NOT Coin ${this.type_parameter}`);
+                    const r = await Account.Instance().get_coin_object(txb, this.data.bounty.object?.balance, account, c.coin);
                     if (r)
                         obj.deposit(r);
                 }
             }
             else if (this.data.bounty.op === 'reward') {
-                const service = await localStorage.Instance().get_address(this.data.bounty.service);
+                const service = await LocalMark.Instance().get_address(this.data.bounty.service);
                 if (!service)
                     ERROR(Errors.InvalidParam, 'CallDemand_Data.data.bounty.service');
                 obj?.yes(service, pst);

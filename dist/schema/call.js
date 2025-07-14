@@ -6,6 +6,9 @@ import { GuardQueryModules, ObjectUrl } from "./util.js";
 export const GetMarkNameSchema = (object = '') => {
     return z.string().nonempty().describe(D.MarkName_Address_Description(object));
 };
+export const ObjectExistedSchema = (object = '') => {
+    return z.string().nonempty().describe(D.ObjectExisted_Description(object));
+};
 export const AccountNameSchema = z.string().optional().describe(D.AccountName_Address_Description);
 export const AccountOrMarkNameSchema = z.object({
     name_or_address: z.string().optional().describe(`Look up the address corresponding to 'name_or_address' via Local Account or Local Mark`),
@@ -52,7 +55,7 @@ const NamedObjectWithPermissionSchema = NamedObjectSchema.extend({
 const TypeNamedObjectWithPermissionSchema = NamedObjectWithPermissionSchema.extend({
     type_parameter: z.string().nonempty().describe(D.Type_Description)
 });
-const ObjectTypedMainSchema = z.union([GetMarkNameSchema(), TypeNamedObjectWithPermissionSchema]);
+const ObjectTypedMainSchema = z.union([ObjectExistedSchema(), TypeNamedObjectWithPermissionSchema.describe(D.ObjectNewDescription())]);
 const ObjectMainSchema = z.union([GetMarkNameSchema(), NamedObjectWithPermissionSchema]);
 const ValueTypeSchema = z.nativeEnum(WOWOK.ValueType).describe(D.ValueType_Description);
 const GuardIndentifierSchema = z.number().int().min(1).max(255);
@@ -187,7 +190,7 @@ export const CallDemandDataSchema = z.object({
         z.object({
             op: z.literal('add'),
             object: z.union([
-                z.object({ address: z.string().nonempty() }),
+                z.object({ address: z.string().nonempty() }).describe(`NFT object address, or coin object address`),
                 z.object({ balance: TokenBalanceSchema }).describe('The token quantity owned by the transaction signer. This parameter is valid only if the Demand generic type is FT (0x2::coin::Coin<...>); if the Demand generic type is not FT, using this parameter will fail.')
             ]).describe('Specify the address of an existing object or generate a new object address (which includes the specified quantity of tokens).'),
         }).describe('Add the object owned by the transaction signer to the bounty pool of the Demand'),
@@ -695,6 +698,7 @@ export const CallPersonalDataSchema = z.object({
             op: z.literal('destroy'),
         }).describe(D.Mark_Destroy),
     ]).optional().describe(D.Personal_Mark),
+    faucet: z.boolean().optional().describe(D.Faucet),
 }).describe(D.GetObjectDataDescription('on-chain Personal'));
 export const CallObjectPermissionDataSchema = z.object({
     objects: z.array(GetMarkNameSchema()),
@@ -742,9 +746,9 @@ export const ObjectsUrlSchemaOutput = () => {
 export const AccountSchema = z.string().optional().nullable().describe('The account name or address that initiated the operation.');
 export const WitnessSchema = GuardWitness.optional().nullable().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');
 export const CallDemandSchemaDescription = `Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. 
-The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 
-It supports transaction models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. 
-Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.`;
+    The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 
+    It supports transtation models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. 
+    Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.`;
 export const CallDemandSchema = z.object({
     data: CallDemandDataSchema,
     account: AccountSchema,

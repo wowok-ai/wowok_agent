@@ -68,6 +68,7 @@ export interface AccountOperation {
     name?: {new_name:string | DEFAULT_NAME, name_or_address?:string | DEFAULT_NAME} | null; // name the account, if not specified, name the default account.
     swap_names?: {name1?:string | DEFAULT_NAME, name2?:string | DEFAULT_NAME} | null; // swap the name of two accounts, if not specified, swap the default account.
     transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null;   // transfer the token.
+    faucet?: boolean;
 }
 
 export interface AccountOperationResult {

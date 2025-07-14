@@ -76,17 +76,12 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name_or_address_from?: string | undefined;
         name_or_address_to?: string | undefined;
     }>>;
+    faucet: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     name?: {
         new_name: string;
         name_or_address?: string | undefined;
     } | undefined;
-    transfer?: {
-        amount: string | number;
-        token_type?: string | undefined;
-        name_or_address_from?: string | undefined;
-        name_or_address_to?: string | undefined;
-    } | undefined;
     gen?: {
         name?: string | undefined;
     } | undefined;
@@ -101,17 +96,18 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name1?: string | undefined;
         name2?: string | undefined;
     } | undefined;
+    transfer?: {
+        amount: string | number;
+        token_type?: string | undefined;
+        name_or_address_from?: string | undefined;
+        name_or_address_to?: string | undefined;
+    } | undefined;
+    faucet?: boolean | undefined;
 }, {
     name?: {
         new_name: string;
         name_or_address?: string | undefined;
     } | undefined;
-    transfer?: {
-        amount: string | number;
-        token_type?: string | undefined;
-        name_or_address_from?: string | undefined;
-        name_or_address_to?: string | undefined;
-    } | undefined;
     gen?: {
         name?: string | undefined;
     } | undefined;
@@ -126,6 +122,13 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name1?: string | undefined;
         name2?: string | undefined;
     } | undefined;
+    transfer?: {
+        amount: string | number;
+        token_type?: string | undefined;
+        name_or_address_from?: string | undefined;
+        name_or_address_to?: string | undefined;
+    } | undefined;
+    faucet?: boolean | undefined;
 }>;
 export declare const AccountOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -160,60 +163,60 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add";
         data: {
             address: string;
             name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
+        op: "add";
     }, {
-        op: "add";
         data: {
             address: string;
             name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
+        op: "add";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"remove">;
         data: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "remove";
         data: string[];
+        op: "remove";
     }, {
-        op: "remove";
         data: string[];
+        op: "remove";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     data: {
         op: "removeall";
     } | {
-        op: "add";
         data: {
             address: string;
             name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
+        op: "add";
     } | {
-        op: "remove";
         data: string[];
+        op: "remove";
     };
 }, {
     data: {
         op: "removeall";
     } | {
-        op: "add";
         data: {
             address: string;
             name: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
+        op: "add";
     } | {
-        op: "remove";
         data: string[];
+        op: "remove";
     };
 }>;
 export declare const LocalMarkOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -246,56 +249,56 @@ export declare const LocalInfoOperationSchema: z.ZodObject<{
             bdefault?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "add";
         data: {
             name: string;
             content: string;
             bdefault?: boolean | undefined;
         }[];
-    }, {
         op: "add";
+    }, {
         data: {
             content: string;
             name?: string | undefined;
             bdefault?: boolean | undefined;
         }[];
+        op: "add";
     }>, z.ZodObject<{
         op: z.ZodLiteral<"remove">;
         data: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "remove";
         data: string[];
+        op: "remove";
     }, {
-        op: "remove";
         data: string[];
+        op: "remove";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     data: {
         op: "removeall";
     } | {
-        op: "add";
         data: {
             name: string;
             content: string;
             bdefault?: boolean | undefined;
         }[];
+        op: "add";
     } | {
-        op: "remove";
         data: string[];
+        op: "remove";
     };
 }, {
     data: {
         op: "removeall";
     } | {
-        op: "add";
         data: {
             content: string;
             name?: string | undefined;
             bdefault?: boolean | undefined;
         }[];
+        op: "add";
     } | {
-        op: "remove";
         data: string[];
+        op: "remove";
     };
 }>;
 export declare const LocalInfoOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {

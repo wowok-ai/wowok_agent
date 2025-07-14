@@ -27,6 +27,7 @@ export interface CallPersonal_Data {
     } | {
         op: 'destroy';
     };
+    faucet?: boolean;
 }
 export declare class CallPersonal extends CallBase {
     data: CallPersonal_Data;

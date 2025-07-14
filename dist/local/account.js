@@ -118,12 +118,18 @@ export class Account {
                 }
                 const ret = { address: address, secret: secret, name };
                 s.push(ret);
-                await storage.put(AccountKey, JSON.stringify(s));
+                await Promise.all([
+                    await storage.put(AccountKey, JSON.stringify(s)),
+                    await FAUCET.requestSuiFromFaucetV2({ host: FAUCET.getFaucetHost('testnet'), recipient: address }).catch(e => { })
+                ]);
                 return this.accountData(ret);
             }
             else {
                 const ret = { address: address, secret: secret, name: name };
-                await storage.put(AccountKey, JSON.stringify([ret]));
+                await Promise.all([
+                    await storage.put(AccountKey, JSON.stringify([ret])),
+                    await FAUCET.requestSuiFromFaucetV2({ host: FAUCET.getFaucetHost('testnet'), recipient: address }).catch(e => { })
+                ]);
                 return this.accountData(ret);
             }
         });

@@ -1,11 +1,18 @@
 import * as WOWOK from 'wowok';
 
 export const MarkName_Address_Description = (object:  string = '') => {
-    return `The name(address can be retrieved via local Mark) or address of the ${object} object`
+    return `The name(address can be retrieved via local Mark by name) or address of the ${object} object`
+}
+export const ObjectExisted_Description = (object:  string = '') => {
+    return `Perform an operation on an existing ${object} object (by specifying its name or its address)`
 }
 export const NamedObjectSchema_Description = (object:string='') => {
     return `Names the new on-chain ${object} object address via local mark (device-private) for easier future reference and operations`;
 }
+export const ObjectNewDescription = (object: string='') : string => {
+    return `Creating a new on-chain ${object} object`
+}
+
 export const GetObjectDataDescription = (object: string='') : string => {
     if (object === 'Guard') {
         return `Data definition for creating a new on-chain Guard object. Once the Guard object is successfully created, it cannot be modified again`
@@ -27,7 +34,7 @@ export const useAddressIfNameExist_Description = `In case of naming conflict: pr
 export const onChain_Description = `If true, the name and tags of the object will be made visible on-chain`;
 export const OnchainDescription_Description = `Description content for newly created on-chain wowok object`
 export const Type_Description = `Generic type for the on-chain object (e.g., specify payment token type '0x2::sui::SUI'); 
-    IMPORTANT: If operating on a Demand object, this parameter must be of the NFT or Coin type, such as '0x2::coin::Coin<0x2::sui::SUI>', and the token type (0x2::sui::SUI) cannot be used.`;
+    IMPORTANT: If creating a new Demand object, this parameter must be of the NFT or Coin type, such as '0x2::coin::Coin<0x2::sui::SUI>', and the token type (0x2::sui::SUI) cannot be used.`;
 export const ValueType_Description = `Data types of the Wowok protocol.
     100: Bool, 101: Address, 102: U8, 103: U64, 104: Vec<U8>, 105: U128,
     106:Vec<Address>, 107: Vec<Bool>, 108: Vec<Vec<U8>>, 
@@ -283,5 +290,5 @@ export const ObjectPermissionChange = `Batch change the Permission object of Dem
 export const Witness_Value = `Value of this witness`;
 export const Witness_Cmd = `The query command for this Witness object address`;
 export const Witness_Cited = `Number of times the witness is cited`;
-
+export const Faucet = `Receive SUI tokens from the faucet (valid only on the testnet). Receive it once every certain period of time (usually 24 hours)`;
 

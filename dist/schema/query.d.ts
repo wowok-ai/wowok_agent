@@ -521,13 +521,13 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     name: z.ZodString;
     no_cache: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     no_cache?: boolean | undefined;
 }, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     no_cache?: boolean | undefined;
 }>;
@@ -763,29 +763,29 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             name: z.ZodString;
             no_cache: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         }, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };
     }, {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };
@@ -872,8 +872,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };
@@ -938,8 +938,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             no_cache?: boolean | undefined;
         };

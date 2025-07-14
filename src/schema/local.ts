@@ -4,6 +4,8 @@ import { z } from "zod";
 import { BalanceOrCoin } from "../local/index.js";
 import { LocalInfoNameDefault } from '../local/local.js'
 import { zodToJsonSchema } from "zod-to-json-schema";
+import * as D from './const.js';
+
 
 export const QueryAccountSchemaDescription = `Query local account information, including on-chain address, token balance, and list of token object addresses.`
 export const QueryAccountSchema = z.object({
@@ -39,7 +41,9 @@ export const AccountOperationSchema = z.object({
             amount: z.union([z.string(), z.number()]).describe("The amount to transfer. Must be a positive integer"),
             token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified"),
         }).optional().describe("Transfer tokens from one account to another"),        
+    faucet: z.boolean().optional().describe(D.Faucet)
 });
+
 export const AccountOperationSchemaInput = () => {
     return zodToJsonSchema(AccountOperationSchema);
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as WOWOK from 'wowok';
 export declare const GetMarkNameSchema: (object?: string) => z.ZodString;
+export declare const ObjectExistedSchema: (object?: string) => z.ZodString;
 export declare const AccountNameSchema: z.ZodOptional<z.ZodString>;
 export declare const AccountOrMarkNameSchema: z.ZodObject<{
     name_or_address: z.ZodOptional<z.ZodString>;
@@ -1542,18 +1543,18 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
         }>;
         index: z.ZodArray<z.ZodEffects<z.ZodTypeAny, number, any>, "many">;
     }, "strip", z.ZodTypeAny, {
+        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
-        op: "remove permission";
         index: number[];
     }, {
+        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
-        op: "remove permission";
         index: any[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"transfer permission">;
@@ -1678,11 +1679,11 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         }[];
     } | {
+        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
-        op: "remove permission";
         index: number[];
     } | {
         op: "transfer permission";
@@ -1757,11 +1758,11 @@ export declare const CallPermissionDataSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         }[];
     } | {
+        op: "remove permission";
         address: {
             name_or_address?: string | undefined;
             local_mark_first?: boolean | undefined;
         };
-        op: "remove permission";
         index: any[];
     } | {
         op: "transfer permission";
@@ -4189,6 +4190,7 @@ export declare const CallPersonalDataSchema: z.ZodObject<{
     }, {
         op: "destroy";
     }>]>>;
+    faucet: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     information?: {
         name: string;
@@ -4235,6 +4237,7 @@ export declare const CallPersonalDataSchema: z.ZodObject<{
     } | {
         op: "destroy";
     } | undefined;
+    faucet?: boolean | undefined;
 }, {
     information?: {
         name: string;
@@ -4281,6 +4284,7 @@ export declare const CallPersonalDataSchema: z.ZodObject<{
     } | {
         op: "destroy";
     } | undefined;
+    faucet?: boolean | undefined;
 }>;
 export declare const CallObjectPermissionDataSchema: z.ZodObject<{
     objects: z.ZodArray<z.ZodString, "many">;
@@ -4445,7 +4449,7 @@ export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
         witness?: any;
     }[];
 }>>>;
-export declare const CallDemandSchemaDescription = "Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. \nThe Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. \nIt supports transaction models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. \nDemand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.";
+export declare const CallDemandSchemaDescription = "Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. \n    The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. \n    It supports transtation models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. \n    Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.";
 export declare const CallDemandSchema: z.ZodObject<{
     data: z.ZodObject<{
         object: z.ZodUnion<[z.ZodString, z.ZodObject<{
@@ -9037,18 +9041,18 @@ export declare const CallPermissionSchema: z.ZodObject<{
             }>;
             index: z.ZodArray<z.ZodEffects<z.ZodTypeAny, number, any>, "many">;
         }, "strip", z.ZodTypeAny, {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: number[];
         }, {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: any[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"transfer permission">;
@@ -9173,11 +9177,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: number[];
         } | {
             op: "transfer permission";
@@ -9252,11 +9256,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: any[];
         } | {
             op: "transfer permission";
@@ -9379,11 +9383,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: number[];
         } | {
             op: "transfer permission";
@@ -9472,11 +9476,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
                 local_mark_first?: boolean | undefined;
             }[];
         } | {
+            op: "remove permission";
             address: {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
-            op: "remove permission";
             index: any[];
         } | {
             op: "transfer permission";
@@ -10330,6 +10334,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         }, {
             op: "destroy";
         }>]>>;
+        faucet: z.ZodOptional<z.ZodBoolean>;
     }, "strip", z.ZodTypeAny, {
         information?: {
             name: string;
@@ -10376,6 +10381,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | {
             op: "destroy";
         } | undefined;
+        faucet?: boolean | undefined;
     }, {
         information?: {
             name: string;
@@ -10422,6 +10428,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | {
             op: "destroy";
         } | undefined;
+        faucet?: boolean | undefined;
     }>;
     account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
@@ -10471,6 +10478,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | {
             op: "destroy";
         } | undefined;
+        faucet?: boolean | undefined;
     };
     account?: string | null | undefined;
 }, {
@@ -10520,6 +10528,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | {
             op: "destroy";
         } | undefined;
+        faucet?: boolean | undefined;
     };
     account?: string | null | undefined;
 }>;

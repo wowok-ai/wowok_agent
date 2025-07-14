@@ -3,7 +3,7 @@ import NodeRSA from 'node-rsa';
 import { Level } from 'level';
 
 export const isBrowser = ()  => {
-    return typeof window !== 'undefined' && typeof indexedDB !== 'undefined';
+  return typeof window !== 'undefined' && typeof indexedDB !== 'undefined';
 }
 
 export const get_object_address = async (object: any) => {

@@ -2,6 +2,7 @@ import { Entity, Resource } from 'wowok';
 import { CallBase, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
+import { Account } from '../local/account.js';
 export class CallPersonal extends CallBase {
     constructor(data) {
         super();
@@ -78,6 +79,9 @@ export class CallPersonal extends CallBase {
                 const addr = await LocalMark.Instance().get_address(this.data.mark.mark_object);
                 if (addr)
                     entity.use_resource(Resource.From(txb, addr));
+            }
+            if (this.data?.faucet) {
+                await Account.Instance().faucet(account);
             }
             if (!entity_data?.mark_object) {
                 obj.launch();
