@@ -10,6 +10,7 @@ export class CallTreasury extends CallBase {
         this.object_address = undefined;
         this.permission_address = undefined;
         this.type_parameter = undefined;
+        this.withdraw_guards = [];
         this.data = data;
     }
     async prepare() {
@@ -20,6 +21,7 @@ export class CallTreasury extends CallBase {
             await this.update_content('Treasury', this.object_address);
             if (!this.content)
                 ERROR(Errors.InvalidParam, 'CallArbitration_Data.data.object:' + this.object_address);
+            this.withdraw_guards = this.content.withdraw_guard;
             this.permission_address = this.content.permission;
             this.type_parameter = Treasury.parseObjectType(this.content.type_raw);
         }
@@ -36,6 +38,7 @@ export class CallTreasury extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
+        await this.prepare();
         if (this.permission_address) {
             if (!this.data?.object) {
                 perms.push(PermissionIndex.treasury);
@@ -52,9 +55,6 @@ export class CallTreasury extends CallBase {
             if (this.data?.deposit_guard != null) {
                 perms.push(PermissionIndex.treasury_deposit_guard);
             }
-            if (this.data?.deposit_guard != null) {
-                perms.push(PermissionIndex.treasury_deposit_guard);
-            }
             if (this.data?.deposit != null) {
                 if (this.object_address) {
                     if (this.content?.deposit_guard) {
@@ -65,14 +65,28 @@ export class CallTreasury extends CallBase {
             if (this.data?.receive != null) {
                 perms.push(PermissionIndex.treasury_receive);
             }
-            if (this.data?.withdraw?.withdraw_guard != null) { // withdraw with guard
-                const guard = await get_object_address(this.data.withdraw.withdraw_guard);
-                if (guard) {
-                    guards.push(guard);
+            if (this.data.withdraw !== null) {
+                if (this.data?.withdraw?.withdraw_guard) { // withdraw with guard
+                    const guard = await get_object_address(this.data.withdraw.withdraw_guard);
+                    if (!guard)
+                        ERROR(Errors.InvalidParam, `CallTreasury_Data.withdraw.withdraw_guard ${this.data.withdraw.withdraw_guard}`);
+                    const f = this.withdraw_guards.find(v => v.guard === guard);
+                    if (!f)
+                        ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard not found in existed Treasury object ${this.data.withdraw.withdraw_guard}`);
+                    let total = 0n;
+                    this.data.withdraw.receiver.forEach(v => {
+                        total += BigInt(v.amount);
+                    });
+                    console.log(total);
+                    if (BigInt(f.max_withdrawal_amount) < total)
+                        ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard: The total amount withdrawaled > the maximum limit(${f.max_withdrawal_amount}) set by the withdraw Guard  `);
+                    if (guard) {
+                        guards.push(guard);
+                    }
                 }
-            }
-            else { // withdraw with permission
-                perms.push(PermissionIndex.treasury_withdraw);
+                else { // withdraw with permission
+                    perms.push(PermissionIndex.treasury_withdraw);
+                }
             }
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account);
         }
@@ -82,7 +96,6 @@ export class CallTreasury extends CallBase {
         let obj;
         let perm;
         let permission;
-        await this.prepare();
         if (this.object_address) {
             obj = Treasury.From(txb, this.type_parameter, this.permission_address, this.object_address);
             permission = this.permission_address;
@@ -163,7 +176,7 @@ export class CallTreasury extends CallBase {
                         let v = this.data.withdraw_guard.data[i];
                         const guard = await LocalMark.Instance().get_address(v.guard);
                         if (guard)
-                            obj?.add_withdraw_guard(guard, BigInt(v.amount), pst);
+                            obj?.add_withdraw_guard(guard, BigInt(v.max_withdrawal_amount), pst);
                     }
                     break;
                 case 'remove':

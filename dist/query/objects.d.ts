@@ -98,6 +98,10 @@ export interface ObjectProgress extends ObjectBase {
 export interface TableItem_ProgressHistory extends ObjectBase {
     history: History;
 }
+export interface GuardWithPercent {
+    guard: string;
+    percent: number;
+}
 export interface ObjectService extends ObjectBase {
     permission: string;
     bPaused: boolean;
@@ -111,14 +115,8 @@ export interface ObjectService extends ObjectBase {
     payee_treasury: string;
     repository: string[];
     sales_count: number;
-    withdraw_guard: {
-        guard: string;
-        percent: number;
-    }[];
-    refund_guard: {
-        guard: string;
-        percent: number;
-    }[];
+    withdraw_guard: GuardWithPercent[];
+    refund_guard: GuardWithPercent[];
     customer_required_info?: {
         pubkey: string;
         required_info: string[];
@@ -142,16 +140,17 @@ export interface ObjectOrder extends ObjectBase {
     };
     item: Service_Sale[];
 }
+export interface GuardWithAmount {
+    guard: string;
+    max_withdrawal_amount: number | string | bigint;
+}
 export interface ObjectTreasury extends ObjectBase {
     permission: string;
     description: string;
     inflow: string;
     outflow: string;
     withdraw_mode: Treasury_WithdrawMode;
-    withdraw_guard: {
-        guard: string;
-        percent: number;
-    }[];
+    withdraw_guard: GuardWithAmount[];
     deposit_guard?: string | null;
     balance: string;
     history_count: number;
@@ -164,6 +163,10 @@ export interface TableItem_TreasuryHistory extends ObjectBase {
     amount: string;
     time: string;
 }
+export interface GuardWithWeight {
+    guard: string;
+    weights: number;
+}
 export interface ObjectArbitration extends ObjectBase {
     permission: string;
     description: string;
@@ -172,10 +175,7 @@ export interface ObjectArbitration extends ObjectBase {
     fee: string;
     fee_treasury: string;
     usage_guard?: string | null;
-    voting_guard: {
-        guard: string;
-        weights: number;
-    }[];
+    voting_guard: GuardWithWeight[];
 }
 export interface ObjectArb extends ObjectBase {
     arbitration: string;

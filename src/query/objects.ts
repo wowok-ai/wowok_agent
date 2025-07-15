@@ -103,7 +103,10 @@ export interface ObjectProgress extends ObjectBase {
 export interface TableItem_ProgressHistory extends ObjectBase {
     history: History;
 }
-
+export interface GuardWithPercent {
+    guard:string, 
+    percent:number
+}
 export interface ObjectService extends ObjectBase {
     permission: string;
     bPaused: boolean;
@@ -117,8 +120,8 @@ export interface ObjectService extends ObjectBase {
     payee_treasury: string;
     repository: string[];
     sales_count: number;
-    withdraw_guard: {guard:string, percent:number}[];
-    refund_guard: {guard:string, percent:number}[];
+    withdraw_guard: GuardWithPercent[];
+    refund_guard: GuardWithPercent[];
     customer_required_info?: {pubkey:string; required_info:string[]};
 }
 
@@ -138,13 +141,18 @@ export interface ObjectOrder extends ObjectBase {
     item: Service_Sale[];
 }
 
+export interface GuardWithAmount {
+    guard:string, 
+    max_withdrawal_amount:number | string | bigint
+}
+
 export interface ObjectTreasury extends ObjectBase {
     permission: string;
     description: string;
     inflow: string;
     outflow: string;
     withdraw_mode: Treasury_WithdrawMode;
-    withdraw_guard: {guard:string, percent:number}[];
+    withdraw_guard: GuardWithAmount[];
     deposit_guard?: string | null;
     balance: string;
     history_count: number;
@@ -157,6 +165,11 @@ export interface TableItem_TreasuryHistory extends ObjectBase {
     amount: string,
     time: string,
 }
+export interface GuardWithWeight {
+    guard:string, 
+    weights:number
+}
+
 export interface ObjectArbitration extends ObjectBase {
     permission: string;
     description: string;
@@ -165,7 +178,7 @@ export interface ObjectArbitration extends ObjectBase {
     fee: string;
     fee_treasury: string;
     usage_guard?: string | null;
-    voting_guard: {guard:string, weights:number}[];
+    voting_guard: GuardWithWeight[];
 }
 
 export interface ObjectArb extends ObjectBase {
@@ -618,10 +631,10 @@ export function data2object(data?:any) : ObjectBase {
                 arbitration:content?.arbitrations, bPaused:content?.bPaused, bPublished:content?.bPublished,
                 buy_guard:content?.buy_guard, endpoint:content?.endpoint, payee_treasury:content?.payee, repository:content?.repositories, 
                 withdraw_guard:content?.withdraw_guard?.fields?.contents?.map((v:any) => {
-                    return {object:v?.fields?.key, percent:v?.fields?.value}
+                    return {guard:v?.fields?.key, percent:v?.fields?.value} as GuardWithPercent
                 }),
                 refund_guard:content?.refund_guard?.fields?.contents?.map((v:any) => {
-                    return {object:v?.fields?.key, percent:v?.fields?.value}
+                    return {guard:v?.fields?.key, percent:v?.fields?.value} as GuardWithPercent
                 }),
                 sales_count:parseInt(content?.sales?.fields?.size), extern_withdraw_treasury:content?.extern_withdraw_treasuries,
                 customer_required_info:content?.customer_required ? 
@@ -634,7 +647,8 @@ export function data2object(data?:any) : ObjectBase {
                 permission:content?.permission, description:content?.description, withdraw_mode:content?.withdraw_mode,
                 history_count:parseInt(content?.history?.fields?.contents?.fields?.size), balance: content?.balance, 
                 deposit_guard:content?.deposit_guard, withdraw_guard:content?.withdraw_guard?.fields?.contents?.map((v:any) => {
-                    return {object:v?.fields?.key, percent:v?.fields?.value}
+                    return {guard:v?.fields?.key, max_withdrawal_amount:v?.fields?.value} as GuardWithAmount
+
                 })
             } as ObjectTreasury;
         case 'Arbitration':
@@ -643,7 +657,7 @@ export function data2object(data?:any) : ObjectBase {
                 permission:content?.permission, description:content?.description, fee:content?.fee,
                 fee_treasury:content?.fee_treasury, usage_guard:content?.usage_guard,
                 endpoint:content?.endpoint, bPaused:content?.bPaused, voting_guard:content?.voting_guard?.fields?.contents?.map((v:any) => {
-                    return {object:v?.fields?.key, weights:v?.fields?.value}
+                    return {guard:v?.fields?.key, weights:v?.fields?.value} as GuardWithWeight
                 }) 
             } as ObjectArbitration;  
         case 'Arb':

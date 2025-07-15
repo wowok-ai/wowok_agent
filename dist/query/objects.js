@@ -313,10 +313,10 @@ export function data2object(data) {
                     arbitration: content?.arbitrations, bPaused: content?.bPaused, bPublished: content?.bPublished,
                     buy_guard: content?.buy_guard, endpoint: content?.endpoint, payee_treasury: content?.payee, repository: content?.repositories,
                     withdraw_guard: content?.withdraw_guard?.fields?.contents?.map((v) => {
-                        return { object: v?.fields?.key, percent: v?.fields?.value };
+                        return { guard: v?.fields?.key, percent: v?.fields?.value };
                     }),
                     refund_guard: content?.refund_guard?.fields?.contents?.map((v) => {
-                        return { object: v?.fields?.key, percent: v?.fields?.value };
+                        return { guard: v?.fields?.key, percent: v?.fields?.value };
                     }),
                     sales_count: parseInt(content?.sales?.fields?.size), extern_withdraw_treasury: content?.extern_withdraw_treasuries,
                     customer_required_info: content?.customer_required ?
@@ -329,7 +329,7 @@ export function data2object(data) {
                     permission: content?.permission, description: content?.description, withdraw_mode: content?.withdraw_mode,
                     history_count: parseInt(content?.history?.fields?.contents?.fields?.size), balance: content?.balance,
                     deposit_guard: content?.deposit_guard, withdraw_guard: content?.withdraw_guard?.fields?.contents?.map((v) => {
-                        return { object: v?.fields?.key, percent: v?.fields?.value };
+                        return { guard: v?.fields?.key, max_withdrawal_amount: v?.fields?.value };
                     })
                 };
             case 'Arbitration':
@@ -338,7 +338,7 @@ export function data2object(data) {
                     permission: content?.permission, description: content?.description, fee: content?.fee,
                     fee_treasury: content?.fee_treasury, usage_guard: content?.usage_guard,
                     endpoint: content?.endpoint, bPaused: content?.bPaused, voting_guard: content?.voting_guard?.fields?.contents?.map((v) => {
-                        return { object: v?.fields?.key, weights: v?.fields?.value };
+                        return { guard: v?.fields?.key, weights: v?.fields?.value };
                     })
                 };
             case 'Arb':

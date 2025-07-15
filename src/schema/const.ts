@@ -34,7 +34,8 @@ export const useAddressIfNameExist_Description = `In case of naming conflict: pr
 export const onChain_Description = `If true, the name and tags of the object will be made visible on-chain`;
 export const OnchainDescription_Description = `Description content for newly created on-chain wowok object`
 export const Type_Description = `Generic type for the on-chain object (e.g., specify payment token type '0x2::sui::SUI'); 
-    IMPORTANT: If creating a new Demand object, this parameter must be of the NFT or Coin type, such as '0x2::coin::Coin<0x2::sui::SUI>', and the token type (0x2::sui::SUI) cannot be used.`;
+    If creating a new Demand object, this parameter must be of the NFT or Coin type, such as '0x2::coin::Coin<0x2::sui::SUI>', and the token type (0x2::sui::SUI) cannot be used. 
+    Else, this parameter must be of the Token type, such as '0x2::sui::SUI', and the Coin type cannot be used.`;
 export const ValueType_Description = `Data types of the Wowok protocol.
     100: Bool, 101: Address, 102: U8, 103: U64, 104: Vec<U8>, 105: U128,
     106:Vec<Address>, 107: Vec<Bool>, 108: Vec<Vec<U8>>, 

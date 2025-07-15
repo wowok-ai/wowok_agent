@@ -117,7 +117,6 @@ export class CallDemand extends CallBase {
             obj?.set_description(this.data.description, pst);
         }
         if (this.data?.time_expire != null && this.object_address) {
-            console.log(this.data.time_expire);
             obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, pst);
         }
         if (this.data?.bounty != null) {

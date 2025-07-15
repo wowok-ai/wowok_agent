@@ -15,7 +15,7 @@ export const ObjectExistedSchema = (object:string='') : z.ZodString=> {
 export const AccountNameSchema = z.string().optional().describe(D.AccountName_Address_Description);
 export const AccountOrMarkNameSchema = z.object({
     name_or_address: z.string().optional().describe(`Look up the address corresponding to 'name_or_address' via Local Account or Local Mark`),
-    local_mark_first: z.boolean().optional().describe(`If 'local_mark_first' is True, prioritize looking up via Local Mark; otherwise, prioritize looking up via Local Account`)
+    local_mark_first: z.boolean().optional().describe(`True: Search address in the local marks first; False: Search address in the Account fist.`)
 });   
 /*
 const PermissioIndexArray = WOWOK.PermissionInfo.filter(i => i.index !== WOWOK.PermissionIndex.user_defined_start)
@@ -66,7 +66,9 @@ const TypeNamedObjectWithPermissionSchema = NamedObjectWithPermissionSchema.exte
     type_parameter: z.string().nonempty().describe(D.Type_Description)
 });
 
-const ObjectTypedMainSchema = z.union([ObjectExistedSchema(), TypeNamedObjectWithPermissionSchema.describe(D.ObjectNewDescription())]);
+const ObjectTypedMainSchema = (object:string = '') => {
+    return z.union([ObjectExistedSchema(object), TypeNamedObjectWithPermissionSchema.describe(D.ObjectNewDescription())])
+}
 
 const ObjectMainSchema = z.union([GetMarkNameSchema(), NamedObjectWithPermissionSchema]);
 
@@ -195,7 +197,7 @@ const RepositoryValueTypeSchema = z.union([
 ]).describe(D.RepositoryValueType_Description);
 
 export const CallDemandDataSchema = z.object({
-    object: ObjectTypedMainSchema,
+    object: ObjectTypedMainSchema('Demand'),
     present:z.object({
         service:GetMarkNameSchema('Service').optional(),
         recommend_words:z.string().default(''),
@@ -495,7 +497,7 @@ export const CallRepositoryDataSchema = z.object({
 
 
 export const CallArbitrationDataSchema = z.object({
-    object: ObjectTypedMainSchema,
+    object: ObjectTypedMainSchema('Arbitration'),
     arb_new: z.object({
         data: z.object({
             order: GetMarkNameSchema('Order'),
@@ -555,7 +557,7 @@ export const TreasuryWithdrawParamSchema = PayParamSchema.extend({
 }).describe(D.TreasuryWithdrawParam_Description);
 
 export const CallTreasuryDataSchema = z.object({
-    object: ObjectTypedMainSchema,
+    object: ObjectTypedMainSchema('Treasury'),
     deposit: z.object({
         balance:TokenBalanceSchema,
         param: PayParamSchema.optional(),
@@ -565,9 +567,8 @@ export const CallTreasuryDataSchema = z.object({
             received_objects: z.array(GetMarkNameSchema('Treasury_ReceivedObject')),
         }),
         z.literal('recently').describe(D.Treasury_Receive_Recently)
-    ]).describe(D.Treasury_Receive),
-    withdraw: TreasuryWithdrawParamSchema,
-    
+    ]).optional().describe(D.Treasury_Receive),
+    withdraw: TreasuryWithdrawParamSchema.optional(),
     description: z.string().optional().describe(D.ObjectDes_Description),
     deposit_guard: GetMarkNameSchema('Guard').optional(),
     withdraw_guard: z.union([
@@ -575,7 +576,7 @@ export const CallTreasuryDataSchema = z.object({
             op:z.union([z.literal('add'), z.literal('set')]),
             data: z.array(z.object({
                 guard: GetMarkNameSchema('Guard'),
-                amount: TokenBalanceSchema
+                max_withdrawal_amount: TokenBalanceSchema
             }).describe(D.Treasury_WithdrawGuard))
         }).describe(D.Treasury_WithdrawGuard_Add),
         z.object({
@@ -590,7 +591,7 @@ export const CallTreasuryDataSchema = z.object({
         z.literal(WOWOK.Treasury_WithdrawMode.PERMISSION),
         z.literal(WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE),
         z.literal(WOWOK.Treasury_WithdrawMode.BOTH_PERMISSION_AND_GUARD)
-    ]).describe(D.Treasury_WithdrawMode),
+    ]).optional().describe(D.Treasury_WithdrawMode),
 }).describe(D.GetObjectDataDescription('Treasury')); 
 
 const ServiceWithdrawSchema = PayParamSchema.extend({
@@ -598,7 +599,7 @@ const ServiceWithdrawSchema = PayParamSchema.extend({
 });
 
 export const CallServiceDataSchema = z.object({
-    object: ObjectTypedMainSchema,
+    object: ObjectTypedMainSchema('Service'),
     order_new:z.object({
         buy_items: z.array(z.object({
             item: z.string().nonempty().describe(D.BuyItem_Name),
@@ -792,8 +793,8 @@ export const ObjectsUrlSchemaOutput = () => {
     return zodToJsonSchema(ObjectsUrlSchema);
 }
 
-export const AccountSchema = z.string().optional().nullable().describe('The account name or address that initiated the operation.');
-export const WitnessSchema = GuardWitness.optional().nullable().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');
+export const AccountSchema = z.string().optional().describe('The account name or address that initiated the operation.');
+export const WitnessSchema = GuardWitness.optional().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');
 
 export const CallDemandSchemaDescription = `Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. 
     The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 

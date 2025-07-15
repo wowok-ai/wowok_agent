@@ -2869,14 +2869,14 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             for_guard?: string | undefined;
         } | undefined;
     }>>;
-    receive: z.ZodUnion<[z.ZodObject<{
+    receive: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
         received_objects: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
         received_objects: string[];
     }, {
         received_objects: string[];
-    }>, z.ZodLiteral<"recently">]>;
-    withdraw: z.ZodObject<{
+    }>, z.ZodLiteral<"recently">]>>;
+    withdraw: z.ZodOptional<z.ZodObject<{
         index: z.ZodUnion<[z.ZodDefault<z.ZodNumber>, z.ZodBigInt, z.ZodString]>;
         remark: z.ZodString;
         for_object: z.ZodOptional<z.ZodString>;
@@ -2934,32 +2934,32 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         for_object?: string | undefined;
         for_guard?: string | undefined;
         withdraw_guard?: string | undefined;
-    }>;
+    }>>;
     description: z.ZodOptional<z.ZodString>;
     deposit_guard: z.ZodOptional<z.ZodString>;
     withdraw_guard: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
         op: z.ZodUnion<[z.ZodLiteral<"add">, z.ZodLiteral<"set">]>;
         data: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
-            amount: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
+            max_withdrawal_amount: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
         }, "strip", z.ZodTypeAny, {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }, {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
         op: "set" | "add";
         data: {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }[];
     }, {
         op: "set" | "add";
         data: {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }[];
     }>, z.ZodObject<{
         op: z.ZodLiteral<"remove">;
@@ -2977,7 +2977,7 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
     }, {
         op: "removeall";
     }>]>>;
-    withdraw_mode: z.ZodUnion<[z.ZodLiteral<WOWOK.Treasury_WithdrawMode.PERMISSION>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.BOTH_PERMISSION_AND_GUARD>]>;
+    withdraw_mode: z.ZodOptional<z.ZodUnion<[z.ZodLiteral<WOWOK.Treasury_WithdrawMode.PERMISSION>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.BOTH_PERMISSION_AND_GUARD>]>>;
 }, "strip", z.ZodTypeAny, {
     object: string | {
         type_parameter: string;
@@ -2993,30 +2993,12 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             description?: string | undefined;
         } | undefined;
     };
-    receive: {
-        received_objects: string[];
-    } | "recently";
-    withdraw: {
-        index: string | number | bigint;
-        remark: string;
-        receiver: {
-            address: {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
-            amount: string | number;
-        }[];
-        for_object?: string | undefined;
-        for_guard?: string | undefined;
-        withdraw_guard?: string | undefined;
-    };
-    withdraw_mode: WOWOK.Treasury_WithdrawMode;
     description?: string | undefined;
     withdraw_guard?: {
         op: "set" | "add";
         data: {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }[];
     } | {
         op: "remove";
@@ -3033,7 +3015,25 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             for_guard?: string | undefined;
         } | undefined;
     } | undefined;
+    receive?: {
+        received_objects: string[];
+    } | "recently" | undefined;
+    withdraw?: {
+        index: string | number | bigint;
+        remark: string;
+        receiver: {
+            address: {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
+            amount: string | number;
+        }[];
+        for_object?: string | undefined;
+        for_guard?: string | undefined;
+        withdraw_guard?: string | undefined;
+    } | undefined;
     deposit_guard?: string | undefined;
+    withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
 }, {
     object: string | {
         type_parameter: string;
@@ -3049,30 +3049,12 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             description?: string | undefined;
         } | undefined;
     };
-    receive: {
-        received_objects: string[];
-    } | "recently";
-    withdraw: {
-        remark: string;
-        receiver: {
-            address: {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
-            amount: string | number;
-        }[];
-        index?: string | number | bigint | undefined;
-        for_object?: string | undefined;
-        for_guard?: string | undefined;
-        withdraw_guard?: string | undefined;
-    };
-    withdraw_mode: WOWOK.Treasury_WithdrawMode;
     description?: string | undefined;
     withdraw_guard?: {
         op: "set" | "add";
         data: {
             guard: string;
-            amount: string | number;
+            max_withdrawal_amount: string | number;
         }[];
     } | {
         op: "remove";
@@ -3089,7 +3071,25 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
             for_guard?: string | undefined;
         } | undefined;
     } | undefined;
+    receive?: {
+        received_objects: string[];
+    } | "recently" | undefined;
+    withdraw?: {
+        remark: string;
+        receiver: {
+            address: {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
+            amount: string | number;
+        }[];
+        index?: string | number | bigint | undefined;
+        for_object?: string | undefined;
+        for_guard?: string | undefined;
+        withdraw_guard?: string | undefined;
+    } | undefined;
     deposit_guard?: string | undefined;
+    withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
 }>;
 export declare const CallServiceDataSchema: z.ZodObject<{
     object: z.ZodUnion<[z.ZodString, z.ZodObject<{
@@ -4403,8 +4403,8 @@ export declare const ObjectsUrlSchemaOutput: () => import("zod-to-json-schema").
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
-export declare const AccountSchema: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+export declare const AccountSchema: z.ZodOptional<z.ZodString>;
+export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
     guards: z.ZodArray<z.ZodString, "many">;
     witness: z.ZodArray<z.ZodObject<{
         guard: z.ZodString;
@@ -4448,7 +4448,7 @@ export declare const WitnessSchema: z.ZodNullable<z.ZodOptional<z.ZodObject<{
         cited: number;
         witness?: any;
     }[];
-}>>>;
+}>>;
 export declare const CallDemandSchemaDescription = "Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. \n    The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. \n    It supports transtation models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. \n    Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.";
 export declare const CallDemandSchema: z.ZodObject<{
     data: z.ZodObject<{
@@ -4681,8 +4681,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             service_id_in_guard?: number | undefined;
         } | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -4726,7 +4726,7 @@ export declare const CallDemandSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -4783,8 +4783,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -4841,8 +4841,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallDemandSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -5334,8 +5334,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
             }[];
         } | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -5379,7 +5379,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -5467,8 +5467,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -5556,8 +5556,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallRepositorySchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -6572,8 +6572,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             } | undefined;
         } | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -6617,7 +6617,7 @@ export declare const CallMachineSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -6786,8 +6786,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -6956,8 +6956,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallMachineSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -7884,8 +7884,8 @@ export declare const CallServiceSchema: z.ZodObject<{
         } | undefined;
         buy_guard?: string | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -7929,7 +7929,7 @@ export declare const CallServiceSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -8111,8 +8111,8 @@ export declare const CallServiceSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -8294,8 +8294,8 @@ export declare const CallServiceSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallServiceSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -8396,14 +8396,14 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 for_guard?: string | undefined;
             } | undefined;
         }>>;
-        receive: z.ZodUnion<[z.ZodObject<{
+        receive: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
             received_objects: z.ZodArray<z.ZodString, "many">;
         }, "strip", z.ZodTypeAny, {
             received_objects: string[];
         }, {
             received_objects: string[];
-        }>, z.ZodLiteral<"recently">]>;
-        withdraw: z.ZodObject<{
+        }>, z.ZodLiteral<"recently">]>>;
+        withdraw: z.ZodOptional<z.ZodObject<{
             index: z.ZodUnion<[z.ZodDefault<z.ZodNumber>, z.ZodBigInt, z.ZodString]>;
             remark: z.ZodString;
             for_object: z.ZodOptional<z.ZodString>;
@@ -8461,32 +8461,32 @@ export declare const CallTreasurySchema: z.ZodObject<{
             for_object?: string | undefined;
             for_guard?: string | undefined;
             withdraw_guard?: string | undefined;
-        }>;
+        }>>;
         description: z.ZodOptional<z.ZodString>;
         deposit_guard: z.ZodOptional<z.ZodString>;
         withdraw_guard: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
             op: z.ZodUnion<[z.ZodLiteral<"add">, z.ZodLiteral<"set">]>;
             data: z.ZodArray<z.ZodObject<{
                 guard: z.ZodString;
-                amount: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
+                max_withdrawal_amount: z.ZodUnion<[z.ZodString, z.ZodNumber]>;
             }, "strip", z.ZodTypeAny, {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }, {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         }, {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         }>, z.ZodObject<{
             op: z.ZodLiteral<"remove">;
@@ -8504,7 +8504,7 @@ export declare const CallTreasurySchema: z.ZodObject<{
         }, {
             op: "removeall";
         }>]>>;
-        withdraw_mode: z.ZodUnion<[z.ZodLiteral<WOWOK.Treasury_WithdrawMode.PERMISSION>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.BOTH_PERMISSION_AND_GUARD>]>;
+        withdraw_mode: z.ZodOptional<z.ZodUnion<[z.ZodLiteral<WOWOK.Treasury_WithdrawMode.PERMISSION>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE>, z.ZodLiteral<WOWOK.Treasury_WithdrawMode.BOTH_PERMISSION_AND_GUARD>]>>;
     }, "strip", z.ZodTypeAny, {
         object: string | {
             type_parameter: string;
@@ -8520,30 +8520,12 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 description?: string | undefined;
             } | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
-        withdraw: {
-            index: string | number | bigint;
-            remark: string;
-            receiver: {
-                address: {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
-                amount: string | number;
-            }[];
-            for_object?: string | undefined;
-            for_guard?: string | undefined;
-            withdraw_guard?: string | undefined;
-        };
-        withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
         withdraw_guard?: {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         } | {
             op: "remove";
@@ -8560,7 +8542,25 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 for_guard?: string | undefined;
             } | undefined;
         } | undefined;
+        receive?: {
+            received_objects: string[];
+        } | "recently" | undefined;
+        withdraw?: {
+            index: string | number | bigint;
+            remark: string;
+            receiver: {
+                address: {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                amount: string | number;
+            }[];
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+            withdraw_guard?: string | undefined;
+        } | undefined;
         deposit_guard?: string | undefined;
+        withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
     }, {
         object: string | {
             type_parameter: string;
@@ -8576,30 +8576,12 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 description?: string | undefined;
             } | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
-        withdraw: {
-            remark: string;
-            receiver: {
-                address: {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
-                amount: string | number;
-            }[];
-            index?: string | number | bigint | undefined;
-            for_object?: string | undefined;
-            for_guard?: string | undefined;
-            withdraw_guard?: string | undefined;
-        };
-        withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
         withdraw_guard?: {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         } | {
             op: "remove";
@@ -8616,10 +8598,28 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 for_guard?: string | undefined;
             } | undefined;
         } | undefined;
+        receive?: {
+            received_objects: string[];
+        } | "recently" | undefined;
+        withdraw?: {
+            remark: string;
+            receiver: {
+                address: {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                amount: string | number;
+            }[];
+            index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+            withdraw_guard?: string | undefined;
+        } | undefined;
         deposit_guard?: string | undefined;
+        withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -8663,7 +8663,7 @@ export declare const CallTreasurySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -8680,30 +8680,12 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 description?: string | undefined;
             } | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
-        withdraw: {
-            index: string | number | bigint;
-            remark: string;
-            receiver: {
-                address: {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
-                amount: string | number;
-            }[];
-            for_object?: string | undefined;
-            for_guard?: string | undefined;
-            withdraw_guard?: string | undefined;
-        };
-        withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
         withdraw_guard?: {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         } | {
             op: "remove";
@@ -8720,7 +8702,25 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 for_guard?: string | undefined;
             } | undefined;
         } | undefined;
+        receive?: {
+            received_objects: string[];
+        } | "recently" | undefined;
+        withdraw?: {
+            index: string | number | bigint;
+            remark: string;
+            receiver: {
+                address: {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                amount: string | number;
+            }[];
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+            withdraw_guard?: string | undefined;
+        } | undefined;
         deposit_guard?: string | undefined;
+        withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
     };
     witness?: {
         guards: string[];
@@ -8732,8 +8732,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -8750,30 +8750,12 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 description?: string | undefined;
             } | undefined;
         };
-        receive: {
-            received_objects: string[];
-        } | "recently";
-        withdraw: {
-            remark: string;
-            receiver: {
-                address: {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
-                amount: string | number;
-            }[];
-            index?: string | number | bigint | undefined;
-            for_object?: string | undefined;
-            for_guard?: string | undefined;
-            withdraw_guard?: string | undefined;
-        };
-        withdraw_mode: WOWOK.Treasury_WithdrawMode;
         description?: string | undefined;
         withdraw_guard?: {
             op: "set" | "add";
             data: {
                 guard: string;
-                amount: string | number;
+                max_withdrawal_amount: string | number;
             }[];
         } | {
             op: "remove";
@@ -8790,7 +8772,25 @@ export declare const CallTreasurySchema: z.ZodObject<{
                 for_guard?: string | undefined;
             } | undefined;
         } | undefined;
+        receive?: {
+            received_objects: string[];
+        } | "recently" | undefined;
+        withdraw?: {
+            remark: string;
+            receiver: {
+                address: {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                amount: string | number;
+            }[];
+            index?: string | number | bigint | undefined;
+            for_object?: string | undefined;
+            for_guard?: string | undefined;
+            withdraw_guard?: string | undefined;
+        } | undefined;
         deposit_guard?: string | undefined;
+        withdraw_mode?: WOWOK.Treasury_WithdrawMode | undefined;
     };
     witness?: {
         guards: string[];
@@ -8802,8 +8802,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallTreasurySchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -9297,8 +9297,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
             local_mark_first?: boolean | undefined;
         } | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -9342,7 +9342,7 @@ export declare const CallPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -9434,8 +9434,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -9527,8 +9527,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -9925,8 +9925,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             description?: string | undefined;
         } | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -9970,7 +9970,7 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -10055,8 +10055,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         object: string | {
@@ -10141,8 +10141,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallArbitrationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -10430,7 +10430,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | undefined;
         faucet?: boolean | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
+    account: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     data: {
         information?: {
@@ -10480,7 +10480,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | undefined;
         faucet?: boolean | undefined;
     };
-    account?: string | null | undefined;
+    account?: string | undefined;
 }, {
     data: {
         information?: {
@@ -10530,7 +10530,7 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | undefined;
         faucet?: boolean | undefined;
     };
-    account?: string | null | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallPersonalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -10606,7 +10606,7 @@ export declare const CallGuardSchema: z.ZodObject<{
             value?: any;
         }[] | undefined;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
+    account: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     data: {
         description?: string | undefined;
@@ -10624,7 +10624,7 @@ export declare const CallGuardSchema: z.ZodObject<{
             value?: any;
         }[] | undefined;
     };
-    account?: string | null | undefined;
+    account?: string | undefined;
 }, {
     data: {
         description?: string | undefined;
@@ -10642,7 +10642,7 @@ export declare const CallGuardSchema: z.ZodObject<{
             value?: any;
         }[] | undefined;
     };
-    account?: string | null | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallGuardSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -10662,8 +10662,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
         objects: string[];
         new_permission: string;
     }>;
-    account: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    witness: z.ZodNullable<z.ZodOptional<z.ZodObject<{
+    account: z.ZodOptional<z.ZodString>;
+    witness: z.ZodOptional<z.ZodObject<{
         guards: z.ZodArray<z.ZodString, "many">;
         witness: z.ZodArray<z.ZodObject<{
             guard: z.ZodString;
@@ -10707,7 +10707,7 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    }>>>;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         objects: string[];
@@ -10723,8 +10723,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }, {
     data: {
         objects: string[];
@@ -10740,8 +10740,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
-    } | null | undefined;
-    account?: string | null | undefined;
+    } | undefined;
+    account?: string | undefined;
 }>;
 export declare const CallObejctPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
