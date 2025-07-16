@@ -450,7 +450,7 @@ export class CallService extends CallBase {
             }
         }
         if (this.data?.machine !== undefined) {
-            if (this.data.machine === null) {
+            if (!this.data.machine) {
                 obj?.set_machine(undefined, pst);
             } else {
                 const machine = await LocalMark.Instance().get_address(this.data.machine);
@@ -556,7 +556,7 @@ export class CallService extends CallBase {
         }
 
         if (this.data?.buy_guard !== undefined) {
-            if (this.data.buy_guard === null) {
+            if (!this.data.buy_guard) {
                 obj?.set_buy_guard(undefined, pst);
             } else {
                 const guard = await LocalMark.Instance().get_address(this.data.buy_guard);

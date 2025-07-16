@@ -225,7 +225,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         const pst = perm?undefined:passport;
         var new_progress : Progress | undefined;
         if (this.data?.progress_new != null) {
-            if (this.data.progress_new.task_address === null) {
+            if (!this.data.progress_new.task_address) {
                 new_progress = Progress?.New(txb, obj?.get_object(), permission, undefined, pst);
             } else {
                 const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
@@ -238,7 +238,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
                 : new_progress?.get_object();
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
-            if (this.data.progress_context_repository.repository === null) {
+            if (!this.data.progress_context_repository.repository) {
+
                 Progress.From(txb, obj?.get_object(), permission, p!).set_context_repository(undefined, pst);
             } else {
                 const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);

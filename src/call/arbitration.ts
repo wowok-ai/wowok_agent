@@ -234,7 +234,7 @@ export class CallArbitration extends CallBase {
         }
         
         if (this.data?.guard !== undefined) {
-            if (this.data.guard === null) {
+            if (!this.data.guard) {
                 obj?.set_guard(undefined, pst);
             } else {
                 const guard = await LocalMark.Instance().get_address(this.data.guard);
