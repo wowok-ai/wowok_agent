@@ -25,7 +25,7 @@ export interface CallService_Data {
     object: ObjectTypedMain;
     order_new?: {
         buy_items: Service_Buy[];
-        discount_object?: string;
+        discount_object?: string | null;
         customer_info_required?: string;
         namedNewOrder?: Namedbject;
         namedNewProgress?: Namedbject;
@@ -51,17 +51,18 @@ export interface CallService_Data {
         payer_new: AccountOrMark_Address;
     };
     description?: string;
-    endpoint?: string;
+    location?: string;
+    endpoint?: string | null;
     payee_treasury?: ObjectParam;
     gen_discount?: DicountDispatch[];
     repository?: ObjectsOp;
     extern_withdraw_treasury?: ObjectsOp;
-    machine?: string;
+    machine?: string | null;
     arbitration?: ObjectsOp;
     customer_required_info?: {
         pubkey: string;
         required_info: (string | BuyRequiredEnum)[];
-    };
+    } | null;
     sales?: {
         op: 'add';
         sales: Service_Sale[];
@@ -88,7 +89,7 @@ export interface CallService_Data {
         guards: string[];
     };
     bPublished?: boolean;
-    buy_guard?: string;
+    buy_guard?: string | null;
     bPaused?: boolean;
     clone_new?: {
         token_type_new?: string;
@@ -101,6 +102,9 @@ export declare class CallService extends CallBase {
     permission_address: string | undefined;
     type_parameter: string | undefined;
     constructor(data: CallService_Data);
+    private checkPublished;
+    private checkNotPublished;
+    private checkNotPaused;
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     private order_allowed;

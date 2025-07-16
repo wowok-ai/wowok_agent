@@ -26,7 +26,7 @@ export interface CallTreasury_Data {
     withdraw?: TreasuryWithdrawParam;
 
     description?: string;
-    deposit_guard?: string;
+    deposit_guard?: string | null;
     withdraw_guard?: {op:'add' | 'set'; data:GuardWithAmount[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     withdraw_mode?: Treasury_WithdrawMode;
 }
@@ -76,12 +76,20 @@ export class CallTreasury extends CallBase {
                 perms.push(PermissionIndex.treasury_descritption)
             }
             if (this.data?.withdraw_mode != null) {
-                perms.push(PermissionIndex.treasury_withdraw_mode)
+                if ((this.content as ObjectTreasury)?.withdraw_mode === Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                    if (this.data.withdraw_mode !== Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                        ERROR(Errors.Fail, `CallTreasury_Data.withdraw_mode: The "withdraw_mode" has been set to "GUARD_ONLY_AND_IMMUTABLE", and it can no longer be changed`)
+                    } else {
+                        this.data.withdraw_mode = undefined;
+                    }
+                } else {
+                    perms.push(PermissionIndex.treasury_withdraw_mode)
+                }
             }
             if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.treasury_withdraw_guard)
             }
-            if (this.data?.deposit_guard != null) {
+            if (this.data?.deposit_guard !== undefined) {
                 perms.push(PermissionIndex.treasury_deposit_guard)
             }
             if (this.data?.deposit != null) {
@@ -99,13 +107,14 @@ export class CallTreasury extends CallBase {
                 if (this.data?.withdraw?.withdraw_guard) { // withdraw with guard
                     const guard = await get_object_address(this.data.withdraw.withdraw_guard);
                     if (!guard) ERROR(Errors.InvalidParam, `CallTreasury_Data.withdraw.withdraw_guard ${this.data.withdraw.withdraw_guard}`)
+                    
                     const f = this.withdraw_guards.find(v => v.guard === guard);
                     if (!f) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard not found in existed Treasury object ${this.data.withdraw.withdraw_guard}`) 
+                    
                     let total:bigint = 0n;
                     this.data.withdraw.receiver.forEach(v => {
                         total += BigInt(v.amount);
                     });
-                    console.log(total)
                     if (BigInt(f.max_withdrawal_amount) < total) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard: The total amount withdrawaled > the maximum limit(${f.max_withdrawal_amount}) set by the withdraw Guard  `)
 
                     if (guard) {
@@ -192,9 +201,14 @@ export class CallTreasury extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.deposit_guard != null) {
-            const guard = await LocalMark.Instance().get_address(this.data?.deposit_guard);
-            obj?.set_deposit_guard(guard, pst);
+        if (this.data?.deposit_guard !== undefined) {
+            if (this.data.deposit_guard === null) {
+                obj?.set_deposit_guard(undefined, pst);
+            } else {
+                const guard = await LocalMark.Instance().get_address(this.data.deposit_guard);
+                if (!guard) ERROR(Errors.InvalidParam, `CallTreasury_Data.deposit_guard: ${this.data.deposit_guard}`);
+                obj?.set_deposit_guard(guard, pst);
+            }
         }
         if (this.data?.withdraw_guard != null) {
             switch (this.data.withdraw_guard.op) {

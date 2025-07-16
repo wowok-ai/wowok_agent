@@ -120,6 +120,38 @@ export class CallRepository extends CallBase {
         if (!permission) ERROR(Errors.InvalidParam, 'CallRepository_Data.permission:' + this.permission_address);
 
         const pst = perm?undefined:passport;
+        if (this.data?.data != null) {
+            switch(this.data.data.op) {
+                case 'add':
+                    if ((this.data.data?.data as any)?.key != null) {
+                        const d = (this.data.data.data as Repository_Policy_Data).data;
+                        const add: Wowok_Repository_Value[] = [];
+                        for (let i=0; i<d.length; ++i) {
+                            const addr = await GetAddressID(d[i].address);
+                            if (addr) {
+                                add.push({address:addr, bcsBytes:d[i].bcsBytes});
+                            }
+                        }
+                        obj?.add_data({key:(this.data.data.data as Repository_Policy_Data).key, data:add, value_type:(this.data.data.data as Repository_Policy_Data).value_type});
+                    } else if ((this.data.data?.data as any)?.address != null) {
+                        const d = this.data.data.data as Repository_Policy_Data2;
+                        const addr = await GetAddressID(d.address);
+                        if (addr) {
+                            obj?.add_data2({address:addr, data:d.data, value_type:d.value_type})
+                        }
+                    }
+                    break;
+                case 'remove':
+                    for (let i=0; i<this.data.data.data.length; ++i) {
+                        const addr = await GetAddressID(this.data.data.data[i].address);
+                        if (addr) {
+                            obj?.remove(addr, this.data.data.data[i].key);
+                        }
+                    }
+                    break;
+            }
+        }
+
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
@@ -160,37 +192,6 @@ export class CallRepository extends CallBase {
                     this.data.policy.data.forEach((v) => {
                         obj?.rename_policy(v.old, v.new, pst);
                     })
-                    break;
-            }
-        }
-        if (this.data?.data != null) {
-            switch(this.data.data.op) {
-                case 'add':
-                    if ((this.data.data?.data as any)?.key != null) {
-                        const d = (this.data.data.data as Repository_Policy_Data).data;
-                        const add: Wowok_Repository_Value[] = [];
-                        for (let i=0; i<d.length; ++i) {
-                            const addr = await GetAddressID(d[i].address);
-                            if (addr) {
-                                add.push({address:addr, bcsBytes:d[i].bcsBytes});
-                            }
-                        }
-                        obj?.add_data({key:(this.data.data.data as Repository_Policy_Data).key, data:add, value_type:(this.data.data.data as Repository_Policy_Data).value_type});
-                    } else if ((this.data.data?.data as any)?.address != null) {
-                        const d = this.data.data.data as Repository_Policy_Data2;
-                        const addr = await GetAddressID(d.address);
-                        if (addr) {
-                            obj?.add_data2({address:addr, data:d.data, value_type:d.value_type})
-                        }
-                    }
-                    break;
-                case 'remove':
-                    for (let i=0; i<this.data.data.data.length; ++i) {
-                        const addr = await GetAddressID(this.data.data.data[i].address);
-                        if (addr) {
-                            obj?.remove(addr, this.data.data.data[i].key);
-                        }
-                    }
                     break;
             }
         }

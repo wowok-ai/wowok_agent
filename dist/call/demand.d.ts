@@ -7,6 +7,7 @@ export interface CallDemand_Data {
         recommend_words: string;
     };
     description?: string;
+    location?: string;
     time_expire?: {
         op: 'duration';
         minutes: number;

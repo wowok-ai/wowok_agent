@@ -80,6 +80,7 @@ export declare const RepositoryValueType_NumberVec = "Unsigned integer vector";
 export declare const RepositoryValueType_Bool = "Boolean";
 export declare const RepositoryValueType_Description = "The data types supported for storage by the Repository object. The first byte of each data entry represents its data type";
 export declare const ObjectDes_Description = "Descriptions of the on-chain object, such as their depictions, functions, or purposes, etc";
+export declare const ObjectDes_Location = "Region, location or coordinates of the on-chain object, such as a physical address";
 export declare const Demand_Present_Description = "Recommend a Service object and recommendation words to the Demand. If the guard.service_id_in_guard of this Demand is defined, the recommended service address will be provided as a witness for service_id_in_guard during Guard verification";
 export declare const Demand_Description_Description = "Description of the Demand object";
 export declare const Demand_Time_Expire_Description = "The validity period for obtaining the recommended service reward. Once this period is successfully set, it can only be extended further and cannot be shortened";

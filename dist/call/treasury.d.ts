@@ -20,7 +20,7 @@ export interface CallTreasury_Data {
     } | 'recently';
     withdraw?: TreasuryWithdrawParam;
     description?: string;
-    deposit_guard?: string;
+    deposit_guard?: string | null;
     withdraw_guard?: {
         op: 'add' | 'set';
         data: GuardWithAmount[];

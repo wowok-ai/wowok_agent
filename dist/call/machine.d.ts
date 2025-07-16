@@ -28,7 +28,7 @@ export interface ProgressDeliverable {
 export interface CallMachine_Data {
     object?: ObjectMain;
     progress_new?: {
-        task_address?: string;
+        task_address?: string | null;
         namedNew?: Namedbject;
     };
     progress_context_repository?: {
@@ -62,7 +62,7 @@ export interface CallMachine_Data {
         deliverable: ProgressDeliverable;
     };
     description?: string;
-    endpoint?: string;
+    endpoint?: string | null;
     consensus_repository?: ObjectsOp;
     nodes?: {
         op: 'add';
@@ -116,6 +116,9 @@ export declare class CallMachine extends CallBase {
     constructor(data: CallMachine_Data);
     private resolveForward;
     protected prepare(): Promise<void>;
+    private checkPublished;
+    private checkNotPublished;
+    private checkNotPaused;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

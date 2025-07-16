@@ -9,6 +9,11 @@ export class CallArbitration extends CallBase {
         this.object_address = undefined;
         this.permission_address = undefined;
         this.type_parameter = undefined; // type of the object, e.g. '00x2::sui::SUI'
+        this.checkNotPaused = (op) => {
+            if (this.content.bPaused) {
+                ERROR(Errors.Fail, `Arbitration object has been paused and operation (${op}) cannot proceed.`);
+            }
+        };
         this.data = data;
     }
     async prepare() {
@@ -43,10 +48,13 @@ export class CallArbitration extends CallBase {
             if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_description);
             }
+            if (this.data?.location != null) {
+                perms.push(PermissionIndex.arbitration_location);
+            }
             if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.arbitration_pause);
             }
-            if (this.data?.endpoint != null) { // publish is an irreversible one-time operation 
+            if (this.data?.endpoint !== undefined) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.arbitration_endpoint);
             }
             if (this.data?.fee != null && this.object_address) {
@@ -55,7 +63,7 @@ export class CallArbitration extends CallBase {
             if (this.data.fee_treasury != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_treasury);
             }
-            if (this.data?.guard != null) {
+            if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.arbitration_guard);
             }
             if (this.data?.voting_guard != null) {
@@ -115,6 +123,7 @@ export class CallArbitration extends CallBase {
         const pst = perm ? undefined : passport;
         var arb_new;
         if (this.data?.arb_new != null) {
+            this.checkNotPaused('arb_new');
             const d = this.data?.arb_new.data;
             const fee = BigInt((this.object_address ? this.content?.fee : this.data?.fee) ?? 0);
             const max_fee = BigInt(d.max_fee ?? fee);
@@ -156,8 +165,11 @@ export class CallArbitration extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint != null) {
-            obj?.set_endpoint(this.data.endpoint, pst);
+        if (this.data?.location != null) {
+            obj?.set_location(this.data.location, pst);
+        }
+        if (this.data?.endpoint !== undefined) {
+            obj?.set_endpoint(this.data.endpoint);
         }
         if (this.data?.fee != null && this.object_address) {
             obj?.set_fee(BigInt(this.data.fee), pst);
@@ -173,9 +185,16 @@ export class CallArbitration extends CallBase {
             }
             obj?.set_withdrawTreasury(t, pst);
         }
-        const guard = await LocalMark.Instance().get_address(this.data.guard);
-        if (guard) {
-            obj?.set_guard(guard, pst);
+        if (this.data?.guard !== undefined) {
+            if (this.data.guard === null) {
+                obj?.set_guard(undefined, pst);
+            }
+            else {
+                const guard = await LocalMark.Instance().get_address(this.data.guard);
+                if (!guard)
+                    ERROR(Errors.InvalidParam, `CallArbitration_Data.data.guard: ${this.data.guard}`);
+                obj?.set_guard(guard, pst);
+            }
         }
         if (this.data?.voting_guard != null) {
             switch (this.data.voting_guard.op) {

@@ -203,6 +203,7 @@ export const CallDemandDataSchema = z.object({
         recommend_words:z.string().default(''),
     }).optional().describe(D.Demand_Present_Description),
     description: z.string().optional().describe(D.ObjectDes_Description),
+    location: z.string().optional().describe(D.ObjectDes_Location),
     time_expire: z.union([z.object({
             op:z.literal('duration'),
             minutes:z.number().int().min(1)
@@ -252,7 +253,7 @@ const OptionOrderObjectSchema = GetMarkNameSchema('Order').optional().describe(D
 export const CallMachineDataSchema = z.object({
     object: ObjectMainSchema,
     progress_new: z.object({
-        task_address:GetMarkNameSchema().optional(),
+        task_address:GetMarkNameSchema().optional().nullable(),
         namedNew: GetNamedObjectSchema('Progress').optional(),
         }).optional().describe(D.Progress_New_Description),
     progress_context_repository: z.object({
@@ -293,7 +294,7 @@ export const CallMachineDataSchema = z.object({
         })
     }).optional().describe(D.Progress_Next_Description),    
     description: z.string().optional().describe(D.ObjectDes_Description),
-    endpoint: z.string().optional().describe(D.Machine_Endpoint_Description),
+    endpoint: z.string().nullable().optional().describe(D.Machine_Endpoint_Description),
     consensus_repository: ObjectsOperationSchema().optional().describe(D.Machine_Repository_Description),
     nodes: z.union([
         z.object({
@@ -432,6 +433,36 @@ export const PayParamSchema = z.object({
 
 export const CallRepositoryDataSchema = z.object({
     object: ObjectMainSchema,
+        data: z.union([
+        z.object({
+            op:z.literal('add'),
+            data: z.union([
+                z.object({
+                    key: z.string().nonempty().describe(D.Data_Key),
+                    data: z.array(z.object({
+                        address: RepositoryAddressID,
+                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
+                        value_type: ValueTypeSchema.optional()
+                    }).describe(D.Data_ForAddress))
+                }).describe('Under the data field, different data(including wowok data type:ValueTypeSchema) corresponding to different addresses.'),
+                z.object({
+                    address: RepositoryAddressID,
+                    data: z.array(z.object({
+                        key:z.string().nonempty().describe(D.Data_Key),
+                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
+                    })),
+                    value_type: ValueTypeSchema.optional()
+                }).describe(D.Repository_Data_ForName)
+            ])
+        }).describe(D.Repository_AddData),
+        z.object({
+            op:z.literal('remove'),
+            data: z.array(z.object({
+                key: z.string().nonempty().describe(D.Data_Key),
+                address: RepositoryAddressID
+            }))
+        }).describe(D.Repository_RemoveData)
+    ]).optional().describe(D.Repository_OpData),
     description: z.string().optional().describe(D.ObjectDes_Description),
     reference: ObjectsOperationSchema().optional().describe(D.Repository_Reference_Description),
     mode:z.union([
@@ -463,36 +494,6 @@ export const CallRepositoryDataSchema = z.object({
             }))
         }).describe(D.Policy_Rename),
     ]).optional().describe(D.Repository_Policy_Description),
-    data: z.union([
-        z.object({
-            op:z.literal('add'),
-            data: z.union([
-                z.object({
-                    key: z.string().nonempty().describe(D.Data_Key),
-                    data: z.array(z.object({
-                        address: RepositoryAddressID,
-                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
-                        value_type: ValueTypeSchema.optional()
-                    }).describe(D.Data_ForAddress))
-                }).describe('Under the data field, different data(including wowok data type:ValueTypeSchema) corresponding to different addresses.'),
-                z.object({
-                    address: RepositoryAddressID,
-                    data: z.array(z.object({
-                        key:z.string().nonempty().describe(D.Data_Key),
-                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
-                    })),
-                    value_type: ValueTypeSchema.optional()
-                }).describe(D.Repository_Data_ForName)
-            ])
-        }).describe(D.Repository_AddData),
-        z.object({
-            op:z.literal('remove'),
-            data: z.array(z.object({
-                key: z.string().nonempty().describe(D.Data_Key),
-                address: RepositoryAddressID
-            }))
-        }).describe(D.Repository_RemoveData)
-    ]).optional().describe(D.Repository_OpData)
 }).describe(D.GetObjectDataDescription('Repository'));
 
 
@@ -519,11 +520,12 @@ export const CallArbitrationDataSchema = z.object({
     arb_arbitration:z.object({
         arb:GetMarkNameSchema('Arb'),
         feedback: z.string().describe(D.Arbitration_Feedback),
-        indemnity: TokenBalanceSchema.optional()
+        indemnity: TokenBalanceSchema.optional().nullable(),
     }).optional().describe(D.Arbitration_Arbitratation),
     
     description: z.string().optional().describe(D.ObjectDes_Description),
-    endpoint: z.string().optional().describe(D.Arbitration_Endpoint),
+    location: z.string().optional().describe(D.ObjectDes_Location),
+    endpoint: z.string().nullable().optional().describe(D.Arbitration_Endpoint),
     fee: TokenBalanceSchema.optional().describe(D.Arbitration_Fee),
     fee_treasury: ObjectParamSchema('Treasury').optional(),
     guard: GetMarkNameSchema('Guard').optional().describe(D.Arbitration_Guard),
@@ -570,7 +572,7 @@ export const CallTreasuryDataSchema = z.object({
     ]).optional().describe(D.Treasury_Receive),
     withdraw: TreasuryWithdrawParamSchema.optional(),
     description: z.string().optional().describe(D.ObjectDes_Description),
-    deposit_guard: GetMarkNameSchema('Guard').optional(),
+    deposit_guard: GetMarkNameSchema('Guard').optional().nullable(),
     withdraw_guard: z.union([
         z.object({
             op:z.union([z.literal('add'), z.literal('set')]),
@@ -642,7 +644,8 @@ export const CallServiceDataSchema = z.object({
     }).optional().describe(D.Service_Order_Payer),
 
     description: z.string().optional().describe(D.ObjectDes_Description),
-    endpoint: z.string().optional().describe(D.Service_Endpoint),
+    location: z.string().optional().describe(D.ObjectDes_Location),
+    endpoint: z.string().nullable().optional().describe(D.Service_Endpoint),
     payee_treasury: ObjectParamSchema('Treasury').optional(),
     gen_discount: z.array(z.object({
         receiver: AccountOrMarkNameSchema,
@@ -661,7 +664,7 @@ export const CallServiceDataSchema = z.object({
     })).optional().describe(D.Service_Discount),
     repository: ObjectsOperationSchema('Repository').optional().describe(D.Service_Repository),
     extern_withdraw_treasury: ObjectsOperationSchema('Treasury').optional().describe(D.Service_ExternTreasury),
-    machine: GetMarkNameSchema('Machine').optional(),
+    machine: GetMarkNameSchema('Machine').optional().nullable(),
     arbitration: ObjectsOperationSchema('Arbitration').optional().describe(D.Service_Arbitration),
     customer_required_info: z.object({
         pubkey: z.string().nonempty().describe('The public key for encrypting the order information.'),
@@ -672,7 +675,7 @@ export const CallServiceDataSchema = z.object({
             z.literal(WOWOK.BuyRequiredEnum.name).describe('User name'),
             z.string().nonempty().describe('Other user information'),
         ])).describe('The type of user information to be encrypted')
-    }).optional().describe(''),
+    }).optional().nullable().describe(''),
     sales: z.union([
         z.object({
             op:z.literal('add'),
@@ -680,7 +683,7 @@ export const CallServiceDataSchema = z.object({
                 item: z.string().nonempty().describe('Goods name'),
                 price: z.union([z.string(), z.number().int().min(0)]).describe('Goods price'),
                 stock: z.union([z.string(), z.number().int().min(0)]).describe('Goods stock'),
-                endpoint: z.string().nonempty().optional().describe('Goods endpoint')
+                endpoint: z.string().nullable().optional().describe('Goods endpoint')
             }).describe('Goods infomation'))
         }).describe('Shelf goods to sell'),
         z.object({
@@ -692,7 +695,7 @@ export const CallServiceDataSchema = z.object({
     refund_guard: GuardPercentSchema.optional().describe('Management refund guards.'),
     bPublished:z.boolean().optional().describe('Publish the Service object. ' + 
         'If True, The Service object will allow its Order object to be created, and data such as the Machine, Withdraw guards, Refund guards, etc. cannot be changed again. If False, it is ignored.'),
-    buy_guard: GetMarkNameSchema('Guard').optional().describe(D.Buy_Guard),
+    buy_guard: GetMarkNameSchema('Guard').optional().nullable().describe(D.Buy_Guard),
     bPaused:z.boolean().optional().describe(D.Service_bPaused),
     clone_new: z.object({
         token_type_new: z.string().optional().describe(D.Clone_Type),

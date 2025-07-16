@@ -24,13 +24,14 @@ export interface CallArbitration_Data {
     arb_arbitration?: {
         arb: string;
         feedback: string;
-        indemnity?: string | number;
+        indemnity?: string | number | null;
     };
     description?: string;
-    endpoint?: string;
+    location?: string;
+    endpoint?: string | null;
     fee?: string | number;
     fee_treasury?: ObjectParam;
-    guard?: string;
+    guard?: string | null;
     voting_guard?: {
         op: 'add' | 'set';
         data: VotingGuard[];
@@ -48,6 +49,7 @@ export declare class CallArbitration extends CallBase {
     permission_address: string | undefined;
     type_parameter: string | undefined;
     constructor(data: CallArbitration_Data);
+    private checkNotPaused;
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;

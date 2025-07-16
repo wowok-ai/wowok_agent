@@ -38,7 +38,7 @@ export interface ProgressDeliverable {
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallMachine_Data {
     object?: ObjectMain;
-    progress_new?: {task_address?:string, namedNew?: Namedbject};
+    progress_new?: {task_address?:string|null, namedNew?: Namedbject};
     progress_context_repository?: {progress?:string; repository:string | null};
     progress_namedOperator?: {progress?:string; data:{name:string, operators:AccountOrMark_Address[]}[]};
     progress_parent?: {progress?:string, parent:ParentProgress | null};
@@ -47,7 +47,7 @@ export interface CallMachine_Data {
     progress_next?: {progress:string; operation:ProgressNext; deliverable:ProgressDeliverable};
 
     description?: string;
-    endpoint?: string;
+    endpoint?: string | null;
     consensus_repository?: ObjectsOp;
     nodes?: {op: 'add'; data: Machine_Node[]} | {op: 'remove'; names: string[], bTransferMyself?:boolean} 
     | {op:'rename node'; data:{old:string; new:string}[]} | {op:'add from myself'; addresses: string[]}
@@ -98,6 +98,25 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         } 
     }
 
+    private checkPublished = (op: string)  => {
+        if (!(this.content as ObjectMachine).bPublished) {
+            ERROR(Errors.Fail, `Machine object has not been published yet, so the operation (${op}) cannot proceed.`);
+        }
+    }
+
+    private checkNotPublished = (op: string)  => {
+        if ((this.content as ObjectMachine).bPublished) {
+            ERROR(Errors.Fail, `Machine object has been published and operation (${op}) cannot proceed. 
+                If further modifications are needed, you can 'clone' a new Machine and then proceed with the operation.`);
+        }
+    }
+
+    private checkNotPaused = (op: string)  => {
+        if ((this.content as ObjectMachine).bPaused) {
+            ERROR(Errors.Fail, `Machine object has been paused and operation (${op}) cannot proceed.`);
+        }
+    }
+
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
@@ -110,34 +129,42 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.machine_description)
             }
-            if (this.data?.endpoint != null && this.object_address) {
+            if (this.data?.endpoint !== undefined && this.object_address) {
                 perms.push(PermissionIndex.machine_endpoint)
             }
             if (this.data?.consensus_repository != null) {
                 perms.push(PermissionIndex.machine_repository)
             }
             if (this.data?.nodes != null) {
+                this.checkNotPublished(`nodes`);
                 perms.push(PermissionIndex.machine_node)
             }
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.machine_publish)
             }
             if (this.data?.progress_new != null) {
+                this.checkPublished(`progress_new`);
+                this.checkNotPaused(`progress_new`);
                 perms.push(PermissionIndex.progress)
             }
             if (this.data?.progress_context_repository != null) {
+                this.checkPublished(`progress_context_repository`);
                 perms.push(PermissionIndex.progress_context_repository)
             }
             if (this.data?.progress_namedOperator != null) {
+                this.checkPublished(`progress_namedOperator`);
                 perms.push(PermissionIndex.progress_namedOperator)
             }
             if (this.data?.progress_parent != null) {
+                this.checkPublished(`progress_parent`);
                 perms.push(PermissionIndex.progress_parent)
             }
             if (this.data?.progress_task != null) {
+                this.checkPublished(`progress_task`);
                 perms.push(PermissionIndex.progress_bind_task)
             }
             if (this.data?.progress_hold != null) {
+                this.checkPublished(`progress_hold`);
                 if (this.data.progress_hold.adminUnhold) {
                     perms.push(PermissionIndex.progress_unhold)
                 } 
@@ -150,6 +177,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             }
 
             if (this.data?.progress_next != null) {
+                this.checkPublished(`progress_next`);
+
                 if (this.object_address) { // fetch guard
                     const [p, acc] = await Promise.all([
                         await LocalMark.Instance().get_address(this.data?.progress_next.progress), 
@@ -196,16 +225,26 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         const pst = perm?undefined:passport;
         var new_progress : Progress | undefined;
         if (this.data?.progress_new != null) {
-            const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
-            new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
+            if (this.data.progress_new.task_address === null) {
+                new_progress = Progress?.New(txb, obj?.get_object(), permission, undefined, pst);
+            } else {
+                const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
+                if (!task) ERROR(Errors.InvalidParam, `CallMachine_Data.data.progress_new.task_address: ${this.data?.progress_new?.task_address}`);
+                new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
+            }
         }
         if (this.data?.progress_context_repository != null) {
             const p = this.data?.progress_context_repository.progress 
                 ? await LocalMark.Instance().get_address(this.data?.progress_context_repository.progress)
                 : new_progress?.get_object();
             if (!p) ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
-            const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
-            Progress.From(txb, obj?.get_object(), permission, p!).set_context_repository(rep, pst)
+            if (this.data.progress_context_repository.repository === null) {
+                Progress.From(txb, obj?.get_object(), permission, p!).set_context_repository(undefined, pst);
+            } else {
+                const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
+                if (!rep) ERROR(Errors.InvalidParam, `CallMachine_Data.data.progress_context_repository.repository ${this.data?.progress_context_repository.repository}`);
+                Progress.From(txb, obj?.get_object(), permission, p!).set_context_repository(rep, pst)
+            }
         }
         if (this.data?.progress_namedOperator != null) {
             const p = this.data?.progress_namedOperator.progress 
@@ -281,7 +320,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint != null && this.object_address) {
+        if (this.data?.endpoint !== undefined && this.object_address) {
             obj?.set_endpoint(this.data.endpoint, pst)
         }
 

@@ -20,13 +20,14 @@ export interface CallArbitration_Data {
     arb_new?: {data: DisputeData; namedNew?: Namedbject}; // dispute an order, and a Arb object will be created.
     arb_withdraw_fee?: {arb:string; data:PayParam};
     arb_vote?: {arb: string; voting_guard?: string; agrees: number[]};
-    arb_arbitration?: {arb:string; feedback:string; indemnity?:string|number};
+    arb_arbitration?: {arb:string; feedback:string; indemnity?:string|number|null};
 
     description?: string;
-    endpoint?: string;
+    location?: string; // region, location or coordinates of the on-chain object, such as a physical address
+    endpoint?: string | null;
     fee?: string | number;
     fee_treasury?: ObjectParam;
-    guard?: string;
+    guard?: string | null;
     voting_guard?: {op:'add' | 'set'; data:VotingGuard[]} | {op:'remove', guards:string[]} | {op:'removeall'};
     bPaused?: boolean;
 }
@@ -40,6 +41,11 @@ export class CallArbitration extends CallBase {
     constructor (data: CallArbitration_Data) {
         super();
         this.data  = data;
+    }
+    private checkNotPaused = (op: string)  => {
+        if ((this.content as ObjectArbitration).bPaused) {
+            ERROR(Errors.Fail, `Arbitration object has been paused and operation (${op}) cannot proceed.`);
+        }
     }
 
     protected async prepare()  {
@@ -74,10 +80,13 @@ export class CallArbitration extends CallBase {
             if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_description)
             }
+            if (this.data?.location != null) {
+                perms.push(PermissionIndex.arbitration_location)
+            }
             if (this.data?.bPaused != null) {
                 perms.push(PermissionIndex.arbitration_pause)
             }
-            if (this.data?.endpoint != null) { // publish is an irreversible one-time operation 
+            if (this.data?.endpoint !== undefined) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.arbitration_endpoint)
             }
             if (this.data?.fee != null && this.object_address) {
@@ -86,7 +95,7 @@ export class CallArbitration extends CallBase {
             if (this.data.fee_treasury != null && this.object_address) {
                 perms.push(PermissionIndex.arbitration_treasury)
             }
-            if (this.data?.guard != null) {
+            if (this.data?.guard !== undefined) {
                 perms.push(PermissionIndex.arbitration_guard)
             }
             if (this.data?.voting_guard != null) {
@@ -151,6 +160,8 @@ export class CallArbitration extends CallBase {
         const pst = perm?undefined:passport;
         var arb_new : ArbObject | undefined;
         if (this.data?.arb_new != null) {
+            this.checkNotPaused('arb_new');
+
             const d = this.data?.arb_new.data; 
             const fee = BigInt((this.object_address ? (this.content as ObjectArbitration)?.fee : this.data?.fee) ?? 0);
             const max_fee = BigInt(d.max_fee ?? fee);
@@ -199,8 +210,12 @@ export class CallArbitration extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint != null) {
-            obj?.set_endpoint(this.data.endpoint, pst)
+        if (this.data?.location != null) {
+            obj?.set_location(this.data.location, pst);
+        }
+
+        if (this.data?.endpoint !== undefined) {
+            obj?.set_endpoint(this.data.endpoint)
         }
         if (this.data?.fee != null && this.object_address) {
             obj?.set_fee(BigInt(this.data.fee), pst)
@@ -218,10 +233,16 @@ export class CallArbitration extends CallBase {
             obj?.set_withdrawTreasury(t, pst)
         }
         
-        const guard = await LocalMark.Instance().get_address(this.data.guard);
-        if (guard) {
-            obj?.set_guard(guard, pst)
+        if (this.data?.guard !== undefined) {
+            if (this.data.guard === null) {
+                obj?.set_guard(undefined, pst);
+            } else {
+                const guard = await LocalMark.Instance().get_address(this.data.guard);
+                if (!guard) ERROR(Errors.InvalidParam, `CallArbitration_Data.data.guard: ${this.data.guard}`);
+                obj?.set_guard(guard, pst)
+            }
         }
+
 
         if (this.data?.voting_guard != null) {
             switch (this.data.voting_guard.op) {

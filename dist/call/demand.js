@@ -1,5 +1,5 @@
 import { IsValidArgType, Service, Errors, ERROR, Permission, PermissionIndex, Demand, ParseType } from 'wowok';
-import { query_objects } from '../query/objects.js';
+import { query_objects, queryTableItem_DemandService } from '../query/objects.js';
 import { CallBase, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
@@ -43,10 +43,22 @@ export class CallDemand extends CallBase {
             if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.demand_description);
             }
+            if (this.data?.location != null) {
+                perms.push(PermissionIndex.demand_location);
+            }
             if (this.data?.time_expire != null && this.object_address) {
                 perms.push(PermissionIndex.demand_expand_time);
             }
             if (this.data?.bounty?.op === 'reward') {
+                if (!this.object_address)
+                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.op ${this.data?.bounty?.op}. Only the created Demand object can be used to distribute the reward`);
+                const service = await LocalMark.Instance().get_address(this.data.bounty?.service);
+                if (!service)
+                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service ${this.data?.bounty?.service}`);
+                const n = await queryTableItem_DemandService({ parent: this.object_address, address: service, no_cache: true });
+                if (n?.type !== 'TableItem_DemandPresenter')
+                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service. This service ${this.data?.bounty?.service} has not yet been recommended to the Demand object.`);
+                this.data.bounty.service = service;
                 perms.push(PermissionIndex.demand_yes);
             }
             if (this.data?.bounty?.op === 'refund') {
@@ -116,6 +128,9 @@ export class CallDemand extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
+        if (this.data?.location != null) {
+            obj?.set_location(this.data.location, pst);
+        }
         if (this.data?.time_expire != null && this.object_address) {
             obj?.expand_time(this.data.time_expire.op === 'duration' ? true : false, this.data.time_expire.op === 'duration' ? this.data.time_expire.minutes : this.data.time_expire.time, pst);
         }
@@ -135,10 +150,7 @@ export class CallDemand extends CallBase {
                 }
             }
             else if (this.data.bounty.op === 'reward') {
-                const service = await LocalMark.Instance().get_address(this.data.bounty.service);
-                if (!service)
-                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.bounty.service');
-                obj?.yes(service, pst);
+                obj?.yes(this.data.bounty?.service, pst);
             }
             else if (this.data.bounty.op === 'refund') {
                 obj?.refund(pst);

@@ -262,7 +262,7 @@ export function data2object(data) {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     permission: content?.permission, description: content?.description,
                     guard: content?.guard ? { object: content?.guard, service_id_in_guard: content?.service_identifier } : undefined,
-                    time_expire: content?.time_expire, yes: content?.yes,
+                    time_expire: content?.time_expire, yes: content?.yes, location: content?.location,
                     presenter_count: parseInt(content?.presenters?.fields?.size),
                     bounty: content?.bounty?.map((v) => {
                         return { type: v?.fields?.type, object: v?.fields?.id?.id, balance: v?.fields?.balance };
@@ -308,7 +308,7 @@ export function data2object(data) {
                 };
             case 'Service':
                 return {
-                    object: id, type: type, type_raw: type_raw, owner: owner, version: version,
+                    object: id, type: type, type_raw: type_raw, owner: owner, version: version, location: content?.location,
                     machine: content?.machine, permission: content?.permission, description: content?.description,
                     arbitration: content?.arbitrations, bPaused: content?.bPaused, bPublished: content?.bPublished,
                     buy_guard: content?.buy_guard, endpoint: content?.endpoint, payee_treasury: content?.payee, repository: content?.repositories,
@@ -334,7 +334,7 @@ export function data2object(data) {
                 };
             case 'Arbitration':
                 return {
-                    object: id, type: type, type_raw: type_raw, owner: owner, version: version,
+                    object: id, type: type, type_raw: type_raw, owner: owner, version: version, location: content?.location,
                     permission: content?.permission, description: content?.description, fee: content?.fee,
                     fee_treasury: content?.fee_treasury, usage_guard: content?.usage_guard,
                     endpoint: content?.endpoint, bPaused: content?.bPaused, voting_guard: content?.voting_guard?.fields?.contents?.map((v) => {

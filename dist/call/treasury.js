@@ -1,4 +1,4 @@
-import { IsValidArgType, Errors, ERROR, Permission, PermissionIndex, Treasury, GetRecievedBalanceObject } from 'wowok';
+import { IsValidArgType, Errors, ERROR, Permission, PermissionIndex, Treasury, Treasury_WithdrawMode, GetRecievedBalanceObject } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
@@ -47,12 +47,22 @@ export class CallTreasury extends CallBase {
                 perms.push(PermissionIndex.treasury_descritption);
             }
             if (this.data?.withdraw_mode != null) {
-                perms.push(PermissionIndex.treasury_withdraw_mode);
+                if (this.content?.withdraw_mode === Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                    if (this.data.withdraw_mode !== Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                        ERROR(Errors.Fail, `CallTreasury_Data.withdraw_mode: The "withdraw_mode" has been set to "GUARD_ONLY_AND_IMMUTABLE", and it can no longer be changed`);
+                    }
+                    else {
+                        this.data.withdraw_mode = undefined;
+                    }
+                }
+                else {
+                    perms.push(PermissionIndex.treasury_withdraw_mode);
+                }
             }
             if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.treasury_withdraw_guard);
             }
-            if (this.data?.deposit_guard != null) {
+            if (this.data?.deposit_guard !== undefined) {
                 perms.push(PermissionIndex.treasury_deposit_guard);
             }
             if (this.data?.deposit != null) {
@@ -77,7 +87,6 @@ export class CallTreasury extends CallBase {
                     this.data.withdraw.receiver.forEach(v => {
                         total += BigInt(v.amount);
                     });
-                    console.log(total);
                     if (BigInt(f.max_withdrawal_amount) < total)
                         ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard: The total amount withdrawaled > the maximum limit(${f.max_withdrawal_amount}) set by the withdraw Guard  `);
                     if (guard) {
@@ -162,9 +171,16 @@ export class CallTreasury extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.deposit_guard != null) {
-            const guard = await LocalMark.Instance().get_address(this.data?.deposit_guard);
-            obj?.set_deposit_guard(guard, pst);
+        if (this.data?.deposit_guard !== undefined) {
+            if (this.data.deposit_guard === null) {
+                obj?.set_deposit_guard(undefined, pst);
+            }
+            else {
+                const guard = await LocalMark.Instance().get_address(this.data.deposit_guard);
+                if (!guard)
+                    ERROR(Errors.InvalidParam, `CallTreasury_Data.deposit_guard: ${this.data.deposit_guard}`);
+                obj?.set_deposit_guard(guard, pst);
+            }
         }
         if (this.data?.withdraw_guard != null) {
             switch (this.data.withdraw_guard.op) {

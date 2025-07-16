@@ -8,6 +8,22 @@ export class CallMachine extends CallBase {
         super();
         this.object_address = undefined;
         this.permission_address = undefined;
+        this.checkPublished = (op) => {
+            if (!this.content.bPublished) {
+                ERROR(Errors.Fail, `Machine object has not been published yet, so the operation (${op}) cannot proceed.`);
+            }
+        };
+        this.checkNotPublished = (op) => {
+            if (this.content.bPublished) {
+                ERROR(Errors.Fail, `Machine object has been published and operation (${op}) cannot proceed. 
+                If further modifications are needed, you can 'clone' a new Machine and then proceed with the operation.`);
+            }
+        };
+        this.checkNotPaused = (op) => {
+            if (this.content.bPaused) {
+                ERROR(Errors.Fail, `Machine object has been paused and operation (${op}) cannot proceed.`);
+            }
+        };
         this.data = data;
     }
     async resolveForward(forward) {
@@ -51,34 +67,42 @@ export class CallMachine extends CallBase {
             if (this.data?.description != null && this.object_address) {
                 perms.push(PermissionIndex.machine_description);
             }
-            if (this.data?.endpoint != null && this.object_address) {
+            if (this.data?.endpoint !== undefined && this.object_address) {
                 perms.push(PermissionIndex.machine_endpoint);
             }
             if (this.data?.consensus_repository != null) {
                 perms.push(PermissionIndex.machine_repository);
             }
             if (this.data?.nodes != null) {
+                this.checkNotPublished(`nodes`);
                 perms.push(PermissionIndex.machine_node);
             }
             if (this.data?.bPublished) { // publish is an irreversible one-time operation 
                 perms.push(PermissionIndex.machine_publish);
             }
             if (this.data?.progress_new != null) {
+                this.checkPublished(`progress_new`);
+                this.checkNotPaused(`progress_new`);
                 perms.push(PermissionIndex.progress);
             }
             if (this.data?.progress_context_repository != null) {
+                this.checkPublished(`progress_context_repository`);
                 perms.push(PermissionIndex.progress_context_repository);
             }
             if (this.data?.progress_namedOperator != null) {
+                this.checkPublished(`progress_namedOperator`);
                 perms.push(PermissionIndex.progress_namedOperator);
             }
             if (this.data?.progress_parent != null) {
+                this.checkPublished(`progress_parent`);
                 perms.push(PermissionIndex.progress_parent);
             }
             if (this.data?.progress_task != null) {
+                this.checkPublished(`progress_task`);
                 perms.push(PermissionIndex.progress_bind_task);
             }
             if (this.data?.progress_hold != null) {
+                this.checkPublished(`progress_hold`);
                 if (this.data.progress_hold.adminUnhold) {
                     perms.push(PermissionIndex.progress_unhold);
                 }
@@ -90,6 +114,7 @@ export class CallMachine extends CallBase {
                 perms.push(PermissionIndex.machine_clone);
             }
             if (this.data?.progress_next != null) {
+                this.checkPublished(`progress_next`);
                 if (this.object_address) { // fetch guard
                     const [p, acc] = await Promise.all([
                         await LocalMark.Instance().get_address(this.data?.progress_next.progress),
@@ -133,8 +158,15 @@ export class CallMachine extends CallBase {
         const pst = perm ? undefined : passport;
         var new_progress;
         if (this.data?.progress_new != null) {
-            const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
-            new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
+            if (this.data.progress_new.task_address === null) {
+                new_progress = Progress?.New(txb, obj?.get_object(), permission, undefined, pst);
+            }
+            else {
+                const task = await LocalMark.Instance().get_address(this.data?.progress_new?.task_address);
+                if (!task)
+                    ERROR(Errors.InvalidParam, `CallMachine_Data.data.progress_new.task_address: ${this.data?.progress_new?.task_address}`);
+                new_progress = Progress?.New(txb, obj?.get_object(), permission, task, pst);
+            }
         }
         if (this.data?.progress_context_repository != null) {
             const p = this.data?.progress_context_repository.progress
@@ -142,8 +174,15 @@ export class CallMachine extends CallBase {
                 : new_progress?.get_object();
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
-            const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
-            Progress.From(txb, obj?.get_object(), permission, p).set_context_repository(rep, pst);
+            if (this.data.progress_context_repository.repository === null) {
+                Progress.From(txb, obj?.get_object(), permission, p).set_context_repository(undefined, pst);
+            }
+            else {
+                const rep = await LocalMark.Instance().get_address(this.data?.progress_context_repository.repository);
+                if (!rep)
+                    ERROR(Errors.InvalidParam, `CallMachine_Data.data.progress_context_repository.repository ${this.data?.progress_context_repository.repository}`);
+                Progress.From(txb, obj?.get_object(), permission, p).set_context_repository(rep, pst);
+            }
         }
         if (this.data?.progress_namedOperator != null) {
             const p = this.data?.progress_namedOperator.progress
@@ -219,7 +258,7 @@ export class CallMachine extends CallBase {
         if (this.data?.description != null && this.object_address) {
             obj?.set_description(this.data.description, pst);
         }
-        if (this.data?.endpoint != null && this.object_address) {
+        if (this.data?.endpoint !== undefined && this.object_address) {
             obj?.set_endpoint(this.data.endpoint, pst);
         }
         if (this.data?.consensus_repository != null) {

@@ -45,6 +45,7 @@ export interface ObjectDemand extends ObjectBase {
     time_expire: string;
     yes?: string | null;
     presenter_count: number;
+    location: string;
     bounty: {
         object: string;
         balance: string;
@@ -107,6 +108,7 @@ export interface ObjectService extends ObjectBase {
     bPaused: boolean;
     bPublished: boolean;
     description: string;
+    location: string;
     arbitration: string[];
     buy_guard?: string | null;
     endpoint?: string | null;
@@ -170,6 +172,7 @@ export interface GuardWithWeight {
 export interface ObjectArbitration extends ObjectBase {
     permission: string;
     description: string;
+    location: string;
     bPaused: boolean;
     endpoint?: string | null;
     fee: string;
