@@ -99,20 +99,20 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     }
 
     private checkPublished = (op: string)  => {
-        if (!(this.content as ObjectMachine).bPublished) {
+        if (this.content && !(this.content as ObjectMachine).bPublished) {
             ERROR(Errors.Fail, `Machine object has not been published yet, so the operation (${op}) cannot proceed.`);
         }
     }
 
     private checkNotPublished = (op: string)  => {
-        if ((this.content as ObjectMachine).bPublished) {
+        if (this.content && (this.content as ObjectMachine)?.bPublished) {
             ERROR(Errors.Fail, `Machine object has been published and operation (${op}) cannot proceed. 
                 If further modifications are needed, you can 'clone' a new Machine and then proceed with the operation.`);
         }
     }
 
     private checkNotPaused = (op: string)  => {
-        if ((this.content as ObjectMachine).bPaused) {
+        if (this.content && (this.content as ObjectMachine).bPaused) {
             ERROR(Errors.Fail, `Machine object has been paused and operation (${op}) cannot proceed.`);
         }
     }

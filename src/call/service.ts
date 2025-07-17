@@ -84,20 +84,20 @@ export class CallService extends CallBase {
     }
 
     private checkPublished = (op: string)  => {
-        if (!(this.content as ObjectService).bPublished) {
+        if (this.content && !(this.content as ObjectService).bPublished) {
             ERROR(Errors.Fail, `Service object has not been published yet, so the operation (${op}) cannot proceed.`);
         }
     }
 
     private checkNotPublished = (op: string)  => {
-        if ((this.content as ObjectService).bPublished) {
+        if (this.content && (this.content as ObjectService).bPublished) {
             ERROR(Errors.Fail, `Service object has been published and operation (${op}) cannot proceed. 
                 If further modifications are needed, you can 'clone' a new Service and then proceed with the operation.`);
         }
     }
 
     private checkNotPaused = (op: string)  => {
-        if ((this.content as ObjectService).bPaused) {
+        if (this.content && (this.content as ObjectService).bPaused) {
             ERROR(Errors.Fail, `Service object has been paused and operation (${op}) cannot proceed.`);
         }
     }

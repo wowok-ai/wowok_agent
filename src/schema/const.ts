@@ -202,8 +202,7 @@ export const Policy_Rename_Old = `The original name of the data name`;
 export const Policy_Rename_New = `The new name of the data name`;
 export const Data_Key = `Data name`;
 export const Data_bcsBytes = 'Data in bcs Bytes format';
-export const Data_ForAddress = `Under the data name, the data corresponding to the address. If value_type is defined, bcsBytes is the raw data.
-    Otherwise, the first byte of bscBytes represents value_type, followed by the raw data`;
+export const Data_ForAddress = `Add dataset: The same key (data name), but different data under different addresses`;
 export const Repository_Data_ForAddress = `Batch add data for different addresses based on the data name`;
 export const Repository_Data_ForName = `Batch add data for a specific address based on different data names.`
 export const Data_Name_Address = `Each piece of data is uniquely identified by a data name and an address`;
@@ -293,4 +292,3 @@ export const Witness_Value = `Value of this witness`;
 export const Witness_Cmd = `The query command for this Witness object address`;
 export const Witness_Cited = `Number of times the witness is cited`;
 export const Faucet = `Receive SUI tokens from the faucet (valid only on the testnet). Receive it once every certain period of time (usually 24 hours)`;
-

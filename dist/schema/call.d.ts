@@ -1828,6 +1828,100 @@ export declare const PayParamSchema: z.ZodObject<{
     for_object?: string | undefined;
     for_guard?: string | undefined;
 }>;
+export declare const RepositoryTypedDataSchema: z.ZodUnion<[z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber>;
+    data: z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.PositiveNumber;
+    data: string | number | bigint;
+}, {
+    type: WOWOK.RepositoryValueType.PositiveNumber;
+    data: string | number | bigint;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.String>;
+    data: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.String;
+    data: string;
+}, {
+    type: WOWOK.RepositoryValueType.String;
+    data: string;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber_Vec>;
+    data: z.ZodArray<z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>, "many">;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+    data: (string | number | bigint)[];
+}, {
+    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+    data: (string | number | bigint)[];
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.String_Vec>;
+    data: z.ZodArray<z.ZodString, "many">;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.String_Vec;
+    data: string[];
+}, {
+    type: WOWOK.RepositoryValueType.String_Vec;
+    data: string[];
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address>;
+    data: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+        name_or_address: z.ZodOptional<z.ZodString>;
+        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    }, {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    }>]>;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.Address;
+    data: number | bigint | {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    };
+}, {
+    type: WOWOK.RepositoryValueType.Address;
+    data: number | bigint | {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    };
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address_Vec>;
+    data: z.ZodArray<z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+        name_or_address: z.ZodOptional<z.ZodString>;
+        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    }, {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    }>]>, "many">;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.Address_Vec;
+    data: (number | bigint | {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    })[];
+}, {
+    type: WOWOK.RepositoryValueType.Address_Vec;
+    data: (number | bigint | {
+        name_or_address?: string | undefined;
+        local_mark_first?: boolean | undefined;
+    })[];
+}>, z.ZodObject<{
+    type: z.ZodLiteral<WOWOK.RepositoryValueType.Bool>;
+    data: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    type: WOWOK.RepositoryValueType.Bool;
+    data: boolean;
+}, {
+    type: WOWOK.RepositoryValueType.Bool;
+    data: boolean;
+}>]>;
 export declare const CallRepositoryDataSchema: z.ZodObject<{
     object: z.ZodUnion<[z.ZodString, z.ZodObject<{
         name: z.ZodOptional<z.ZodString>;
@@ -1881,8 +1975,7 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
         } | undefined;
     }>]>;
     data: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
-        op: z.ZodLiteral<"add">;
-        data: z.ZodUnion<[z.ZodObject<{
+        add_by_key: z.ZodObject<{
             key: z.ZodString;
             data: z.ZodArray<z.ZodObject<{
                 address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
@@ -1895,22 +1988,166 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 }>]>;
-                bcsBytes: z.ZodType<Uint8Array<ArrayBufferLike>, z.ZodTypeDef, Uint8Array<ArrayBufferLike>>;
-                value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
+                data: z.ZodUnion<[z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber>;
+                    data: z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                }, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.String>;
+                    data: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                }, {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber_Vec>;
+                    data: z.ZodArray<z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                }, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.String_Vec>;
+                    data: z.ZodArray<z.ZodString, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                }, {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address>;
+                    data: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                        name_or_address: z.ZodOptional<z.ZodString>;
+                        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                    }, "strip", z.ZodTypeAny, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }>]>;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                }, {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address_Vec>;
+                    data: z.ZodArray<z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                        name_or_address: z.ZodOptional<z.ZodString>;
+                        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                    }, "strip", z.ZodTypeAny, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }>]>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                }, {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Bool>;
+                    data: z.ZodBoolean;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                }, {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                }>]>;
             }, "strip", z.ZodTypeAny, {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }, {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
             data: {
@@ -1918,8 +2155,34 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }[];
             key: string;
         }, {
@@ -1928,11 +2191,115 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }[];
             key: string;
-        }>, z.ZodObject<{
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        add_by_key: {
+            data: {
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
+            }[];
+            key: string;
+        };
+    }, {
+        add_by_key: {
+            data: {
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
+            }[];
+            key: string;
+        };
+    }>, z.ZodObject<{
+        add_by_address: z.ZodObject<{
             address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
                 name_or_address: z.ZodOptional<z.ZodString>;
                 local_mark_first: z.ZodOptional<z.ZodBoolean>;
@@ -1945,85 +2312,312 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             }>]>;
             data: z.ZodArray<z.ZodObject<{
                 key: z.ZodString;
-                bcsBytes: z.ZodType<Uint8Array<ArrayBufferLike>, z.ZodTypeDef, Uint8Array<ArrayBufferLike>>;
+                data: z.ZodUnion<[z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber>;
+                    data: z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                }, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.String>;
+                    data: z.ZodString;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                }, {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber_Vec>;
+                    data: z.ZodArray<z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                }, {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.String_Vec>;
+                    data: z.ZodArray<z.ZodString, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                }, {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address>;
+                    data: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                        name_or_address: z.ZodOptional<z.ZodString>;
+                        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                    }, "strip", z.ZodTypeAny, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }>]>;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                }, {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Address_Vec>;
+                    data: z.ZodArray<z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                        name_or_address: z.ZodOptional<z.ZodString>;
+                        local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                    }, "strip", z.ZodTypeAny, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }, {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    }>]>, "many">;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                }, {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                }>, z.ZodObject<{
+                    type: z.ZodLiteral<WOWOK.RepositoryValueType.Bool>;
+                    data: z.ZodBoolean;
+                }, "strip", z.ZodTypeAny, {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                }, {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                }>]>;
             }, "strip", z.ZodTypeAny, {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }, {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }>, "many">;
-            value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
         }, "strip", z.ZodTypeAny, {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }[];
-            value_type?: WOWOK.ValueType | undefined;
         }, {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
-                key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-            }[];
-            value_type?: WOWOK.ValueType | undefined;
-        }>]>;
-    }, "strip", z.ZodTypeAny, {
-        op: "add";
-        data: {
-            data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                key: string;
             }[];
-            key: string;
-        } | {
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        add_by_address: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }[];
-            value_type?: WOWOK.ValueType | undefined;
         };
     }, {
-        op: "add";
-        data: {
-            data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
-            }[];
-            key: string;
-        } | {
+        add_by_address: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }[];
-            value_type?: WOWOK.ValueType | undefined;
         };
     }>, z.ZodObject<{
-        op: z.ZodLiteral<"remove">;
-        data: z.ZodArray<z.ZodObject<{
+        remove: z.ZodArray<z.ZodObject<{
             key: z.ZodString;
             address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
                 name_or_address: z.ZodOptional<z.ZodString>;
@@ -2049,8 +2643,7 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             key: string;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
-        op: "remove";
-        data: {
+        remove: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -2058,8 +2651,7 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
             key: string;
         }[];
     }, {
-        op: "remove";
-        data: {
+        remove: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -2175,31 +2767,83 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     };
     description?: string | undefined;
     data?: {
-        op: "add";
-        data: {
+        add_by_key: {
             data: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }[];
             key: string;
-        } | {
+        };
+    } | {
+        add_by_address: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }[];
-            value_type?: WOWOK.ValueType | undefined;
         };
     } | {
-        op: "remove";
-        data: {
+        remove: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -2250,31 +2894,83 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     };
     description?: string | undefined;
     data?: {
-        op: "add";
-        data: {
+        add_by_key: {
             data: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
-                bcsBytes: Uint8Array<ArrayBufferLike>;
-                value_type?: WOWOK.ValueType | undefined;
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
             }[];
             key: string;
-        } | {
+        };
+    } | {
+        add_by_address: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
             };
             data: {
+                data: {
+                    type: WOWOK.RepositoryValueType.PositiveNumber;
+                    data: string | number | bigint;
+                } | {
+                    type: WOWOK.RepositoryValueType.String;
+                    data: string;
+                } | {
+                    type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                    data: (string | number | bigint)[];
+                } | {
+                    type: WOWOK.RepositoryValueType.String_Vec;
+                    data: string[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Address;
+                    data: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                } | {
+                    type: WOWOK.RepositoryValueType.Address_Vec;
+                    data: (number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    })[];
+                } | {
+                    type: WOWOK.RepositoryValueType.Bool;
+                    data: boolean;
+                };
                 key: string;
-                bcsBytes: Uint8Array<ArrayBufferLike>;
             }[];
-            value_type?: WOWOK.ValueType | undefined;
         };
     } | {
-        op: "remove";
-        data: {
+        remove: {
             address: number | bigint | {
                 name_or_address?: string | undefined;
                 local_mark_first?: boolean | undefined;
@@ -4919,8 +5615,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
             } | undefined;
         }>]>;
         data: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
-            op: z.ZodLiteral<"add">;
-            data: z.ZodUnion<[z.ZodObject<{
+            add_by_key: z.ZodObject<{
                 key: z.ZodString;
                 data: z.ZodArray<z.ZodObject<{
                     address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
@@ -4933,22 +5628,166 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     }>]>;
-                    bcsBytes: z.ZodType<Uint8Array<ArrayBufferLike>, z.ZodTypeDef, Uint8Array<ArrayBufferLike>>;
-                    value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
+                    data: z.ZodUnion<[z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber>;
+                        data: z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    }, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.String>;
+                        data: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    }, {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber_Vec>;
+                        data: z.ZodArray<z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.String_Vec>;
+                        data: z.ZodArray<z.ZodString, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Address>;
+                        data: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                            name_or_address: z.ZodOptional<z.ZodString>;
+                            local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                        }, "strip", z.ZodTypeAny, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }>]>;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    }, {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Address_Vec>;
+                        data: z.ZodArray<z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                            name_or_address: z.ZodOptional<z.ZodString>;
+                            local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                        }, "strip", z.ZodTypeAny, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }>]>, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Bool>;
+                        data: z.ZodBoolean;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    }, {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    }>]>;
                 }, "strip", z.ZodTypeAny, {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }, {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }>, "many">;
             }, "strip", z.ZodTypeAny, {
                 data: {
@@ -4956,8 +5795,34 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
             }, {
@@ -4966,11 +5831,115 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
-            }>, z.ZodObject<{
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            add_by_key: {
+                data: {
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
+                }[];
+                key: string;
+            };
+        }, {
+            add_by_key: {
+                data: {
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
+                }[];
+                key: string;
+            };
+        }>, z.ZodObject<{
+            add_by_address: z.ZodObject<{
                 address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
                     name_or_address: z.ZodOptional<z.ZodString>;
                     local_mark_first: z.ZodOptional<z.ZodBoolean>;
@@ -4983,85 +5952,312 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 }>]>;
                 data: z.ZodArray<z.ZodObject<{
                     key: z.ZodString;
-                    bcsBytes: z.ZodType<Uint8Array<ArrayBufferLike>, z.ZodTypeDef, Uint8Array<ArrayBufferLike>>;
+                    data: z.ZodUnion<[z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber>;
+                        data: z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    }, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.String>;
+                        data: z.ZodString;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    }, {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.PositiveNumber_Vec>;
+                        data: z.ZodArray<z.ZodUnion<[z.ZodString, z.ZodNumber, z.ZodBigInt]>, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.String_Vec>;
+                        data: z.ZodArray<z.ZodString, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Address>;
+                        data: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                            name_or_address: z.ZodOptional<z.ZodString>;
+                            local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                        }, "strip", z.ZodTypeAny, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }>]>;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    }, {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Address_Vec>;
+                        data: z.ZodArray<z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
+                            name_or_address: z.ZodOptional<z.ZodString>;
+                            local_mark_first: z.ZodOptional<z.ZodBoolean>;
+                        }, "strip", z.ZodTypeAny, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }, {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        }>]>, "many">;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    }, {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    }>, z.ZodObject<{
+                        type: z.ZodLiteral<WOWOK.RepositoryValueType.Bool>;
+                        data: z.ZodBoolean;
+                    }, "strip", z.ZodTypeAny, {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    }, {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    }>]>;
                 }, "strip", z.ZodTypeAny, {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }, {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }>, "many">;
-                value_type: z.ZodOptional<z.ZodNativeEnum<typeof WOWOK.ValueType>>;
             }, "strip", z.ZodTypeAny, {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             }, {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
-                    key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                }[];
-                value_type?: WOWOK.ValueType | undefined;
-            }>]>;
-        }, "strip", z.ZodTypeAny, {
-            op: "add";
-            data: {
-                data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    key: string;
                 }[];
-                key: string;
-            } | {
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         }, {
-            op: "add";
-            data: {
-                data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
-                }[];
-                key: string;
-            } | {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         }>, z.ZodObject<{
-            op: z.ZodLiteral<"remove">;
-            data: z.ZodArray<z.ZodObject<{
+            remove: z.ZodArray<z.ZodObject<{
                 key: z.ZodString;
                 address: z.ZodUnion<[z.ZodNumber, z.ZodBigInt, z.ZodObject<{
                     name_or_address: z.ZodOptional<z.ZodString>;
@@ -5087,8 +6283,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
@@ -5096,8 +6291,7 @@ export declare const CallRepositorySchema: z.ZodObject<{
                 key: string;
             }[];
         }, {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
@@ -5213,31 +6407,83 @@ export declare const CallRepositorySchema: z.ZodObject<{
         };
         description?: string | undefined;
         data?: {
-            op: "add";
-            data: {
+            add_by_key: {
                 data: {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
-            } | {
+            };
+        } | {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         } | {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
@@ -5288,31 +6534,83 @@ export declare const CallRepositorySchema: z.ZodObject<{
         };
         description?: string | undefined;
         data?: {
-            op: "add";
-            data: {
+            add_by_key: {
                 data: {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
-            } | {
+            };
+        } | {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         } | {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
@@ -5411,31 +6709,83 @@ export declare const CallRepositorySchema: z.ZodObject<{
         };
         description?: string | undefined;
         data?: {
-            op: "add";
-            data: {
+            add_by_key: {
                 data: {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
-            } | {
+            };
+        } | {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         } | {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
@@ -5500,31 +6850,83 @@ export declare const CallRepositorySchema: z.ZodObject<{
         };
         description?: string | undefined;
         data?: {
-            op: "add";
-            data: {
+            add_by_key: {
                 data: {
                     address: number | bigint | {
                         name_or_address?: string | undefined;
                         local_mark_first?: boolean | undefined;
                     };
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
-                    value_type?: WOWOK.ValueType | undefined;
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                 }[];
                 key: string;
-            } | {
+            };
+        } | {
+            add_by_address: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;
                 };
                 data: {
+                    data: {
+                        type: WOWOK.RepositoryValueType.PositiveNumber;
+                        data: string | number | bigint;
+                    } | {
+                        type: WOWOK.RepositoryValueType.String;
+                        data: string;
+                    } | {
+                        type: WOWOK.RepositoryValueType.PositiveNumber_Vec;
+                        data: (string | number | bigint)[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.String_Vec;
+                        data: string[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address;
+                        data: number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        };
+                    } | {
+                        type: WOWOK.RepositoryValueType.Address_Vec;
+                        data: (number | bigint | {
+                            name_or_address?: string | undefined;
+                            local_mark_first?: boolean | undefined;
+                        })[];
+                    } | {
+                        type: WOWOK.RepositoryValueType.Bool;
+                        data: boolean;
+                    };
                     key: string;
-                    bcsBytes: Uint8Array<ArrayBufferLike>;
                 }[];
-                value_type?: WOWOK.ValueType | undefined;
             };
         } | {
-            op: "remove";
-            data: {
+            remove: {
                 address: number | bigint | {
                     name_or_address?: string | undefined;
                     local_mark_first?: boolean | undefined;

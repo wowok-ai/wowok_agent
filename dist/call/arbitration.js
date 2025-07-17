@@ -186,7 +186,7 @@ export class CallArbitration extends CallBase {
             obj?.set_withdrawTreasury(t, pst);
         }
         if (this.data?.guard !== undefined) {
-            if (this.data.guard === null) {
+            if (!this.data.guard) {
                 obj?.set_guard(undefined, pst);
             }
             else {

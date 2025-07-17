@@ -9,18 +9,18 @@ export class CallMachine extends CallBase {
         this.object_address = undefined;
         this.permission_address = undefined;
         this.checkPublished = (op) => {
-            if (!this.content.bPublished) {
+            if (this.content && !this.content.bPublished) {
                 ERROR(Errors.Fail, `Machine object has not been published yet, so the operation (${op}) cannot proceed.`);
             }
         };
         this.checkNotPublished = (op) => {
-            if (this.content.bPublished) {
+            if (this.content && this.content?.bPublished) {
                 ERROR(Errors.Fail, `Machine object has been published and operation (${op}) cannot proceed. 
                 If further modifications are needed, you can 'clone' a new Machine and then proceed with the operation.`);
             }
         };
         this.checkNotPaused = (op) => {
-            if (this.content.bPaused) {
+            if (this.content && this.content.bPaused) {
                 ERROR(Errors.Fail, `Machine object has been paused and operation (${op}) cannot proceed.`);
             }
         };
@@ -158,7 +158,7 @@ export class CallMachine extends CallBase {
         const pst = perm ? undefined : passport;
         var new_progress;
         if (this.data?.progress_new != null) {
-            if (this.data.progress_new.task_address === null) {
+            if (!this.data.progress_new.task_address) {
                 new_progress = Progress?.New(txb, obj?.get_object(), permission, undefined, pst);
             }
             else {
@@ -174,7 +174,7 @@ export class CallMachine extends CallBase {
                 : new_progress?.get_object();
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_context_repository.progress');
-            if (this.data.progress_context_repository.repository === null) {
+            if (!this.data.progress_context_repository.repository) {
                 Progress.From(txb, obj?.get_object(), permission, p).set_context_repository(undefined, pst);
             }
             else {

@@ -1,11 +1,49 @@
 import { TransactionBlock, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Repository,  Repository_Policy_Mode, Repository_Value as Wowok_Repository_Value,
     PermissionObject, uint2address, IsValidU256, ValueType, Repository_Policy, Repository_Value2,
+    RepositoryValueType, Bcs
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { ObjectRepository } from '../query/objects.js';
 
+export interface RepositoryNumber {
+    type: RepositoryValueType.PositiveNumber,
+    data: string | number | bigint;
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryString {
+    type: RepositoryValueType.String,
+    data: string ;
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryNumberVec {
+    type: RepositoryValueType.PositiveNumber_Vec,
+    data: (string | number | bigint)[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryStringVec {
+    type: RepositoryValueType.String_Vec,
+    data: string[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryAddress {
+    type: RepositoryValueType.Address,
+    data: AddressID,
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryAddressVec {
+    type: RepositoryValueType.Address_Vec,
+    data: AddressID[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryBool {
+    type: RepositoryValueType.Bool,
+    data: boolean ;
+    bcsBytes?: Uint8Array;
+}
+
+export type RepositoryTypeData = RepositoryNumber | RepositoryString | RepositoryNumberVec | RepositoryStringVec | RepositoryAddress | RepositoryAddressVec | RepositoryBool;
 
 // Account name, or local mark name, or address, or u256 number|bigint(eg. time number) that can be converted to address.
 export type AddressID = AccountOrMark_Address | number | bigint; 
@@ -20,23 +58,31 @@ export const GetAddressID = async(key:AddressID) : Promise<string | undefined> =
     }
 }
 
-export interface Repository_Value {
+export interface AddData_byKey_Data {
     address: AddressID; // UID: address or objectid
-    bcsBytes: Uint8Array; // BCS contents. Notice that: First Byte be the Type by caller, or specify type with 'Repository_Policy_Data.value_type' field.
+    address_string?: string;
+    data: RepositoryTypeData;
 }
-export interface Repository_Policy_Data {
+
+export interface AddData_byKey {
     key: string;
-    data: Repository_Value[];  
-    value_type?: ValueType; // Specifies a data type prefix; If the data prefix is already included in the data byte stream, there is no need to specify it.
+    data: AddData_byKey_Data[];  
 }
-export interface Repository_Policy_Data2 {
+
+export interface AddData_byAddress_Data {
+    key: string;
+    data: RepositoryTypeData;
+}
+export interface AddData_byAddress {
     address: AddressID;
-    data: Repository_Value2[];
-    value_type?: ValueType;
+    address_string?: string;
+    data: AddData_byAddress_Data[];
 }
-export interface Repository_Policy_Data_Remove {
+
+export interface RemoveData {
     key: string;
     address: AddressID;
+    address_string?: string;
 }
 
 /// The execution priority is determined by the order in which the object attributes are arranged
@@ -46,8 +92,9 @@ export interface CallRepository_Data {
     reference?: ObjectsOp;
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; keys:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
-    data?: {op:'add', data: Repository_Policy_Data | Repository_Policy_Data2} | {op:'remove'; data: Repository_Policy_Data_Remove[]};
+    data?: {add_by_key: AddData_byKey} | {add_by_address: AddData_byAddress} | {remove: RemoveData[]};
 }
+
 export class CallRepository extends CallBase {
     data: CallRepository_Data;
     object_address: string | undefined = undefined;
@@ -71,6 +118,20 @@ export class CallRepository extends CallBase {
             this.permission_address = (await LocalMark.Instance().get_address(GetObjectExisted(n?.permission)));
         }
     }
+    
+    private resolve_by_key = async (d:AddData_byKey, policy?:Repository_Policy) => {
+        for (let i=0; i<d.data.length; ++i) {
+            const data = d.data[i];
+            if (policy && data.data.type !== policy.dataType) {
+                ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_key ${d.key} data type not match`)
+            }
+            const addr = await GetAddressID(data.address);
+            if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} address not valid`)
+            data.address_string = addr;
+            SerRepositoryTypeData(data.data);
+        }
+    }
+
     async call(account?:string) : Promise<CallResult>   {
         var checkOwner = false;
         const perms : PermissionIndexType[] = []; 
@@ -91,6 +152,65 @@ export class CallRepository extends CallBase {
             }
             if (this.data?.policy != null) {
                 perms.push(PermissionIndex.repository_policies)
+            }
+            if (this.data?.data != null) {
+                // check policy & mode 
+                const policy = (this.content as ObjectRepository).policy;
+                const mode = (this.content as ObjectRepository).policy_mode;
+                if ('add_by_key' in this.data.data) {
+                    const d = this.data.data.add_by_key as AddData_byKey;
+                    const p = policy.find((v)=>v.key === d.key);
+                    if (p) {
+                        if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
+                            perms.push(p.permissionIndex); // permission check
+                        } 
+
+                        await this.resolve_by_key(d, p);
+                    } else {
+                        if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                            ERROR(Errors.Fail, `CallRepository_Data.data.add_by_key ${d.key} policy not match on the POLICY_MODE_STRICT mode.`)
+                        }
+                        await this.resolve_by_key(d);
+                    }
+                } else if ('add_by_address' in this.data.data) {
+                    const d = this.data.data.add_by_address as AddData_byAddress;
+                    const addr = await GetAddressID(d.address);
+                    if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_address ${d.address} address not valid`);
+                    d.address_string = addr;
+
+                    for (let i=0; i<d.data.length; ++i) {
+                        const value = d.data[i];
+                        const p = policy.find((v)=>v.key === value.key);
+                        if (p) {
+                            if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
+                                perms.push(p.permissionIndex); // permission check
+                            } 
+                        } else {
+                            if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                                ERROR(Errors.Fail, `CallRepository_Data.data.add_by_address: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`)
+                            }
+                        }
+                        await SerRepositoryTypeData(value.data);
+                    }
+                } else if ('remove' in this.data.data) {
+                    const d = this.data.data.remove as RemoveData[];
+                    for (let i=0; i<d.length; ++i) {
+                        const value = d[i];
+                        const p = policy.find((v)=>v.key === value.key);
+                        if (p) {
+                            if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
+                                perms.push(p.permissionIndex); // permission check
+                            } 
+                        } else {
+                            if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                                ERROR(Errors.Fail, `CallRepository_Data.data.remove: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`)
+                            }
+                        }
+                        const addr = await GetAddressID(value.address);
+                        if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.remove ${value.address} address not valid`);
+                        value.address_string = addr;
+                    }
+                } 
             }
             return await this.check_permission_and_call(this.permission_address, perms, [], checkOwner, undefined, account)
         }
@@ -121,34 +241,22 @@ export class CallRepository extends CallBase {
 
         const pst = perm?undefined:passport;
         if (this.data?.data != null) {
-            switch(this.data.data.op) {
-                case 'add':
-                    if ((this.data.data?.data as any)?.key != null) {
-                        const d = (this.data.data.data as Repository_Policy_Data).data;
-                        const add: Wowok_Repository_Value[] = [];
-                        for (let i=0; i<d.length; ++i) {
-                            const addr = await GetAddressID(d[i].address);
-                            if (addr) {
-                                add.push({address:addr, bcsBytes:d[i].bcsBytes});
-                            }
-                        }
-                        obj?.add_data({key:(this.data.data.data as Repository_Policy_Data).key, data:add, value_type:(this.data.data.data as Repository_Policy_Data).value_type});
-                    } else if ((this.data.data?.data as any)?.address != null) {
-                        const d = this.data.data.data as Repository_Policy_Data2;
-                        const addr = await GetAddressID(d.address);
-                        if (addr) {
-                            obj?.add_data2({address:addr, data:d.data, value_type:d.value_type})
-                        }
-                    }
-                    break;
-                case 'remove':
-                    for (let i=0; i<this.data.data.data.length; ++i) {
-                        const addr = await GetAddressID(this.data.data.data[i].address);
-                        if (addr) {
-                            obj?.remove(addr, this.data.data.data[i].key);
-                        }
-                    }
-                    break;
+            if ('add_by_key' in this.data.data) {
+                const d = this.data.data.add_by_key;
+                obj.add_data({key:d.key, data:d.data.map(v => {
+                    return {address:v.address_string!, bcsBytes:v.data.bcsBytes!}
+                })}, pst);
+            } else if ('add_by_address' in this.data.data) {
+                const d = this.data.data.add_by_address;
+                obj.add_data2({address:d.address_string!, data:d.data.map(v => {
+                    return {key:v.key, bcsBytes:v.data.bcsBytes!}
+                })}, pst);
+            } else if ('remove' in this.data.data) {
+                const d = this.data.data.remove;
+                for (let i=0; i<d.length; ++i) {
+                    const value = d[i];
+                    obj?.remove(value.address_string!, value.key, pst);
+                }
             }
         }
 
@@ -203,5 +311,66 @@ export class CallRepository extends CallBase {
         if (!this.object_address) {
             await this.new_with_mark('Repository', txb, obj.launch(), GetObjectMain(this.data?.object), account);
         }
+    }
+}
+
+const SerRepositoryTypeData = async (data: RepositoryTypeData) => {
+    switch(data.type) {
+        case RepositoryValueType.Address:
+            const addr = await GetAddressID(data.data);
+            if (!addr) ERROR(Errors.Fail, `SerRepositoryTypeData Address: ${data.data}`)
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_ADDRESS),
+                    ...Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, addr)]);
+            break;
+        case RepositoryValueType.Address_Vec:
+            const addrs = [];
+            for (let i=0; i<data.data.length; ++i) {
+                const addr = await GetAddressID(data.data[i]);
+                if (!addr) ERROR(Errors.Fail, `SerRepositoryTypeData Address_Vec: ${data.data[i]}`)
+                addrs.push(addr);
+            }
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_VEC_ADDRESS),
+                    ...Bcs.getInstance().ser(ValueType.TYPE_VEC_ADDRESS, addrs)]);
+            break;
+        case RepositoryValueType.Bool:
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_BOOL),
+                    ...Bcs.getInstance().ser(ValueType.TYPE_BOOL, data.data)]);
+            break;
+        case RepositoryValueType.PositiveNumber: {
+            const type = Repository.DataType2ValueType(data.data);
+            if (!type) ERROR(Errors.Fail, `SerRepositoryTypeData PositiveNumber: ${data.data}`)
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, type),
+                    ...Bcs.getInstance().ser(type, data.data)]);
+            break;
+        } case RepositoryValueType.PositiveNumber_Vec: {
+            let type = ValueType.TYPE_U8;
+            for (let i=0; i<data.data.length; ++i) {
+                const t = Repository.DataType2ValueType(data.data[i]);
+                if (!t) ERROR(Errors.Fail, `SerRepositoryTypeData PositiveNumber_Vec: ${data.data[i]}`)
+                if (t! > type) type = t!;
+            }
+
+            if (type === ValueType.TYPE_U8) { 
+                type  = ValueType.TYPE_VEC_U8;
+            } else if (type === ValueType.TYPE_U64) {
+                type = ValueType.TYPE_VEC_U64;
+            } else if (type === ValueType.TYPE_U128) {
+                type = ValueType.TYPE_VEC_U128;
+            } else {
+                type = ValueType.TYPE_VEC_U256;
+            }
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, type),
+                    ...Bcs.getInstance().ser(type, data.data)]);
+            break;
+        } case RepositoryValueType.String:
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_STRING),
+                    ...Bcs.getInstance().ser(ValueType.TYPE_STRING, data.data)]);
+            break;
+        case RepositoryValueType.String_Vec:
+            data.bcsBytes = new Uint8Array([...Bcs.getInstance().ser(ValueType.TYPE_U8, ValueType.TYPE_VEC_STRING),
+                    ...Bcs.getInstance().ser(ValueType.TYPE_VEC_STRING, data.data)]);
+            break;
+        default:
+            ERROR(Errors.Fail, `SerRepositoryTypeData invalid type: ${data}`)
     }
 }

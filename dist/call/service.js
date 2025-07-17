@@ -12,18 +12,18 @@ export class CallService extends CallBase {
         this.permission_address = undefined;
         this.type_parameter = undefined;
         this.checkPublished = (op) => {
-            if (!this.content.bPublished) {
+            if (this.content && !this.content.bPublished) {
                 ERROR(Errors.Fail, `Service object has not been published yet, so the operation (${op}) cannot proceed.`);
             }
         };
         this.checkNotPublished = (op) => {
-            if (this.content.bPublished) {
+            if (this.content && this.content.bPublished) {
                 ERROR(Errors.Fail, `Service object has been published and operation (${op}) cannot proceed. 
                 If further modifications are needed, you can 'clone' a new Service and then proceed with the operation.`);
             }
         };
         this.checkNotPaused = (op) => {
-            if (this.content.bPaused) {
+            if (this.content && this.content.bPaused) {
                 ERROR(Errors.Fail, `Service object has been paused and operation (${op}) cannot proceed.`);
             }
         };
@@ -381,7 +381,7 @@ export class CallService extends CallBase {
             }
         }
         if (this.data?.machine !== undefined) {
-            if (this.data.machine === null) {
+            if (!this.data.machine) {
                 obj?.set_machine(undefined, pst);
             }
             else {
@@ -490,7 +490,7 @@ export class CallService extends CallBase {
             obj?.publish(pst);
         }
         if (this.data?.buy_guard !== undefined) {
-            if (this.data.buy_guard === null) {
+            if (!this.data.buy_guard) {
                 obj?.set_buy_guard(undefined, pst);
             }
             else {

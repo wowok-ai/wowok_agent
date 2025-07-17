@@ -400,33 +400,59 @@ export const PayParamSchema = z.object({
     for_object: GetMarkNameSchema().optional(),
     for_guard: GetMarkNameSchema('Guard').optional(),
 }).describe(D.Payment_Description);
+export const RepositoryTypedDataSchema = z.union([
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.PositiveNumber),
+        data: z.union([z.string().nonempty(), z.number().int().min(0), z.bigint().min(0n)])
+    }).describe(`positive number data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.String),
+        data: z.string()
+    }).describe(`string data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.PositiveNumber_Vec),
+        data: z.array(z.union([z.string().nonempty(), z.number().int().min(0), z.bigint().min(0n)]))
+    }).describe(`positive number vector data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.String_Vec),
+        data: z.array(z.string())
+    }).describe(`string vector data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.Address),
+        data: RepositoryAddressID
+    }).describe(`address data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.Address_Vec),
+        data: z.array(RepositoryAddressID)
+    }).describe(`address vector data`),
+    z.object({
+        type: z.literal(WOWOK.RepositoryValueType.Bool),
+        data: z.boolean()
+    }).describe(`bool data`),
+]);
 export const CallRepositoryDataSchema = z.object({
     object: ObjectMainSchema,
     data: z.union([
         z.object({
-            op: z.literal('add'),
-            data: z.union([
-                z.object({
-                    key: z.string().nonempty().describe(D.Data_Key),
-                    data: z.array(z.object({
-                        address: RepositoryAddressID,
-                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
-                        value_type: ValueTypeSchema.optional()
-                    }).describe(D.Data_ForAddress))
-                }).describe('Under the data field, different data(including wowok data type:ValueTypeSchema) corresponding to different addresses.'),
-                z.object({
+            add_by_key: z.object({
+                key: z.string().nonempty().describe(D.Data_Key),
+                data: z.array(z.object({
                     address: RepositoryAddressID,
-                    data: z.array(z.object({
-                        key: z.string().nonempty().describe(D.Data_Key),
-                        bcsBytes: SafeUint8ArraySchema.describe(D.Data_bcsBytes),
-                    })),
-                    value_type: ValueTypeSchema.optional()
-                }).describe(D.Repository_Data_ForName)
-            ])
-        }).describe(D.Repository_AddData),
+                    data: RepositoryTypedDataSchema
+                }))
+            })
+        }).describe(`${D.Repository_AddData} ${D.Data_ForAddress}`),
         z.object({
-            op: z.literal('remove'),
-            data: z.array(z.object({
+            add_by_address: z.object({
+                address: RepositoryAddressID,
+                data: z.array(z.object({
+                    key: z.string().nonempty().describe(D.Data_Key),
+                    data: RepositoryTypedDataSchema,
+                }))
+            })
+        }).describe(`${D.Repository_AddData} ${D.Repository_Data_ForName}`),
+        z.object({
+            remove: z.array(z.object({
                 key: z.string().nonempty().describe(D.Data_Key),
                 address: RepositoryAddressID
             }))

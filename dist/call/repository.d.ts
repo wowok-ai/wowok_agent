@@ -1,24 +1,65 @@
-import { TransactionBlock, PassportObject, Repository_Policy_Mode, ValueType, Repository_Policy, Repository_Value2 } from 'wowok';
+import { TransactionBlock, PassportObject, Repository_Policy_Mode, Repository_Policy, RepositoryValueType } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, ObjectMain, ObjectsOp } from "./base.js";
+export interface RepositoryNumber {
+    type: RepositoryValueType.PositiveNumber;
+    data: string | number | bigint;
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryString {
+    type: RepositoryValueType.String;
+    data: string;
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryNumberVec {
+    type: RepositoryValueType.PositiveNumber_Vec;
+    data: (string | number | bigint)[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryStringVec {
+    type: RepositoryValueType.String_Vec;
+    data: string[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryAddress {
+    type: RepositoryValueType.Address;
+    data: AddressID;
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryAddressVec {
+    type: RepositoryValueType.Address_Vec;
+    data: AddressID[];
+    bcsBytes?: Uint8Array;
+}
+export interface RepositoryBool {
+    type: RepositoryValueType.Bool;
+    data: boolean;
+    bcsBytes?: Uint8Array;
+}
+export type RepositoryTypeData = RepositoryNumber | RepositoryString | RepositoryNumberVec | RepositoryStringVec | RepositoryAddress | RepositoryAddressVec | RepositoryBool;
 export type AddressID = AccountOrMark_Address | number | bigint;
 export declare const GetAddressID: (key: AddressID) => Promise<string | undefined>;
-export interface Repository_Value {
+export interface AddData_byKey_Data {
     address: AddressID;
-    bcsBytes: Uint8Array;
+    address_string?: string;
+    data: RepositoryTypeData;
 }
-export interface Repository_Policy_Data {
+export interface AddData_byKey {
     key: string;
-    data: Repository_Value[];
-    value_type?: ValueType;
+    data: AddData_byKey_Data[];
 }
-export interface Repository_Policy_Data2 {
+export interface AddData_byAddress_Data {
+    key: string;
+    data: RepositoryTypeData;
+}
+export interface AddData_byAddress {
     address: AddressID;
-    data: Repository_Value2[];
-    value_type?: ValueType;
+    address_string?: string;
+    data: AddData_byAddress_Data[];
 }
-export interface Repository_Policy_Data_Remove {
+export interface RemoveData {
     key: string;
     address: AddressID;
+    address_string?: string;
 }
 export interface CallRepository_Data {
     object?: ObjectMain;
@@ -41,11 +82,11 @@ export interface CallRepository_Data {
         }[];
     };
     data?: {
-        op: 'add';
-        data: Repository_Policy_Data | Repository_Policy_Data2;
+        add_by_key: AddData_byKey;
     } | {
-        op: 'remove';
-        data: Repository_Policy_Data_Remove[];
+        add_by_address: AddData_byAddress;
+    } | {
+        remove: RemoveData[];
     };
 }
 export declare class CallRepository extends CallBase {
@@ -54,6 +95,7 @@ export declare class CallRepository extends CallBase {
     permission_address: string | undefined;
     constructor(data: CallRepository_Data);
     protected prepare(): Promise<void>;
+    private resolve_by_key;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

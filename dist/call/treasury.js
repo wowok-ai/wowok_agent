@@ -172,7 +172,7 @@ export class CallTreasury extends CallBase {
             obj?.set_description(this.data.description, pst);
         }
         if (this.data?.deposit_guard !== undefined) {
-            if (this.data.deposit_guard === null) {
+            if (!this.data.deposit_guard) {
                 obj?.set_deposit_guard(undefined, pst);
             }
             else {
