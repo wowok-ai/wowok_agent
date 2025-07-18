@@ -71,57 +71,60 @@ export class CallArbitration extends CallBase {
     async call(account?:string) : Promise<CallResult> {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-
+        const add_perm = (index:PermissionIndex) => {
+            if (this.permission_address && !perms.includes(index)) {
+                perms.push(index);
+            }
+        }
         await this.prepare();
+        if (typeof(this.data?.object) !== 'string') {
+            add_perm(PermissionIndex.arbitration)
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.arbitration_description)
+        }
+        if (this.data?.location != null) {
+            add_perm(PermissionIndex.arbitration_location)
+        }
+        if (this.data?.bPaused != null) {
+            add_perm(PermissionIndex.arbitration_pause)
+        }
+        if (this.data?.endpoint !== undefined) { // publish is an irreversible one-time operation 
+            add_perm(PermissionIndex.arbitration_endpoint)
+        }
+        if (this.data?.fee != null && this.object_address) {
+            add_perm(PermissionIndex.arbitration_fee)
+        }
+        if (this.data.fee_treasury != null && this.object_address) {
+            add_perm(PermissionIndex.arbitration_treasury)
+        }
+        if (this.data?.guard !== undefined) {
+            add_perm(PermissionIndex.arbitration_guard)
+        }
+        if (this.data?.voting_guard != null) {
+            add_perm(PermissionIndex.arbitration_voting_guard)
+        }
+        if (this.data?.arb_arbitration != null) {
+            add_perm(PermissionIndex.arbitration_arbitration)
+        }
+
+        if (this.data?.arb_new != null) { // new arb with guard and permission
+            if (this.object_address) { 
+                if ((this.content as ObjectArbitration)?.usage_guard) {
+                    guards.push((this.content as ObjectArbitration).usage_guard!)
+                }   
+            }
+        }
+
+        if (this.data?.arb_vote != null) {
+            add_perm(PermissionIndex.arbitration_vote);
+
+            const voting_guard = await LocalMark.Instance().get_address(this.data?.arb_vote?.voting_guard);
+            if (voting_guard) {
+                guards.push(voting_guard)
+            } 
+        }
         if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.arbitration)
-            }
-            if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.arbitration_description)
-            }
-            if (this.data?.location != null) {
-                perms.push(PermissionIndex.arbitration_location)
-            }
-            if (this.data?.bPaused != null) {
-                perms.push(PermissionIndex.arbitration_pause)
-            }
-            if (this.data?.endpoint !== undefined) { // publish is an irreversible one-time operation 
-                perms.push(PermissionIndex.arbitration_endpoint)
-            }
-            if (this.data?.fee != null && this.object_address) {
-                perms.push(PermissionIndex.arbitration_fee)
-            }
-            if (this.data.fee_treasury != null && this.object_address) {
-                perms.push(PermissionIndex.arbitration_treasury)
-            }
-            if (this.data?.guard !== undefined) {
-                perms.push(PermissionIndex.arbitration_guard)
-            }
-            if (this.data?.voting_guard != null) {
-                perms.push(PermissionIndex.arbitration_voting_guard)
-            }
-            if (this.data?.arb_arbitration != null) {
-                perms.push(PermissionIndex.arbitration_arbitration)
-            }
-
-            if (this.data?.arb_new != null) { // new arb with guard and permission
-                if (this.object_address) { 
-                    if ((this.content as ObjectArbitration)?.usage_guard) {
-                        guards.push((this.content as ObjectArbitration).usage_guard!)
-                    }   
-                }
-            }
-
-            if (this.data?.arb_vote != null) {
-                perms.push(PermissionIndex.arbitration_vote);
-
-                const voting_guard = await LocalMark.Instance().get_address(this.data?.arb_vote?.voting_guard);
-                if (voting_guard) {
-                    guards.push(voting_guard)
-                } 
-            }
-
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);

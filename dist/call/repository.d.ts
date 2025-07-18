@@ -82,11 +82,14 @@ export interface CallRepository_Data {
         }[];
     };
     data?: {
-        add_by_key: AddData_byKey;
+        op: 'add_by_key';
+        data: AddData_byKey;
     } | {
-        add_by_address: AddData_byAddress;
+        op: 'add_by_address';
+        data: AddData_byAddress;
     } | {
-        remove: RemoveData[];
+        op: 'remove';
+        data: RemoveData[];
     };
 }
 export declare class CallRepository extends CallBase {

@@ -26,7 +26,7 @@ export class CallRepository extends CallBase {
                 if (!addr)
                     ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_key ${d.key} address not valid`);
                 data.address_string = addr;
-                SerRepositoryTypeData(data.data);
+                await SerRepositoryTypeData(data.data);
             }
         };
         this.data = data;
@@ -49,87 +49,92 @@ export class CallRepository extends CallBase {
     async call(account) {
         var checkOwner = false;
         const perms = [];
+        const add_perm = (index) => {
+            if (this.permission_address && !perms.includes(index)) {
+                perms.push(index);
+            }
+        };
         await this.prepare();
-        if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.repository);
+        if (typeof (this.data?.object) !== 'string') {
+            add_perm(PermissionIndex.repository);
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.repository_description);
+        }
+        if (this.data?.mode != null && this.object_address) {
+            add_perm(PermissionIndex.repository_mode);
+        }
+        if (this.data?.reference != null) {
+            add_perm(PermissionIndex.repository_reference);
+        }
+        if (this.data?.policy != null) {
+            add_perm(PermissionIndex.repository_policies);
+        }
+        if (this.data?.data != null) {
+            // check policy & mode 
+            const policy = this.content?.policy;
+            const mode = this.content?.policy_mode;
+            if (this.data.data?.op === 'add_by_key') {
+                const d = this.data.data.data;
+                const p = policy?.find((v) => v.key === d.key);
+                if (p) {
+                    if (p.permissionIndex != null) {
+                        add_perm(p.permissionIndex); // permission check
+                    }
+                    await this.resolve_by_key(d, p);
+                }
+                else {
+                    if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                        ERROR(Errors.Fail, `CallRepository_Data.data.add_by_key ${d.key} policy not match on the POLICY_MODE_STRICT mode.`);
+                    }
+                    await this.resolve_by_key(d);
+                }
             }
-            if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.repository_description);
-            }
-            if (this.data?.mode != null && this.object_address) {
-                perms.push(PermissionIndex.repository_mode);
-            }
-            if (this.data?.reference != null) {
-                perms.push(PermissionIndex.repository_reference);
-            }
-            if (this.data?.policy != null) {
-                perms.push(PermissionIndex.repository_policies);
-            }
-            if (this.data?.data != null) {
-                // check policy & mode 
-                const policy = this.content.policy;
-                const mode = this.content.policy_mode;
-                if ('add_by_key' in this.data.data) {
-                    const d = this.data.data.add_by_key;
-                    const p = policy.find((v) => v.key === d.key);
+            else if (this.data.data.op === 'add_by_address') {
+                const d = this.data.data.data;
+                const addr = await GetAddressID(d.address);
+                if (!addr)
+                    ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_address ${d.address} address not valid`);
+                d.address_string = addr;
+                for (let i = 0; i < d.data.length; ++i) {
+                    const value = d.data[i];
+                    const p = policy?.find((v) => v.key === value.key);
                     if (p) {
-                        if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
-                            perms.push(p.permissionIndex); // permission check
+                        if (p.permissionIndex != null) {
+                            add_perm(p.permissionIndex); // permission check
                         }
-                        await this.resolve_by_key(d, p);
                     }
                     else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
-                            ERROR(Errors.Fail, `CallRepository_Data.data.add_by_key ${d.key} policy not match on the POLICY_MODE_STRICT mode.`);
+                            ERROR(Errors.Fail, `CallRepository_Data.data.add_by_address: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`);
                         }
-                        await this.resolve_by_key(d);
                     }
-                }
-                else if ('add_by_address' in this.data.data) {
-                    const d = this.data.data.add_by_address;
-                    const addr = await GetAddressID(d.address);
-                    if (!addr)
-                        ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_address ${d.address} address not valid`);
-                    d.address_string = addr;
-                    for (let i = 0; i < d.data.length; ++i) {
-                        const value = d.data[i];
-                        const p = policy.find((v) => v.key === value.key);
-                        if (p) {
-                            if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
-                                perms.push(p.permissionIndex); // permission check
-                            }
-                        }
-                        else {
-                            if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
-                                ERROR(Errors.Fail, `CallRepository_Data.data.add_by_address: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`);
-                            }
-                        }
-                        await SerRepositoryTypeData(value.data);
-                    }
-                }
-                else if ('remove' in this.data.data) {
-                    const d = this.data.data.remove;
-                    for (let i = 0; i < d.length; ++i) {
-                        const value = d[i];
-                        const p = policy.find((v) => v.key === value.key);
-                        if (p) {
-                            if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
-                                perms.push(p.permissionIndex); // permission check
-                            }
-                        }
-                        else {
-                            if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
-                                ERROR(Errors.Fail, `CallRepository_Data.data.remove: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`);
-                            }
-                        }
-                        const addr = await GetAddressID(value.address);
-                        if (!addr)
-                            ERROR(Errors.InvalidParam, `CallRepository_Data.data.remove ${value.address} address not valid`);
-                        value.address_string = addr;
-                    }
+                    await SerRepositoryTypeData(value.data);
                 }
             }
+            else if (this.data.data.op === 'remove') {
+                const d = this.data.data.data;
+                for (let i = 0; i < d.length; ++i) {
+                    const value = d[i];
+                    const p = policy.find((v) => v.key === value.key);
+                    if (p) {
+                        if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
+                            add_perm(p.permissionIndex); // permission check
+                        }
+                    }
+                    else {
+                        if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                            ERROR(Errors.Fail, `CallRepository_Data.data.remove: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`);
+                        }
+                    }
+                    const addr = await GetAddressID(value.address);
+                    if (!addr)
+                        ERROR(Errors.InvalidParam, `CallRepository_Data.data.remove ${value.address} address not valid`);
+                    value.address_string = addr;
+                }
+            }
+        }
+        if (this.permission_address) {
             return await this.check_permission_and_call(this.permission_address, perms, [], checkOwner, undefined, account);
         }
         return await this.exec(account);
@@ -157,20 +162,20 @@ export class CallRepository extends CallBase {
             ERROR(Errors.InvalidParam, 'CallRepository_Data.permission:' + this.permission_address);
         const pst = perm ? undefined : passport;
         if (this.data?.data != null) {
-            if ('add_by_key' in this.data.data) {
-                const d = this.data.data.add_by_key;
+            if (this.data.data.op === 'add_by_key') {
+                const d = this.data.data.data;
                 obj.add_data({ key: d.key, data: d.data.map(v => {
                         return { address: v.address_string, bcsBytes: v.data.bcsBytes };
                     }) }, pst);
             }
-            else if ('add_by_address' in this.data.data) {
-                const d = this.data.data.add_by_address;
+            else if (this.data.data.op === 'add_by_address') {
+                const d = this.data.data.data;
                 obj.add_data2({ address: d.address_string, data: d.data.map(v => {
                         return { key: v.key, bcsBytes: v.data.bcsBytes };
                     }) }, pst);
             }
-            else if ('remove' in this.data.data) {
-                const d = this.data.data.remove;
+            else if (this.data.data.op === 'remove') {
+                const d = this.data.data.data;
                 for (let i = 0; i < d.length; ++i) {
                     const value = d[i];
                     obj?.remove(value.address_string, value.key, pst);

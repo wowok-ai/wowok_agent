@@ -82,90 +82,95 @@ export class CallService extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
+        const add_perm = (index) => {
+            if (this.permission_address && !perms.includes(index)) {
+                add_perm(index);
+            }
+        };
         await this.prepare();
-        if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.service);
-            }
-            if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.service_description);
-            }
-            if (this.data?.location != null) {
-                perms.push(PermissionIndex.service_location);
-            }
-            if (this.data?.bPaused != null) {
-                perms.push(PermissionIndex.service_pause);
-            }
-            if (this.data?.bPublished) { // publish is an irreversible one-time operation 
-                perms.push(PermissionIndex.service_publish);
-            }
-            if (this.data?.endpoint !== undefined) {
-                perms.push(PermissionIndex.service_endpoint);
-            }
-            if (this.data?.repository != null) {
-                perms.push(PermissionIndex.service_repository);
-            }
-            if (this.data?.clone_new != null) {
-                perms.push(PermissionIndex.service_clone);
-            }
-            if (this.data?.gen_discount != null) {
-                perms.push(PermissionIndex.service_discount_transfer);
-            }
-            if (this.data?.arbitration != null) {
-                this.checkNotPublished('arbitration');
-                perms.push(PermissionIndex.service_arbitration);
-            }
-            if (this.data?.buy_guard !== undefined) {
-                perms.push(PermissionIndex.service_buyer_guard);
-            }
-            if (this.data?.extern_withdraw_treasury != null) {
-                perms.push(PermissionIndex.service_treasury);
-            }
-            if (this.data?.machine !== undefined) {
-                this.checkNotPublished('machine');
-                perms.push(PermissionIndex.service_machine);
-            }
-            if (this.data?.payee_treasury != null && this.object_address) {
-                perms.push(PermissionIndex.service_payee);
-            }
-            if (this.data?.withdraw_guard != null) {
-                this.checkNotPublished('withdraw_guard');
-                perms.push(PermissionIndex.service_withdraw_guards);
-            }
-            if (this.data?.refund_guard != null) {
-                this.checkNotPublished('refund_guard');
-                perms.push(PermissionIndex.service_refund_guards);
-            }
-            if (this.data?.customer_required_info !== undefined) {
-                perms.push(PermissionIndex.service_customer_required);
-            }
-            if (this.data?.sales != null) {
-                perms.push(PermissionIndex.service_sales);
-            }
-            if (this.data?.order_new != null) {
-                this.checkPublished('order_new');
-                this.checkNotPaused('order_new');
-                if (this.object_address) {
-                    if (this.content?.buy_guard) {
-                        guards.push(this.content.buy_guard);
-                    }
+        if (typeof (this.data?.object) !== 'string') {
+            add_perm(PermissionIndex.service);
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.service_description);
+        }
+        if (this.data?.location != null) {
+            add_perm(PermissionIndex.service_location);
+        }
+        if (this.data?.bPaused != null) {
+            add_perm(PermissionIndex.service_pause);
+        }
+        if (this.data?.bPublished) { // publish is an irreversible one-time operation 
+            add_perm(PermissionIndex.service_publish);
+        }
+        if (this.data?.endpoint !== undefined) {
+            add_perm(PermissionIndex.service_endpoint);
+        }
+        if (this.data?.repository != null) {
+            add_perm(PermissionIndex.service_repository);
+        }
+        if (this.data?.clone_new != null) {
+            add_perm(PermissionIndex.service_clone);
+        }
+        if (this.data?.gen_discount != null) {
+            add_perm(PermissionIndex.service_discount_transfer);
+        }
+        if (this.data?.arbitration != null) {
+            this.checkNotPublished('arbitration');
+            add_perm(PermissionIndex.service_arbitration);
+        }
+        if (this.data?.buy_guard !== undefined) {
+            add_perm(PermissionIndex.service_buyer_guard);
+        }
+        if (this.data?.extern_withdraw_treasury != null) {
+            add_perm(PermissionIndex.service_treasury);
+        }
+        if (this.data?.machine !== undefined) {
+            this.checkNotPublished('machine');
+            add_perm(PermissionIndex.service_machine);
+        }
+        if (this.data?.payee_treasury != null && this.object_address) {
+            add_perm(PermissionIndex.service_payee);
+        }
+        if (this.data?.withdraw_guard != null) {
+            this.checkNotPublished('withdraw_guard');
+            add_perm(PermissionIndex.service_withdraw_guards);
+        }
+        if (this.data?.refund_guard != null) {
+            this.checkNotPublished('refund_guard');
+            add_perm(PermissionIndex.service_refund_guards);
+        }
+        if (this.data?.customer_required_info !== undefined) {
+            add_perm(PermissionIndex.service_customer_required);
+        }
+        if (this.data?.sales != null) {
+            add_perm(PermissionIndex.service_sales);
+        }
+        if (this.data?.order_new != null) {
+            this.checkPublished('order_new');
+            this.checkNotPaused('order_new');
+            if (this.object_address) {
+                if (this.content?.buy_guard) {
+                    guards.push(this.content.buy_guard);
                 }
             }
-            if (this.data?.order_refund?.refund_guard != null) {
-                this.checkPublished('order_refund');
-                const guard = await LocalMark.Instance().get_address(this.data?.order_refund?.refund_guard);
+        }
+        if (this.data?.order_refund?.refund_guard != null) {
+            this.checkPublished('order_refund');
+            const guard = await LocalMark.Instance().get_address(this.data?.order_refund?.refund_guard);
+            if (guard)
+                guards.push(guard);
+        }
+        if (this.data.order_withdrawl != null) { // permission(may be guard) + withdraw_guard
+            this.checkPublished('order_withdrawl');
+            add_perm(PermissionIndex.service_withdraw);
+            if (this.data.order_withdrawl?.data?.withdraw_guard) {
+                const guard = await LocalMark.Instance().get_address(this.data.order_withdrawl?.data?.withdraw_guard);
                 if (guard)
                     guards.push(guard);
             }
-            if (this.data.order_withdrawl != null) { // permission(may be guard) + withdraw_guard
-                this.checkPublished('order_withdrawl');
-                perms.push(PermissionIndex.service_withdraw);
-                if (this.data.order_withdrawl?.data?.withdraw_guard) {
-                    const guard = await LocalMark.Instance().get_address(this.data.order_withdrawl?.data?.withdraw_guard);
-                    if (guard)
-                        guards.push(guard);
-                }
-            }
+        }
+        if (this.permission_address) {
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account);
         }
         return await this.exec(account);

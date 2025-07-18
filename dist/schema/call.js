@@ -58,7 +58,9 @@ const TypeNamedObjectWithPermissionSchema = NamedObjectWithPermissionSchema.exte
 const ObjectTypedMainSchema = (object = '') => {
     return z.union([ObjectExistedSchema(object), TypeNamedObjectWithPermissionSchema.describe(D.ObjectNewDescription())]);
 };
-const ObjectMainSchema = z.union([GetMarkNameSchema(), NamedObjectWithPermissionSchema]);
+const ObjectMainSchema = (object = '') => {
+    return z.union([GetMarkNameSchema(object), NamedObjectWithPermissionSchema.describe(D.ObjectNewDescription(object))]);
+};
 const ValueTypeSchema = z.nativeEnum(WOWOK.ValueType).describe(D.ValueType_Description);
 const GuardIndentifierSchema = z.number().int().min(1).max(255);
 const TokenBalanceSchema = z.union([z.string(), z.number().int().min(0)]).describe(D.Balance_Description);
@@ -211,8 +213,8 @@ export const CallDemandDataSchema = z.object({
     }).optional().describe(D.Demand_Guard_Description)
 }).describe(D.GetObjectDataDescription('Demand'));
 export const CallGuardDataSchema = z.object({
-    root: GuardNodeSchema.describe(D.Guard_Root_Description),
     namedNew: GetNamedObjectSchema('Guard').optional(),
+    root: GuardNodeSchema.describe(D.Guard_Root_Description),
     description: z.string().optional().describe(D.ObjectDes_Description),
     table: z.array(z.object({
         identifier: GuardIndentifierSchema.describe(D.Guard_Table_Id),
@@ -224,7 +226,7 @@ export const CallGuardDataSchema = z.object({
 const OptionProgressObjectSchema = GetMarkNameSchema('Progress').optional().describe(D.OptionProgressObject_Description);
 const OptionOrderObjectSchema = GetMarkNameSchema('Order').optional().describe(D.OptionOrderObject_Description);
 export const CallMachineDataSchema = z.object({
-    object: ObjectMainSchema,
+    object: ObjectMainSchema('Machine'),
     progress_new: z.object({
         task_address: GetMarkNameSchema().optional().nullable(),
         namedNew: GetNamedObjectSchema('Progress').optional(),
@@ -403,7 +405,7 @@ export const PayParamSchema = z.object({
 export const RepositoryTypedDataSchema = z.union([
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.PositiveNumber),
-        data: z.union([z.string().nonempty(), z.number().int().min(0), z.bigint().min(0n)])
+        data: z.union([z.string().nonempty(), z.number().int().min(0)])
     }).describe(`positive number data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.String),
@@ -411,7 +413,7 @@ export const RepositoryTypedDataSchema = z.union([
     }).describe(`string data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.PositiveNumber_Vec),
-        data: z.array(z.union([z.string().nonempty(), z.number().int().min(0), z.bigint().min(0n)]))
+        data: z.array(z.union([z.string().nonempty(), z.number().int().min(0)]))
     }).describe(`positive number vector data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.String_Vec),
@@ -431,10 +433,11 @@ export const RepositoryTypedDataSchema = z.union([
     }).describe(`bool data`),
 ]);
 export const CallRepositoryDataSchema = z.object({
-    object: ObjectMainSchema,
+    object: ObjectMainSchema('Repository'),
     data: z.union([
         z.object({
-            add_by_key: z.object({
+            op: z.literal('add_by_key'),
+            data: z.object({
                 key: z.string().nonempty().describe(D.Data_Key),
                 data: z.array(z.object({
                     address: RepositoryAddressID,
@@ -443,7 +446,8 @@ export const CallRepositoryDataSchema = z.object({
             })
         }).describe(`${D.Repository_AddData} ${D.Data_ForAddress}`),
         z.object({
-            add_by_address: z.object({
+            op: z.literal('add_by_address'),
+            data: z.object({
                 address: RepositoryAddressID,
                 data: z.array(z.object({
                     key: z.string().nonempty().describe(D.Data_Key),
@@ -452,7 +456,8 @@ export const CallRepositoryDataSchema = z.object({
             })
         }).describe(`${D.Repository_AddData} ${D.Repository_Data_ForName}`),
         z.object({
-            remove: z.array(z.object({
+            op: z.literal('remove'),
+            data: z.array(z.object({
                 key: z.string().nonempty().describe(D.Data_Key),
                 address: RepositoryAddressID
             }))

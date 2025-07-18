@@ -35,45 +35,50 @@ export class CallDemand extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
+        const add_perm = (index) => {
+            if (this.permission_address && !perms.includes(index)) {
+                perms.push(index);
+            }
+        };
         await this.prepare();
-        if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.demand);
-            }
-            if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.demand_description);
-            }
-            if (this.data?.location != null) {
-                perms.push(PermissionIndex.demand_location);
-            }
-            if (this.data?.time_expire != null && this.object_address) {
-                perms.push(PermissionIndex.demand_expand_time);
-            }
-            if (this.data?.bounty?.op === 'reward') {
-                if (!this.object_address)
-                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.op ${this.data?.bounty?.op}. Only the created Demand object can be used to distribute the reward`);
-                const service = await LocalMark.Instance().get_address(this.data.bounty?.service);
-                if (!service)
-                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service ${this.data?.bounty?.service}`);
-                const n = await queryTableItem_DemandService({ parent: this.object_address, address: service, no_cache: true });
-                if (n?.type !== 'TableItem_DemandPresenter')
-                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service. This service ${this.data?.bounty?.service} has not yet been recommended to the Demand object.`);
-                this.data.bounty.service = service;
-                perms.push(PermissionIndex.demand_yes);
-            }
-            if (this.data?.bounty?.op === 'refund') {
-                perms.push(PermissionIndex.demand_refund);
-            }
-            if (this.data?.guard != null) {
-                perms.push(PermissionIndex.demand_guard);
-            }
-            if (this.data?.present != null) {
-                if (this.object_address) {
-                    if (this.content?.guard?.object) {
-                        guards.push(this.content.guard?.object);
-                    }
+        if (typeof (this.data?.object) !== 'string') {
+            add_perm(PermissionIndex.demand);
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.demand_description);
+        }
+        if (this.data?.location != null) {
+            add_perm(PermissionIndex.demand_location);
+        }
+        if (this.data?.time_expire != null && this.object_address) {
+            add_perm(PermissionIndex.demand_expand_time);
+        }
+        if (this.data?.bounty?.op === 'reward') {
+            if (!this.object_address)
+                ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.op ${this.data?.bounty?.op}. Only the created Demand object can be used to distribute the reward`);
+            const service = await LocalMark.Instance().get_address(this.data.bounty?.service);
+            if (!service)
+                ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service ${this.data?.bounty?.service}`);
+            const n = await queryTableItem_DemandService({ parent: this.object_address, address: service, no_cache: true });
+            if (n?.type !== 'TableItem_DemandPresenter')
+                ERROR(Errors.InvalidParam, `CallDemand_Data.data.bounty.service. This service ${this.data?.bounty?.service} has not yet been recommended to the Demand object.`);
+            this.data.bounty.service = service;
+            add_perm(PermissionIndex.demand_yes);
+        }
+        if (this.data?.bounty?.op === 'refund') {
+            add_perm(PermissionIndex.demand_refund);
+        }
+        if (this.data?.guard != null) {
+            add_perm(PermissionIndex.demand_guard);
+        }
+        if (this.data?.present != null) {
+            if (this.object_address) {
+                if (this.content?.guard?.object) {
+                    guards.push(this.content.guard?.object);
                 }
             }
+        }
+        if (this.permission_address) {
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account);
         }
         return await this.exec(account);

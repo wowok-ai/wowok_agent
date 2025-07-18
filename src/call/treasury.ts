@@ -66,14 +66,18 @@ export class CallTreasury extends CallBase {
     async call(account?:string) : Promise<CallResult>  {
         var checkOwner = false; const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-
+        const add_perm = (index:PermissionIndex) => {
+            if (this.permission_address && !perms.includes(index)) {
+                add_perm(index);
+            }
+        }
         await this.prepare();
         if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.treasury)
+            if (typeof(this.data?.object) !== 'string') {
+                add_perm(PermissionIndex.treasury)
             }
             if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.treasury_descritption)
+                add_perm(PermissionIndex.treasury_descritption)
             }
             if (this.data?.withdraw_mode != null) {
                 if ((this.content as ObjectTreasury)?.withdraw_mode === Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
@@ -83,14 +87,14 @@ export class CallTreasury extends CallBase {
                         this.data.withdraw_mode = undefined;
                     }
                 } else {
-                    perms.push(PermissionIndex.treasury_withdraw_mode)
+                    add_perm(PermissionIndex.treasury_withdraw_mode)
                 }
             }
             if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
-                perms.push(PermissionIndex.treasury_withdraw_guard)
+                add_perm(PermissionIndex.treasury_withdraw_guard)
             }
             if (this.data?.deposit_guard !== undefined) {
-                perms.push(PermissionIndex.treasury_deposit_guard)
+                add_perm(PermissionIndex.treasury_deposit_guard)
             }
             if (this.data?.deposit != null) {
                 if (this.object_address) {
@@ -100,7 +104,7 @@ export class CallTreasury extends CallBase {
                 }
             }
             if (this.data?.receive != null) {
-                perms.push(PermissionIndex.treasury_receive)
+                add_perm(PermissionIndex.treasury_receive)
             }
 
             if (this.data.withdraw !== null) {
@@ -121,7 +125,7 @@ export class CallTreasury extends CallBase {
                         guards.push(guard)
                     } 
                 } else { // withdraw with permission
-                    perms.push(PermissionIndex.treasury_withdraw)
+                    add_perm(PermissionIndex.treasury_withdraw)
                 }                
             }
 

@@ -59,77 +59,82 @@ export class CallMachine extends CallBase {
         var checkOwner = false;
         const guards = [];
         const perms = [];
+        const add_perm = (index) => {
+            if (this.permission_address && !perms.includes(index)) {
+                perms.push(index);
+            }
+        };
         await this.prepare();
+        if (typeof (this.data?.object) !== 'string') {
+            add_perm(PermissionIndex.machine);
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.machine_description);
+        }
+        if (this.data?.endpoint !== undefined && this.object_address) {
+            add_perm(PermissionIndex.machine_endpoint);
+        }
+        if (this.data?.consensus_repository != null) {
+            add_perm(PermissionIndex.machine_repository);
+        }
+        if (this.data?.nodes != null) {
+            this.checkNotPublished(`nodes`);
+            add_perm(PermissionIndex.machine_node);
+        }
+        if (this.data?.bPublished) { // publish is an irreversible one-time operation 
+            add_perm(PermissionIndex.machine_publish);
+        }
+        if (this.data?.progress_new != null) {
+            this.checkPublished(`progress_new`);
+            this.checkNotPaused(`progress_new`);
+            add_perm(PermissionIndex.progress);
+        }
+        if (this.data?.progress_context_repository != null) {
+            this.checkPublished(`progress_context_repository`);
+            add_perm(PermissionIndex.progress_context_repository);
+        }
+        if (this.data?.progress_namedOperator != null) {
+            this.checkPublished(`progress_namedOperator`);
+            add_perm(PermissionIndex.progress_namedOperator);
+        }
+        if (this.data?.progress_parent != null) {
+            this.checkPublished(`progress_parent`);
+            add_perm(PermissionIndex.progress_parent);
+        }
+        if (this.data?.progress_task != null) {
+            this.checkPublished(`progress_task`);
+            add_perm(PermissionIndex.progress_bind_task);
+        }
+        if (this.data?.progress_hold != null) {
+            this.checkPublished(`progress_hold`);
+            if (this.data.progress_hold.adminUnhold) {
+                add_perm(PermissionIndex.progress_unhold);
+            }
+        }
+        if (this.data?.bPaused != null) {
+            add_perm(PermissionIndex.machine_pause);
+        }
+        if (this.data?.clone_new != null) {
+            add_perm(PermissionIndex.machine_clone);
+        }
+        if (this.data?.progress_next != null) {
+            this.checkPublished(`progress_next`);
+            if (this.object_address) { // fetch guard
+                const [p, acc] = await Promise.all([
+                    await LocalMark.Instance().get_address(this.data?.progress_next.progress),
+                    await Account.Instance().get(account)
+                ]);
+                if (!p)
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
+                if (!acc)
+                    ERROR(Errors.InvalidParam, 'CallMachine_Data.account');
+                const guard = await Progress.QueryForwardGuard(p, this.object_address, acc.address, this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
+                if (guard) {
+                    guards.push(guard);
+                }
+            }
+        }
         if (this.permission_address) {
-            if (!this.data?.object) {
-                perms.push(PermissionIndex.machine);
-            }
-            if (this.data?.description != null && this.object_address) {
-                perms.push(PermissionIndex.machine_description);
-            }
-            if (this.data?.endpoint !== undefined && this.object_address) {
-                perms.push(PermissionIndex.machine_endpoint);
-            }
-            if (this.data?.consensus_repository != null) {
-                perms.push(PermissionIndex.machine_repository);
-            }
-            if (this.data?.nodes != null) {
-                this.checkNotPublished(`nodes`);
-                perms.push(PermissionIndex.machine_node);
-            }
-            if (this.data?.bPublished) { // publish is an irreversible one-time operation 
-                perms.push(PermissionIndex.machine_publish);
-            }
-            if (this.data?.progress_new != null) {
-                this.checkPublished(`progress_new`);
-                this.checkNotPaused(`progress_new`);
-                perms.push(PermissionIndex.progress);
-            }
-            if (this.data?.progress_context_repository != null) {
-                this.checkPublished(`progress_context_repository`);
-                perms.push(PermissionIndex.progress_context_repository);
-            }
-            if (this.data?.progress_namedOperator != null) {
-                this.checkPublished(`progress_namedOperator`);
-                perms.push(PermissionIndex.progress_namedOperator);
-            }
-            if (this.data?.progress_parent != null) {
-                this.checkPublished(`progress_parent`);
-                perms.push(PermissionIndex.progress_parent);
-            }
-            if (this.data?.progress_task != null) {
-                this.checkPublished(`progress_task`);
-                perms.push(PermissionIndex.progress_bind_task);
-            }
-            if (this.data?.progress_hold != null) {
-                this.checkPublished(`progress_hold`);
-                if (this.data.progress_hold.adminUnhold) {
-                    perms.push(PermissionIndex.progress_unhold);
-                }
-            }
-            if (this.data?.bPaused != null) {
-                perms.push(PermissionIndex.machine_pause);
-            }
-            if (this.data?.clone_new != null) {
-                perms.push(PermissionIndex.machine_clone);
-            }
-            if (this.data?.progress_next != null) {
-                this.checkPublished(`progress_next`);
-                if (this.object_address) { // fetch guard
-                    const [p, acc] = await Promise.all([
-                        await LocalMark.Instance().get_address(this.data?.progress_next.progress),
-                        await Account.Instance().get(account)
-                    ]);
-                    if (!p)
-                        ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-                    if (!acc)
-                        ERROR(Errors.InvalidParam, 'CallMachine_Data.account');
-                    const guard = await Progress.QueryForwardGuard(p, this.object_address, acc.address, this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
-                    if (guard) {
-                        guards.push(guard);
-                    }
-                }
-            }
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account);
         }
         return await this.exec(account);
