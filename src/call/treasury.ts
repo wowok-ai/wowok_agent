@@ -68,67 +68,68 @@ export class CallTreasury extends CallBase {
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
-                add_perm(index);
+                perms.push(index);
             }
         }
         await this.prepare();
-        if (this.permission_address) {
-            if (typeof(this.data?.object) !== 'string') {
-                add_perm(PermissionIndex.treasury)
-            }
-            if (this.data?.description != null && this.object_address) {
-                add_perm(PermissionIndex.treasury_descritption)
-            }
-            if (this.data?.withdraw_mode != null) {
-                if ((this.content as ObjectTreasury)?.withdraw_mode === Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
-                    if (this.data.withdraw_mode !== Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
-                        ERROR(Errors.Fail, `CallTreasury_Data.withdraw_mode: The "withdraw_mode" has been set to "GUARD_ONLY_AND_IMMUTABLE", and it can no longer be changed`)
-                    } else {
-                        this.data.withdraw_mode = undefined;
-                    }
+        
+        if (!this.object_address) {
+            add_perm(PermissionIndex.treasury)
+        }
+        if (this.data?.description != null && this.object_address) {
+            add_perm(PermissionIndex.treasury_descritption)
+        }
+        if (this.data?.withdraw_mode != null) {
+            if ((this.content as ObjectTreasury)?.withdraw_mode === Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                if (this.data.withdraw_mode !== Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE) {
+                    ERROR(Errors.Fail, `CallTreasury_Data.withdraw_mode: The "withdraw_mode" has been set to "GUARD_ONLY_AND_IMMUTABLE", and it can no longer be changed`)
                 } else {
-                    add_perm(PermissionIndex.treasury_withdraw_mode)
+                    this.data.withdraw_mode = undefined;
+                }
+            } else {
+                add_perm(PermissionIndex.treasury_withdraw_mode)
+            }
+        }
+        if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
+            add_perm(PermissionIndex.treasury_withdraw_guard)
+        }
+        if (this.data?.deposit_guard !== undefined) {
+            add_perm(PermissionIndex.treasury_deposit_guard)
+        }
+        if (this.data?.deposit != null) {
+            if (this.object_address) {
+                if ((this.content as ObjectTreasury)?.deposit_guard) {
+                    guards.push((this.content as ObjectTreasury).deposit_guard!)
                 }
             }
-            if (this.data?.withdraw_guard != null) { // publish is an irreversible one-time operation 
-                add_perm(PermissionIndex.treasury_withdraw_guard)
-            }
-            if (this.data?.deposit_guard !== undefined) {
-                add_perm(PermissionIndex.treasury_deposit_guard)
-            }
-            if (this.data?.deposit != null) {
-                if (this.object_address) {
-                    if ((this.content as ObjectTreasury)?.deposit_guard) {
-                        guards.push((this.content as ObjectTreasury).deposit_guard!)
-                    }
-                }
-            }
-            if (this.data?.receive != null) {
-                add_perm(PermissionIndex.treasury_receive)
-            }
+        }
+        if (this.data?.receive != null) {
+            add_perm(PermissionIndex.treasury_receive)
+        }
 
-            if (this.data.withdraw !== null) {
-                if (this.data?.withdraw?.withdraw_guard) { // withdraw with guard
-                    const guard = await get_object_address(this.data.withdraw.withdraw_guard);
-                    if (!guard) ERROR(Errors.InvalidParam, `CallTreasury_Data.withdraw.withdraw_guard ${this.data.withdraw.withdraw_guard}`)
-                    
-                    const f = this.withdraw_guards.find(v => v.guard === guard);
-                    if (!f) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard not found in existed Treasury object ${this.data.withdraw.withdraw_guard}`) 
-                    
-                    let total:bigint = 0n;
-                    this.data.withdraw.receiver.forEach(v => {
-                        total += BigInt(v.amount);
-                    });
-                    if (BigInt(f.max_withdrawal_amount) < total) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard: The total amount withdrawaled > the maximum limit(${f.max_withdrawal_amount}) set by the withdraw Guard  `)
+        if (this.data.withdraw !== null) {
+            if (this.data?.withdraw?.withdraw_guard) { // withdraw with guard
+                const guard = await get_object_address(this.data.withdraw.withdraw_guard);
+                if (!guard) ERROR(Errors.InvalidParam, `CallTreasury_Data.withdraw.withdraw_guard ${this.data.withdraw.withdraw_guard}`)
+                
+                const f = this.withdraw_guards.find(v => v.guard === guard);
+                if (!f) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard not found in existed Treasury object ${this.data.withdraw.withdraw_guard}`) 
+                
+                let total:bigint = 0n;
+                this.data.withdraw.receiver.forEach(v => {
+                    total += BigInt(v.amount);
+                });
+                if (BigInt(f.max_withdrawal_amount) < total) ERROR(Errors.Fail, `CallTreasury_Data.withdraw.withdraw_guard: The total amount withdrawaled > the maximum limit(${f.max_withdrawal_amount}) set by the withdraw Guard  `)
 
-                    if (guard) {
-                        guards.push(guard)
-                    } 
-                } else { // withdraw with permission
-                    add_perm(PermissionIndex.treasury_withdraw)
-                }                
-            }
-
+                if (guard) {
+                    guards.push(guard)
+                } 
+            } else { // withdraw with permission
+                add_perm(PermissionIndex.treasury_withdraw)
+            }                
+        }
+        
+        if (this.permission_address) {
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }
         return await this.exec(account);

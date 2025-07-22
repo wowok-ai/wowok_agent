@@ -46,10 +46,21 @@ export declare enum ToolName {
     QUERY_TABLE_ITEM = "table_item_query",
     QUERY_WOWOK_PROTOCOL = "wowok_protocol"
 }
+export declare enum PromptName {
+    ARBITRATION_NEW = "Create a new Arbitration object",
+    ARBITRATION_OP = "Operate an existing Arbitration object"
+}
 export declare const ObjectUrl: (id: string | undefined) => string | undefined;
 export declare const BaseTypeFilter: (type?: ObjectBaseType) => boolean;
 export declare const ObjectOperationResult: (r: CallResult) => string;
 export declare const PermissionModules: () => string[];
 export declare const GuardQueryModules: () => string[];
 export declare const NoticeFieldsOrder = "Notice:The fields within each tool's parameters are independent and are executed in the order defined by the schema. \n    If the requirements of this tool's invocation have a field sequence relationship, but it does not conform to the sequence of fields in the parameter schema (for example, the requirement is to set up Guard for purchase first, and then make the purchase; but the sequence of fields in the schema is purchase first, and setting Guard for purchase second), then it needs to be decomposed into multiple sub-tool invocations (for example, setting up Guard for purchase is the first tool invocation, and the purchase is the second tool invocation).";
+export declare const schemaToPromptArguments: (schema: any) => Array<{
+    name: string;
+    description: string;
+    type: string;
+    required: boolean;
+    properties?: any;
+}>;
 //# sourceMappingURL=util.d.ts.map

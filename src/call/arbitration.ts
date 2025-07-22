@@ -77,7 +77,7 @@ export class CallArbitration extends CallBase {
             }
         }
         await this.prepare();
-        if (typeof(this.data?.object) !== 'string') {
+        if (!this.object_address) {
             add_perm(PermissionIndex.arbitration)
         }
         if (this.data?.description != null && this.object_address) {

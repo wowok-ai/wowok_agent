@@ -127,12 +127,12 @@ export class CallService extends CallBase {
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
-                add_perm(index);
+                perms.push(index);
             }
         }
         await this.prepare();  
-        
-        if (typeof(this.data?.object) !== 'string') {
+
+        if (!this.object_address) {
             add_perm(PermissionIndex.service)
         }
         if (this.data?.description != null && this.object_address) {
@@ -191,6 +191,7 @@ export class CallService extends CallBase {
         if (this.data?.sales != null) {
             add_perm(PermissionIndex.service_sales)
         }
+
         if (this.data?.order_new != null) {
             this.checkPublished('order_new');
             this.checkNotPaused('order_new');
@@ -216,6 +217,7 @@ export class CallService extends CallBase {
                 if (guard) guards.push(guard);
             }
         }
+
         if (this.permission_address) {
             return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
         }

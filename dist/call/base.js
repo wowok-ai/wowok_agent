@@ -123,6 +123,7 @@ export class CallBase {
         if (guards_needed.length > 0) {
             guards = guards.concat(guards_needed);
         }
+        console.log(2);
         if (guards.length > 0) { // prepare passport
             const p = await GuardParser.Create([...guards]);
             const futures = p ? p.future_fills() : [];
@@ -141,6 +142,7 @@ export class CallBase {
             return { guards: [...guards], witness: p.future_fills() };
         }
         else { // no passport needed
+            console.log(3);
             return await this.exec(account);
         }
     }

@@ -831,7 +831,9 @@ export const ObjectsUrlSchemaOutput = () => {
 }
 
 export const AccountSchema = z.string().optional().describe('The account name or address that initiated the operation.');
-export const WitnessSchema = GuardWitness.optional().describe('If Guard sets witness data, it needs to be provided immediately by the transaction signer when Guard is verified.');
+export const WitnessSchema = GuardWitness.optional().describe(`The transaction requires submission of certain information in order to meet the verification conditions set by Guard. 
+    When an operation requires verification of a witness, it returns a structure that can hold the witness. 
+    The signatory needs to complete the structure containing the "witness" information and then resubmit the transaction`);
 
 export const CallDemandSchemaDescription = `Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. 
     The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. 

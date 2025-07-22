@@ -73,6 +73,11 @@ export var ToolName;
     ToolName["QUERY_TABLE_ITEM"] = "table_item_query";
     ToolName["QUERY_WOWOK_PROTOCOL"] = "wowok_protocol";
 })(ToolName || (ToolName = {}));
+export var PromptName;
+(function (PromptName) {
+    PromptName["ARBITRATION_NEW"] = "Create a new Arbitration object";
+    PromptName["ARBITRATION_OP"] = "Operate an existing Arbitration object";
+})(PromptName || (PromptName = {}));
 export const ObjectUrl = (id) => {
     if (WOWOK.IsValidAddress(id)) {
         return 'https://wowok.net/' + id;
@@ -114,4 +119,16 @@ export const GuardQueryModules = () => {
 };
 export const NoticeFieldsOrder = `Notice:The fields within each tool's parameters are independent and are executed in the order defined by the schema. 
     If the requirements of this tool's invocation have a field sequence relationship, but it does not conform to the sequence of fields in the parameter schema (for example, the requirement is to set up Guard for purchase first, and then make the purchase; but the sequence of fields in the schema is purchase first, and setting Guard for purchase second), then it needs to be decomposed into multiple sub-tool invocations (for example, setting up Guard for purchase is the first tool invocation, and the purchase is the second tool invocation).`;
+// Helper function to convert Zod schema to prompt arguments
+export const schemaToPromptArguments = (schema) => {
+    if (!schema || !schema.properties)
+        return [];
+    return Object.entries(schema.properties).map(([name, prop]) => ({
+        name,
+        description: prop.description || '',
+        type: prop.type || 'string',
+        required: schema.required?.includes(name) || false,
+        properties: prop.properties ? schemaToPromptArguments(prop) : undefined
+    }));
+};
 //# sourceMappingURL=util.js.map

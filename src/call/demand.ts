@@ -59,7 +59,7 @@ export class CallDemand extends CallBase {
             }
         }
         await this.prepare();
-        if (typeof(this.data?.object) !== 'string') {
+        if (!this.object_address) {
             add_perm(PermissionIndex.demand)
         }
         if (this.data?.description != null && this.object_address) {

@@ -84,11 +84,11 @@ export class CallService extends CallBase {
         const perms = [];
         const add_perm = (index) => {
             if (this.permission_address && !perms.includes(index)) {
-                add_perm(index);
+                perms.push(index);
             }
         };
         await this.prepare();
-        if (typeof (this.data?.object) !== 'string') {
+        if (!this.object_address) {
             add_perm(PermissionIndex.service);
         }
         if (this.data?.description != null && this.object_address) {
