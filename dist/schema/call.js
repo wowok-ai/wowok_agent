@@ -111,6 +111,7 @@ const GuardNodeSchema = z.lazy(() => z.union([
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_ADDRESS).describe(D.GuardCalcAddress_Description),
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_MULTIPLY).describe(D.GuardCalcMultiply_Description),
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_SUBTRACT).describe(D.GuardCalcSubtract_Description),
+            z.literal(WOWOK.OperatorType.TYPE_STRING_LOWERCASE).describe(D.GuardCalcStringLowercase_Description)
         ]),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeParams_Description)
     }).describe(D.GuardNodeCalc_Description),

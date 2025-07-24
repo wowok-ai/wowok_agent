@@ -23,7 +23,7 @@ export type GuardNode = {
     logic: OperatorType.TYPE_LOGIC_AS_U256_GREATER | OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL | OperatorType.TYPE_LOGIC_AS_U256_LESSER | OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING | OperatorType.TYPE_LOGIC_NOT | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;
     parameters: GuardNode[];
 } | {
-    calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT;
+    calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT | OperatorType.TYPE_STRING_LOWERCASE;
     parameters: GuardNode[];
 } | {
     value_type: ValueType;

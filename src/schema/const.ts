@@ -64,6 +64,8 @@ export const GuardCalcMod_Description = `'%':The value returned by the first chi
 export const GuardCalcAddress_Description = `Convert the numeric value returned by the child node to an on-chain address`;
 export const GuardCalcMultiply_Description = `'*':The value returned by the first child node is successively multiplied by the values returned by other child nodes, with the result serving as the return value of this node`;
 export const GuardCalcSubtract_Description = `'-':The value returned by the first child node is successively subtracted by the values returned by other child nodes, with the result serving as the return value of this node`;
+export const GuardCalcStringLowercase_Description = `Convert the string returned by the first child node to lowercase, with the result serving as the return value of this node`;
+
 export const GuardNodeCalc_Description = `Data from mathematical operations on data returned by child nodes`;
 export const GuardNodeValue_Description = `Data from value with its type specified in the value_type field`;
 export const GuardContextSigner_Description = `Address of the signer of the current transaction.Type is ${WOWOK.ValueType.TYPE_ADDRESS} `;

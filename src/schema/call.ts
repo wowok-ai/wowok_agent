@@ -130,6 +130,7 @@ const GuardNodeSchema: z.ZodType = z.lazy(() => z.union([
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_ADDRESS).describe(D.GuardCalcAddress_Description),
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_MULTIPLY).describe(D.GuardCalcMultiply_Description), 
             z.literal(WOWOK.OperatorType.TYPE_NUMBER_SUBTRACT).describe(D.GuardCalcSubtract_Description),
+            z.literal(WOWOK.OperatorType.TYPE_STRING_LOWERCASE).describe(D.GuardCalcStringLowercase_Description)
         ]),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeParams_Description)
     }).describe(D.GuardNodeCalc_Description),
@@ -528,6 +529,7 @@ export const CallRepositoryDataSchema = z.object({
             }))
         }).describe(D.Policy_Rename),
     ]).optional().describe(D.Repository_Policy_Description),
+    guard: GetMarkNameSchema('Guard').optional().nullable(),
 }).describe(D.GetObjectDataDescription('Repository'));
 
 

@@ -73,6 +73,7 @@ export interface AddData_byAddress_Data {
     key: string;
     data: RepositoryTypeData;
 }
+
 export interface AddData_byAddress {
     address: AddressID;
     address_string?: string;
@@ -88,12 +89,13 @@ export interface RemoveData {
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {
     object?: ObjectMain;
+    data?: {op:'add_by_key'; data: AddData_byKey} | {op:'add_by_address', data: AddData_byAddress} | {op:'remove', data: RemoveData[]};
+
     description?: string;
     reference?: ObjectsOp;
     mode?: Repository_Policy_Mode; // default: 'Relax' (POLICY_MODE_FREE) 
     policy?: {op:'add' | 'set'; data:Repository_Policy[]} | {op:'remove'; keys:string[]} | {op:'removeall'} | {op:'rename'; data:{old:string; new:string}[]};
-    data?: {op:'add_by_key'; data: AddData_byKey} | {op:'add_by_address', data: AddData_byAddress} | {op:'remove', data: RemoveData[]};
-
+    guard?:string | null;
 }
 
 export class CallRepository extends CallBase {
@@ -158,6 +160,10 @@ export class CallRepository extends CallBase {
         if (this.data?.policy != null) {
             add_perm(PermissionIndex.repository_policies)
         }
+        if (this.data.guard !== undefined) {
+            add_perm(PermissionIndex.repository_guard);
+        }
+
         if (this.data?.data != null) {
             // check policy & mode 
             const policy = (this.content as ObjectRepository)?.policy;
@@ -308,6 +314,16 @@ export class CallRepository extends CallBase {
                         obj?.rename_policy(v.old, v.new, pst);
                     })
                     break;
+            }
+        }
+
+        if (this.data?.guard !== undefined) {
+            if (this.data.guard === null) {
+                obj?.set_guard(undefined, pst);
+            } else {
+                const guard = await LocalMark.Instance().get_address(this.data.guard);
+                if (!guard) ERROR(Errors.InvalidParam, `CallRepository_Data.data.guard: ${this.data.guard} invalid`);
+                obj?.set_guard(guard, pst);
             }
         }
 

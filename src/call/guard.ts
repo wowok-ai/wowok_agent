@@ -31,7 +31,7 @@ export type GuardNode = { identifier: number; } // Data from GuardConst
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
         | OperatorType.TYPE_LOGIC_NOT | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;  parameters: GuardNode[];}
     | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS 
-        | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT; parameters: GuardNode[];}
+        | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT | OperatorType.TYPE_STRING_LOWERCASE; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
 
@@ -221,7 +221,15 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
             }
         }
     } else if (node?.calc !== undefined) {
-        if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
+        if (node?.calc === OperatorType.TYPE_STRING_LOWERCASE) {
+            checkType(ValueType.TYPE_STRING, type_required, node);
+            if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_STRING_LOWERCASE parameters length must == 1'+ JSON.stringify(node));
+            const p = (node.parameters as GuardNode[]).reverse(); 
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], ValueType.TYPE_STRING, table, output);
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE
+        } else if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
             checkType(ValueType.TYPE_ADDRESS, type_required, node);
             if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1'+ JSON.stringify(node));
             const p = (node.parameters as GuardNode[]).reverse(); 
