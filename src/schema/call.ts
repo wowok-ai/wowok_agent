@@ -740,14 +740,23 @@ export const CallServiceDataSchema = z.object({
 }).describe(D.GetObjectDataDescription('Service')); 
 
 export const CallPersonalDataSchema = z.object({
-    information: z.object({
-        name: z.string().describe('name'),
-        description: z.string().optional().describe('introductions'),
-        avatar: z.string().optional().describe('avatar URL'),
-        twitter: z.string().optional().describe('twitter'),
-        discord: z.string().optional().describe('discord'),
-        homepage: z.string().optional().describe('homepage URL'),
-    }).optional().describe(D.Personal_Info),
+    information: z.union([
+        z.object({
+            op:z.literal('add'),
+            data: z.array(z.object({
+                title: z.string().nonempty(),
+                value: z.string()
+            }).describe('A piece of personal information'))
+        }).describe('Add or set personal information'),
+        z.object({
+            op:z.literal('remove'),
+            title: z.array(z.string().nonempty())
+        }).describe('Remove personal information by titles'),
+        z.object({
+            op:z.literal('removeall')
+        }).describe('Remove all the personal information')
+    ]).describe('Personal information settings, such as name, profile avatar, location, Facebook and other social information'),
+    description: z.string().optional().describe('Personal Introduction'),
     mark: z.union([
         z.object({
             op: z.literal('add'),

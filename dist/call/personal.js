@@ -1,4 +1,4 @@
-import { Errors, ERROR, Entity, Resource, IsValidDesription } from 'wowok';
+import { Errors, ERROR, Entity, Resource, IsValidDesription, IsValidName, IsValidStringLength } from 'wowok';
 import { CallBase, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
@@ -22,7 +22,28 @@ export class CallPersonal extends CallBase {
             obj = Resource.From(txb, entity.create_resource2());
         }
         if (this.data?.information != null) {
-            entity.update(this.data.information);
+            switch (this.data.information.op) {
+                case 'add': {
+                    const map = new Map();
+                    this.data.information.data.forEach(v => {
+                        if (!IsValidName(v.title))
+                            ERROR(Errors.IsValidName, `CallPersonal_Data.infomation ${v}`);
+                        if (!IsValidStringLength(v.value, Entity.MAX_INFO_VALUE_LENGTH))
+                            ERROR(Errors.InvalidParam, `CallPersonal_Data.infomation ${v}`);
+                        map.set(v.title.toLowerCase(), v.value);
+                    });
+                    entity.add_info(map);
+                    break;
+                }
+                case 'remove': {
+                    entity.remove_info(this.data.information.title);
+                    break;
+                }
+                case 'removeall': {
+                    entity.removeall_info();
+                    break;
+                }
+            }
         }
         if (this.data?.description != null) {
             if (!IsValidDesription(this.data.description)) {

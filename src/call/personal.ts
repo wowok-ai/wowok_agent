@@ -1,4 +1,4 @@
-import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Resource, FAUCET, IsValidDesription} from 'wowok';
+import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Resource, FAUCET, IsValidDesription, EntityInfo, IsValidName, IsValidStringLength} from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
@@ -7,7 +7,9 @@ import { Account } from '../local/account.js';
 
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
-    information?: Map<string, string>;
+    information?: { op:'add', data: EntityInfo[]} 
+        | {op:'remove', title: string[] } 
+        | {op:'removeall'}
     description?: string;
     mark?: {op:'add'; data:{address:AccountOrMark_Address; name?:string; tags?:string[]}[]}
         | {op:'remove'; data:{address:AccountOrMark_Address; tags?:string[]}[]}
@@ -39,7 +41,24 @@ export class CallPersonal extends CallBase {
         }
 
         if (this.data?.information != null ) {
-            entity.update(this.data.information)
+            switch (this.data.information.op) {
+                case 'add' : {
+                    const map = new Map<string, string>();
+                    this.data.information.data.forEach(v => {
+                        if (!IsValidName(v.title)) ERROR(Errors.IsValidName, `CallPersonal_Data.infomation ${v}`);
+                        if (!IsValidStringLength(v.value, Entity.MAX_INFO_VALUE_LENGTH)) ERROR(Errors.InvalidParam, `CallPersonal_Data.infomation ${v}`)
+                        map.set(v.title.toLowerCase(), v.value)
+                    })
+                    entity.add_info(map);
+                    break;
+                } case 'remove' : {
+                    entity.remove_info((this.data.information as any).title);
+                    break;
+                } case 'removeall' : {
+                    entity.removeall_info()
+                    break;
+                }
+            }
         }
 
         if (this.data?.description != null) {
