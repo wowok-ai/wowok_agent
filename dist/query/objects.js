@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, Bcs, uint2address, } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, uint2address, } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
@@ -247,6 +247,7 @@ export function data2object(data) {
     const version = data?.version ?? undefined;
     const owner = data?.owner ?? undefined;
     const type = raw2type(type_raw);
+    //console.log(content)
     if (type) {
         switch (type) {
             case 'Permission':
@@ -353,7 +354,7 @@ export function data2object(data) {
                 };
             case 'Repository':
                 return {
-                    object: id, type: type, type_raw: type_raw, owner: owner, version: version,
+                    object: id, type: type, type_raw: type_raw, owner: owner, version: version, guard: content?.guard,
                     permission: content?.permission, description: content?.description, policy_mode: content?.policy_mode,
                     data_count: parseInt(content?.data?.fields?.size), reference: content?.reference, rep_type: content?.type,
                     policy: content?.policies?.fields?.contents?.map((v) => {
@@ -437,13 +438,15 @@ export function data2object(data) {
                     node: { name: content?.name, pairs: Machine.rpc_de_pair(content?.value) }
                 };
             case 'Personal':
-                const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
+                const info = new Map();
+                content?.value?.fields?.info?.fields?.contents?.forEach((v) => {
+                    info.set(v?.fields?.key, v?.fields?.value);
+                });
                 return {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     address: content?.name, like: content?.value?.fields?.like, dislike: content?.value?.fields?.dislike,
                     mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction,
-                    info: { homepage: info?.homepage, name: info?.name, avatar: info?.avatar, twitter: info?.twitter, discord: info?.discord,
-                        description: info?.description }
+                    info: info, description: content?.value?.fields?.description
                 };
             case 'TableItem_PersonalMark':
                 return { object: id, type: type, type_raw: type_raw, owner: owner, version: version,

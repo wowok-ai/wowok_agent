@@ -63,6 +63,16 @@ export interface RemoveData {
 }
 export interface CallRepository_Data {
     object?: ObjectMain;
+    data?: {
+        op: 'add_by_key';
+        data: AddData_byKey;
+    } | {
+        op: 'add_by_address';
+        data: AddData_byAddress;
+    } | {
+        op: 'remove';
+        data: RemoveData[];
+    };
     description?: string;
     reference?: ObjectsOp;
     mode?: Repository_Policy_Mode;
@@ -81,16 +91,7 @@ export interface CallRepository_Data {
             new: string;
         }[];
     };
-    data?: {
-        op: 'add_by_key';
-        data: AddData_byKey;
-    } | {
-        op: 'add_by_address';
-        data: AddData_byAddress;
-    } | {
-        op: 'remove';
-        data: RemoveData[];
-    };
+    guard?: string | null;
 }
 export declare class CallRepository extends CallBase {
     data: CallRepository_Data;

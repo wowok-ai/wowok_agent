@@ -495,6 +495,7 @@ export const CallRepositoryDataSchema = z.object({
             }))
         }).describe(D.Policy_Rename),
     ]).optional().describe(D.Repository_Policy_Description),
+    guard: GetMarkNameSchema('Guard').optional().nullable(),
 }).describe(D.GetObjectDataDescription('Repository'));
 export const CallArbitrationDataSchema = z.object({
     object: ObjectTypedMainSchema('Arbitration'),

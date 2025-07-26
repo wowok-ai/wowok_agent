@@ -5,7 +5,7 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, Bcs, Entity_Info, Tags, uint2address,
+    Progress, History, ERROR, Errors, Bcs, Tags, uint2address,
 } from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
@@ -246,7 +246,8 @@ export interface ObjectPersonal extends ObjectBase {
     address: string; 
     like: number;
     dislike: number;
-    info: Entity_Info;  
+    info: Map<string, string>;  
+    description: string;
     mark_object?: string | null; // ObjectMark & TableItem_MarkTag
     lastActive_digest?: string; 
 }
@@ -568,7 +569,7 @@ export function data2object(data?:any) : ObjectBase {
     const version = data?.version ?? undefined;
     const owner = data?.owner ?? undefined;
     const type:string | undefined = raw2type(type_raw);
-
+    //console.log(content)
     if (type) {
         switch(type) {
         case 'Permission':
@@ -760,13 +761,16 @@ export function data2object(data?:any) : ObjectBase {
                 node: {name:content?.name, pairs:Machine.rpc_de_pair(content?.value)}
             } as TableItem_MachineNode;
         case 'Personal':
-            const info = Bcs.getInstance().de_entInfo(Uint8Array.from(content?.value?.fields?.avatar));
+            const info = new Map<string, string>();
+            (content?.value?.fields?.info?.fields?.contents as any)?.forEach((v:any) => {
+                info.set(v?.fields?.key, v?.fields?.value)
+            })
+
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
                 mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
-                info : {homepage:info?.homepage, name:info?.name, avatar:info?.avatar, twitter:info?.twitter, discord:info?.discord, 
-                description:info?.description}
+                info : info, description:content?.value?.fields?.description
             } as ObjectPersonal;
         case 'TableItem_PersonalMark':
             return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,

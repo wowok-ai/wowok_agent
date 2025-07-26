@@ -70,6 +70,9 @@ export class CallRepository extends CallBase {
         if (this.data?.policy != null) {
             add_perm(PermissionIndex.repository_policies);
         }
+        if (this.data.guard !== undefined) {
+            add_perm(PermissionIndex.repository_guard);
+        }
         if (this.data?.data != null) {
             // check policy & mode 
             const policy = this.content?.policy;
@@ -224,6 +227,17 @@ export class CallRepository extends CallBase {
                         obj?.rename_policy(v.old, v.new, pst);
                     });
                     break;
+            }
+        }
+        if (this.data?.guard !== undefined) {
+            if (this.data.guard === null) {
+                obj?.set_guard(undefined, pst);
+            }
+            else {
+                const guard = await LocalMark.Instance().get_address(this.data.guard);
+                if (!guard)
+                    ERROR(Errors.InvalidParam, `CallRepository_Data.data.guard: ${this.data.guard} invalid`);
+                obj?.set_guard(guard, pst);
             }
         }
         if (perm) {

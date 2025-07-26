@@ -1,12 +1,14 @@
-import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Entity_Info, Resource, FAUCET} from 'wowok';
+import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Resource, FAUCET, IsValidDesription} from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
 import { Account } from '../local/account.js';
 
+
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
-    information?: Entity_Info;
+    information?: Map<string, string>;
+    description?: string;
     mark?: {op:'add'; data:{address:AccountOrMark_Address; name?:string; tags?:string[]}[]}
         | {op:'remove'; data:{address:AccountOrMark_Address; tags?:string[]}[]}
         | {op:'removeall'; addresses:AccountOrMark_Address[]}
@@ -38,6 +40,14 @@ export class CallPersonal extends CallBase {
 
         if (this.data?.information != null ) {
             entity.update(this.data.information)
+        }
+
+        if (this.data?.description != null) {
+            if (!IsValidDesription(this.data.description)) {
+                ERROR(Errors.IsValidDesription, `CallPersonal_Data`)
+            }
+
+            entity.set_description(this.data.description);
         }
 
         if (this.data?.mark === undefined) {

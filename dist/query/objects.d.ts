@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Entity_Info, Tags } from 'wowok';
+import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
 import { AccountOrMark_Address } from '../call/base.js';
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark' | 'Treasury_ReceivedObject';
@@ -208,6 +208,7 @@ export interface ObjectRepository extends ObjectBase {
     reference: string[];
     policy: Repository_Policy[];
     data_count: number;
+    guard: string | null;
 }
 export interface TableItem_RepositoryData extends ObjectBase {
     address: string;
@@ -250,7 +251,8 @@ export interface ObjectPersonal extends ObjectBase {
     address: string;
     like: number;
     dislike: number;
-    info: Entity_Info;
+    info: Map<string, string>;
+    description: string;
     mark_object?: string | null;
     lastActive_digest?: string;
 }

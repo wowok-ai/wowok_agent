@@ -1,4 +1,4 @@
-import { Entity, Resource } from 'wowok';
+import { Errors, ERROR, Entity, Resource, IsValidDesription } from 'wowok';
 import { CallBase, GetAccountOrMark_Address } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
@@ -23,6 +23,12 @@ export class CallPersonal extends CallBase {
         }
         if (this.data?.information != null) {
             entity.update(this.data.information);
+        }
+        if (this.data?.description != null) {
+            if (!IsValidDesription(this.data.description)) {
+                ERROR(Errors.IsValidDesription, `CallPersonal_Data`);
+            }
+            entity.set_description(this.data.description);
         }
         if (this.data?.mark === undefined) {
             if (!entity_data?.mark_object) {

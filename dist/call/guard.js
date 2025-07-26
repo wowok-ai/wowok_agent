@@ -193,7 +193,17 @@ const buildNode = async (guard_node, type_required, table, output) => {
         }
     }
     else if (node?.calc !== undefined) {
-        if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
+        if (node?.calc === OperatorType.TYPE_STRING_LOWERCASE) {
+            checkType(ValueType.TYPE_STRING, type_required, node);
+            if (node.parameters.length !== 1)
+                ERROR(Errors.InvalidParam, 'node TYPE_STRING_LOWERCASE parameters length must == 1' + JSON.stringify(node));
+            const p = node.parameters.reverse();
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], ValueType.TYPE_STRING, table, output);
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE
+        }
+        else if (node?.calc === OperatorType.TYPE_NUMBER_ADDRESS) {
             checkType(ValueType.TYPE_ADDRESS, type_required, node);
             if (node.parameters.length !== 1)
                 ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1' + JSON.stringify(node));
