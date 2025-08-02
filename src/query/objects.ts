@@ -141,6 +141,7 @@ export interface ObjectOrder extends ObjectBase {
     discount?: string | null;
     required_info?: {pubkey:string; msg_encrypted:string};
     item: Service_Sale[];
+    time: string;
 }
 
 export interface GuardWithAmount {
@@ -194,6 +195,7 @@ export interface ObjectArb extends ObjectBase {
     indemnity?: string | null;
     proposition: {proposition:string, votes:string};
     voted_count: number;
+    time: string;
 }
 export interface TableItem_ArbVote extends ObjectBase {
     singer: string;
@@ -250,6 +252,7 @@ export interface ObjectPersonal extends ObjectBase {
     description: string;
     mark_object?: string | null; // ObjectMark & TableItem_MarkTag
     lastActive_digest?: string; 
+    time: string;
 }
 
 export interface ObjectMark extends ObjectBase {
@@ -627,7 +630,7 @@ export function data2object(data?:any) : ObjectBase {
                     : undefined,
                 item : content?.items?.map((v:any) => {
                     return {name:v?.fields?.name, price:v?.fields?.price, stock:v?.fields?.stock, endpoint:v?.fields?.endpoint}
-                }),
+                }), time: content?.time
             } as ObjectOrder;
         case 'Service':
             return {
@@ -670,7 +673,7 @@ export function data2object(data?:any) : ObjectBase {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 arbitration:content?.arbitration, description:content?.description, fee:content?.fee,
                 feedback:content?.feedback, indemnity:content?.indemnity, order:content?.order,
-                voted_count:parseInt(content?.voted?.fields?.size), 
+                voted_count:parseInt(content?.voted?.fields?.size), time: content?.time,
                 proposition:content?.proposition?.fields?.contents?.map((v:any) => {
                     return {proposition:v?.fields?.key, votes:v?.fields?.value}
                 }) 
@@ -770,7 +773,7 @@ export function data2object(data?:any) : ObjectBase {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version,
                 address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
                 mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
-                info : info, description:content?.value?.fields?.description
+                info : info, description:content?.value?.fields?.description, time: content?.value?.fields?.time
             } as ObjectPersonal;
         case 'TableItem_PersonalMark':
             return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,

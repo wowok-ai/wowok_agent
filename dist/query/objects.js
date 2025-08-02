@@ -305,7 +305,7 @@ export function data2object(data) {
                         : undefined,
                     item: content?.items?.map((v) => {
                         return { name: v?.fields?.name, price: v?.fields?.price, stock: v?.fields?.stock, endpoint: v?.fields?.endpoint };
-                    }),
+                    }), time: content?.time
                 };
             case 'Service':
                 return {
@@ -347,7 +347,7 @@ export function data2object(data) {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     arbitration: content?.arbitration, description: content?.description, fee: content?.fee,
                     feedback: content?.feedback, indemnity: content?.indemnity, order: content?.order,
-                    voted_count: parseInt(content?.voted?.fields?.size),
+                    voted_count: parseInt(content?.voted?.fields?.size), time: content?.time,
                     proposition: content?.proposition?.fields?.contents?.map((v) => {
                         return { proposition: v?.fields?.key, votes: v?.fields?.value };
                     })
@@ -446,7 +446,7 @@ export function data2object(data) {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     address: content?.name, like: content?.value?.fields?.like, dislike: content?.value?.fields?.dislike,
                     mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction,
-                    info: info, description: content?.value?.fields?.description
+                    info: info, description: content?.value?.fields?.description, time: content?.value?.fields?.time
                 };
             case 'TableItem_PersonalMark':
                 return { object: id, type: type, type_raw: type_raw, owner: owner, version: version,

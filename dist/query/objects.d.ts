@@ -141,6 +141,7 @@ export interface ObjectOrder extends ObjectBase {
         msg_encrypted: string;
     };
     item: Service_Sale[];
+    time: string;
 }
 export interface GuardWithAmount {
     guard: string;
@@ -193,6 +194,7 @@ export interface ObjectArb extends ObjectBase {
         votes: string;
     };
     voted_count: number;
+    time: string;
 }
 export interface TableItem_ArbVote extends ObjectBase {
     singer: string;
@@ -255,6 +257,7 @@ export interface ObjectPersonal extends ObjectBase {
     description: string;
     mark_object?: string | null;
     lastActive_digest?: string;
+    time: string;
 }
 export interface ObjectMark extends ObjectBase {
     tag_count: number;
