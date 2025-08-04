@@ -1,6 +1,7 @@
 import { Protocol } from "wowok";
 import { Account } from "./account.js";
 import { LocalInfo, LocalInfoNameDefault, LocalMark } from "./local.js";
+import { session_resolve } from "../common.js";
 export const query_local_mark_list = async (filter) => {
     return JSON.stringify(await LocalMark.Instance().list(filter));
 };
@@ -27,10 +28,12 @@ export const query_account = async (query) => {
     if (r) {
         const token_type_ = query.token_type ?? '0x2::sui::SUI';
         if (query?.balance_or_coin === BalanceOrCoin.Balance) {
-            res.balance = await Protocol.Client().getBalance({ owner: r.address, coinType: token_type_ });
+            res.balance = await Protocol.Client(await session_resolve(query.session))
+                .getBalance({ owner: r.address, coinType: token_type_ });
         }
         else if (query?.balance_or_coin === BalanceOrCoin.Coin) {
-            res.coin = (await Protocol.Client().getCoins({ owner: r.address, coinType: token_type_ })).data;
+            res.coin = (await Protocol.Client(await session_resolve(query.session))
+                .getCoins({ owner: r.address, coinType: token_type_ })).data;
         }
     }
     return res;
@@ -100,5 +103,13 @@ export const local_info_operation = async (op) => {
             }
             break;
     }
+};
+export const network_set = (network) => {
+    if (network) {
+        Protocol.Instance().use_network(network);
+    }
+};
+export const network = () => {
+    return Protocol.Instance().networkUrl();
 };
 //# sourceMappingURL=index.js.map

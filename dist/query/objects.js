@@ -6,6 +6,7 @@ import { Protocol, Machine, Progress, ERROR, Errors, uint2address, } from 'wowok
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
+import { session_resolve } from '../common.js';
 /* json: ObjectsQuery string; return ObjectsAnswer */
 export const query_objects_json = async (json) => {
     try {
@@ -62,8 +63,8 @@ export const query_objects = async (query) => {
         pending = [...query.objects];
     }
     if (pending.length > 0) {
-        const res = await Protocol.Client().multiGetObjects({ ids: [...pending],
-            options: { showContent: true, showOwner: true } });
+        const res = await Protocol.Client(await session_resolve(query.session))
+            .multiGetObjects({ ids: [...pending], options: { showContent: true, showOwner: true } });
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
             if (d) {
@@ -116,7 +117,8 @@ export const query_table = async (query) => {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    const res = await Protocol.Client().getDynamicFields({ parentId: query.parent, cursor: query.cursor, limit: query.limit });
+    const res = await Protocol.Client(await session_resolve(query.session))
+        .getDynamicFields({ parentId: query.parent, cursor: query.cursor, limit: query.limit });
     const r = { items: res?.data?.map(v => {
             return { object: v.objectId, type: v.type, version: v.version, key: {
                     type: v.name.type, value: v.name.value
@@ -142,7 +144,8 @@ const tableItem = async (query) => {
         }
         catch (e) { /*console.log(e)*/ }
     }
-    const res = await Protocol.Client().getDynamicFieldObject({ parentId: query.parent, name: { type: query.key.type, value: query.key.value } });
+    const res = await Protocol.Client(await session_resolve(query.session))
+        .getDynamicFieldObject({ parentId: query.parent, name: { type: query.key.type, value: query.key.value } });
     return data2object(res?.data);
 };
 export const queryTableItem_RepositoryData = async (query) => {
@@ -178,15 +181,15 @@ export const queryTableItem_MarkTag = async (query) => {
 };
 const tableItemQuery_byAddress = async (query) => {
     const parent = typeof (query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({ parent: parent, key: { type: 'address', value: query.address }, no_cache: query.no_cache });
+    return await tableItem({ parent: parent, key: { type: 'address', value: query.address }, no_cache: query.no_cache, session: query.session });
 };
 const tableItemQuery_byName = async (query) => {
     const parent = typeof (query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({ parent: parent, key: { type: '0x1::string::String', value: query.name }, no_cache: query.no_cache });
+    return await tableItem({ parent: parent, key: { type: '0x1::string::String', value: query.name }, no_cache: query.no_cache, session: query.session });
 };
 const tableItemQuery_byIndex = async (query) => {
     const parent = typeof (query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({ parent: parent, key: { type: 'u64', value: query.index }, no_cache: query.no_cache });
+    return await tableItem({ parent: parent, key: { type: 'u64', value: query.index }, no_cache: query.no_cache, session: query.session });
 };
 export function raw2type(type_raw) {
     if (!type_raw)
@@ -458,6 +461,6 @@ export function data2object(data) {
                 };
         }
     }
-    return { object: id, type: undefined, type_raw: type_raw, owner: owner, version: version };
+    return { object: id, type: undefined, type_raw: type_raw, owner: owner, version: version, };
 }
 //# sourceMappingURL=objects.js.map

@@ -1,6 +1,6 @@
-import { ERROR, Errors, Protocol, Treasury, Service, ReceivedBalance, ReceivedBalanceObject, GetRecievedBalanceObject,  } from "wowok";
-
+import { ERROR, Errors, Treasury, ReceivedBalance, ReceivedBalanceObject, GetRecievedBalanceObject,  } from "wowok";
 import { query_objects } from "./objects.js";
+import { session_resolve, SessionOption } from "../common.js";
 
 
 export interface QueryReceived {
@@ -13,6 +13,7 @@ export interface QueryReceived {
     cursor?: string | null | undefined;
     /** Max number of items returned per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
     limit?: number | null | undefined;
+    session?: SessionOption;
 }
 
 // receive Treasury or Order object Payments
@@ -27,5 +28,5 @@ export const query_received = async (query: QueryReceived) : Promise<ReceivedBal
         t = Treasury.parseObjectType(r1.objects[0].type_raw);
     } 
 
-    return await GetRecievedBalanceObject(r1.objects[0].object, t)
+    return await GetRecievedBalanceObject(r1.objects[0].object, t, await session_resolve(query.session))
 }

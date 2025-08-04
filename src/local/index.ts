@@ -1,6 +1,7 @@
-import { CallResponse, CoinBalance, CoinStruct, Protocol } from "wowok"
+import { CallResponse, CoinBalance, CoinStruct, ENTRYPOINT, NetworkInfo, Protocol } from "wowok"
 import { Account, AccountData, DEFAULT_NAME } from "./account.js"
 import { InfoData, LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
+import { session_resolve, SessionOption } from "../common.js"
 
 export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
     return JSON.stringify(await LocalMark.Instance().list(filter))
@@ -28,6 +29,7 @@ export interface QueryAccount {
     name_or_address?: string; // undifined if query the default account. 
     balance_or_coin?: BalanceOrCoin;
     token_type?:string; // 0x2::sui::SUI, if not specified.
+    session?: SessionOption;
 }
 
 export interface QueryAccountResult {
@@ -48,9 +50,11 @@ export const query_account = async (query: QueryAccount) : Promise<QueryAccountR
     if (r) {
         const token_type_ = query.token_type ?? '0x2::sui::SUI';
         if (query?.balance_or_coin === BalanceOrCoin.Balance) {
-            res.balance = await Protocol.Client().getBalance({owner: r.address, coinType:token_type_});
+            res.balance = await Protocol.Client(await session_resolve(query.session))
+                .getBalance({owner: r.address, coinType:token_type_});
         } else if (query?.balance_or_coin === BalanceOrCoin.Coin) {
-            res.coin = (await Protocol.Client().getCoins({owner: r.address, coinType:token_type_})).data;
+            res.coin = (await Protocol.Client(await session_resolve(query.session))
+                .getCoins({owner: r.address, coinType:token_type_})).data;
         } 
     } 
     
@@ -148,4 +152,14 @@ export const local_info_operation = async(op: LocalInfoOperation) : Promise<void
             }
             break;
     }
+}
+
+export const network_set = (network:ENTRYPOINT | undefined) => {
+    if (network) {
+        Protocol.Instance().use_network(network);
+    }
+}
+
+export const network = () : NetworkInfo => {
+    return Protocol.Instance().networkUrl()
 }

@@ -3,6 +3,7 @@
  * not only the permission table, but also the administrator or Builder identity.
  */
 
+import { session_resolve, SessionOption } from '../common.js';
 import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
 import { LocalMark } from '../local/local.js';
 import { TransactionBlock, Protocol, Bcs, Errors, ERROR, Permission, PermissionAnswer, BCS} from 'wowok';
@@ -10,6 +11,7 @@ import { TransactionBlock, Protocol, Bcs, Errors, ERROR, Permission, PermissionA
 export interface PermissionQuery {
     permission_object: string;
     address: AccountOrMark_Address;
+    session?: SessionOption;    
 }
 
 /*json: PermissionQuery; return PermissionAnswer */
@@ -37,7 +39,7 @@ export const query_permission = async (query:PermissionQuery) : Promise<Permissi
     
     object.query_permissions_all(entity_address);
 
-    const res = await Protocol.Client().devInspectTransactionBlock({sender:entity_address, transactionBlock:txb});
+    const res = await Protocol.Client(await session_resolve(query.session)).devInspectTransactionBlock({sender:entity_address, transactionBlock:txb});
     if (res.results && res.results[0].returnValues && res.results[0].returnValues.length !== 2 )  {
         ERROR(Errors.Fail, 'permission.retValues')
     }

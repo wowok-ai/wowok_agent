@@ -4,9 +4,10 @@
 
 import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, 
     FAUCET, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
-    CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName} from 'wowok';
-import { retry_db, isBrowser } from '../common.js';
-import path from 'path';
+    CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName,
+    ENTRYPOINT} from 'wowok';
+import { retry_db, isBrowser, SessionOption, session_resolve } from '../common.js';
+import path, { resolve } from 'path';
 import os from 'os';
 import { Level } from 'level';
 
@@ -260,12 +261,12 @@ export class Account {
         }
     }
 
-    async sign_and_commit(txb: TransactionBlock, address_or_name?:string) : Promise<CallResponse | undefined> {
+    async sign_and_commit(txb: TransactionBlock, address_or_name?:string, session?:SessionOption) : Promise<CallResponse | undefined> {
         const a = await this.get_imp(address_or_name);
         if (a) {
             const pair = Ed25519Keypair.fromSecretKey(fromHex(a.secret!));
             if (pair) {
-                return await Protocol.Client().signAndExecuteTransaction({
+                return await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb, 
                     signer: pair,
                     options:{showObjectChanges:true},
@@ -275,24 +276,24 @@ export class Account {
     }
 
     // token_type is 0x2::sui::SUI, if not specified.
-    balance = async (address_or_name?:string, token_type?:string) : Promise<CoinBalance | undefined> => {
+    balance = async (address_or_name?:string, token_type?:string, session?:SessionOption) : Promise<CoinBalance | undefined> => {
         const a = await this.get(address_or_name);
         const token_type_ = token_type ?? '0x2::sui::SUI';
         if (a) {
-            return await Protocol.Client().getBalance({owner: a.address, coinType:token_type_});
+            return await Protocol.Client(await session_resolve(session)).getBalance({owner: a.address, coinType:token_type_});
         }
     }
 
     // token_type is 0x2::sui::SUI, if not specified.
-    coin = async (token_type?:string, address_or_name?:string) : Promise<CoinStruct[] | undefined> => {
+    coin = async (token_type?:string, address_or_name?:string, session?:SessionOption) : Promise<CoinStruct[] | undefined> => {
         const a = await this.get(address_or_name);
         const token_type_ = token_type ?? '0x2::sui::SUI';
         if (a) {
-            return (await Protocol.Client().getCoins({owner: a.address, coinType:token_type_})).data;
+            return (await Protocol.Client(await session_resolve(session)).getCoins({owner: a.address, coinType:token_type_})).data;
         }
     }
 
-    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, address_or_name?:string, token_type?:string) : Promise<TransactionResult | undefined> => {
+    get_coin_object = async (txb: TransactionBlock, balance_required:string | bigint | number, address_or_name?:string, token_type?:string, session?:SessionOption) : Promise<TransactionResult | undefined> => {
         const a = await this.get(address_or_name);
         
         if (a) {
@@ -302,7 +303,7 @@ export class Account {
                 if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
                     return txb.splitCoins(txb.gas, [b]);
                 } else {
-                    const r = await Protocol.Client().getCoins({owner: a.address , coinType:token_type});
+                    const r = await Protocol.Client(await session_resolve(session)).getCoins({owner: a.address , coinType:token_type});
                     const objects : string[] = []; var current = BigInt(0);
                     for (let i = 0; i < r.data.length; ++ i) {
                         current += BigInt(r.data[i].balance);
@@ -323,7 +324,7 @@ export class Account {
             }
         }
     }
-    async transfer(amount:number|string, token_type?:string, to_address_or_name?:string, from_address_or_name?:string) : Promise<CallResponse | undefined> {
+    async transfer(amount:number|string, token_type?:string, to_address_or_name?:string, from_address_or_name?:string, session?:SessionOption) : Promise<CallResponse | undefined> {
         const [from, to]= await this.get_many_imp([from_address_or_name, to_address_or_name]);
         if (!from) ERROR(Errors.InvalidParam, `Invalid from address or name ${from_address_or_name}`);
         const to_address = to?.address ?? to_address_or_name;
@@ -335,7 +336,7 @@ export class Account {
             const coin = await this.get_coin_object(txb, amount, from.address, token_type);
             if (coin) {
                 txb.transferObjects([coin as TransactionObjectArgument], to_address)
-                const r = await Protocol.Client().signAndExecuteTransaction({
+                const r = await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb, 
                     signer: pair,
                     options:{showObjectChanges:true},
@@ -345,7 +346,7 @@ export class Account {
         }
     }
 
-    coinObject_with_balance = async(balance_required:string | bigint | number, address_or_name?:string, token_type?:string) : Promise<string | undefined> => {
+    coinObject_with_balance = async(balance_required:string | bigint | number, address_or_name?:string, token_type?:string, session?:SessionOption) : Promise<string | undefined> => {
         const a = await this.get_imp(address_or_name);
         if (!a) return undefined;
 
@@ -356,7 +357,7 @@ export class Account {
         const res = await this.get_coin_object(txb, balance_required, a.address, token_type);
         if (res) {
             txb.transferObjects([res as TransactionObjectArgument], a.address)
-            const r = await Protocol.Client().signAndExecuteTransaction({
+            const r = await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                 transaction: txb, 
                 signer: pair,
                 options:{showObjectChanges:true},

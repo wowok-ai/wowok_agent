@@ -2,6 +2,7 @@
  * Provides permission lookup for an address:
  * not only the permission table, but also the administrator or Builder identity.
  */
+import { session_resolve } from '../common.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
 import { LocalMark } from '../local/local.js';
 import { TransactionBlock, Protocol, Bcs, Errors, ERROR, Permission, BCS } from 'wowok';
@@ -26,7 +27,7 @@ export const query_permission = async (query) => {
     const txb = new TransactionBlock();
     const object = Permission.From(txb, object_address);
     object.query_permissions_all(entity_address);
-    const res = await Protocol.Client().devInspectTransactionBlock({ sender: entity_address, transactionBlock: txb });
+    const res = await Protocol.Client(await session_resolve(query.session)).devInspectTransactionBlock({ sender: entity_address, transactionBlock: txb });
     if (res.results && res.results[0].returnValues && res.results[0].returnValues.length !== 2) {
         ERROR(Errors.Fail, 'permission.retValues');
     }

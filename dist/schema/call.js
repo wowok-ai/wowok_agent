@@ -790,6 +790,14 @@ export const UrlResultSchemaOutput = () => {
 export const ObjectsUrlSchemaOutput = () => {
     return zodToJsonSchema(ObjectsUrlSchema);
 };
+export const NetworkSchema = z.nativeEnum(WOWOK.ENTRYPOINT).describe(`Network selection: 
+    ${Object.entries(WOWOK.ENTRYPOINT)}`);
+export const SessionSchema = z.object({
+    network: NetworkSchema,
+    retentive: z.union([z.literal('always'), z.literal('session')]).default('always').describe(`
+        'always': All the sessions on the device use the same network.
+        'session': The current program uses the same network.`)
+}).optional().describe('Select and configure the network');
 export const AccountSchema = z.string().optional().describe('The account name or address that initiated the operation.');
 export const WitnessSchema = GuardWitness.optional().describe(`The transaction requires submission of certain information in order to meet the verification conditions set by Guard. 
     When an operation requires verification of a witness, it returns a structure that can hold the witness. 
@@ -802,6 +810,7 @@ export const CallDemandSchema = z.object({
     data: CallDemandDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallDemandSchemaInput = () => {
     return zodToJsonSchema(CallDemandSchema);
@@ -815,6 +824,7 @@ export const CallRepositorySchema = z.object({
     data: CallRepositoryDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallRepositorySchemaInput = () => {
     return zodToJsonSchema(CallRepositorySchema);
@@ -829,6 +839,7 @@ export const CallMachineSchema = z.object({
     data: CallMachineDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallMachineSchemaInput = () => {
     return zodToJsonSchema(CallMachineSchema);
@@ -847,6 +858,7 @@ export const CallServiceSchema = z.object({
     data: CallServiceDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallServiceSchemaInput = () => {
     return zodToJsonSchema(CallServiceSchema);
@@ -857,6 +869,7 @@ export const CallTreasurySchema = z.object({
     data: CallTreasuryDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallTreasurySchemaInput = () => {
     return zodToJsonSchema(CallTreasurySchema);
@@ -868,6 +881,7 @@ export const CallPermissionSchema = z.object({
     data: CallPermissionDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallPermissionSchemaInput = () => {
     return zodToJsonSchema(CallPermissionSchema);
@@ -880,6 +894,7 @@ export const CallArbitrationSchema = z.object({
     data: CallArbitrationDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallArbitrationSchemaInput = () => {
     return zodToJsonSchema(CallArbitrationSchema);
@@ -888,6 +903,7 @@ export const CallPersonalSchemaDescription = `Operations to create or modify on-
 export const CallPersonalSchema = z.object({
     data: CallPersonalDataSchema,
     account: AccountSchema,
+    session: SessionSchema,
 });
 export const CallPersonalSchemaInput = () => {
     return zodToJsonSchema(CallPersonalSchema);
@@ -899,6 +915,7 @@ Due to its immutability, the Guard object is widely used as a pre-validation req
 export const CallGuardSchema = z.object({
     data: CallGuardDataSchema,
     account: AccountSchema,
+    session: SessionSchema,
 });
 export const CallGuardSchemaInput = () => {
     return zodToJsonSchema(CallGuardSchema);
@@ -918,6 +935,7 @@ export const CallObejctPermissionSchema = z.object({
     data: CallObjectPermissionDataSchema,
     account: AccountSchema,
     witness: WitnessSchema,
+    session: SessionSchema,
 });
 export const CallObejctPermissionSchemaInput = () => {
     return zodToJsonSchema(CallObejctPermissionSchema);

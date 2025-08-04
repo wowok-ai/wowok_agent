@@ -1,4 +1,5 @@
 import { ReceivedBalance } from "wowok";
+import { SessionOption } from "../common.js";
 export interface QueryReceived {
     /** Name or address of the Treasury/Order object. */
     object: string;
@@ -9,6 +10,7 @@ export interface QueryReceived {
     cursor?: string | null | undefined;
     /** Max number of items returned per page, default to [QUERY_MAX_RESULT_LIMIT] if not specified. */
     limit?: number | null | undefined;
+    session?: SessionOption;
 }
 export declare const query_received: (query: QueryReceived) => Promise<ReceivedBalance | undefined>;
 //# sourceMappingURL=received.d.ts.map

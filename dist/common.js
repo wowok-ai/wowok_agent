@@ -1,6 +1,8 @@
 import { LocalMark } from "./local/local.js";
 import NodeRSA from 'node-rsa';
 import { Level } from 'level';
+import { ENTRYPOINT, ERROR, Errors, Protocol } from "wowok";
+import { Config } from "./local/config.js";
 export const isBrowser = () => {
     return typeof window !== 'undefined' && typeof indexedDB !== 'undefined';
 };
@@ -42,5 +44,28 @@ export const retry_db = async (name_or_db, command) => {
         }
     }
     throw ('LEVEL_DATABASE_NOT_OPEN');
+};
+export const session_resolve = async (option) => {
+    if (option) {
+        if (option.retentive === 'always') {
+            await Config.Instance().network_set(option.network);
+        }
+        else if (option.retentive === 'session') {
+            Protocol.Instance().use_network(option.network);
+        }
+        return option.network;
+    }
+    else {
+        if (Protocol.Instance().IsNetworkValid()) {
+            return Protocol.Instance().networkUrl().network;
+        }
+        else {
+            const n = await Config.Instance().network();
+            if (!n) {
+                ERROR(Errors.networkInvalid, Object.entries(ENTRYPOINT));
+            }
+            return n;
+        }
+    }
 };
 //# sourceMappingURL=common.js.map

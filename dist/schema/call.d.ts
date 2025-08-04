@@ -171,14 +171,14 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         onChain?: boolean | undefined;
         useAddressIfNameExist?: boolean | undefined;
     };
+    present?: {
+        recommend_words: string;
+        service?: string | undefined;
+    } | undefined;
     description?: string | undefined;
     guard?: {
         guard: string | null;
         service_id_in_guard?: number | undefined;
-    } | undefined;
-    present?: {
-        recommend_words: string;
-        service?: string | undefined;
     } | undefined;
     location?: string | undefined;
     time_expire?: {
@@ -216,14 +216,14 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         onChain?: boolean | undefined;
         useAddressIfNameExist?: boolean | undefined;
     };
+    present?: {
+        service?: string | undefined;
+        recommend_words?: string | undefined;
+    } | undefined;
     description?: string | undefined;
     guard?: {
         guard: string | null;
         service_id_in_guard?: number | undefined;
-    } | undefined;
-    present?: {
-        service?: string | undefined;
-        recommend_words?: string | undefined;
     } | undefined;
     location?: string | undefined;
     time_expire?: {
@@ -284,12 +284,6 @@ export declare const CallGuardDataSchema: z.ZodObject<{
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     description?: string | undefined;
-    table?: {
-        identifier: number;
-        value_type: WOWOK.ValueType;
-        bWitness: boolean;
-        value?: any;
-    }[] | undefined;
     namedNew?: {
         name?: string | undefined;
         tags?: string[] | undefined;
@@ -297,14 +291,14 @@ export declare const CallGuardDataSchema: z.ZodObject<{
         useAddressIfNameExist?: boolean | undefined;
     } | undefined;
     root?: any;
+    table?: {
+        identifier: number;
+        value_type: WOWOK.ValueType;
+        bWitness: boolean;
+        value?: any;
+    }[] | undefined;
 }, {
     description?: string | undefined;
-    table?: {
-        identifier: number;
-        value_type: WOWOK.ValueType;
-        bWitness: boolean;
-        value?: any;
-    }[] | undefined;
     namedNew?: {
         name?: string | undefined;
         tags?: string[] | undefined;
@@ -312,6 +306,12 @@ export declare const CallGuardDataSchema: z.ZodObject<{
         useAddressIfNameExist?: boolean | undefined;
     } | undefined;
     root?: any;
+    table?: {
+        identifier: number;
+        value_type: WOWOK.ValueType;
+        bWitness: boolean;
+        value?: any;
+    }[] | undefined;
 }>;
 export declare const CallMachineDataSchema: z.ZodObject<{
     object: z.ZodUnion<[z.ZodString, z.ZodObject<{
@@ -2084,10 +2084,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     data: boolean;
                 }>]>;
             }, "strip", z.ZodTypeAny, {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2115,12 +2111,12 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }, {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2148,14 +2144,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2183,15 +2179,15 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }[];
             key: string;
         }, {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2219,6 +2215,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }[];
             key: string;
@@ -2226,10 +2226,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         data: {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2257,6 +2253,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }[];
             key: string;
@@ -2265,10 +2265,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     }, {
         data: {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2296,6 +2292,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 } | {
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
+                };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
                 };
             }[];
             key: string;
@@ -2472,10 +2472,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 key: string;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2507,11 +2503,11 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         }, {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2543,13 +2539,13 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         }>;
     }, "strip", z.ZodTypeAny, {
         data: {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2581,14 +2577,14 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         };
         op: "add_by_address";
     }, {
         data: {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2620,6 +2616,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         };
         op: "add_by_address";
     }>, z.ZodObject<{
@@ -2784,10 +2784,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     data?: {
         data: {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2816,16 +2812,16 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
                 };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             }[];
             key: string;
         };
         op: "add_by_key";
     } | {
         data: {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2857,6 +2853,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         };
         op: "add_by_address";
     } | {
@@ -2915,10 +2915,6 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
     data?: {
         data: {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
                     data: string | number;
@@ -2947,16 +2943,16 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                     type: WOWOK.RepositoryValueType.Bool;
                     data: boolean;
                 };
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             }[];
             key: string;
         };
         op: "add_by_key";
     } | {
         data: {
-            address: number | bigint | {
-                name_or_address?: string | undefined;
-                local_mark_first?: boolean | undefined;
-            };
             data: {
                 data: {
                     type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -2988,6 +2984,10 @@ export declare const CallRepositoryDataSchema: z.ZodObject<{
                 };
                 key: string;
             }[];
+            address: number | bigint | {
+                name_or_address?: string | undefined;
+                local_mark_first?: boolean | undefined;
+            };
         };
         op: "add_by_address";
     } | {
@@ -3727,6 +3727,15 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         for_guard?: string | undefined;
         for_object?: string | undefined;
     } | undefined;
+    deposit?: {
+        balance: string | number;
+        param?: {
+            remark: string;
+            index: string | number | bigint;
+            for_guard?: string | undefined;
+            for_object?: string | undefined;
+        } | undefined;
+    } | undefined;
     withdraw_guard?: {
         data: {
             guard: string;
@@ -3740,15 +3749,6 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         op: "removeall";
     } | undefined;
     description?: string | undefined;
-    deposit?: {
-        balance: string | number;
-        param?: {
-            remark: string;
-            index: string | number | bigint;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
-        } | undefined;
-    } | undefined;
     receive?: "recently" | {
         received_objects: string[];
     } | undefined;
@@ -3783,6 +3783,15 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         for_object?: string | undefined;
         index?: string | number | bigint | undefined;
     } | undefined;
+    deposit?: {
+        balance: string | number;
+        param?: {
+            remark: string;
+            for_guard?: string | undefined;
+            for_object?: string | undefined;
+            index?: string | number | bigint | undefined;
+        } | undefined;
+    } | undefined;
     withdraw_guard?: {
         data: {
             guard: string;
@@ -3796,15 +3805,6 @@ export declare const CallTreasuryDataSchema: z.ZodObject<{
         op: "removeall";
     } | undefined;
     description?: string | undefined;
-    deposit?: {
-        balance: string | number;
-        param?: {
-            remark: string;
-            for_guard?: string | undefined;
-            for_object?: string | undefined;
-            index?: string | number | bigint | undefined;
-        } | undefined;
-    } | undefined;
     receive?: "recently" | {
         received_objects: string[];
     } | undefined;
@@ -5155,6 +5155,17 @@ export declare const ObjectsUrlSchemaOutput: () => import("zod-to-json-schema").
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
+export declare const NetworkSchema: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+export declare const SessionSchema: z.ZodOptional<z.ZodObject<{
+    network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+    retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+}, "strip", z.ZodTypeAny, {
+    network: WOWOK.ENTRYPOINT;
+    retentive: "always" | "session";
+}, {
+    network: WOWOK.ENTRYPOINT;
+    retentive?: "always" | "session" | undefined;
+}>>;
 export declare const AccountSchema: z.ZodOptional<z.ZodString>;
 export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
     guards: z.ZodArray<z.ZodString, "many">;
@@ -5360,14 +5371,14 @@ export declare const CallDemandSchema: z.ZodObject<{
             onChain?: boolean | undefined;
             useAddressIfNameExist?: boolean | undefined;
         };
+        present?: {
+            recommend_words: string;
+            service?: string | undefined;
+        } | undefined;
         description?: string | undefined;
         guard?: {
             guard: string | null;
             service_id_in_guard?: number | undefined;
-        } | undefined;
-        present?: {
-            recommend_words: string;
-            service?: string | undefined;
         } | undefined;
         location?: string | undefined;
         time_expire?: {
@@ -5405,14 +5416,14 @@ export declare const CallDemandSchema: z.ZodObject<{
             onChain?: boolean | undefined;
             useAddressIfNameExist?: boolean | undefined;
         };
+        present?: {
+            service?: string | undefined;
+            recommend_words?: string | undefined;
+        } | undefined;
         description?: string | undefined;
         guard?: {
             guard: string | null;
             service_id_in_guard?: number | undefined;
-        } | undefined;
-        present?: {
-            service?: string | undefined;
-            recommend_words?: string | undefined;
         } | undefined;
         location?: string | undefined;
         time_expire?: {
@@ -5482,6 +5493,16 @@ export declare const CallDemandSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -5498,14 +5519,14 @@ export declare const CallDemandSchema: z.ZodObject<{
             onChain?: boolean | undefined;
             useAddressIfNameExist?: boolean | undefined;
         };
+        present?: {
+            recommend_words: string;
+            service?: string | undefined;
+        } | undefined;
         description?: string | undefined;
         guard?: {
             guard: string | null;
             service_id_in_guard?: number | undefined;
-        } | undefined;
-        present?: {
-            recommend_words: string;
-            service?: string | undefined;
         } | undefined;
         location?: string | undefined;
         time_expire?: {
@@ -5540,6 +5561,10 @@ export declare const CallDemandSchema: z.ZodObject<{
             witness?: any;
         }[];
     } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
     account?: string | undefined;
 }, {
     data: {
@@ -5557,14 +5582,14 @@ export declare const CallDemandSchema: z.ZodObject<{
             onChain?: boolean | undefined;
             useAddressIfNameExist?: boolean | undefined;
         };
+        present?: {
+            service?: string | undefined;
+            recommend_words?: string | undefined;
+        } | undefined;
         description?: string | undefined;
         guard?: {
             guard: string | null;
             service_id_in_guard?: number | undefined;
-        } | undefined;
-        present?: {
-            service?: string | undefined;
-            recommend_words?: string | undefined;
         } | undefined;
         location?: string | undefined;
         time_expire?: {
@@ -5598,6 +5623,10 @@ export declare const CallDemandSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -5771,10 +5800,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         data: boolean;
                     }>]>;
                 }, "strip", z.ZodTypeAny, {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5802,12 +5827,12 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }, {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5835,14 +5860,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }>, "many">;
             }, "strip", z.ZodTypeAny, {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5870,15 +5895,15 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }[];
                 key: string;
             }, {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5906,6 +5931,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }[];
                 key: string;
@@ -5913,10 +5942,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5944,6 +5969,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }[];
                 key: string;
@@ -5952,10 +5981,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         }, {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -5983,6 +6008,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     } | {
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
+                    };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
                     };
                 }[];
                 key: string;
@@ -6159,10 +6188,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     key: string;
                 }>, "many">;
             }, "strip", z.ZodTypeAny, {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6194,11 +6219,11 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             }, {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6230,13 +6255,13 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             }>;
         }, "strip", z.ZodTypeAny, {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6268,14 +6293,14 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         }, {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6307,6 +6332,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         }>, z.ZodObject<{
@@ -6471,10 +6500,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         data?: {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -6503,16 +6528,16 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
                     };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
                 }[];
                 key: string;
             };
             op: "add_by_key";
         } | {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6544,6 +6569,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         } | {
@@ -6602,10 +6631,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         data?: {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -6634,16 +6659,16 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
                     };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
                 }[];
                 key: string;
             };
             op: "add_by_key";
         } | {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6675,6 +6700,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         } | {
@@ -6757,6 +6786,16 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -6781,10 +6820,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         data?: {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -6813,16 +6848,16 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
                     };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
                 }[];
                 key: string;
             };
             op: "add_by_key";
         } | {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6854,6 +6889,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         } | {
@@ -6901,6 +6940,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witness?: any;
         }[];
     } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
     account?: string | undefined;
 }, {
     data: {
@@ -6926,10 +6969,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
         data?: {
             data: {
                 data: {
-                    address: number | bigint | {
-                        name_or_address?: string | undefined;
-                        local_mark_first?: boolean | undefined;
-                    };
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
                         data: string | number;
@@ -6958,16 +6997,16 @@ export declare const CallRepositorySchema: z.ZodObject<{
                         type: WOWOK.RepositoryValueType.Bool;
                         data: boolean;
                     };
+                    address: number | bigint | {
+                        name_or_address?: string | undefined;
+                        local_mark_first?: boolean | undefined;
+                    };
                 }[];
                 key: string;
             };
             op: "add_by_key";
         } | {
             data: {
-                address: number | bigint | {
-                    name_or_address?: string | undefined;
-                    local_mark_first?: boolean | undefined;
-                };
                 data: {
                     data: {
                         type: WOWOK.RepositoryValueType.PositiveNumber;
@@ -6999,6 +7038,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
                     };
                     key: string;
                 }[];
+                address: number | bigint | {
+                    name_or_address?: string | undefined;
+                    local_mark_first?: boolean | undefined;
+                };
             };
             op: "add_by_address";
         } | {
@@ -7045,6 +7088,10 @@ export declare const CallRepositorySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -8107,6 +8154,16 @@ export declare const CallMachineSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -8275,6 +8332,10 @@ export declare const CallMachineSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -8445,6 +8506,10 @@ export declare const CallMachineSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -9422,6 +9487,16 @@ export declare const CallServiceSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -9604,6 +9679,10 @@ export declare const CallServiceSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -9788,6 +9867,10 @@ export declare const CallServiceSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -10028,6 +10111,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             for_guard?: string | undefined;
             for_object?: string | undefined;
         } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                index: string | number | bigint;
+                for_guard?: string | undefined;
+                for_object?: string | undefined;
+            } | undefined;
+        } | undefined;
         withdraw_guard?: {
             data: {
                 guard: string;
@@ -10041,15 +10133,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             op: "removeall";
         } | undefined;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                index: string | number | bigint;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-            } | undefined;
-        } | undefined;
         receive?: "recently" | {
             received_objects: string[];
         } | undefined;
@@ -10084,6 +10167,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             for_object?: string | undefined;
             index?: string | number | bigint | undefined;
         } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                for_guard?: string | undefined;
+                for_object?: string | undefined;
+                index?: string | number | bigint | undefined;
+            } | undefined;
+        } | undefined;
         withdraw_guard?: {
             data: {
                 guard: string;
@@ -10097,15 +10189,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             op: "removeall";
         } | undefined;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-                index?: string | number | bigint | undefined;
-            } | undefined;
-        } | undefined;
         receive?: "recently" | {
             received_objects: string[];
         } | undefined;
@@ -10158,6 +10241,16 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -10188,6 +10281,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             for_guard?: string | undefined;
             for_object?: string | undefined;
         } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                index: string | number | bigint;
+                for_guard?: string | undefined;
+                for_object?: string | undefined;
+            } | undefined;
+        } | undefined;
         withdraw_guard?: {
             data: {
                 guard: string;
@@ -10201,15 +10303,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             op: "removeall";
         } | undefined;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                index: string | number | bigint;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-            } | undefined;
-        } | undefined;
         receive?: "recently" | {
             received_objects: string[];
         } | undefined;
@@ -10226,6 +10319,10 @@ export declare const CallTreasurySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -10258,6 +10355,15 @@ export declare const CallTreasurySchema: z.ZodObject<{
             for_object?: string | undefined;
             index?: string | number | bigint | undefined;
         } | undefined;
+        deposit?: {
+            balance: string | number;
+            param?: {
+                remark: string;
+                for_guard?: string | undefined;
+                for_object?: string | undefined;
+                index?: string | number | bigint | undefined;
+            } | undefined;
+        } | undefined;
         withdraw_guard?: {
             data: {
                 guard: string;
@@ -10271,15 +10377,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             op: "removeall";
         } | undefined;
         description?: string | undefined;
-        deposit?: {
-            balance: string | number;
-            param?: {
-                remark: string;
-                for_guard?: string | undefined;
-                for_object?: string | undefined;
-                index?: string | number | bigint | undefined;
-            } | undefined;
-        } | undefined;
         receive?: "recently" | {
             received_objects: string[];
         } | undefined;
@@ -10296,6 +10393,10 @@ export declare const CallTreasurySchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -10837,6 +10938,16 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -10928,6 +11039,10 @@ export declare const CallPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -11021,6 +11136,10 @@ export declare const CallPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -11468,6 +11587,16 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         object: string | {
@@ -11553,6 +11682,10 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -11640,6 +11773,10 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;
@@ -11959,6 +12096,16 @@ export declare const CallPersonalSchema: z.ZodObject<{
         faucet?: boolean | undefined;
     }>;
     account: z.ZodOptional<z.ZodString>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         information: {
@@ -12013,6 +12160,10 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | undefined;
         faucet?: boolean | undefined;
     };
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
     account?: string | undefined;
 }, {
     data: {
@@ -12068,6 +12219,10 @@ export declare const CallPersonalSchema: z.ZodObject<{
         } | undefined;
         faucet?: boolean | undefined;
     };
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    } | undefined;
     account?: string | undefined;
 }>;
 export declare const CallPersonalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -12115,12 +12270,6 @@ export declare const CallGuardSchema: z.ZodObject<{
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         description?: string | undefined;
-        table?: {
-            identifier: number;
-            value_type: WOWOK.ValueType;
-            bWitness: boolean;
-            value?: any;
-        }[] | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -12128,14 +12277,14 @@ export declare const CallGuardSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
         } | undefined;
         root?: any;
+        table?: {
+            identifier: number;
+            value_type: WOWOK.ValueType;
+            bWitness: boolean;
+            value?: any;
+        }[] | undefined;
     }, {
         description?: string | undefined;
-        table?: {
-            identifier: number;
-            value_type: WOWOK.ValueType;
-            bWitness: boolean;
-            value?: any;
-        }[] | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -12143,17 +12292,27 @@ export declare const CallGuardSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
         } | undefined;
         root?: any;
+        table?: {
+            identifier: number;
+            value_type: WOWOK.ValueType;
+            bWitness: boolean;
+            value?: any;
+        }[] | undefined;
     }>;
     account: z.ZodOptional<z.ZodString>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         description?: string | undefined;
-        table?: {
-            identifier: number;
-            value_type: WOWOK.ValueType;
-            bWitness: boolean;
-            value?: any;
-        }[] | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -12161,17 +12320,21 @@ export declare const CallGuardSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
         } | undefined;
         root?: any;
+        table?: {
+            identifier: number;
+            value_type: WOWOK.ValueType;
+            bWitness: boolean;
+            value?: any;
+        }[] | undefined;
     };
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
     account?: string | undefined;
 }, {
     data: {
         description?: string | undefined;
-        table?: {
-            identifier: number;
-            value_type: WOWOK.ValueType;
-            bWitness: boolean;
-            value?: any;
-        }[] | undefined;
         namedNew?: {
             name?: string | undefined;
             tags?: string[] | undefined;
@@ -12179,7 +12342,17 @@ export declare const CallGuardSchema: z.ZodObject<{
             useAddressIfNameExist?: boolean | undefined;
         } | undefined;
         root?: any;
+        table?: {
+            identifier: number;
+            value_type: WOWOK.ValueType;
+            bWitness: boolean;
+            value?: any;
+        }[] | undefined;
     };
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    } | undefined;
     account?: string | undefined;
 }>;
 export declare const CallGuardSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -12246,6 +12419,16 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witness?: any;
         }[];
     }>>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     data: {
         objects: string[];
@@ -12261,6 +12444,10 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive: "always" | "session";
     } | undefined;
     account?: string | undefined;
 }, {
@@ -12278,6 +12465,10 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             cited: number;
             witness?: any;
         }[];
+    } | undefined;
+    session?: {
+        network: WOWOK.ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
     } | undefined;
     account?: string | undefined;
 }>;

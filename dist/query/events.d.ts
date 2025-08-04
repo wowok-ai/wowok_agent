@@ -2,6 +2,7 @@
  * Provide AI with Basic WoWok event queries:
  * for real-time detail tracking.
  */
+import { SessionOption } from '../common.js';
 export interface EventBase {
     id: {
         eventSeq: string;
@@ -57,6 +58,7 @@ export interface EventQuery {
     limit?: number | null | undefined;
     /** query result ordering, default to false (ascending order), oldest record first. */
     order?: 'ascending' | 'descending' | null | undefined;
+    session?: SessionOption;
 }
 export declare const query_events_json: (json: string) => Promise<string>;
 export declare const query_events: (query: EventQuery) => Promise<EventAnswer | undefined>;

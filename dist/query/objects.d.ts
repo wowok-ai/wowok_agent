@@ -5,6 +5,7 @@
 import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
 import { AccountOrMark_Address } from '../call/base.js';
+import { SessionOption } from '../common.js';
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' | 'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 'TableItem_DemandPresenter' | 'TableItem_MachineNode' | 'TableItem_ServiceSale' | 'TableItem_TreasuryHistory' | 'TableItem_ArbVote' | 'TableItem_RepositoryData' | 'TableItem_PersonalMark' | 'Treasury_ReceivedObject';
 export interface ObjectBase {
     object: string;
@@ -267,10 +268,12 @@ export interface TableItem_PersonalMark extends ObjectBase, Tags {
 export interface ObjectsQuery {
     objects: string[];
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface PersonalQuery {
     address: AccountOrMark_Address;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface ObjectsAnswer {
     objects?: ObjectBase[];
@@ -280,6 +283,7 @@ export interface TableQuery {
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface TableAnswerItem {
     key: {
@@ -305,22 +309,26 @@ export interface QueryTableItem_Name {
     parent: string | ObjectService;
     name: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_Index {
     parent: string | ObjectTreasury;
     index: string | number | bigint;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_AddressName {
     parent: string | ObjectRepository;
     address: string | number | bigint;
     name: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_Address {
     parent: string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark;
     address: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export declare const queryTableItem_RepositoryData: (query: QueryTableItem_AddressName) => Promise<ObjectBase>;
 export declare const queryTableItem_DemandService: (query: QueryTableItem_Address) => Promise<ObjectBase>;

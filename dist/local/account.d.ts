@@ -2,6 +2,7 @@
  * account management and use
  */
 import { TransactionBlock, CoinBalance, CoinStruct, TransactionResult, CallResponse } from 'wowok';
+import { SessionOption } from '../common.js';
 export type DEFAULT_NAME = 'default';
 export declare const DEFAULT_ACCOUNT_NAME = "default";
 export interface AccountData {
@@ -31,11 +32,11 @@ export declare class Account {
     suspend(address_or_name?: string): Promise<void>;
     resume(address: string, name?: string | DEFAULT_NAME): Promise<void>;
     faucet(address_or_name?: string | DEFAULT_NAME): Promise<void>;
-    sign_and_commit(txb: TransactionBlock, address_or_name?: string): Promise<CallResponse | undefined>;
-    balance: (address_or_name?: string, token_type?: string) => Promise<CoinBalance | undefined>;
-    coin: (token_type?: string, address_or_name?: string) => Promise<CoinStruct[] | undefined>;
-    get_coin_object: (txb: TransactionBlock, balance_required: string | bigint | number, address_or_name?: string, token_type?: string) => Promise<TransactionResult | undefined>;
-    transfer(amount: number | string, token_type?: string, to_address_or_name?: string, from_address_or_name?: string): Promise<CallResponse | undefined>;
-    coinObject_with_balance: (balance_required: string | bigint | number, address_or_name?: string, token_type?: string) => Promise<string | undefined>;
+    sign_and_commit(txb: TransactionBlock, address_or_name?: string, session?: SessionOption): Promise<CallResponse | undefined>;
+    balance: (address_or_name?: string, token_type?: string, session?: SessionOption) => Promise<CoinBalance | undefined>;
+    coin: (token_type?: string, address_or_name?: string, session?: SessionOption) => Promise<CoinStruct[] | undefined>;
+    get_coin_object: (txb: TransactionBlock, balance_required: string | bigint | number, address_or_name?: string, token_type?: string, session?: SessionOption) => Promise<TransactionResult | undefined>;
+    transfer(amount: number | string, token_type?: string, to_address_or_name?: string, from_address_or_name?: string, session?: SessionOption): Promise<CallResponse | undefined>;
+    coinObject_with_balance: (balance_required: string | bigint | number, address_or_name?: string, token_type?: string, session?: SessionOption) => Promise<string | undefined>;
 }
 //# sourceMappingURL=account.d.ts.map

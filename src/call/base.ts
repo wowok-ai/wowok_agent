@@ -1,12 +1,14 @@
 
 
 import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
-    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject
+    PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject,
+    ENTRYPOINT
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { ObjectBase, ObjectBaseType, query_objects, query_personal, raw2type} from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
+import { SessionOption } from 'src/common.js';
 
 export interface Namedbject {
     name?: string;  // name of the object, if not defined, the object will be created without name      
@@ -144,7 +146,7 @@ export class CallBase {
     content: ObjectBase | undefined = undefined;
 
     protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
-    protected async prepare() {};
+    protected async prepare(session?:SessionOption) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
     // return ResponseData when the call has completed; 
@@ -162,8 +164,8 @@ export class CallBase {
                     await this.prepare();
                     await this.operate(txb, passport?.get_object(), account)
                     passport.destroy();
-                    
                     return await this.sign_and_commit(txb, account);
+
                 }
             } else {
                 ERROR(Errors.Fail, 'guard verify')
@@ -217,7 +219,8 @@ export class CallBase {
         return await this.sign_and_commit(txb, account);
     }
 
-    protected async new_with_mark(type:ObjectBaseType, txb:TransactionBlock, object:TxbAddress, named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
+    protected async new_with_mark(type:ObjectBaseType, txb:TransactionBlock, object:TxbAddress, 
+        named_new?:Namedbject, account?:string, innerTags:string[]=[TagName.Launch]) {
         const tags = named_new?.tags ? array_unique([...named_new.tags, ...innerTags]) : array_unique([...innerTags]);
         if (named_new) {
             named_new.tags = tags; 

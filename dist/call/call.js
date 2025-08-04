@@ -12,6 +12,7 @@ import { CallService } from "./service.js";
 import { CallTreasury } from "./treasury.js";
 import { CallGuard } from "./guard.js";
 import { CallObjectPermission } from "./object_permission.js";
+import { session_resolve } from "../common.js";
 export const call_demand_json = async (json) => {
     const r = await call_demand(JSON.parse(json));
     if (r?.error) {
@@ -83,42 +84,52 @@ export const call_guard_json = async (json) => {
     return JSON.stringify({ data: r });
 };
 export const call_demand = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallDemand(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_service = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallService(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_treasury = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallTreasury(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_repository = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallRepository(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_guard = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallGuard(call.data);
-    return await call_object(obj, call.account);
+    return await call_object(obj, call.account, undefined);
 };
 export const call_machine = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallMachine(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_personal = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallPersonal(call.data);
-    return await call_object(obj, call.account);
+    return await call_object(obj, call.account, undefined);
 };
 export const call_permission = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallPermission(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_transfer_permission = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallObjectPermission(call.data);
     return await call_object(obj, call.account, call.witness);
 };
 export const call_arbitration = async (call) => {
+    await session_resolve(call?.session);
     const obj = new CallArbitration(call.data);
     return await call_object(obj, call.account, call.witness);
 };

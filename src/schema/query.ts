@@ -1,8 +1,7 @@
 
 import { z } from "zod";
-import { GetMarkNameSchema, AccountOrMarkNameSchema } from "./call.js";
+import { GetMarkNameSchema, AccountOrMarkNameSchema, SessionSchema } from "./call.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { GUARD_QUERIES, PermissionInfo } from "wowok";
 import { GuardQueryModules, PermissionModules } from "./util.js";
 
 export const QueryWowokProtocolSchemaDescription = `Retrieves the Wowok protocol data`;
@@ -101,6 +100,7 @@ Returns detailed on-chain content data(excluding table data) for each queried ob
 export const QueryObjectsSchema = z.object({
     objects: z.array(GetMarkNameSchema()).describe("Wowok object addresses."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 });
 
 export const QueryObjectsSchemaInput = () => {
@@ -112,6 +112,7 @@ export const QueryPersonalSchemaDescription = `Query the on-chain personal data 
 export const QueryPersonalSchema = z.object({
     address: AccountOrMarkNameSchema.describe("Personal address to query."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 });
 export const QueryPersonalSchemaInput = () => {
     return zodToJsonSchema(QueryPersonalSchema);
@@ -124,6 +125,7 @@ export const QueryTableItemsSchema = z.object({
         "Default to start from the first item if not specified."),
     limit: z.number().optional().nullable().describe("Maximum item returned per page, default to 50 if not specified."),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 });
 export const QueryTableItemsSchemaInput = () => {
     return zodToJsonSchema(QueryTableItemsSchema);
@@ -136,12 +138,14 @@ export const TableItemSchema = z.object({
         value: z.unknown().describe('Value.')
     }).describe('The query key'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 }).describe("Query the table item by key from the on-chain object.");
 
 export const QueryPermissionSchemaDescription = `Query the permission list corresponding to a specific address from the on-chain Permission object.`;
 export const QueryPermissionSchema = z.object({
     permission_object: GetMarkNameSchema('Permission'),
     address: AccountOrMarkNameSchema,
+    session: SessionSchema,
 });
 export const QueryPermissionResultSchema = z.object({
     who: z.string().describe('Address to query permissions'),
@@ -168,7 +172,8 @@ export const QueryEventSchema = z.object({
     type: z.enum(['OnNewArb', 'OnPresentService', 'OnNewProgress', 'OnNewOrder']).describe("Type of Events: OnNewArb, OnPresentService, OnNewProgress, OnNewOrder"),
     cursor: EventCursorSchema.optional().nullable().describe('Paging cursor.'),
     limit: z.number().optional().nullable().describe('Mmaximum number of items per page, default to 50 if not specified.'),
-    order: z.enum(['ascending', 'descending']).optional().nullable().describe('Query result ordering, default to "ascending order", oldest record first.')
+    order: z.enum(['ascending', 'descending']).optional().nullable().describe('Query result ordering, default to "ascending order", oldest record first.'),
+    session: SessionSchema,
 });
 export const QueryEventSchemaInput = () => {
     return zodToJsonSchema(QueryEventSchema);
@@ -178,6 +183,7 @@ export const QueryByAddressSchema = z.object({
     parent: z.string().describe("The address or name of the on-chain object that owns the table."),
     address: z.string().nonempty().describe('The query key(address) of the table item.'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 }).describe("Query the table item by address from the on-chain object.");
 
 
@@ -185,12 +191,14 @@ export const QueryByNameSchema = z.object({
     parent: z.string().describe("The address or name of the on-chain object that owns the table."),
     name: z.string().nonempty().describe('The query key(name) of the table item.'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 }).describe('Query the table item by name from the on-chain object.');
 
 export const QueryByIndexSchema = z.object({
     parent: z.string().nonempty().describe("The address of the on-chain object that owns the table."),
     index: z.number().int().min(0).describe('The query key(index) of the table item. Auto-incrementing index starting at 0.'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 }).describe("Query the table item by index from the on-chain object.");
 
 
@@ -202,12 +210,14 @@ export const QueryByAddressNameSchema = z.object({
     ]),
     name: z.string().nonempty().describe('Data field name.'),
     no_cache: z.boolean().optional().describe("Whether to not use local cache data."),
+    session: SessionSchema,
 }).describe('Query the data by the address and the name from the on-chain Repository object.');
 
 export const QueryReceivedSchema = z.object({
     object: GetMarkNameSchema('Treasury or Order'),
     cursor: z.string().optional().nullable().describe('Paging cursor.'),
     limit: z.number().optional().nullable().describe('Mmaximum number of items per page, default to 50 if not specified.'),
+    session: SessionSchema,
 });
 export const QueryReceivedSchemaInput = () => {
     return zodToJsonSchema(QueryReceivedSchema);

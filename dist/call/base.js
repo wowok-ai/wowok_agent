@@ -74,7 +74,7 @@ export function ResponseData(response) {
 export class CallBase {
     async operate(txb, passport, account) { }
     ;
-    async prepare() { }
+    async prepare(session) { }
     ;
     constructor() {
         this.traceMarkNew = new Map();

@@ -5,11 +5,12 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, Bcs, Tags, uint2address,
+    Progress, History, ERROR, Errors, Tags, uint2address, ENTRYPOINT,
 } from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
 import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
+import { session_resolve, SessionOption } from '../common.js';
 
 export type ObjectBaseType = 'Demand' | 'Progress' | 'Service' | 'Machine' | 'Order' | 'Treasury' | 'Arbitration' | 'Arb' | 'Payment' | 'Guard' | 'Discount' |
         'Personal' | 'Permission' | 'PersonalMark' | 'Repository' | 'TableItem_ProgressHistory' | 'TableItem_PermissionEntity' | 
@@ -130,6 +131,7 @@ export interface ObjectService extends ObjectBase {
 export interface TableItem_ServiceSale extends ObjectBase {
     item: Service_Sale;
 }
+
 export interface ObjectOrder extends ObjectBase {
     service: string;
     amount: string;
@@ -197,6 +199,7 @@ export interface ObjectArb extends ObjectBase {
     voted_count: number;
     time: string;
 }
+
 export interface TableItem_ArbVote extends ObjectBase {
     singer: string;
     vote: number[];
@@ -265,12 +268,15 @@ export interface TableItem_PersonalMark extends ObjectBase, Tags {
 export interface ObjectsQuery {
     objects: string[];
     no_cache?: boolean;
+    session?: SessionOption;
 }
 
 export interface PersonalQuery {
     address: AccountOrMark_Address;
     no_cache?: boolean;
+    session?: SessionOption;
 }
+
 export interface ObjectsAnswer {
     objects?: ObjectBase[];
 }
@@ -280,12 +286,15 @@ export interface TableQuery {
     cursor?: string | null | undefined;
     limit?: number | null | undefined;
     no_cache?: boolean;
+    session?: SessionOption;
 }
+
 export interface TableAnswerItem {
     key: {type:string; value:unknown};
     object: string;
     version: string;
 }
+
 export interface TableAnswer {
     items: TableAnswerItem[];
     nextCursor: string | null;
@@ -297,6 +306,7 @@ interface TableItemQuery {
     parent: string;
     key: {type:string, value:unknown};
     no_cache?: boolean;
+    session?: SessionOption;
 }
 
 /* json: ObjectsQuery string; return ObjectsAnswer */
@@ -353,8 +363,8 @@ export const query_objects = async (query: ObjectsQuery) : Promise<ObjectsAnswer
     }
 
     if (pending.length > 0) {
-        const res = await Protocol.Client().multiGetObjects({ids:[...pending], 
-            options:{showContent:true, showOwner:true}});
+        const res = await Protocol.Client(await session_resolve(query.session))
+            .multiGetObjects({ids:[...pending], options:{showContent:true, showOwner:true}});
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
             if (d) {
@@ -397,8 +407,8 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
     if (!addr)  {
         ERROR(Errors.InvalidParam, 'query_table.query.parent')
     }
+    
     query.parent = addr;
-
     if (!query.no_cache) {
         try {
             const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);
@@ -411,7 +421,8 @@ export const query_table = async (query:TableQuery) : Promise<TableAnswer> => {
         } catch (e) {/*console.log(e)*/}
     } 
 
-    const res = await Protocol.Client().getDynamicFields({parentId:query.parent, cursor:query.cursor, limit:query.limit});
+    const res = await Protocol.Client(await session_resolve(query.session))
+        .getDynamicFields({parentId:query.parent, cursor:query.cursor, limit:query.limit});
     const r = {items:res?.data?.map(v=>{
         return {object:v.objectId, type:v.type, version:v.version, key:{
             type:v.name.type, value:v.name.value
@@ -429,7 +440,6 @@ const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
         ERROR(Errors.InvalidParam, 'tableItem.query.parent')
     }
     query.parent = addr;
-
     if (!query.no_cache) {
         try {
             const cache = await Cache.Instance().cache_get(query.parent, CacheName.table);
@@ -441,7 +451,8 @@ const tableItem = async (query:TableItemQuery) : Promise<ObjectBase> => {
             }                 
         } catch (e) {/*console.log(e)*/}
     } 
-    const res = await Protocol.Client().getDynamicFieldObject({parentId:query.parent, name:{type:query.key.type, value:query.key.value}});
+    const res = await Protocol.Client(await session_resolve(query.session))
+        .getDynamicFieldObject({parentId:query.parent, name:{type:query.key.type, value:query.key.value}});
     return data2object(res?.data)
 }
 
@@ -449,22 +460,26 @@ export interface QueryTableItem_Name {
     parent: string | ObjectService;
     name: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_Index {
     parent: string | ObjectTreasury;
     index: string | number | bigint;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_AddressName {
     parent: string | ObjectRepository;
     address: string | number | bigint;
     name: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 export interface QueryTableItem_Address {
     parent: string | ObjectDemand | ObjectPermission | ObjectArb | ObjectMark;
     address: string;
     no_cache?: boolean;
+    session?: SessionOption;
 }
 
 export const queryTableItem_RepositoryData = async (query:QueryTableItem_AddressName) : Promise<ObjectBase> => {
@@ -509,17 +524,17 @@ export const queryTableItem_MarkTag = async (query:QueryTableItem_Address) : Pro
 
 const tableItemQuery_byAddress = async (query:QueryTableItem_Address) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({parent:parent, key:{type:'address', value:query.address}, no_cache:query.no_cache});
+    return await tableItem({parent:parent, key:{type:'address', value:query.address}, no_cache:query.no_cache, session:query.session});
 }
 
 const tableItemQuery_byName = async (query:QueryTableItem_Name) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({parent:parent, key:{type:'0x1::string::String', value:query.name}, no_cache:query.no_cache});
+    return await tableItem({parent:parent, key:{type:'0x1::string::String', value:query.name}, no_cache:query.no_cache, session:query.session});
 }
 
 const tableItemQuery_byIndex = async (query:QueryTableItem_Index) : Promise<ObjectBase> => {
     const parent = typeof(query.parent) === 'string' ? query.parent : query.parent.object;
-    return await tableItem({parent:parent, key:{type:'u64', value:query.index}, no_cache:query.no_cache});
+    return await tableItem({parent:parent, key:{type:'u64', value:query.index}, no_cache:query.no_cache, session:query.session});
 }
 
 export function raw2type(type_raw:string | undefined) : ObjectBaseType | undefined {
@@ -572,11 +587,12 @@ export function data2object(data?:any) : ObjectBase {
     const version = data?.version ?? undefined;
     const owner = data?.owner ?? undefined;
     const type:string | undefined = raw2type(type_raw);
+
     //console.log(content)
     if (type) {
         switch(type) {
         case 'Permission':
-            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 builder: content?.builder ??'', admin:content?.admin, description:content?.description??'',
                 entity_count: parseInt(content?.table?.fields?.size), 
                 biz_permission:content?.user_define?.fields?.contents?.map((v:any) => {
@@ -585,7 +601,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectPermission;
         case 'Demand':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 permission: content?.permission, description:content?.description,
                 guard:content?.guard ? {object:content?.guard, service_id_in_guard:content?.service_identifier}:undefined,
                 time_expire:content?.time_expire, yes:content?.yes, location: content?.location,
@@ -596,14 +612,14 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectDemand;
         case 'Machine':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 permission: content?.permission ?? '', description:content?.description??'',
                 bPaused: content?.bPaused, bPublished:content?.bPublished, endpoint:content?.endpoint,
                 consensus_repository:content?.consensus_repositories, node_count:parseInt(content?.nodes?.fields?.size),
             } as ObjectMachine;
         case 'Progress':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 machine: content?.machine, current: content?.current, task:content?.task,
                 parent:content?.parent,  history_count:parseInt(content?.history?.fields?.contents?.fields?.size),
                 namedOperator:content?.namedOperator?.fields?.contents?.map((v:any) => {
@@ -622,7 +638,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectProgress;
         case 'Order':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 service:content?.service, amount: content?.amount, agent:content?.agent, arb:content?.dispute, 
                 payer:content?.payer, progress:content?.progress, discount:content?.discount, balance:content?.payed,
                 required_info: content?.required_info ? 
@@ -634,7 +650,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectOrder;
         case 'Service':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version, location:content?.location,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, location:content?.location, 
                 machine:content?.machine, permission:content?.permission, description:content?.description,
                 arbitration:content?.arbitrations, bPaused:content?.bPaused, bPublished:content?.bPublished,
                 buy_guard:content?.buy_guard, endpoint:content?.endpoint, payee_treasury:content?.payee, repository:content?.repositories, 
@@ -651,7 +667,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectService;
         case 'Treasury':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 permission:content?.permission, description:content?.description, withdraw_mode:content?.withdraw_mode,
                 history_count:parseInt(content?.history?.fields?.contents?.fields?.size), balance: content?.balance, 
                 deposit_guard:content?.deposit_guard, withdraw_guard:content?.withdraw_guard?.fields?.contents?.map((v:any) => {
@@ -661,7 +677,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectTreasury;
         case 'Arbitration':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version, location:content?.location,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, location:content?.location, 
                 permission:content?.permission, description:content?.description, fee:content?.fee,
                 fee_treasury:content?.fee_treasury, usage_guard:content?.usage_guard,
                 endpoint:content?.endpoint, bPaused:content?.bPaused, voting_guard:content?.voting_guard?.fields?.contents?.map((v:any) => {
@@ -670,7 +686,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectArbitration;  
         case 'Arb':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 arbitration:content?.arbitration, description:content?.description, fee:content?.fee,
                 feedback:content?.feedback, indemnity:content?.indemnity, order:content?.order,
                 voted_count:parseInt(content?.voted?.fields?.size), time: content?.time,
@@ -680,7 +696,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectArb;  
         case 'Repository':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version, guard:content?.guard,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, guard:content?.guard, 
                 permission:content?.permission, description:content?.description, policy_mode:content?.policy_mode,
                 data_count:parseInt(content?.data?.fields?.size), reference:content?.reference, rep_type:content?.type, 
                 policy:content?.policies?.fields?.contents?.map((v:any) => {
@@ -690,7 +706,7 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectRepository;  
         case 'Payment':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 signer:content?.signer, time:content?.time, remark:content?.remark, from: content?.from,
                 biz_id:content?.index, for_guard:content?.for_guard, for_object:content?.for_object,
                 amount:content?.amount, record:content?.record?.map((v:any) => {
@@ -699,14 +715,14 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectPayment;  
         case 'Discount':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 service:content?.service, time_start:content?.time_start, time_end:content?.time_end, 
                 price_greater:content?.price_greater, off_type:content?.type, off:content?.off,
                 name:content?.name
             } as ObjectDiscount;   
         case 'Guard':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 description:content?.description, input:Uint8Array.from(content?.input?.fields?.bytes),
                 identifier:content?.constants?.map((v:any) => {
                     return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, value:Uint8Array.from(v?.fields?.value)}
@@ -714,53 +730,53 @@ export function data2object(data?:any) : ObjectBase {
             } as ObjectGuard;  
         case 'PersonalMark' :
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 tag_count:parseInt(content?.tags?.fields?.size)
             } as ObjectMark;   
         case 'TableItem_DemandPresenter':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 service:content?.name, presenter:content?.value?.fields?.who, recommendation:content?.value?.fields?.tips
             } as TableItem_DemandPresenter;
         case 'TableItem_ProgressHistory':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 history:Progress.DeHistory(content)
             } as TableItem_ProgressHistory;
         case 'TableItem_ServiceSale':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 item:{item:content?.name, stock:content?.value?.fields?.stock, price:content?.value?.fields?.price,
                     endpoint:content?.value?.fields?.endpoint
                 }
             } as TableItem_ServiceSale;
         case 'TableItem_TreasuryHistory':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 id: content?.name, payment:content?.value?.fields?.payment, signer:content?.value?.fields?.signer,
                 operation: content?.value?.fields?.op, amount: content?.value?.fields?.amount, time:content?.value?.fields?.time
             } as TableItem_TreasuryHistory;
         case 'TableItem_ArbVote':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 singer:content?.name, vote:content?.value?.fields?.agrees, time: content?.value?.fields?.time,
                 weight:content?.value?.fields?.weight
             } as TableItem_ArbVote;
         case 'TableItem_PermissionEntity':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 entity:content?.name, permission:content?.value?.map((v:any) => {
                     return {id:v?.fields.index, guard:v?.fields.guard}
                 })
             } as TableItem_PermissionEntity;
         case 'TableItem_RepositoryData':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 address:content?.name?.fields?.id, key:content?.name?.fields?.key, data:Uint8Array.from(content?.value)
             } as TableItem_RepositoryData;
         case 'TableItem_MachineNode':
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 node: {name:content?.name, pairs:Machine.rpc_de_pair(content?.value)}
             } as TableItem_MachineNode;
         case 'Personal':
@@ -770,22 +786,22 @@ export function data2object(data?:any) : ObjectBase {
             })
 
             return {
-                object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+                object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 address:content?.name, like:content?.value?.fields?.like, dislike:content?.value?.fields?.dislike, 
                 mark_object: content?.value?.fields?.resource, lastActive_digest: data?.previousTransaction, 
                 info : info, description:content?.value?.fields?.description, time: content?.value?.fields?.time
             } as ObjectPersonal;
         case 'TableItem_PersonalMark':
-            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+            return {object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 address:content?.name, name:content?.value?.fields?.nick, tags:content?.value?.fields?.tags
             } as TableItem_PersonalMark;
         case 'Treasury_ReceivedObject':
-            return { object:id, type:type, type_raw:type_raw, owner:owner, version:version,
+            return { object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 balance: content.coin?.fields?.balance, payment:content?.payment
             } as Treasury_ReceivedObject;
         }
     } 
 
-    return {object:id, type:undefined, type_raw:type_raw, owner:owner, version:version}
+    return {object:id, type:undefined, type_raw:type_raw, owner:owner, version:version, }
 }
 

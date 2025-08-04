@@ -372,24 +372,24 @@ export declare const QueryLocalSchema: z.ZodObject<{
             showSuspendedAccount?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
-    }, {
         name: "account_list";
+    }, {
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
+        name: "account_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info_list">;
         data: z.ZodObject<{}, "strip", z.ZodTypeAny, {}, {}>;
     }, "strip", z.ZodTypeAny, {
-        name: "info_list";
         data: {};
+        name: "info_list";
     }, {
-        name: "info_list";
         data: {};
+        name: "info_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark_list">;
         data: z.ZodObject<{
@@ -406,19 +406,19 @@ export declare const QueryLocalSchema: z.ZodObject<{
             tags?: string[] | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "mark_list";
         data: {
             address?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
         };
+        name: "mark_list";
     }, {
-        name: "mark_list";
         data: {
             address?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
         };
+        name: "mark_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"account">;
         data: z.ZodObject<{
@@ -435,19 +435,19 @@ export declare const QueryLocalSchema: z.ZodObject<{
             token_type?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     }, {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark">;
         data: z.ZodObject<{
@@ -458,15 +458,15 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name: string;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     }, {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info">;
         data: z.ZodObject<{
@@ -477,83 +477,83 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
-        name: "info";
         data: {
             name: string;
         };
-    }, {
         name: "info";
+    }, {
         data: {
             name?: string | undefined;
         };
+        name: "info";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     query: {
-        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
+        name: "account_list";
     } | {
-        name: "info_list";
         data: {};
+        name: "info_list";
     } | {
-        name: "mark_list";
         data: {
             address?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
         };
+        name: "mark_list";
     } | {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     } | {
+        data: {
+            name: string;
+        };
         name: "mark";
-        data: {
-            name: string;
-        };
     } | {
-        name: "info";
         data: {
             name: string;
         };
+        name: "info";
     };
 }, {
     query: {
-        name: "account_list";
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
+        name: "account_list";
     } | {
-        name: "info_list";
         data: {};
+        name: "info_list";
     } | {
-        name: "mark_list";
         data: {
             address?: string | undefined;
             name?: string | undefined;
             tags?: string[] | undefined;
         };
+        name: "mark_list";
     } | {
-        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
         };
+        name: "account";
     } | {
-        name: "mark";
         data: {
             name: string;
         };
+        name: "mark";
     } | {
-        name: "info";
         data: {
             name?: string | undefined;
         };
+        name: "info";
     };
 }>;
 export declare const QueryLocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {

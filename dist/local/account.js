@@ -2,7 +2,7 @@
  * account management and use
  */
 import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName } from 'wowok';
-import { retry_db, isBrowser } from '../common.js';
+import { retry_db, isBrowser, session_resolve } from '../common.js';
 import path from 'path';
 import os from 'os';
 export const DEFAULT_ACCOUNT_NAME = 'default';
@@ -11,22 +11,22 @@ const AccountKey = 'account';
 export class Account {
     constructor() {
         // token_type is 0x2::sui::SUI, if not specified.
-        this.balance = async (address_or_name, token_type) => {
+        this.balance = async (address_or_name, token_type, session) => {
             const a = await this.get(address_or_name);
             const token_type_ = token_type ?? '0x2::sui::SUI';
             if (a) {
-                return await Protocol.Client().getBalance({ owner: a.address, coinType: token_type_ });
+                return await Protocol.Client(await session_resolve(session)).getBalance({ owner: a.address, coinType: token_type_ });
             }
         };
         // token_type is 0x2::sui::SUI, if not specified.
-        this.coin = async (token_type, address_or_name) => {
+        this.coin = async (token_type, address_or_name, session) => {
             const a = await this.get(address_or_name);
             const token_type_ = token_type ?? '0x2::sui::SUI';
             if (a) {
-                return (await Protocol.Client().getCoins({ owner: a.address, coinType: token_type_ })).data;
+                return (await Protocol.Client(await session_resolve(session)).getCoins({ owner: a.address, coinType: token_type_ })).data;
             }
         };
-        this.get_coin_object = async (txb, balance_required, address_or_name, token_type) => {
+        this.get_coin_object = async (txb, balance_required, address_or_name, token_type, session) => {
             const a = await this.get(address_or_name);
             if (a) {
                 const b = BigInt(balance_required);
@@ -35,7 +35,7 @@ export class Account {
                         return txb.splitCoins(txb.gas, [b]);
                     }
                     else {
-                        const r = await Protocol.Client().getCoins({ owner: a.address, coinType: token_type });
+                        const r = await Protocol.Client(await session_resolve(session)).getCoins({ owner: a.address, coinType: token_type });
                         const objects = [];
                         var current = BigInt(0);
                         for (let i = 0; i < r.data.length; ++i) {
@@ -57,7 +57,7 @@ export class Account {
                 }
             }
         };
-        this.coinObject_with_balance = async (balance_required, address_or_name, token_type) => {
+        this.coinObject_with_balance = async (balance_required, address_or_name, token_type, session) => {
             const a = await this.get_imp(address_or_name);
             if (!a)
                 return undefined;
@@ -68,7 +68,7 @@ export class Account {
             const res = await this.get_coin_object(txb, balance_required, a.address, token_type);
             if (res) {
                 txb.transferObjects([res], a.address);
-                const r = await Protocol.Client().signAndExecuteTransaction({
+                const r = await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb,
                     signer: pair,
                     options: { showObjectChanges: true },
@@ -294,12 +294,12 @@ export class Account {
             await FAUCET.requestSuiFromFaucetV2({ host: FAUCET.getFaucetHost('testnet'), recipient: a.address }).catch(e => { });
         }
     }
-    async sign_and_commit(txb, address_or_name) {
+    async sign_and_commit(txb, address_or_name, session) {
         const a = await this.get_imp(address_or_name);
         if (a) {
             const pair = Ed25519Keypair.fromSecretKey(fromHex(a.secret));
             if (pair) {
-                return await Protocol.Client().signAndExecuteTransaction({
+                return await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb,
                     signer: pair,
                     options: { showObjectChanges: true },
@@ -307,7 +307,7 @@ export class Account {
             }
         }
     }
-    async transfer(amount, token_type, to_address_or_name, from_address_or_name) {
+    async transfer(amount, token_type, to_address_or_name, from_address_or_name, session) {
         const [from, to] = await this.get_many_imp([from_address_or_name, to_address_or_name]);
         if (!from)
             ERROR(Errors.InvalidParam, `Invalid from address or name ${from_address_or_name}`);
@@ -320,7 +320,7 @@ export class Account {
             const coin = await this.get_coin_object(txb, amount, from.address, token_type);
             if (coin) {
                 txb.transferObjects([coin], to_address);
-                const r = await Protocol.Client().signAndExecuteTransaction({
+                const r = await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb,
                     signer: pair,
                     options: { showObjectChanges: true },

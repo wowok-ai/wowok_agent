@@ -1,5 +1,6 @@
 import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject } from 'wowok';
 import { ObjectBase, ObjectBaseType } from '../query/objects.js';
+import { SessionOption } from 'src/common.js';
 export interface Namedbject {
     name?: string;
     tags?: string[];
@@ -63,7 +64,7 @@ export declare class CallBase {
     private traceMarkNew;
     content: ObjectBase | undefined;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
-    protected prepare(): Promise<void>;
+    protected prepare(session?: SessionOption): Promise<void>;
     constructor();
     call(account?: string): Promise<CallResult>;
     call_with_witness(info: GuardInfo_forCall, account?: string): Promise<CallResponse | undefined>;

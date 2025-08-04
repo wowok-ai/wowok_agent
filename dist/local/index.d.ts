@@ -1,6 +1,7 @@
-import { CallResponse, CoinBalance, CoinStruct } from "wowok";
+import { CallResponse, CoinBalance, CoinStruct, ENTRYPOINT, NetworkInfo } from "wowok";
 import { AccountData, DEFAULT_NAME } from "./account.js";
 import { InfoData, LocalMarkFilter, MarkData } from "./local.js";
+import { SessionOption } from "../common.js";
 export declare const query_local_mark_list: (filter?: LocalMarkFilter) => Promise<string>;
 export declare const query_account_list: (showSuspendedAccount?: boolean) => Promise<AccountData[]>;
 export declare const query_local_info_list: () => Promise<string>;
@@ -13,6 +14,7 @@ export interface QueryAccount {
     name_or_address?: string;
     balance_or_coin?: BalanceOrCoin;
     token_type?: string;
+    session?: SessionOption;
 }
 export interface QueryAccountResult {
     name_or_address?: string;
@@ -91,4 +93,6 @@ export interface LocalInfoOperation {
     };
 }
 export declare const local_info_operation: (op: LocalInfoOperation) => Promise<void>;
+export declare const network_set: (network: ENTRYPOINT | undefined) => void;
+export declare const network: () => NetworkInfo;
 //# sourceMappingURL=index.d.ts.map
