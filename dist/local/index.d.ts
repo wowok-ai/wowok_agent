@@ -1,7 +1,8 @@
-import { CallResponse, CoinBalance, CoinStruct, ENTRYPOINT, NetworkInfo } from "wowok";
+import { CallResponse, CoinBalance, CoinStruct, CoinTypeInfo } from "wowok";
 import { AccountData, DEFAULT_NAME } from "./account.js";
 import { InfoData, LocalMarkFilter, MarkData } from "./local.js";
 import { SessionOption } from "../common.js";
+import { CoinDataFilter } from "./coin.js";
 export declare const query_local_mark_list: (filter?: LocalMarkFilter) => Promise<string>;
 export declare const query_account_list: (showSuspendedAccount?: boolean) => Promise<AccountData[]>;
 export declare const query_local_info_list: () => Promise<string>;
@@ -49,6 +50,7 @@ export interface AccountOperation {
         name_or_address_to?: string;
         amount: number | string;
         token_type?: string;
+        session?: SessionOption;
     } | null;
     faucet?: boolean;
 }
@@ -93,6 +95,16 @@ export interface LocalInfoOperation {
     };
 }
 export declare const local_info_operation: (op: LocalInfoOperation) => Promise<void>;
-export declare const network_set: (network: ENTRYPOINT | undefined) => void;
-export declare const network: () => NetworkInfo;
+export interface CoinInfoOperation {
+    coinType: string;
+    alias?: string;
+    session?: SessionOption;
+}
+export declare const coin_info_operation: (op: CoinInfoOperation) => Promise<CoinTypeInfo | undefined>;
+export interface CoinInfoQuery {
+    filter: CoinDataFilter | 'all fetched';
+    session?: SessionOption;
+}
+export declare const coin_info_query: (op: CoinInfoQuery) => Promise<CoinTypeInfo[]>;
+export declare const coin_info_list: () => Promise<CoinTypeInfo[]>;
 //# sourceMappingURL=index.d.ts.map

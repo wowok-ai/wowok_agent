@@ -5,14 +5,32 @@ export declare const QueryAccountSchema: z.ZodObject<{
     name_or_address: z.ZodOptional<z.ZodString>;
     balance_or_coin: z.ZodOptional<z.ZodNativeEnum<typeof BalanceOrCoin>>;
     token_type: z.ZodOptional<z.ZodString>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof import("wowok").ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     name_or_address?: string | undefined;
     balance_or_coin?: BalanceOrCoin | undefined;
     token_type?: string | undefined;
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
 }, {
     name_or_address?: string | undefined;
     balance_or_coin?: BalanceOrCoin | undefined;
     token_type?: string | undefined;
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    } | undefined;
 }>;
 export declare const AccountOperationSchemaDescription = "Account operations, including generating new accounts, suspending/resume accounts, naming accounts, \nswapping names of two accounts, and transferring tokens between accounts. Note that the 'name' or 'name_or_address' undefined or equal to '' means the 'default' account";
 export declare const AccountOperationSchema: z.ZodObject<{
@@ -82,13 +100,6 @@ export declare const AccountOperationSchema: z.ZodObject<{
         new_name: string;
         name_or_address?: string | undefined;
     } | undefined;
-    transfer?: {
-        amount: string | number;
-        token_type?: string | undefined;
-        name_or_address_from?: string | undefined;
-        name_or_address_to?: string | undefined;
-    } | undefined;
-    faucet?: boolean | undefined;
     gen?: {
         name?: string | undefined;
     } | undefined;
@@ -103,18 +114,18 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name1?: string | undefined;
         name2?: string | undefined;
     } | undefined;
+    transfer?: {
+        amount: string | number;
+        token_type?: string | undefined;
+        name_or_address_from?: string | undefined;
+        name_or_address_to?: string | undefined;
+    } | undefined;
+    faucet?: boolean | undefined;
 }, {
     name?: {
         new_name: string;
         name_or_address?: string | undefined;
     } | undefined;
-    transfer?: {
-        amount: string | number;
-        token_type?: string | undefined;
-        name_or_address_from?: string | undefined;
-        name_or_address_to?: string | undefined;
-    } | undefined;
-    faucet?: boolean | undefined;
     gen?: {
         name?: string | undefined;
     } | undefined;
@@ -129,6 +140,13 @@ export declare const AccountOperationSchema: z.ZodObject<{
         name1?: string | undefined;
         name2?: string | undefined;
     } | undefined;
+    transfer?: {
+        amount: string | number;
+        token_type?: string | undefined;
+        name_or_address_from?: string | undefined;
+        name_or_address_to?: string | undefined;
+    } | undefined;
+    faucet?: boolean | undefined;
 }>;
 export declare const AccountOperationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
@@ -152,28 +170,28 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
             tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             useAddressIfNameExist: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }, {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
         data: {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
         op: "add";
     }, {
         data: {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
@@ -193,8 +211,8 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
         op: "removeall";
     } | {
         data: {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
@@ -208,8 +226,8 @@ export declare const LocalMarkOperationSchema: z.ZodObject<{
         op: "removeall";
     } | {
         data: {
-            address: string;
             name: string;
+            address: string;
             tags?: string[] | undefined;
             useAddressIfNameExist?: boolean | undefined;
         }[];
@@ -342,12 +360,12 @@ export declare const LocalMarkFilterSchema: z.ZodObject<{
     tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     address: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    address?: string | undefined;
     name?: string | undefined;
+    address?: string | undefined;
     tags?: string[] | undefined;
 }, {
-    address?: string | undefined;
     name?: string | undefined;
+    address?: string | undefined;
     tags?: string[] | undefined;
 }>;
 export declare const LocalInfoListSchemaDescription = "List local information entries. Local info enables on-device storage of personal data (e.g., addresses, phone numbers) structured as name-content pairs, supporting cryptographic processing and secure sharing with service providers.";
@@ -372,24 +390,24 @@ export declare const QueryLocalSchema: z.ZodObject<{
             showSuspendedAccount?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
-        name: "account_list";
     }, {
+        name: "account_list";
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
-        name: "account_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info_list">;
         data: z.ZodObject<{}, "strip", z.ZodTypeAny, {}, {}>;
     }, "strip", z.ZodTypeAny, {
-        data: {};
         name: "info_list";
+        data: {};
     }, {
-        data: {};
         name: "info_list";
+        data: {};
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark_list">;
         data: z.ZodObject<{
@@ -397,57 +415,83 @@ export declare const QueryLocalSchema: z.ZodObject<{
             tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             address: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         }, {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "mark_list";
         data: {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         };
-        name: "mark_list";
     }, {
+        name: "mark_list";
         data: {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         };
-        name: "mark_list";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"account">;
         data: z.ZodObject<{
             name_or_address: z.ZodOptional<z.ZodString>;
             balance_or_coin: z.ZodOptional<z.ZodNativeEnum<typeof BalanceOrCoin>>;
             token_type: z.ZodOptional<z.ZodString>;
+            session: z.ZodOptional<z.ZodObject<{
+                network: z.ZodNativeEnum<typeof import("wowok").ENTRYPOINT>;
+                retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+            }, "strip", z.ZodTypeAny, {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            }, {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            }>>;
         }, "strip", z.ZodTypeAny, {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
         }, {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
         };
-        name: "account";
     }, {
+        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
         };
-        name: "account";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"mark">;
         data: z.ZodObject<{
@@ -458,15 +502,15 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name: string;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "mark";
         data: {
             name: string;
         };
-        name: "mark";
     }, {
+        name: "mark";
         data: {
             name: string;
         };
-        name: "mark";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"info">;
         data: z.ZodObject<{
@@ -477,86 +521,179 @@ export declare const QueryLocalSchema: z.ZodObject<{
             name?: string | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "info";
         data: {
             name: string;
         };
-        name: "info";
     }, {
+        name: "info";
         data: {
             name?: string | undefined;
         };
-        name: "info";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     query: {
+        name: "account_list";
         data: {
             showSuspendedAccount: boolean;
         };
-        name: "account_list";
     } | {
-        data: {};
         name: "info_list";
+        data: {};
     } | {
+        name: "mark_list";
         data: {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         };
-        name: "mark_list";
     } | {
+        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
         };
-        name: "account";
     } | {
-        data: {
-            name: string;
-        };
         name: "mark";
-    } | {
         data: {
             name: string;
         };
+    } | {
         name: "info";
+        data: {
+            name: string;
+        };
     };
 }, {
     query: {
+        name: "account_list";
         data: {
             showSuspendedAccount?: boolean | undefined;
         };
-        name: "account_list";
     } | {
-        data: {};
         name: "info_list";
+        data: {};
     } | {
+        name: "mark_list";
         data: {
-            address?: string | undefined;
             name?: string | undefined;
+            address?: string | undefined;
             tags?: string[] | undefined;
         };
-        name: "mark_list";
     } | {
+        name: "account";
         data: {
             name_or_address?: string | undefined;
             balance_or_coin?: BalanceOrCoin | undefined;
             token_type?: string | undefined;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
         };
-        name: "account";
     } | {
+        name: "mark";
         data: {
             name: string;
         };
-        name: "mark";
     } | {
+        name: "info";
         data: {
             name?: string | undefined;
         };
-        name: "info";
     };
 }>;
 export declare const QueryLocalSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const QueryCoinInfoSchema: z.ZodObject<{
+    filter: z.ZodUnion<[z.ZodObject<{
+        alias_or_name: z.ZodOptional<z.ZodString>;
+        symbol: z.ZodOptional<z.ZodString>;
+        coinType: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        symbol?: string | undefined;
+        alias_or_name?: string | undefined;
+        coinType?: string | undefined;
+    }, {
+        symbol?: string | undefined;
+        alias_or_name?: string | undefined;
+        coinType?: string | undefined;
+    }>, z.ZodLiteral<"all fetched">]>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof import("wowok").ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    filter: {
+        symbol?: string | undefined;
+        alias_or_name?: string | undefined;
+        coinType?: string | undefined;
+    } | "all fetched";
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
+}, {
+    filter: {
+        symbol?: string | undefined;
+        alias_or_name?: string | undefined;
+        coinType?: string | undefined;
+    } | "all fetched";
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    } | undefined;
+}>;
+export declare const QueryCoinInfoSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
+    $schema?: string | undefined;
+    definitions?: {
+        [key: string]: import("zod-to-json-schema").JsonSchema7Type;
+    } | undefined;
+};
+export declare const CoinInfoFetchSchema: z.ZodObject<{
+    coinType: z.ZodString;
+    alias: z.ZodOptional<z.ZodString>;
+    session: z.ZodOptional<z.ZodObject<{
+        network: z.ZodNativeEnum<typeof import("wowok").ENTRYPOINT>;
+        retentive: z.ZodDefault<z.ZodUnion<[z.ZodLiteral<"always">, z.ZodLiteral<"session">]>>;
+    }, "strip", z.ZodTypeAny, {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    }, {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    coinType: string;
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive: "always" | "session";
+    } | undefined;
+    alias?: string | undefined;
+}, {
+    coinType: string;
+    session?: {
+        network: import("wowok").ENTRYPOINT;
+        retentive?: "always" | "session" | undefined;
+    } | undefined;
+    alias?: string | undefined;
+}>;
+export declare const CoinInfoFetchSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;

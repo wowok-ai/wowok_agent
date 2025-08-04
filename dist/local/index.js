@@ -2,6 +2,7 @@ import { Protocol } from "wowok";
 import { Account } from "./account.js";
 import { LocalInfo, LocalInfoNameDefault, LocalMark } from "./local.js";
 import { session_resolve } from "../common.js";
+import { CoinInfo } from "./coin.js";
 export const query_local_mark_list = async (filter) => {
     return JSON.stringify(await LocalMark.Instance().list(filter));
 };
@@ -60,7 +61,7 @@ export const account_operation = async (op) => {
         await Account.Instance().swap_names(op.swap_names.name1, op.swap_names.name2);
     }
     if (op.transfer != null) {
-        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from);
+        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from, op.transfer?.session);
     }
     return res;
 };
@@ -104,12 +105,18 @@ export const local_info_operation = async (op) => {
             break;
     }
 };
-export const network_set = (network) => {
-    if (network) {
-        Protocol.Instance().use_network(network);
+export const coin_info_operation = async (op) => {
+    return await CoinInfo.Instance().fetch(op.coinType, op?.alias, await session_resolve(op?.session));
+};
+export const coin_info_query = async (op) => {
+    if (op.filter === 'all fetched') {
+        return await CoinInfo.Instance().list();
+    }
+    else {
+        return await CoinInfo.Instance().query(op.filter, await session_resolve(op?.session));
     }
 };
-export const network = () => {
-    return Protocol.Instance().networkUrl();
+export const coin_info_list = async () => {
+    return await CoinInfo.Instance().list();
 };
 //# sourceMappingURL=index.js.map

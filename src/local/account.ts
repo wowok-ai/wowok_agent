@@ -266,11 +266,13 @@ export class Account {
         if (a) {
             const pair = Ed25519Keypair.fromSecretKey(fromHex(a.secret!));
             if (pair) {
-                return await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
+                const ret = await Protocol.Client(await session_resolve(session)).signAndExecuteTransaction({
                     transaction: txb, 
                     signer: pair,
                     options:{showObjectChanges:true},
                 });
+                //console.log(ret);
+                return ret;
             } 
         }
     }

@@ -1,7 +1,8 @@
-import { CallResponse, CoinBalance, CoinStruct, ENTRYPOINT, NetworkInfo, Protocol } from "wowok"
+import { CallResponse, CoinBalance, CoinStruct, CoinTypeInfo, ENTRYPOINT, ERROR, Errors, IsValidArgType, IsValidTokenType, NetworkInfo, Protocol } from "wowok"
 import { Account, AccountData, DEFAULT_NAME } from "./account.js"
 import { InfoData, LocalInfo, LocalInfoNameDefault, LocalMark, LocalMarkFilter, MarkData } from "./local.js"
 import { session_resolve, SessionOption } from "../common.js"
+import { CoinDataFilter, CoinInfo } from "./coin.js"
 
 export const query_local_mark_list = async (filter?:LocalMarkFilter) : Promise<string> => {
     return JSON.stringify(await LocalMark.Instance().list(filter))
@@ -71,7 +72,7 @@ export interface AccountOperation {
     resume?: {address:string, name?: string | DEFAULT_NAME} | null; // resume the account and specify the name. if name not specified, use 'default'.
     name?: {new_name:string | DEFAULT_NAME, name_or_address?:string | DEFAULT_NAME} | null; // name the account, if not specified, name the default account.
     swap_names?: {name1?:string | DEFAULT_NAME, name2?:string | DEFAULT_NAME} | null; // swap the name of two accounts, if not specified, swap the default account.
-    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string} | null;   // transfer the token.
+    transfer?: {name_or_address_from?: string, name_or_address_to?:string, amount:number|string, token_type?: string, session?:SessionOption} | null;   // transfer the token.
     faucet?: boolean;
 }
 
@@ -99,7 +100,7 @@ export const account_operation = async(op: AccountOperation) : Promise<AccountOp
         await Account.Instance().swap_names(op.swap_names.name1, op.swap_names.name2);
     }
     if(op.transfer != null) {
-        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from);
+        res.transfer = await Account.Instance().transfer(op.transfer.amount, op.transfer.token_type, op.transfer.name_or_address_to, op.transfer.name_or_address_from, op.transfer?.session);
     }
     return res;
 }
@@ -154,12 +155,29 @@ export const local_info_operation = async(op: LocalInfoOperation) : Promise<void
     }
 }
 
-export const network_set = (network:ENTRYPOINT | undefined) => {
-    if (network) {
-        Protocol.Instance().use_network(network);
+export interface CoinInfoOperation {
+    coinType: string, 
+    alias?: string, 
+    session?: SessionOption,
+}
+
+export const coin_info_operation = async (op: CoinInfoOperation) : Promise<CoinTypeInfo | undefined> => {
+    return await CoinInfo.Instance().fetch(op.coinType, op?.alias, await session_resolve(op?.session));
+}
+
+export interface CoinInfoQuery {
+    filter: CoinDataFilter | 'all fetched';
+    session?: SessionOption;
+}
+
+export const coin_info_query = async (op: CoinInfoQuery) : Promise<CoinTypeInfo[]> => {
+    if (op.filter === 'all fetched') {
+        return await CoinInfo.Instance().list()
+    } else {
+        return await CoinInfo.Instance().query(op.filter, await session_resolve(op?.session));
     }
 }
 
-export const network = () : NetworkInfo => {
-    return Protocol.Instance().networkUrl()
+export const coin_info_list = async () : Promise<CoinTypeInfo[]> => {
+    return await CoinInfo.Instance().list()
 }

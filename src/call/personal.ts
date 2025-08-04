@@ -4,7 +4,6 @@ import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
 import { Account } from '../local/account.js';
 
-
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallPersonal_Data {
     information?: { op:'add', data: EntityInfo[]} 

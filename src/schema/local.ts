@@ -5,6 +5,7 @@ import { BalanceOrCoin } from "../local/index.js";
 import { LocalInfoNameDefault } from '../local/local.js'
 import { zodToJsonSchema } from "zod-to-json-schema";
 import * as D from './const.js';
+import { SessionSchema } from "./call.js";
 
 
 export const QueryAccountSchemaDescription = `Query local account information, including on-chain address, token balance, and list of token object addresses.`
@@ -12,6 +13,7 @@ export const QueryAccountSchema = z.object({
     name_or_address: z.string().optional().describe("Your account name or address. undefined means default account."),
     balance_or_coin: z.nativeEnum(BalanceOrCoin).optional().describe("Query the balance or coin objects of the account."),
     token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified."),
+    session: SessionSchema,
 });
 
 export const AccountOperationSchemaDescription = `Account operations, including generating new accounts, suspending/resume accounts, naming accounts, 
@@ -141,3 +143,27 @@ export const QueryLocalSchema = z.object({
 export const QueryLocalSchemaInput = () => {
     return zodToJsonSchema(QueryLocalSchema);
 } 
+
+export const QueryCoinInfoSchema = z.object({
+    filter: z.union([z.object({
+        alias_or_name: z.string().optional().describe(`by alias or name`),
+        symbol: z.string().optional().describe(`by symbol`),
+        coinType: z.string().optional().describe(`by coin type(e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)`),
+    }), z.literal('all fetched').describe('Query all the coin information that has been fetched')]),
+    session: SessionSchema
+}).describe(`By specifying (all-satisfying) information, query coin information`);
+
+export const QueryCoinInfoSchemaInput = () => {
+    return zodToJsonSchema(QueryCoinInfoSchema);
+} 
+
+export const CoinInfoFetchSchema = z.object({
+    coinType: z.string().describe(`Coin type(e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)`),
+    alias: z.string().optional().describe(`alias name`),
+    session: SessionSchema,
+}).describe(`Fetch detailed information about the coin`);
+
+export const CoinInfoFetchSchemaInput = () => {
+    return zodToJsonSchema(CoinInfoFetchSchema);
+} 
+
