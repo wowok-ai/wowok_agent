@@ -76,16 +76,16 @@ export declare const PermissionItemSchema: z.ZodObject<{
     module: z.ZodString;
     guard: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    module: string;
     name: string;
     description: string;
     index: number;
+    module: string;
     guard?: string | undefined;
 }, {
-    module: string;
     name: string;
     description: string;
     index: number;
+    module: string;
     guard?: string | undefined;
 }>;
 export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
@@ -96,16 +96,16 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }>, "many">;
     queries_for_guard: z.ZodArray<z.ZodObject<{
@@ -140,30 +140,30 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         }>;
         description: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
             description?: string | undefined;
         };
     }, {
-        module: string;
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -172,22 +172,22 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     built_in_permissions: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        module: string;
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -196,22 +196,22 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
     }[];
 }, {
     built_in_permissions: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[];
     queries_for_guard: {
-        module: string;
         description: string;
+        module: string;
+        query_name: string;
+        query_id: number;
         parameters: {
             type: number;
             name: string;
             description?: string | undefined;
         }[];
-        query_name: string;
-        query_id: number;
         return: {
             type: number;
             name: string;
@@ -468,16 +468,16 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }, {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }>, "many">>;
     object: z.ZodString;
@@ -487,10 +487,10 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
     admin?: boolean | undefined;
     owner?: boolean | undefined;
     items?: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }, {
@@ -499,10 +499,10 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
     admin?: boolean | undefined;
     owner?: boolean | undefined;
     items?: {
-        module: string;
         name: string;
         description: string;
         index: number;
+        module: string;
         guard?: string | undefined;
     }[] | undefined;
 }>;
@@ -693,8 +693,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
         retentive?: "always" | "session" | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     session?: {
         network: import("wowok").ENTRYPOINT;
@@ -702,8 +702,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     } | undefined;
     no_cache?: boolean | undefined;
 }, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     session?: {
         network: import("wowok").ENTRYPOINT;
@@ -784,6 +784,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "treasury";
         data: {
             parent: string;
             index: number;
@@ -793,8 +794,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "treasury";
     }, {
+        name: "treasury";
         data: {
             parent: string;
             index: number;
@@ -804,7 +805,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "treasury";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"service">;
         data: z.ZodObject<{
@@ -839,6 +839,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "service";
         data: {
             name: string;
             parent: string;
@@ -848,8 +849,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "service";
     }, {
+        name: "service";
         data: {
             name: string;
             parent: string;
@@ -859,7 +860,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "service";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"arb">;
         data: z.ZodObject<{
@@ -894,6 +894,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "arb";
         data: {
             address: string;
             parent: string;
@@ -903,8 +904,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "arb";
     }, {
+        name: "arb";
         data: {
             address: string;
             parent: string;
@@ -914,7 +915,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "arb";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"demand">;
         data: z.ZodObject<{
@@ -949,6 +949,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "demand";
         data: {
             address: string;
             parent: string;
@@ -958,8 +959,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "demand";
     }, {
+        name: "demand";
         data: {
             address: string;
             parent: string;
@@ -969,7 +970,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "demand";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"machine">;
         data: z.ZodObject<{
@@ -1004,6 +1004,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "machine";
         data: {
             name: string;
             parent: string;
@@ -1013,8 +1014,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "machine";
     }, {
+        name: "machine";
         data: {
             name: string;
             parent: string;
@@ -1024,7 +1025,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "machine";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"personalmark">;
         data: z.ZodObject<{
@@ -1059,6 +1059,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "personalmark";
         data: {
             address: string;
             parent: string;
@@ -1068,8 +1069,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "personalmark";
     }, {
+        name: "personalmark";
         data: {
             address: string;
             parent: string;
@@ -1079,7 +1080,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "personalmark";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"permission">;
         data: z.ZodObject<{
@@ -1114,6 +1114,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "permission";
         data: {
             address: string;
             parent: string;
@@ -1123,8 +1124,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "permission";
     }, {
+        name: "permission";
         data: {
             address: string;
             parent: string;
@@ -1134,7 +1135,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "permission";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"repository">;
         data: z.ZodObject<{
@@ -1153,8 +1153,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
                 retentive?: "always" | "session" | undefined;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1162,8 +1162,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         }, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1172,9 +1172,10 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1182,11 +1183,11 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "repository";
     }, {
+        name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1194,7 +1195,6 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "repository";
     }>, z.ZodObject<{
         name: z.ZodLiteral<"progress">;
         data: z.ZodObject<{
@@ -1229,6 +1229,7 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             no_cache?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
+        name: "progress";
         data: {
             parent: string;
             index: number;
@@ -1238,8 +1239,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "progress";
     }, {
+        name: "progress";
         data: {
             parent: string;
             index: number;
@@ -1249,99 +1250,10 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
-        name: "progress";
     }>]>;
 }, "strip", z.ZodTypeAny, {
     query: {
-        data: {
-            parent: string;
-            index: number;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
         name: "treasury";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "service";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "arb";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "demand";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "machine";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "personalmark";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "permission";
-    } | {
-        data: {
-            address: string | number;
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive: "always" | "session";
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "repository";
-    } | {
         data: {
             parent: string;
             index: number;
@@ -1351,99 +1263,99 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
+    } | {
+        name: "service";
+        data: {
+            name: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "arb";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "demand";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "machine";
+        data: {
+            name: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "personalmark";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "permission";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "repository";
+        data: {
+            name: string;
+            address: string | number;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
         name: "progress";
+        data: {
+            parent: string;
+            index: number;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive: "always" | "session";
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
     };
 }, {
     query: {
-        data: {
-            parent: string;
-            index: number;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
         name: "treasury";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "service";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "arb";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "demand";
-    } | {
-        data: {
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "machine";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "personalmark";
-    } | {
-        data: {
-            address: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "permission";
-    } | {
-        data: {
-            address: string | number;
-            name: string;
-            parent: string;
-            session?: {
-                network: import("wowok").ENTRYPOINT;
-                retentive?: "always" | "session" | undefined;
-            } | undefined;
-            no_cache?: boolean | undefined;
-        };
-        name: "repository";
-    } | {
         data: {
             parent: string;
             index: number;
@@ -1453,7 +1365,95 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         };
+    } | {
+        name: "service";
+        data: {
+            name: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "arb";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "demand";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "machine";
+        data: {
+            name: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "personalmark";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "permission";
+        data: {
+            address: string;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
+        name: "repository";
+        data: {
+            name: string;
+            address: string | number;
+            parent: string;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
+    } | {
         name: "progress";
+        data: {
+            parent: string;
+            index: number;
+            session?: {
+                network: import("wowok").ENTRYPOINT;
+                retentive?: "always" | "session" | undefined;
+            } | undefined;
+            no_cache?: boolean | undefined;
+        };
     };
 }>;
 export declare const QueryTableItemSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {

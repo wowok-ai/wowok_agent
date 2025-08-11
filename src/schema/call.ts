@@ -818,17 +818,26 @@ export const CallObjectPermissionDataSchema = z.object({
     new_permission: GetMarkNameSchema('Permission')
 }).describe(D.ObjectPermissionChange);
 
+export const WitnessCmd = z.object({
+    witness: WitnessTypeSchema.optional(),
+    cmd: z.number().int().min(1).describe(D.Witness_Cmd),
+    //witness_object: z.string().optional(),
+})
 export const GuardWitness = z.object({
     guards: z.array(GetMarkNameSchema('Guard')),
     witness: z.array(z.object({
         guard: GetMarkNameSchema('Guard'),
         witness: z.any().describe(D.Witness_Value),
-        cmd: z.array(z.number().int().min(1)).describe(D.Witness_Cmd),
+        cmd: z.array(WitnessCmd),
         cited: z.number().describe(D.Witness_Cited),
         type: ValueTypeSchema,
         identifier: GuardIndentifierSchema.describe(D.Guard_Table_Id),
+        witnessTypes: z.array(WitnessTypeSchema),
+        //module: ModuleSchema.optional().describe(`The query module`),
+        //witness_module: ModuleSchema.optional().describe(`The associated module for the query`),
     })).describe('All the witnesses.')
 })
+
 export const ObjectChangedSchema = z.array(z.object({
     object: z.string().describe('Object address'),
     type: z.string().describe('Object type'),
