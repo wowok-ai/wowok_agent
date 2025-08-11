@@ -788,7 +788,10 @@ export const GuardWitness = z.object({
         witnessTypes: z.array(WitnessTypeSchema),
         //module: ModuleSchema.optional().describe(`The query module`),
         //witness_module: ModuleSchema.optional().describe(`The associated module for the query`),
-    })).describe('All the witnesses.')
+    }).describe(`Only the "witness" field needs to be specified by the user. The other fields are only used for providing information prompts and should not be modified.`))
+        .describe(`All the witnesses. The two modes of a Witness: 
+        1. The user provides the address and queries and uses that address; 
+        2. The user provides the address, but queries or uses the address of the associated Witness Type.`)
 });
 export const ObjectChangedSchema = z.array(z.object({
     object: z.string().describe('Object address'),

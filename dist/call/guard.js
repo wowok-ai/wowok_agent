@@ -22,12 +22,12 @@ export class CallGuard extends CallBase {
         // check const
         this.data?.table?.forEach(v => {
             if (!IsValidU8(v.identifier) || v.identifier < 1)
-                ERROR(Errors.InvalidParam, 'table.identifer invalid');
+                ERROR(Errors.InvalidParam, 'table.identifier invalid');
             if (!v.bWitness && v.value === undefined)
                 ERROR(Errors.InvalidParam, 'table.value');
         });
         if (this.data?.table && hasDuplicates(this.data?.table?.map(v => v.identifier))) {
-            ERROR(Errors.InvalidParam, 'table.identifer duplicates');
+            ERROR(Errors.InvalidParam, 'table.identifier duplicates');
         }
         // check root
         var output = [];
@@ -79,12 +79,12 @@ const buildNode = async (guard_node, type_required, table, output) => {
         const f = table.find(v => v.identifier === node.identifier);
         if (f) {
             checkType(f.value_type, type_required, node);
-            if (IsContextWitness(node?.identifer?.witness)) {
+            if (IsContextWitness(node?.witness)) {
                 if (!f.bWitness)
-                    ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${node.identifer}`);
+                    ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${node.identifier}`);
                 if (f.value_type !== ValueType.TYPE_ADDRESS)
-                    ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${node.identifer}`);
-                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node?.identifer?.witness));
+                    ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${node.identifier}`);
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node?.witness));
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier));
             }
             else {

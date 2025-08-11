@@ -6,9 +6,7 @@
 import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, 
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
     IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, BCS,
-    MODULES,
-    WitnessType,
-    IsContextWitness,
+    MODULES, WitnessType, IsContextWitness,
     } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { LocalMark } from "../local/local.js";
@@ -70,12 +68,12 @@ export class CallGuard extends CallBase {
     
         // check const
         this.data?.table?.forEach(v => {
-            if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifer invalid');
+            if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifier invalid');
             if (!v.bWitness && v.value === undefined) ERROR(Errors.InvalidParam, 'table.value');
         })
     
         if (this.data?.table && hasDuplicates(this.data?.table?.map(v => v.identifier))) {
-            ERROR(Errors.InvalidParam, 'table.identifer duplicates')
+            ERROR(Errors.InvalidParam, 'table.identifier duplicates')
         }
     
         // check root
@@ -127,11 +125,11 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
         const f = table.find(v=>v.identifier === node.identifier);
         if (f) {
             checkType(f.value_type, type_required, node);
-            if (IsContextWitness(node?.identifer?.witness)) {
-                if (!f.bWitness) ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${node.identifer}`);
-                if (f.value_type !== ValueType.TYPE_ADDRESS) ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${node.identifer}`);
+            if (IsContextWitness(node?.witness)) {
+                if (!f.bWitness) ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${node.identifier}`);
+                if (f.value_type !== ValueType.TYPE_ADDRESS) ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${node.identifier}`);
 
-                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node?.identifer?.witness)); 
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node?.witness)); 
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier))     
             } else {
                 output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT)); 

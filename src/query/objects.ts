@@ -539,7 +539,6 @@ const tableItemQuery_byIndex = async (query:QueryTableItem_Index) : Promise<Obje
 
 export function raw2type(type_raw:string | undefined) : ObjectBaseType | undefined {
     if (!type_raw) return undefined;
-
     const t = Protocol.Instance().object_name_from_type_repr(type_raw);
     if (t === 'Permission' || t === 'Demand' || t === 'Machine' || t === 'Progress' || t === 'Order' || t === 'Service' || 
         t === 'Treasury' || t === 'Arb' || t === 'Repository' || t === 'Payment' || t === 'Discount' || t === 'Guard' || t === 'Arbitration') {
