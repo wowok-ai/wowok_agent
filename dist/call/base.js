@@ -57,6 +57,7 @@ export const SetWithdrawFee = async (param, treasury) => {
     return { index: BigInt(param.index), remark: param.remark, for_object: object, for_guard: guard, treasury: treasury };
 };
 export function ResponseData(response) {
+    //console.log(response)
     if (response?.digest) {
         const res = [];
         response?.objectChanges?.forEach(v => {

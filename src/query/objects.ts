@@ -639,7 +639,7 @@ export function data2object(data?:any) : ObjectBase {
         case 'Order':
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
-                service:content?.service, amount: content?.amount, agent:content?.agent, arb:content?.dispute, 
+                service:content?.service, amount: content?.amount, agent:content?.agent, arb:content?.dispute, machine:content?.machine,
                 payer:content?.payer, progress:content?.progress, discount:content?.discount, balance:content?.payed,
                 required_info: content?.required_info ? 
                     {pubkey:content?.required_info?.fields?.customer_pub, msg_encrypted:content?.required_info?.fields?.info} 

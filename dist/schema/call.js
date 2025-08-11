@@ -76,16 +76,34 @@ const ObjectsOperationSchema = (object = '') => {
     ]);
 };
 export const ModuleSchema = z.enum(GuardQueryModules()).describe("Modules of the Guard queries");
+const WitnessTypeSchema = z.union([
+    z.literal(WOWOK.ContextType.TYPE_ARB_ARBITRATION).describe(`witness Arb's Arbitration address`),
+    z.literal(WOWOK.ContextType.TYPE_ARB_MACHINE).describe(`witness Arb's Machine address`),
+    z.literal(WOWOK.ContextType.TYPE_ARB_ORDER).describe(`witness Arb's Order address`),
+    z.literal(WOWOK.ContextType.TYPE_ARB_PROGRESS).describe(`witness Arb's Progress address`),
+    z.literal(WOWOK.ContextType.TYPE_ARB_SERVICE).describe(`witness Arb's Service address`),
+    z.literal(WOWOK.ContextType.TYPE_PROGRESS_MACHINE).describe(`witness Progress's Machine address`),
+    z.literal(WOWOK.ContextType.TYPE_ORDER_MACHINE).describe(`witness Order's Machine address`),
+    z.literal(WOWOK.ContextType.TYPE_ORDER_PROGRESS).describe(`witness Order's Progress address`),
+    z.literal(WOWOK.ContextType.TYPE_ORDER_SERVICE).describe(`witness Order's Service address`),
+]).describe(`Specify the address of another actual object associated with the "witness" address.`);
+const QueryObjectIdSchema = z.object({
+    identifier: GuardIndentifierSchema,
+    witness: WitnessTypeSchema.optional(),
+}).describe(`The object address is derived from the Guard table. 
+    If the witness field is specified, this object address in Guard table must be set with 'bWitness' set to true.`);
 const GuardNodeSchema = z.lazy(() => z.union([
     z.object({
-        identifier: GuardIndentifierSchema
+        identifier: GuardIndentifierSchema,
+        witness: WitnessTypeSchema.optional(),
     }).describe(D.Identifier_Description),
     z.object({
         query: z.union([z.number().int().describe(D.QueryId_Description), z.object({
                 module: ModuleSchema,
                 function: z.string().nonempty(),
             }).describe(D.QueryName_Description)]),
-        object: z.union([GetMarkNameSchema(), GuardIndentifierSchema.describe(D.ObjectIdentifier_Description)
+        object: z.union([GetMarkNameSchema(),
+            QueryObjectIdSchema,
         ]).describe(D.ObjectQuery_Description),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeParams_Description)
     }).describe(D.GuardQuery_Description),
@@ -101,6 +119,8 @@ const GuardNodeSchema = z.lazy(() => z.union([
             z.literal(WOWOK.OperatorType.TYPE_LOGIC_NOT).describe(D.TYPE_LOGIC_NOT_Description),
             z.literal(WOWOK.OperatorType.TYPE_LOGIC_AND).describe(D.TYPE_LOGIC_AND_Description),
             z.literal(WOWOK.OperatorType.TYPE_LOGIC_OR).describe(D.TYPE_LOGIC_OR_Description),
+            z.literal(WOWOK.OperatorType.TYPE_SAFE_U64).describe(`Convert number to u64-number`),
+            z.literal(WOWOK.OperatorType.TYPE_SAFE_U8).describe(`Convert number to u8-number`),
         ]).describe(D.GuardLogic_Description),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeLogicParams_Description)
     }).describe(D.GuardNodeLogic_Description),

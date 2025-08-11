@@ -123,6 +123,7 @@ export interface CallResponseError {
 export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 
 export function ResponseData(response: CallResult | undefined) : ResponseData[]  {
+    //console.log(response)
     if ((response as any)?.digest) {
         const res : ResponseData[] = [];
         (response as CallResponse)?.objectChanges?.forEach(v => {

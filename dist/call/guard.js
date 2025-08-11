@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, } from "wowok";
 import { CallBase } from "./base.js";
 import { LocalMark } from "../local/local.js";
 export class CallGuard extends CallBase {
@@ -14,10 +14,10 @@ export class CallGuard extends CallBase {
     }
     async operate(txb, passport, account) {
         if (!this.data?.root) {
-            ERROR(Errors.InvalidParam, 'guard root node invalid');
+            ERROR(Errors.InvalidParam, `guard root node invalid. ${this.data}`);
         }
         if (this.data?.description && !IsValidDesription(this.data?.description)) {
-            ERROR(Errors.IsValidDesription, 'build_guard - ' + this.data.description);
+            ERROR(Errors.IsValidDesription, `build_guard ${this.data.description}`);
         }
         // check const
         this.data?.table?.forEach(v => {
@@ -79,8 +79,18 @@ const buildNode = async (guard_node, type_required, table, output) => {
         const f = table.find(v => v.identifier === node.identifier);
         if (f) {
             checkType(f.value_type, type_required, node);
-            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
-            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier));
+            if (IsContextWitness(node?.identifer?.witness)) {
+                if (!f.bWitness)
+                    ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${node.identifer}`);
+                if (f.value_type !== ValueType.TYPE_ADDRESS)
+                    ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${node.identifer}`);
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node?.identifer?.witness));
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier));
+            }
+            else {
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
+                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.identifier));
+            }
         }
         else {
             ERROR(Errors.InvalidParam, 'node identifier - ' + JSON.stringify(node));
@@ -88,11 +98,11 @@ const buildNode = async (guard_node, type_required, table, output) => {
     }
     else if (node?.query !== undefined) {
         var q;
-        if (typeof (node.query) === 'number') {
-            q = GUARD_QUERIES.find(v => v.query_id === node.query);
+        if (typeof (node.query) === 'string') {
+            q = GUARD_QUERIES.find(v => v.module === node.query.module && v.query_name === node.query.function);
         }
         else {
-            q = GUARD_QUERIES.find(v => v.module === node.query.module && v.query_name === node.query.function);
+            q = GUARD_QUERIES.find(v => v.query_id === node.query);
         }
         if (!q)
             ERROR(Errors.InvalidParam, `${node.query}  invalid. Its a query number or a struct that module and function name specified`);
@@ -115,11 +125,22 @@ const buildNode = async (guard_node, type_required, table, output) => {
             output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, object)); // object address             
         }
         else {
-            const f = table.find(v => v.identifier === node.object);
+            const object = node.object;
+            const f = table.find(v => v.identifier === object.identifier);
             if (f) {
                 checkType(f.value_type, ValueType.TYPE_ADDRESS, node);
-                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
-                output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.object)); // object id
+                if (IsContextWitness(object?.witness)) { // witness object
+                    if (!f.bWitness)
+                        ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${object}`);
+                    if (f.value_type !== ValueType.TYPE_ADDRESS)
+                        ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${object}`);
+                    output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.witness)); // witness object type
+                    output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id  
+                }
+                else {
+                    output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
+                    output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id                    
+                }
             }
             else {
                 ERROR(Errors.InvalidParam, 'node object from identifier - ' + JSON.stringify(node));
@@ -207,6 +228,26 @@ const buildNode = async (guard_node, type_required, table, output) => {
             checkType(ValueType.TYPE_ADDRESS, type_required, node);
             if (node.parameters.length !== 1)
                 ERROR(Errors.InvalidParam, 'node TYPE_NUMBER_ADDRESS parameters length must == 1' + JSON.stringify(node));
+            const p = node.parameters.reverse();
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], 'number', table, output);
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+        }
+        else if (node?.calc === OperatorType.TYPE_SAFE_U8) {
+            checkType(ValueType.TYPE_U8, type_required, node);
+            if (node.parameters.length !== 1)
+                ERROR(Errors.InvalidParam, 'node TYPE_SAFE_U8 parameters length must == 1' + JSON.stringify(node));
+            const p = node.parameters.reverse();
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], 'number', table, output);
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+        }
+        else if (node?.calc === OperatorType.TYPE_SAFE_U64) {
+            checkType(ValueType.TYPE_U64, type_required, node);
+            if (node.parameters.length !== 1)
+                ERROR(Errors.InvalidParam, 'node TYPE_SAFE_U64 parameters length must == 1' + JSON.stringify(node));
             const p = node.parameters.reverse();
             for (let i = 0; i < p.length; ++i) {
                 await buildNode(p[i], 'number', table, output);
