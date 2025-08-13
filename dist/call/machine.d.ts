@@ -47,7 +47,7 @@ export interface CallMachine_Data {
         parent: ParentProgress | null;
     };
     progress_hold?: {
-        progress?: string;
+        progress: string;
         operation: ProgressNext;
         bHold: boolean;
         adminUnhold?: boolean;
@@ -66,20 +66,17 @@ export interface CallMachine_Data {
     consensus_repository?: ObjectsOp;
     nodes?: {
         op: 'add';
+        bReplace?: boolean;
         data: Machine_Node[];
     } | {
         op: 'remove';
         names: string[];
-        bTransferMyself?: boolean;
     } | {
         op: 'rename node';
         data: {
             old: string;
             new: string;
         }[];
-    } | {
-        op: 'add from myself';
-        addresses: string[];
     } | {
         op: 'remove pair';
         pairs: {
@@ -119,6 +116,7 @@ export declare class CallMachine extends CallBase {
     private checkPublished;
     private checkNotPublished;
     private checkNotPaused;
+    private forwardPermission;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
 }

@@ -1,7 +1,8 @@
 import { TransactionBlock, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Repository,  Repository_Policy_Mode, Repository_Value as Wowok_Repository_Value,
     PermissionObject, uint2address, IsValidU256, ValueType, Repository_Policy, Repository_Value2,
-    RepositoryValueType, Bcs
+    RepositoryValueType, Bcs,
+    IsValidAddress
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
@@ -138,6 +139,7 @@ export class CallRepository extends CallBase {
     async call(account?:string) : Promise<CallResult>   {
         var checkOwner = false;
         const perms : PermissionIndexType[] = []; 
+        const guards: string[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
                 perms.push(index);
@@ -152,7 +154,7 @@ export class CallRepository extends CallBase {
             add_perm(PermissionIndex.repository_description)
         }
         if (this.data?.mode != null && this.object_address) {
-           add_perm(PermissionIndex.repository_mode)
+            add_perm(PermissionIndex.repository_mode)
         }
         if (this.data?.reference != null) {
             add_perm(PermissionIndex.repository_reference)
@@ -175,7 +177,10 @@ export class CallRepository extends CallBase {
                     if (p.permissionIndex != null) {
                         add_perm(p.permissionIndex); // permission check
                     } 
-
+                    if (p?.guard) {
+                        if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                        guards.push(p.guard);
+                    }
                     await this.resolve_by_key(d, p);
                 } else {
                     if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
@@ -196,6 +201,10 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null) {
                             add_perm(p.permissionIndex); // permission check
                         } 
+                        if (p?.guard) {
+                            if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                            guards.push(p.guard);
+                        }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
                             ERROR(Errors.Fail, `CallRepository_Data.data.add_by_address: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`)
@@ -212,6 +221,10 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
                             add_perm(p.permissionIndex); // permission check
                         } 
+                        if (p?.guard) {
+                            if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                            guards.push(p.guard);
+                        }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
                             ERROR(Errors.Fail, `CallRepository_Data.data.remove: ${value.key} policy not match on the POLICY_MODE_STRICT mode.`)
@@ -225,7 +238,7 @@ export class CallRepository extends CallBase {
         }
 
         if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, [], checkOwner, undefined, account)
+            return await this.check_permission_and_call(this.permission_address, perms, [...guards], checkOwner, undefined, account)
         }
         return await this.exec(account);
     }

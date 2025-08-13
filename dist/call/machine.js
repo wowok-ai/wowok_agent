@@ -24,6 +24,22 @@ export class CallMachine extends CallBase {
                 ERROR(Errors.Fail, `Machine object has been paused and operation (${op}) cannot proceed.`);
             }
         };
+        this.forwardPermission = async (progress, next_node_name, forward, account) => {
+            if (this.object_address) { // fetch guard
+                const [p, acc] = await Promise.all([
+                    await LocalMark.Instance().get_address(progress),
+                    await Account.Instance().get(account)
+                ]);
+                if (!p)
+                    ERROR(Errors.InvalidParam, `forwardPermission.progress ${progress}`);
+                if (!acc)
+                    ERROR(Errors.InvalidParam, `forwardPermission.account ${account}`);
+                const res = await Progress.QueryForwardPermission(p, this.object_address, acc.address, next_node_name, forward);
+                if (!res || !res.bSuccess)
+                    ERROR(Errors.Fail, `forwardPermission ${next_node_name} ${forward}`);
+                return res;
+            }
+        };
         this.data = data;
     }
     async resolveForward(forward) {
@@ -110,6 +126,15 @@ export class CallMachine extends CallBase {
             if (this.data.progress_hold.adminUnhold) {
                 add_perm(PermissionIndex.progress_unhold);
             }
+            else {
+                const r = await this.forwardPermission(this.data.progress_hold?.progress, this.data.progress_hold?.operation?.next_node_name, this.data.progress_hold?.operation?.forward, account);
+                if (r?.guard) {
+                    guards.push(r.guard);
+                }
+                if (r?.permission_index) {
+                    add_perm(r.permission_index);
+                }
+            }
         }
         if (this.data?.bPaused != null) {
             add_perm(PermissionIndex.machine_pause);
@@ -119,19 +144,12 @@ export class CallMachine extends CallBase {
         }
         if (this.data?.progress_next != null) {
             this.checkPublished(`progress_next`);
-            if (this.object_address) { // fetch guard
-                const [p, acc] = await Promise.all([
-                    await LocalMark.Instance().get_address(this.data?.progress_next.progress),
-                    await Account.Instance().get(account)
-                ]);
-                if (!p)
-                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-                if (!acc)
-                    ERROR(Errors.InvalidParam, 'CallMachine_Data.account');
-                const guard = await Progress.QueryForwardGuard(p, this.object_address, acc.address, this.data.progress_next.operation.next_node_name, this.data.progress_next.operation.forward);
-                if (guard) {
-                    guards.push(guard);
-                }
+            const r = await this.forwardPermission(this.data.progress_next.progress, this.data.progress_next?.operation?.next_node_name, this.data.progress_next?.operation?.forward, account);
+            if (r?.guard) {
+                guards.push(r.guard);
+            }
+            if (r?.permission_index) {
+                add_perm(r.permission_index);
             }
         }
         if (this.permission_address) {
@@ -220,16 +238,14 @@ export class CallMachine extends CallBase {
             }
         }
         if (this.data?.progress_hold != null) {
-            const p = this.data?.progress_hold.progress
-                ? await LocalMark.Instance().get_address(this.data?.progress_hold.progress)
-                : new_progress?.get_object();
+            const p = await LocalMark.Instance().get_address(this.data?.progress_hold.progress);
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_hold.progress');
             if (this.data?.progress_hold.adminUnhold) {
                 Progress.From(txb, obj?.get_object(), permission, p).unhold(this.data.progress_hold.operation, pst);
             }
             else {
-                Progress.From(txb, obj?.get_object(), permission, p).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold);
+                Progress.From(txb, obj?.get_object(), permission, p).hold(this.data.progress_hold.operation, this.data.progress_hold.bHold, pst);
             }
         }
         if (this.data?.progress_task != null) {
@@ -310,17 +326,14 @@ export class CallMachine extends CallBase {
                             pairs: pairs,
                         });
                     }
-                    obj?.add_node(nodes, pst);
+                    obj?.add_node(nodes, this.data.nodes?.bReplace, pst);
                     break;
                 }
                 case 'remove':
-                    obj?.remove_node(this.data.nodes.names, this.data.nodes?.bTransferMyself, pst);
+                    obj?.remove_node(this.data.nodes.names, pst);
                     break;
                 case 'rename node':
                     this.data.nodes.data.forEach(v => obj?.rename_node(v.old, v.new, pst));
-                    break;
-                case 'add from myself':
-                    obj?.add_node2(this.data.nodes.addresses, pst);
                     break;
                 case 'add forward':
                     for (let i = 0; i < this.data.nodes.data.length; ++i) {

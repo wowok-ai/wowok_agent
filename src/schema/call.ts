@@ -302,7 +302,7 @@ export const CallMachineDataSchema = z.object({
         }).nullable()
     }).optional().describe(D.Progress_Parent_Description),
     progress_hold: z.object({
-        progress:OptionProgressObjectSchema,
+        progress:GetMarkNameSchema('Progress'),
         operation:ProgressOperationSchema,
         bHold: z.boolean().describe(D.Hold_bHold_Description),
         adminUnhold: z.boolean().optional().describe(D.Hold_adminUnhold_Description),
@@ -325,12 +325,12 @@ export const CallMachineDataSchema = z.object({
     nodes: z.union([
         z.object({
             op:z.literal('add'),
+            bReplace:z.boolean().optional().describe(D.Machine_AddNode_bReplace),
             data: z.array(MachineNodeSchema),
         }).describe(D.Machine_AddNode_Description),
         z.object({
             op:z.literal('remove'),
             names: z.array(z.string().nonempty()).describe(D.Machine_RemoveNode_Name),
-            bTransferMyself: z.boolean().optional().describe(D.Machine_RemoveNode_bTransferMyself)
         }).describe(D.Machine_RemoveNode_Description),
         z.object({
             op:z.literal('rename node'),
@@ -339,10 +339,6 @@ export const CallMachineDataSchema = z.object({
                 new:z.string().nonempty().describe(D.Machine_RenameNode_New),
             })).describe('Rename the nodes.')
         }),
-        z.object({
-            op:z.literal('add from myself'),
-            addresses:z.array(GetMarkNameSchema('Node'))
-        }).describe(D.Machine_AddFromSelf_Description),
         z.object({
             op:z.literal('remove pair'),
             pairs:z.array(z.object({
@@ -533,6 +529,7 @@ export const CallRepositoryDataSchema = z.object({
                 description: z.string(),
                 dataType: RepositoryValueTypeSchema,
                 permissionIndex: GetPermissionIndexSchema('biz').transform(val => Number(val)).optional().nullable(),
+                guard: GetMarkNameSchema('Guard').optional(),
             }).describe(D.Repository_Policy))
         }).describe(D.Policy_Add), 
         z.object({
