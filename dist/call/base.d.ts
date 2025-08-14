@@ -1,6 +1,6 @@
 import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject } from 'wowok';
 import { ObjectBase, ObjectBaseType } from '../query/objects.js';
-import { SessionOption } from 'src/common.js';
+import { SessionOption } from '../common.js';
 export interface Namedbject {
     name?: string;
     tags?: string[];

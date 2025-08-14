@@ -190,8 +190,7 @@ export const Mode_Relax = `Allow data names outside the Repository's consensus p
 export const Mode_Strict = `Only allow data names within the Repository's consensus policy and its data to be added`;
 export const Repository_Mode_Description = `Whether operations on data names strictly follow the requirements of the policy consensus`;
 export const Repository_Policy_Description = `The consensus policy defines the meaning of data names, the types of their data, and write permissions. When data is written to the Repository, operational permission checks are performed based on their data names`;
-export const Repository_Policy = `A consensus policy: key (data name), description (meaning of the data name), dataType (type of its data), permissionIndex (write permission requirements for its data), guard (Additional condition verification for data writing).
-    At least one of 'permissionIndex' and 'guard' must be specified`;
+export const Repository_Policy = `A consensus policy: key (data name), description (meaning of the data name), dataType (type of its data), permissionIndex (write permission requirements for its data), guard (Additional condition verification for data writing).`; //！ At least one of 'permissionIndex' and 'guard' must be specified
 export const Policy_Add = 'Add or set consensus policies';
 export const Policy_Remove = `Delete the corresponding consensus policies based on the list of data names (keys)`;
 export const Policy_Removall = `Remove all consensus policies`;

@@ -2,13 +2,13 @@
 
 import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject,
-    ENTRYPOINT
+    Protocol,
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { ObjectBase, ObjectBaseType, query_objects, query_personal, raw2type} from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
-import { SessionOption } from 'src/common.js';
+import { SessionOption } from '../common.js';
 
 export interface Namedbject {
     name?: string;  // name of the object, if not defined, the object will be created without name      
@@ -260,10 +260,14 @@ export class CallBase {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-        const r = await Account.Instance().sign_and_commit(txb, account);
+        let r = await Account.Instance().sign_and_commit(txb, account);
         if (!r) {
             ERROR(Errors.Fail, 'sign and commit failed');
         }
+        if ((r as any)?.digest && !(r as any)?.objectChanges) {  // SUI network bug always. try fixing it.
+            r = await Protocol.Client().getTransactionBlock({digest:(r as any)?.digest, options:{showObjectChanges:true}})
+        }
+        
         // save the mark locally, anyway
         const res = ResponseData(r);
         for (let i = 0; i < res.length; ++i) {

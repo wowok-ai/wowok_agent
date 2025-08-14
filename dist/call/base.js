@@ -1,4 +1,4 @@
-import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock } from 'wowok';
+import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock, Protocol, } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { query_objects, query_personal, raw2type } from '../query/objects.js';
@@ -187,9 +187,12 @@ export class CallBase {
             Resource.From(txb, this.resouceObject).launch(); //@ resource launch, if created.
             this.resouceObject = undefined;
         }
-        const r = await Account.Instance().sign_and_commit(txb, account);
+        let r = await Account.Instance().sign_and_commit(txb, account);
         if (!r) {
             ERROR(Errors.Fail, 'sign and commit failed');
+        }
+        if (r?.digest && !r?.objectChanges) { // SUI network bug always. try fixing it.
+            r = await Protocol.Client().getTransactionBlock({ digest: r?.digest, options: { showObjectChanges: true } });
         }
         // save the mark locally, anyway
         const res = ResponseData(r);
