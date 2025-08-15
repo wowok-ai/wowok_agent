@@ -5,7 +5,8 @@
 
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
-    Progress, History, ERROR, Errors, Tags, uint2address, ENTRYPOINT,
+    Progress, History, ERROR, Errors, Tags, uint2address, DeGuardData, DeGuardConstant,
+    GuardParser,
 } from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
@@ -242,11 +243,18 @@ export interface ObjectDiscount extends ObjectBase {
     time_end: string;
 }
 
+export interface GuardGraphData {
+    root: DeGuardData;
+    constants: DeGuardConstant[];
+}
+
 export interface ObjectGuard extends ObjectBase {
     description: string;
     input: Uint8Array;
     identifier: {id:number; bWitness:boolean; value:Uint8Array}[];
+    graph: GuardGraphData;
 }
+
 export interface ObjectPersonal extends ObjectBase {
     address: string; 
     like: number;
@@ -720,12 +728,15 @@ export function data2object(data?:any) : ObjectBase {
                 name:content?.name
             } as ObjectDiscount;   
         case 'Guard':
+            const graph = GuardParser.DeGuardObject_FromData(content?.constants, content?.input?.fields?.bytes);
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 description:content?.description, input:Uint8Array.from(content?.input?.fields?.bytes),
                 identifier:content?.constants?.map((v:any) => {
                     return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, value:Uint8Array.from(v?.fields?.value)}
-                })
+                }), graph: {
+                    root: graph.object, constants: graph.constant
+                }
             } as ObjectGuard;  
         case 'PersonalMark' :
             return {
@@ -803,4 +814,3 @@ export function data2object(data?:any) : ObjectBase {
 
     return {object:id, type:undefined, type_raw:type_raw, owner:owner, version:version, }
 }
-

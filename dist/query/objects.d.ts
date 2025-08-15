@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags } from 'wowok';
+import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags, DeGuardData, DeGuardConstant } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
 import { AccountOrMark_Address } from '../call/base.js';
 import { SessionOption } from '../common.js';
@@ -241,6 +241,10 @@ export interface ObjectDiscount extends ObjectBase {
     time_start: string;
     time_end: string;
 }
+export interface GuardGraphData {
+    root: DeGuardData;
+    constants: DeGuardConstant[];
+}
 export interface ObjectGuard extends ObjectBase {
     description: string;
     input: Uint8Array;
@@ -249,6 +253,7 @@ export interface ObjectGuard extends ObjectBase {
         bWitness: boolean;
         value: Uint8Array;
     }[];
+    graph: GuardGraphData;
 }
 export interface ObjectPersonal extends ObjectBase {
     address: string;
@@ -341,4 +346,5 @@ export declare const queryTableItem_TreasuryHistory: (query: QueryTableItem_Inde
 export declare const queryTableItem_MarkTag: (query: QueryTableItem_Address) => Promise<ObjectBase>;
 export declare function raw2type(type_raw: string | undefined): ObjectBaseType | undefined;
 export declare function data2object(data?: any): ObjectBase;
+export declare const guard_graph: (guard: string) => void;
 //# sourceMappingURL=objects.d.ts.map

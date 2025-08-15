@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, uint2address, } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, uint2address, GuardParser, } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
@@ -382,12 +382,15 @@ export function data2object(data) {
                     name: content?.name
                 };
             case 'Guard':
+                const graph = GuardParser.DeGuardObject_FromData(content?.constants, content?.input?.fields?.bytes);
                 return {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     description: content?.description, input: Uint8Array.from(content?.input?.fields?.bytes),
                     identifier: content?.constants?.map((v) => {
                         return { id: v?.fields?.identifier, bWitness: v?.fields?.bWitness, value: Uint8Array.from(v?.fields?.value) };
-                    })
+                    }), graph: {
+                        root: graph.object, constants: graph.constant
+                    }
                 };
             case 'PersonalMark':
                 return {
@@ -463,4 +466,6 @@ export function data2object(data) {
     }
     return { object: id, type: undefined, type_raw: type_raw, owner: owner, version: version, };
 }
+export const guard_graph = (guard) => {
+};
 //# sourceMappingURL=objects.js.map
