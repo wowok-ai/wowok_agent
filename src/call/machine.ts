@@ -1,13 +1,11 @@
 import { PassportObject, Errors, ERROR, Permission, PermissionIndex, TransactionBlock, TxbAddress,
     PermissionIndexType, Machine, Machine_Forward as Wowok_Machine_Forward, Machine_Node_Pair as Wowok_Machine_Node_Pair,
     Machine_Node as Wowok_Machine_Node, ParentProgress, Progress, ProgressNext, PermissionObject, OrderWrap, Service, ServiceWrap,
-    ForwardPermission,
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, 
     GetObjectParam, Namedbject, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission } from "./base.js";
-import { ObjectMachine, query_objects } from '../query/objects.js';
+import { ObjectMachine, ObjectProgress, query_objects, queryTableItem_MachineNode, TableItem_MachineNode } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
-import { Account } from '../local/account.js';
 
 export interface Supply {
     service: string;
@@ -119,19 +117,23 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     }
 
     private forwardPermission = async (progress:string, next_node_name:string, forward:string, 
-        account?:string) : Promise<ForwardPermission | undefined> => {
+        account?:string) : Promise<Machine_Forward | undefined> => {
         if (this.object_address) { // fetch guard
-            const [p, acc] = await Promise.all([
-                await LocalMark.Instance().get_address(progress), 
-                await Account.Instance().get(account)]);
-
-            if (!p) ERROR(Errors.InvalidParam, `forwardPermission.progress ${progress}`);
-            if (!acc) ERROR(Errors.InvalidParam, `forwardPermission.account ${account}`);
-
-            const res = await Progress.QueryForwardPermission(p, this.object_address, acc.address, 
-                next_node_name, forward);
-            if (!res || !res.bSuccess) ERROR(Errors.Fail, `forwardPermission ${next_node_name} ${forward}`)
-            return res                  
+            const p = await query_objects({objects:[progress], no_cache:true});
+            if (!p || !p.objects || p.objects.length !== 1 || p.objects[0].type !== 'Progress') {
+                ERROR(Errors.InvalidParam, `CallMachine.forwardPermission.progress: ${progress}`);
+            }
+            const node = await queryTableItem_MachineNode({parent:this.object_address, name:next_node_name});
+            if (node && node.type === 'TableItem_MachineNode') {
+                const r = (node as TableItem_MachineNode).node.pairs.find(v => v.prior_node === (p!.objects![0] as ObjectProgress).current)?.forwards.find(v => v.name === forward);
+                if (r) {
+                    return {name:r.name, namedOperator:r.namedOperator, permission:r.permission,   
+                        weight:r.weight, guard:(r.guard as string | undefined), suppliers:r.suppliers?.map(v => {
+                            return {service:v.object as string, bRequired:v.bRequired};
+                        }
+                    )};
+                }
+            }
         }
     }
 
@@ -198,8 +200,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 if (r?.guard) {
                     guards.push(r.guard)
                 }
-                if (r?.permission_index) {
-                    add_perm(r.permission_index)
+                if (r?.permission != null) {
+                    add_perm(r.permission)
                 }
             }
         }
@@ -221,8 +223,8 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
             if (r?.guard) {
                 guards.push(r.guard)
             }
-            if (r?.permission_index) {
-                add_perm(r.permission_index)
+            if (r?.permission != null) {
+                add_perm(r.permission)
             }
         }
         if (this.permission_address) {

@@ -1,8 +1,7 @@
 import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, Service, } from 'wowok';
 import { CallBase, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
-import { query_objects } from '../query/objects.js';
+import { query_objects, queryTableItem_MachineNode } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
-import { Account } from '../local/account.js';
 export class CallMachine extends CallBase {
     constructor(data) {
         super();
@@ -26,18 +25,20 @@ export class CallMachine extends CallBase {
         };
         this.forwardPermission = async (progress, next_node_name, forward, account) => {
             if (this.object_address) { // fetch guard
-                const [p, acc] = await Promise.all([
-                    await LocalMark.Instance().get_address(progress),
-                    await Account.Instance().get(account)
-                ]);
-                if (!p)
-                    ERROR(Errors.InvalidParam, `forwardPermission.progress ${progress}`);
-                if (!acc)
-                    ERROR(Errors.InvalidParam, `forwardPermission.account ${account}`);
-                const res = await Progress.QueryForwardPermission(p, this.object_address, acc.address, next_node_name, forward);
-                if (!res || !res.bSuccess)
-                    ERROR(Errors.Fail, `forwardPermission ${next_node_name} ${forward}`);
-                return res;
+                const p = await query_objects({ objects: [progress], no_cache: true });
+                if (!p || !p.objects || p.objects.length !== 1 || p.objects[0].type !== 'Progress') {
+                    ERROR(Errors.InvalidParam, `CallMachine.forwardPermission.progress: ${progress}`);
+                }
+                const node = await queryTableItem_MachineNode({ parent: this.object_address, name: next_node_name });
+                if (node && node.type === 'TableItem_MachineNode') {
+                    const r = node.node.pairs.find(v => v.prior_node === p.objects[0].current)?.forwards.find(v => v.name === forward);
+                    if (r) {
+                        return { name: r.name, namedOperator: r.namedOperator, permission: r.permission,
+                            weight: r.weight, guard: r.guard, suppliers: r.suppliers?.map(v => {
+                                return { service: v.object, bRequired: v.bRequired };
+                            }) };
+                    }
+                }
             }
         };
         this.data = data;
@@ -131,8 +132,8 @@ export class CallMachine extends CallBase {
                 if (r?.guard) {
                     guards.push(r.guard);
                 }
-                if (r?.permission_index) {
-                    add_perm(r.permission_index);
+                if (r?.permission != null) {
+                    add_perm(r.permission);
                 }
             }
         }
@@ -148,8 +149,8 @@ export class CallMachine extends CallBase {
             if (r?.guard) {
                 guards.push(r.guard);
             }
-            if (r?.permission_index) {
-                add_perm(r.permission_index);
+            if (r?.permission != null) {
+                add_perm(r.permission);
             }
         }
         if (this.permission_address) {

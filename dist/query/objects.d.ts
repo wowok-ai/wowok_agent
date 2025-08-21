@@ -346,5 +346,4 @@ export declare const queryTableItem_TreasuryHistory: (query: QueryTableItem_Inde
 export declare const queryTableItem_MarkTag: (query: QueryTableItem_Address) => Promise<ObjectBase>;
 export declare function raw2type(type_raw: string | undefined): ObjectBaseType | undefined;
 export declare function data2object(data?: any): ObjectBase;
-export declare const guard_graph: (guard: string) => void;
 //# sourceMappingURL=objects.d.ts.map

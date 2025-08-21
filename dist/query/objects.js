@@ -64,7 +64,7 @@ export const query_objects = async (query) => {
     }
     if (pending.length > 0) {
         const res = await Protocol.Client(await session_resolve(query.session))
-            .multiGetObjects({ ids: [...pending], options: { showContent: true, showOwner: true } });
+            .multiGetObjects({ ids: [...pending], options: { showContent: true, showOwner: true, showPreviousTransaction: true } });
         for (let i = 0; i < res.length; ++i) {
             const d = res[i]?.data;
             if (d) {
@@ -389,7 +389,13 @@ export function data2object(data) {
                     identifier: content?.constants?.map((v) => {
                         return { id: v?.fields?.identifier, bWitness: v?.fields?.bWitness, value: Uint8Array.from(v?.fields?.value) };
                     }), graph: {
-                        root: graph.object, constants: graph.constant
+                        root: graph.object, constants: graph.constant, description: `Guard Graph is a multi-layer tree structure of logic and data. 
+                    Each ordered sub-node is an operation parameter of its parent node. Eventually, the verification result of True or False at the root node is determined through a right-associative post-order traversal. 
+                    Its data sources are classified into several types: 
+                    1. Real-time query results of on-chain WoWok object data;
+                    2. Constants provided by the constructor; 
+                    3. Witness data provided by the verifier; 
+                    4. Results obtained through data or logical operations.`
                     }
                 };
             case 'PersonalMark':
@@ -466,6 +472,4 @@ export function data2object(data) {
     }
     return { object: id, type: undefined, type_raw: type_raw, owner: owner, version: version, };
 }
-export const guard_graph = (guard) => {
-};
 //# sourceMappingURL=objects.js.map
