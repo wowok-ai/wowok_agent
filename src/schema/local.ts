@@ -12,7 +12,7 @@ export const QueryAccountSchemaDescription = `Query local account information, i
 export const QueryAccountSchema = z.object({
     name_or_address: z.string().optional().describe("Your account name or address. undefined means default account."),
     balance_or_coin: z.nativeEnum(BalanceOrCoin).optional().describe("Query the balance or coin objects of the account."),
-    token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified."),
+    token_type: z.string().optional().describe("Token type, default to the platform token if not specified."),
     session: SessionSchema,
 });
 

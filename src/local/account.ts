@@ -280,7 +280,7 @@ export class Account {
     // token_type is 0x2::sui::SUI, if not specified.
     balance = async (address_or_name?:string, token_type?:string, session?:SessionOption) : Promise<CoinBalance | undefined> => {
         const a = await this.get(address_or_name);
-        const token_type_ = token_type ?? '0x2::sui::SUI';
+        const token_type_ = token_type ?? Protocol.Instance().networkPlatformCoin(session?.network);
         if (a) {
             return await Protocol.Client(await session_resolve(session)).getBalance({owner: a.address, coinType:token_type_});
         }
