@@ -10,7 +10,7 @@ Wowok Agent for AI: [https://github.com/wowok-ai/wowok_agent](https://github.com
 MCP Server: [https://github.com/wowok-ai/mcp_server](https://github.com/wowok-ai/mcp_server)   
 Standalone MCP Servers: [https://github.com/wowok-ai/mcpServers](https://github.com/wowok-ai/mcpServers)   
 Website: [https://wowok.net/](https://wowok.net/)   
-Docs: [https://github.com/wowok-ai/Documents](https://github.com/wowok-ai/Documents)   
+Docs: [https://github.com/wowok-ai/docs](https://github.com/wowok-ai/docs)   
 X: [https://x.com/Wowok_Ai](https://x.com/Wowok_Ai)
 
 

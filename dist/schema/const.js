@@ -141,7 +141,7 @@ export const Progress_Task_Description = `Set the task of Progress (e.g., order 
 export const Progress_Next_Description = `Complete an operation and submit deliverables (e.g., purchase orders)`;
 export const Deliverble_Msg = `Operation remarks`;
 export const Deliverble_Orders = `Completed purchase Order objects`;
-export const Machine_Endpoint_Description = `HTTPS endpoint of the Machine object. It provides a view for the process operations of Progress, such as integrating complex operations like purchasing orders from suppliers`;
+export const Machine_Endpoint_Description = `HTTPS endpoint of the Machine object. It provides a view for the process operations of Progress, such as integrating complex operations like purchasing orders from suppliers. Parameters to the endpoint: "?&machine={machine id}&progress={progress id}"`;
 export const Machine_Repository_Description = `Set consensus Repository objects. Facilitates data sharing and collaboration`;
 export const Machine_AddNode_Description = `Add or update Machine nodes`;
 export const Machine_AddNode_bReplace = `True: The new node content will completely replace the original node; False: The new node content will be added to the original node.`;
@@ -215,7 +215,8 @@ export const Arbitration_Vote = `Vote on the claims of the Arb object. If Arbitr
 export const Arbitration_Feedback = `feedback of the arbitration result`;
 export const Arbitration_Arbitratation = `Determine arbitration feedback and conclusions for the Arb object. If 'indemnity' is set, the order owner can extract the corresponding token amount from the order object`;
 export const Arbitration_Endpoint = `HTTPS endpoint of the Arbitration object.
-    Used to exchange non-public information or large-capacity information in some special scenarios`;
+    Used to exchange non-public information or large-capacity information in some special scenarios. 
+    Parameters to the endpoint: "?&arbitration={arbitration id}&arb={arb id}"`;
 export const Arbitration_Fee = `The cost of initiating the arbitration. 0 or undefined means the arbitration is free of charge.`;
 export const VotingGuard_Description = `Voting settings: guard (permission verification), voting_weight (voting weight)`;
 export const Arbitration_VotingGuard_Add = `Add or set voting permission verification and voting weight`;
@@ -255,7 +256,8 @@ export const Order_Refund_Guard = `Refund through the refund Guard object`;
 export const Service_Order_Refund = `Refund order`;
 export const Service_Order_Withdraw = `Withdraw order funds`;
 export const Service_Order_Payer = `Change the order owner`;
-export const Service_Endpoint = `Https endpoint.Provide a view for browsing detailed product information`;
+export const Service_Endpoint = `Https endpoint. Provide a view for browsing detailed product information. 
+    Parameters to the Http endpoint: "?&service={service id}&product={product name}"`;
 export const Service_Payee = `Change the order owner`;
 export const Service_Discount = `Send discount coupons to the receivers`;
 export const Discount_Name = `The coupon name`;

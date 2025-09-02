@@ -115,7 +115,7 @@ export declare const Progress_Task_Description = "Set the task of Progress (e.g.
 export declare const Progress_Next_Description = "Complete an operation and submit deliverables (e.g., purchase orders)";
 export declare const Deliverble_Msg = "Operation remarks";
 export declare const Deliverble_Orders = "Completed purchase Order objects";
-export declare const Machine_Endpoint_Description = "HTTPS endpoint of the Machine object. It provides a view for the process operations of Progress, such as integrating complex operations like purchasing orders from suppliers";
+export declare const Machine_Endpoint_Description = "HTTPS endpoint of the Machine object. It provides a view for the process operations of Progress, such as integrating complex operations like purchasing orders from suppliers. Parameters to the endpoint: \"?&machine={machine id}&progress={progress id}\"";
 export declare const Machine_Repository_Description = "Set consensus Repository objects. Facilitates data sharing and collaboration";
 export declare const Machine_AddNode_Description = "Add or update Machine nodes";
 export declare const Machine_AddNode_bReplace = "True: The new node content will completely replace the original node; False: The new node content will be added to the original node.";
@@ -182,7 +182,7 @@ export declare const Vote_Agrees = "Supported claim (number)";
 export declare const Arbitration_Vote = "Vote on the claims of the Arb object. If Arbitration.voting_guard has been set, the 'voting_guard' must be one of them";
 export declare const Arbitration_Feedback = "feedback of the arbitration result";
 export declare const Arbitration_Arbitratation = "Determine arbitration feedback and conclusions for the Arb object. If 'indemnity' is set, the order owner can extract the corresponding token amount from the order object";
-export declare const Arbitration_Endpoint = "HTTPS endpoint of the Arbitration object.\n    Used to exchange non-public information or large-capacity information in some special scenarios";
+export declare const Arbitration_Endpoint = "HTTPS endpoint of the Arbitration object.\n    Used to exchange non-public information or large-capacity information in some special scenarios. \n    Parameters to the endpoint: \"?&arbitration={arbitration id}&arb={arb id}\"";
 export declare const Arbitration_Fee = "The cost of initiating the arbitration. 0 or undefined means the arbitration is free of charge.";
 export declare const VotingGuard_Description = "Voting settings: guard (permission verification), voting_weight (voting weight)";
 export declare const Arbitration_VotingGuard_Add = "Add or set voting permission verification and voting weight";
@@ -219,7 +219,7 @@ export declare const Order_Refund_Guard = "Refund through the refund Guard objec
 export declare const Service_Order_Refund = "Refund order";
 export declare const Service_Order_Withdraw = "Withdraw order funds";
 export declare const Service_Order_Payer = "Change the order owner";
-export declare const Service_Endpoint = "Https endpoint.Provide a view for browsing detailed product information";
+export declare const Service_Endpoint = "Https endpoint. Provide a view for browsing detailed product information. \n    Parameters to the Http endpoint: \"?&service={service id}&product={product name}\"";
 export declare const Service_Payee = "Change the order owner";
 export declare const Service_Discount = "Send discount coupons to the receivers";
 export declare const Discount_Name = "The coupon name";

@@ -7,6 +7,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     concatenate, TransactionBlock, Protocol, FnCallType, hasDuplicates, insertAtHead,
     IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, BCS,
     MODULES, WitnessType, IsContextWitness,
+    WitnessForModule,
     } from "wowok";
 import { CallBase, CallResult, Namedbject } from "./base.js";
 import { LocalMark } from "../local/local.js";
@@ -16,6 +17,10 @@ export interface GuardConst {
     bWitness: boolean; // witness(verifiee provides while verifying in the future) or normal(verifier provides now)
     value_type: ValueType; // data value type
     value?: any; // if bWitness true, value ignores; otherwise, data.
+}
+
+interface GuardConstCheck extends GuardConst {
+    cmd?: MODULES;
 }
 
 interface FunctiionQuery {
@@ -147,7 +152,7 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
         }
 
         if (!q) ERROR(Errors.InvalidParam, `${node.query}  invalid. Its a query number or a struct that module and function name specified`);
-        
+
         checkType(q!.return, type_required, node); // Return type checking
         if (q!.parameters.length === node.parameters.length) {
             for (let i = node.parameters.length - 1; i >= 0; --i) { // stack: first in, last out
@@ -167,16 +172,35 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
             output.push(Bcs.getInstance().ser(ValueType.TYPE_ADDRESS, object)); // object address             
         } else {
             const object = node.object as QueryObjectId;
-            const f = table.find(v=>v.identifier === object.identifier);
+            const f = table.find(v=>v.identifier === object.identifier) as GuardConstCheck | undefined;
             if (f) {
                 checkType(f.value_type, ValueType.TYPE_ADDRESS, node);
                 if (IsContextWitness(object?.witness)) { // witness object
                     if (!f.bWitness) ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${object}`);
                     if (f.value_type !== ValueType.TYPE_ADDRESS) ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${object}`);
+                    const m = WitnessForModule(object?.witness!);
+                    if (m !== q.module) {
+                        ERROR(Errors.InvalidParam, `witness module not consistent with query module. ${q} ${object}`);
+                    }
 
+                    if (f?.cmd) {
+                        if (f.cmd !== q.module) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        }
+                    } else {
+                        f.cmd = m;
+                    }
+                    
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.witness)); // witness object type
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id  
                 } else {
+                    if (f?.cmd) {
+                        if (f.cmd !== q.module) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        }
+                    } else {
+                        f.cmd = q.module;
+                    }
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id                    
                 }

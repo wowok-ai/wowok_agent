@@ -23,13 +23,13 @@ export class CoinInfo {
     }
     default(network) {
         switch (Protocol.Instance().networkUrl(network).network) {
-            case ENTRYPOINT.testnet:
+            case ENTRYPOINT.suitest:
                 return Protocol.Instance().CoinTypes_Testnet;
-            case ENTRYPOINT.mainnet:
+            case ENTRYPOINT.suimain:
                 return Protocol.Instance().CoinTypes_Mainnet;
-            case ENTRYPOINT.localnet:
+            case ENTRYPOINT.wowoktest:
                 return [];
-            case ENTRYPOINT.wowoknet:
+            case ENTRYPOINT.wowokmain:
                 return [];
         }
         return [];

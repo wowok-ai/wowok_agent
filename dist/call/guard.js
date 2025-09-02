@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, WitnessForModule, } from "wowok";
 import { CallBase } from "./base.js";
 import { LocalMark } from "../local/local.js";
 export class CallGuard extends CallBase {
@@ -134,10 +134,30 @@ const buildNode = async (guard_node, type_required, table, output) => {
                         ERROR(Errors.InvalidParam, `witness check fail in table ${f}. ${object}`);
                     if (f.value_type !== ValueType.TYPE_ADDRESS)
                         ERROR(Errors.InvalidParam, `witness type invalid in table ${f}. ${object}`);
+                    const m = WitnessForModule(object?.witness);
+                    if (m !== q.module) {
+                        ERROR(Errors.InvalidParam, `witness module not consistent with query module. ${q} ${object}`);
+                    }
+                    if (f?.cmd) {
+                        if (f.cmd !== q.module) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        }
+                    }
+                    else {
+                        f.cmd = m;
+                    }
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.witness)); // witness object type
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id  
                 }
                 else {
+                    if (f?.cmd) {
+                        if (f.cmd !== q.module) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        }
+                    }
+                    else {
+                        f.cmd = q.module;
+                    }
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, ContextType.TYPE_CONSTANT));
                     output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, object.identifier)); // object id                    
                 }

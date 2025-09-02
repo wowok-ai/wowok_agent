@@ -33,7 +33,7 @@ export class CallRepository extends CallBase {
     }
     async prepare() {
         if (!this.object_address) {
-            this.object_address = (await LocalMark.Instance().get(GetObjectExisted(this.data?.object)))?.address;
+            this.object_address = (await LocalMark.Instance().get_address(GetObjectExisted(this.data.object)));
         }
         if (this.object_address) {
             await this.update_content('Repository', this.object_address);
