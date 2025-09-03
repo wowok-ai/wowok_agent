@@ -16,7 +16,6 @@ import { CallBase, CallResponseError, CallResult, GuardInfo_forCall } from "./ba
 import { CallGuard, CallGuard_Data } from "./guard.js";
 import { CallObjectPermission, CallObjectPermission_Data } from "./object_permission.js";
 import { session_resolve, SessionOption } from "../common.js";
-import { ENTRYPOINT } from "wowok";
 
 export interface CallDemandObject {
     data: CallDemand_Data;
