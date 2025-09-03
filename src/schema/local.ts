@@ -41,7 +41,7 @@ export const AccountOperationSchema = z.object({
             name_or_address_from: z.string().optional().describe("The name or address of the account to transfer from"),
             name_or_address_to: z.string().optional().describe("The name or address of the account to transfer to"),
             amount: z.union([z.string(), z.number()]).describe("The amount to transfer. Must be a positive integer"),
-            token_type: z.string().optional().describe("Token type, default to 0x2::sui::SUI if not specified"),
+            token_type: z.string().optional().describe("Token type, default to the platform token if not specified"),
         }).optional().describe("Transfer tokens from one account to another"),        
     faucet: z.boolean().optional().describe(D.Faucet)
 });

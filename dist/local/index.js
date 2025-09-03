@@ -27,7 +27,7 @@ export const query_account = async (query) => {
     }
     const res = { address: r.address, name_or_address: r.name };
     if (r) {
-        const token_type_ = query.token_type ?? '0x2::sui::SUI';
+        const token_type_ = query.token_type ?? Protocol.Instance().platformToken(query.session?.network);
         if (query?.balance_or_coin === BalanceOrCoin.Balance) {
             res.balance = await Protocol.Client(await session_resolve(query.session))
                 .getBalance({ owner: r.address, coinType: token_type_ });

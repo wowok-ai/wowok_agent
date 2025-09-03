@@ -29,7 +29,7 @@ export enum BalanceOrCoin {
 export interface QueryAccount {
     name_or_address?: string; // undifined if query the default account. 
     balance_or_coin?: BalanceOrCoin;
-    token_type?:string; // 0x2::sui::SUI, if not specified.
+    token_type?:string; // The platform token, if not specified.
     session?: SessionOption;
 }
 
@@ -49,7 +49,7 @@ export const query_account = async (query: QueryAccount) : Promise<QueryAccountR
     const res : QueryAccountResult = {address: r.address, name_or_address: r.name};
 
     if (r) {
-        const token_type_ = query.token_type ?? '0x2::sui::SUI';
+        const token_type_ = query.token_type ?? Protocol.Instance().platformToken(query.session?.network);
         if (query?.balance_or_coin === BalanceOrCoin.Balance) {
             res.balance = await Protocol.Client(await session_resolve(query.session))
                 .getBalance({owner: r.address, coinType:token_type_});

@@ -10,18 +10,18 @@ const AccountLocation = 'wowok-acc';
 const AccountKey = 'account';
 export class Account {
     constructor() {
-        // token_type is 0x2::sui::SUI, if not specified.
+        // token_type is the platform token, if not specified.
         this.balance = async (address_or_name, token_type, session) => {
             const a = await this.get(address_or_name);
-            const token_type_ = token_type ?? Protocol.Instance().networkPlatformCoin(session?.network);
+            const token_type_ = token_type ?? Protocol.Instance().platformToken(session?.network);
             if (a) {
                 return await Protocol.Client(await session_resolve(session)).getBalance({ owner: a.address, coinType: token_type_ });
             }
         };
-        // token_type is 0x2::sui::SUI, if not specified.
+        // token_type is the platform token, if not specified.
         this.coin = async (token_type, address_or_name, session) => {
             const a = await this.get(address_or_name);
-            const token_type_ = token_type ?? '0x2::sui::SUI';
+            const token_type_ = token_type ?? Protocol.Instance().platformToken(session?.network);
             if (a) {
                 return (await Protocol.Client(await session_resolve(session)).getCoins({ owner: a.address, coinType: token_type_ })).data;
             }
@@ -31,7 +31,7 @@ export class Account {
             if (a) {
                 const b = BigInt(balance_required);
                 if (b >= BigInt(0)) {
-                    if (!token_type || token_type === '0x2::sui::SUI' || token_type === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI') {
+                    if (Protocol.Instance().IsPlatformToken(token_type, session?.network)) {
                         return txb.splitCoins(txb.gas, [b]);
                     }
                     else {
@@ -73,7 +73,7 @@ export class Account {
                     signer: pair,
                     options: { showObjectChanges: true },
                 });
-                const t = token_type ?? '0x2::sui::SUI';
+                const t = token_type ?? Protocol.Instance().platformToken(session?.network);
                 return r?.objectChanges.find((v) => v?.type === 'created' && (v?.objectType).includes(t))?.objectId;
             }
         };
