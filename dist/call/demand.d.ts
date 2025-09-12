@@ -1,5 +1,5 @@
 import { TransactionBlock, PassportObject } from 'wowok';
-import { CallBase, CallResult, ObjectTypedMain } from "./base.js";
+import { CallBase, CallResult, ObjectTypedMain, PassportPayloadValue } from "./base.js";
 export interface CallDemand_Data {
     object: ObjectTypedMain;
     present?: {
@@ -41,6 +41,6 @@ export declare class CallDemand extends CallBase {
     constructor(data: CallDemand_Data);
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=demand.d.ts.map

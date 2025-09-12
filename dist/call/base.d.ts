@@ -1,4 +1,4 @@
-import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject } from 'wowok';
+import { TxbAddress, PassportObject, PermissionIndexType, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject, ValueType } from 'wowok';
 import { ObjectBase, ObjectBaseType } from '../query/objects.js';
 import { SessionOption } from '../common.js';
 export interface Namedbject {
@@ -57,18 +57,27 @@ export interface GuardInfo_forCall {
 export interface CallResponseError {
     error: string;
 }
+export interface PassportPayload {
+    guard: string;
+    identifier: number;
+}
+export interface PassportPayloadValue extends PassportPayload {
+    value?: string | null;
+    value_type?: ValueType | null;
+    bWitness?: boolean | null;
+}
 export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 export declare function ResponseData(response: CallResult | undefined): ResponseData[];
 export declare class CallBase {
     private resouceObject;
     private traceMarkNew;
     content: ObjectBase | undefined;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
     protected prepare(session?: SessionOption): Promise<void>;
     constructor();
     call(account?: string): Promise<CallResult>;
     call_with_witness(info: GuardInfo_forCall, account?: string): Promise<CallResponse | undefined>;
-    protected check_permission_and_call(permission: string, permIndex: PermissionIndexType[], guards_needed: string[], checkOwner?: boolean, checkAdmin?: boolean, account?: string): Promise<CallResult>;
+    protected check_permission_and_call(permission: string | undefined, permIndex: PermissionIndexType[], guards_needed: string[], checkOwner?: boolean, checkAdmin?: boolean, payload?: PassportPayload[], account?: string): Promise<CallResult>;
     protected exec(account?: string): Promise<CallResponse>;
     protected new_with_mark(type: ObjectBaseType, txb: TransactionBlock, object: TxbAddress, named_new?: Namedbject, account?: string, innerTags?: string[]): Promise<void>;
     protected update_content(type: ObjectBaseType, object?: string): Promise<void>;

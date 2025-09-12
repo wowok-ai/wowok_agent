@@ -2,7 +2,7 @@
 
 import { Entity, Resource, TxbAddress, array_unique, TagName, ResourceObject, PassportObject, Errors, ERROR, Permission, 
     PermissionIndexType, GuardParser, Passport, WitnessFill, CallResponse, TransactionBlock, WithdrawFee, TreasuryObject,
-    Protocol,
+    Protocol, ValueType
 } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
@@ -108,6 +108,7 @@ export interface AddressMark {
     name?: string; 
     tags: string[]; 
 }
+
 export interface ResponseData extends ObjectBase {
     change:'created' | 'mutated' | string;
 } 
@@ -119,6 +120,35 @@ export interface GuardInfo_forCall {
 export interface CallResponseError {
     error: string;
 }
+
+export interface PassportPayload {
+    guard:string, 
+    identifier:number, 
+}
+
+export interface PassportPayloadValue extends PassportPayload {
+    value?:string | null, 
+    value_type?:ValueType | null,
+    bWitness?:boolean | null, 
+}
+function Passport_PayloadValue(payload:PassportPayload[] | undefined, parser:GuardParser | undefined) : PassportPayloadValue[] | undefined {
+    if (payload && parser) {
+        const res = payload.map((v) => {
+            return {...v} as PassportPayloadValue
+        });
+
+        res.forEach((v) => {
+            const val = parser.guardlist().find((i) => i.id === v.guard)?.constant?.find((j) => j.identifier === v.identifier);
+            if (val !== undefined) {
+                v.value = val.value;
+                v.value_type = val.type;
+                v.bWitness = val.bWitness;
+            }
+        })   
+        return res   
+    }
+}
+
 
 export type CallResult = GuardInfo_forCall | CallResponse | CallResponseError | undefined;
 
@@ -146,7 +176,7 @@ export class CallBase {
     private traceMarkNew = new Map<ObjectBaseType, Namedbject>();
     content: ObjectBase | undefined = undefined;
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {};
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {};
     protected async prepare(session?:SessionOption) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 
@@ -163,7 +193,7 @@ export class CallBase {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
                     await this.prepare();
-                    await this.operate(txb, passport?.get_object(), account)
+                    await this.operate(txb, passport?.get_object(), undefined, account)
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
 
@@ -174,21 +204,24 @@ export class CallBase {
         } 
     }
 
-    protected async check_permission_and_call (permission:string, permIndex: PermissionIndexType[], guards_needed: string[],
-        checkOwner?:boolean, checkAdmin?:boolean, account?:string) : Promise<CallResult>  {
-        var guards : string[] = [];
+    protected async check_permission_and_call (permission:string | undefined, permIndex: PermissionIndexType[], guards_needed: string[],
+        checkOwner?:boolean, checkAdmin?:boolean, payload?:PassportPayload[], account?:string) : Promise<CallResult>  {
+        let guards : string[] = [];
+        
+        if (permission) {   
+            if (permIndex.length > 0 || checkOwner) {
+                const p = await query_permission({permission_object:permission, address:{name_or_address:account}});
+                if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
+                if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
 
-        if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({permission_object:permission, address:{name_or_address:account}});
-            if (checkOwner && !p.owner) ERROR(Errors.noPermission, 'owner');
-            if (checkAdmin && !p.admin) ERROR(Errors.noPermission, 'admin');
-
-            permIndex.forEach(v => {
-                const r = Permission.HasPermission(p, v);
-                if (!r?.has) ERROR(Errors.noPermission, v);
-                if (r?.guard) guards.push(r.guard)
-            })       
+                permIndex.forEach(v => {
+                    const r = Permission.HasPermission(p, v);
+                    if (!r?.has) ERROR(Errors.noPermission, v);
+                    if (r?.guard) guards.push(r.guard)
+                })       
+            }
         }
+
         if (guards_needed.length > 0) {
             guards = guards.concat(guards_needed);
         }
@@ -204,7 +237,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
-                    await this.operate(txb, passport?.get_object(), account)
+                    await this.operate(txb, passport?.get_object(), Passport_PayloadValue(payload, p), account)
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }
@@ -216,7 +249,7 @@ export class CallBase {
     }
     protected async exec (account?:string) : Promise<CallResponse> {
         const txb = new TransactionBlock();
-        await this.operate(txb, undefined, account);
+        await this.operate(txb, undefined, undefined, account);
         return await this.sign_and_commit(txb, account);
     }
 

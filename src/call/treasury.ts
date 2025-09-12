@@ -3,7 +3,7 @@ import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permis
 } from 'wowok';
 import { query_objects, ObjectTreasury, Treasury_ReceivedObject, GuardWithAmount } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, 
-    GetObjectMain, GetObjectParam, ObjectTypedMain, PayParam, TypeNamedObjectWithPermission } from "./base.js";
+    GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayloadValue, PayParam, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { get_object_address } from '../common.js';
@@ -64,7 +64,7 @@ export class CallTreasury extends CallBase {
         } 
     }
     async call(account?:string) : Promise<CallResult>  {
-        var checkOwner = false; const guards : string[] = [];
+        const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
@@ -129,12 +129,12 @@ export class CallTreasury extends CallBase {
             }                
         }
         
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, undefined, account)
         }
         return await this.exec(account);
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Treasury | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         

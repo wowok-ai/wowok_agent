@@ -4,7 +4,6 @@ import * as WOWOK from 'wowok';
 import * as D from './const.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { GuardQueryModules, ObjectUrl } from "./util.js";
-import { object } from "zod/v4";
 
 export const GetMarkNameSchema = (object:string='') : z.ZodString=> {
     return z.string().nonempty().describe(D.MarkName_Address_Description(object));
@@ -141,6 +140,7 @@ const GuardNodeSchema: z.ZodType = z.lazy(() => z.union([
             z.literal(WOWOK.OperatorType.TYPE_LOGIC_OR).describe(D.TYPE_LOGIC_OR_Description),
             z.literal(WOWOK.OperatorType.TYPE_SAFE_U64).describe(`Convert number to u64-number`),
             z.literal(WOWOK.OperatorType.TYPE_SAFE_U8).describe(`Convert number to u8-number`),
+            z.literal(WOWOK.OperatorType.TYPE_SAFE_U16).describe(`Convert number to u16-number`),
         ]).describe(D.GuardLogic_Description),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeLogicParams_Description)
     }).describe(D.GuardNodeLogic_Description),

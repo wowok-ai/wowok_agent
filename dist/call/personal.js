@@ -11,7 +11,7 @@ export class CallPersonal extends CallBase {
     async call(account) {
         return await this.exec(account);
     }
-    async operate(txb, passport, account) {
+    async operate(txb, passport, payload, account) {
         let obj;
         let entity = Entity.From(txb);
         const entity_data = await query_personal({ address: { name_or_address: account } });

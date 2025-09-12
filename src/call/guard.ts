@@ -9,7 +9,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     MODULES, WitnessType, IsContextWitness,
     WitnessForModule,
     } from "wowok";
-import { CallBase, CallResult, Namedbject } from "./base.js";
+import { CallBase, CallResult, Namedbject, PassportPayloadValue } from "./base.js";
 import { LocalMark } from "../local/local.js";
 
 export interface GuardConst {
@@ -41,7 +41,7 @@ export type GuardNode = { identifier: number; witness?:WitnessType} // Data from
         | OperatorType.TYPE_LOGIC_AS_U256_EQUAL | OperatorType.TYPE_LOGIC_EQUAL | OperatorType.TYPE_LOGIC_HAS_SUBSTRING 
         | OperatorType.TYPE_LOGIC_NOT | OperatorType.TYPE_LOGIC_AND | OperatorType.TYPE_LOGIC_OR;  parameters: GuardNode[];}
     | {calc: OperatorType.TYPE_NUMBER_ADD | OperatorType.TYPE_NUMBER_DEVIDE | OperatorType.TYPE_NUMBER_MOD | OperatorType.TYPE_NUMBER_ADDRESS 
-        | OperatorType.TYPE_SAFE_U8 | OperatorType.TYPE_SAFE_U64
+        | OperatorType.TYPE_SAFE_U8 | OperatorType.TYPE_SAFE_U64 | OperatorType.TYPE_SAFE_U16
         | OperatorType.TYPE_NUMBER_MULTIPLY | OperatorType.TYPE_NUMBER_SUBTRACT | OperatorType.TYPE_STRING_LOWERCASE; parameters: GuardNode[];}
     | {value_type: ValueType; value:any; } // Data 
     | {context: ContextType.TYPE_CLOCK | ContextType.TYPE_GUARD | ContextType.TYPE_SIGNER }; // Data from run-time environment
@@ -63,7 +63,7 @@ export class CallGuard extends CallBase {
         return await this.exec(account)
     }
     
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         if (!this.data?.root) {
             ERROR(Errors.InvalidParam, `guard root node invalid. ${this.data}`)
         }
@@ -288,6 +288,14 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
         } else if (node?.calc === OperatorType.TYPE_SAFE_U8) {
             checkType(ValueType.TYPE_U8, type_required, node);
             if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_SAFE_U8 parameters length must == 1'+ JSON.stringify(node));
+            const p = (node.parameters as GuardNode[]).reverse(); 
+            for (let i = 0; i < p.length; ++i) {
+                await buildNode(p[i], 'number', table, output);
+            }
+            output.push(Bcs.getInstance().ser(ValueType.TYPE_U8, node.calc)); // TYPE 
+        } else if (node?.calc === OperatorType.TYPE_SAFE_U16) {
+            checkType(ValueType.TYPE_U16, type_required, node);
+            if (node.parameters.length !== 1) ERROR(Errors.InvalidParam, 'node TYPE_SAFE_U16 parameters length must == 1'+ JSON.stringify(node));
             const p = (node.parameters as GuardNode[]).reverse(); 
             for (let i = 0; i < p.length; ++i) {
                 await buildNode(p[i], 'number', table, output);

@@ -1,4 +1,4 @@
-import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock, Protocol, } from 'wowok';
+import { Entity, Resource, array_unique, TagName, Errors, ERROR, Permission, GuardParser, Passport, TransactionBlock, Protocol } from 'wowok';
 import { query_permission } from '../query/permission.js';
 import { Account } from '../local/account.js';
 import { query_objects, query_personal, raw2type } from '../query/objects.js';
@@ -56,6 +56,22 @@ export const SetWithdrawFee = async (param, treasury) => {
     const [object, guard] = await LocalMark.Instance().get_many_address([param.for_object, param.for_guard]);
     return { index: BigInt(param.index), remark: param.remark, for_object: object, for_guard: guard, treasury: treasury };
 };
+function Passport_PayloadValue(payload, parser) {
+    if (payload && parser) {
+        const res = payload.map((v) => {
+            return { ...v };
+        });
+        res.forEach((v) => {
+            const val = parser.guardlist().find((i) => i.id === v.guard)?.constant?.find((j) => j.identifier === v.identifier);
+            if (val !== undefined) {
+                v.value = val.value;
+                v.value_type = val.type;
+                v.bWitness = val.bWitness;
+            }
+        });
+        return res;
+    }
+}
 export function ResponseData(response) {
     //console.log(response)
     if (response?.digest) {
@@ -73,7 +89,7 @@ export function ResponseData(response) {
     return [];
 }
 export class CallBase {
-    async operate(txb, passport, account) { }
+    async operate(txb, passport, payload, account) { }
     ;
     async prepare(session) { }
     ;
@@ -95,7 +111,7 @@ export class CallBase {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
                     await this.prepare();
-                    await this.operate(txb, passport?.get_object(), account);
+                    await this.operate(txb, passport?.get_object(), undefined, account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }
@@ -105,21 +121,23 @@ export class CallBase {
             }
         }
     }
-    async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, account) {
-        var guards = [];
-        if (permIndex.length > 0 || checkOwner) {
-            const p = await query_permission({ permission_object: permission, address: { name_or_address: account } });
-            if (checkOwner && !p.owner)
-                ERROR(Errors.noPermission, 'owner');
-            if (checkAdmin && !p.admin)
-                ERROR(Errors.noPermission, 'admin');
-            permIndex.forEach(v => {
-                const r = Permission.HasPermission(p, v);
-                if (!r?.has)
-                    ERROR(Errors.noPermission, v);
-                if (r?.guard)
-                    guards.push(r.guard);
-            });
+    async check_permission_and_call(permission, permIndex, guards_needed, checkOwner, checkAdmin, payload, account) {
+        let guards = [];
+        if (permission) {
+            if (permIndex.length > 0 || checkOwner) {
+                const p = await query_permission({ permission_object: permission, address: { name_or_address: account } });
+                if (checkOwner && !p.owner)
+                    ERROR(Errors.noPermission, 'owner');
+                if (checkAdmin && !p.admin)
+                    ERROR(Errors.noPermission, 'admin');
+                permIndex.forEach(v => {
+                    const r = Permission.HasPermission(p, v);
+                    if (!r?.has)
+                        ERROR(Errors.noPermission, v);
+                    if (r?.guard)
+                        guards.push(r.guard);
+                });
+            }
         }
         if (guards_needed.length > 0) {
             guards = guards.concat(guards_needed);
@@ -134,7 +152,7 @@ export class CallBase {
                 if (query) {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
-                    await this.operate(txb, passport?.get_object(), account);
+                    await this.operate(txb, passport?.get_object(), Passport_PayloadValue(payload, p), account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }
@@ -147,7 +165,7 @@ export class CallBase {
     }
     async exec(account) {
         const txb = new TransactionBlock();
-        await this.operate(txb, undefined, account);
+        await this.operate(txb, undefined, undefined, account);
         return await this.sign_and_commit(txb, account);
     }
     async new_with_mark(type, txb, object, named_new, account, innerTags = [TagName.Launch]) {

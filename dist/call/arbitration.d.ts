@@ -1,5 +1,5 @@
 import { TransactionBlock, PassportObject, VotingGuard } from 'wowok';
-import { CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, PayParam } from "./base.js";
+import { CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, PayParam, PassportPayloadValue } from "./base.js";
 export interface DisputeData {
     order: string;
     description: string;
@@ -52,6 +52,6 @@ export declare class CallArbitration extends CallBase {
     private checkNotPaused;
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=arbitration.d.ts.map

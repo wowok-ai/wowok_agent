@@ -13,8 +13,8 @@ export class CallPermission extends CallBase {
         }
     }
     async call(account) {
-        var checkOwner = false;
-        var checkAdmin = false;
+        let checkOwner = false;
+        let checkAdmin = false;
         await this.prepare();
         if (this.object_address) {
             if (this.data?.builder != null || this.data?.admin != null) {
@@ -26,11 +26,11 @@ export class CallPermission extends CallBase {
             if (this.data?.description != null) {
                 checkAdmin = true;
             }
-            return await this.check_permission_and_call(this.object_address, [], [], checkOwner, checkAdmin, account);
+            return await this.check_permission_and_call(this.object_address, [], [], checkOwner, checkAdmin, undefined, account);
         }
         return await this.exec(account);
     }
-    async operate(txb, passport, account) {
+    async operate(txb, passport, payload, account) {
         let obj;
         if (!this.object_address) {
             obj = Permission.New(txb, this.data?.description ?? '');

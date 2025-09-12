@@ -3,7 +3,8 @@ import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permis
 } from 'wowok';
 import { ObjectArbitration, query_objects, } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, 
-    ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, PayParam } from "./base.js";
+    ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, PayParam, 
+    PassportPayloadValue} from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 
@@ -69,7 +70,7 @@ export class CallArbitration extends CallBase {
     }
 
     async call(account?:string) : Promise<CallResult> {
-        var checkOwner = false; const guards : string[] = [];
+        const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
@@ -124,12 +125,12 @@ export class CallArbitration extends CallBase {
                 guards.push(voting_guard)
             } 
         }
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, undefined, account)
         }
         return await this.exec(account);
     }
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Arbitration | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         let withdraw_treasury:Treasury | undefined;

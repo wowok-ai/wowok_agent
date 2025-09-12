@@ -7,7 +7,8 @@ import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject,
 import { ObjectOrder, ObjectService, query_objects } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
     GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp,
-    TypeNamedObjectWithPermission, PayParam } from "./base.js";
+    TypeNamedObjectWithPermission, PayParam, 
+    PassportPayloadValue} from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { crypto_string } from '../common.js';
@@ -123,7 +124,7 @@ export class CallService extends CallBase {
         } 
     }
     async call(account?:string) : Promise<CallResult>  {
-        var checkOwner = false; const guards : string[] = [];
+        const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
@@ -218,8 +219,8 @@ export class CallService extends CallBase {
             }
         }
 
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, undefined, account)
         }
         return await this.exec(account);
     }
@@ -250,7 +251,7 @@ export class CallService extends CallBase {
         }
     }
 
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Service | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         let payee: Treasury | undefined;

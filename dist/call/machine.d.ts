@@ -1,5 +1,5 @@
 import { PassportObject, TransactionBlock, PermissionIndexType, ParentProgress, ProgressNext } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp, PassportPayloadValue } from "./base.js";
 export interface Supply {
     service: string;
     bRequired?: boolean;
@@ -118,6 +118,6 @@ export declare class CallMachine extends CallBase {
     private checkNotPaused;
     private forwardPermission;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=machine.d.ts.map

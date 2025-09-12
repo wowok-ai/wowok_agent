@@ -1,6 +1,6 @@
 import { TransactionBlock, PassportObject, Treasury_WithdrawMode } from 'wowok';
 import { GuardWithAmount } from '../query/objects.js';
-import { AccountOrMark_Address, CallBase, CallResult, ObjectTypedMain, PayParam } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, ObjectTypedMain, PassportPayloadValue, PayParam } from "./base.js";
 export interface ReceiverParam {
     address: AccountOrMark_Address;
     amount: string | number;
@@ -41,6 +41,6 @@ export declare class CallTreasury extends CallBase {
     constructor(data: CallTreasury_Data);
     protected prepare(): Promise<void>;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=treasury.d.ts.map

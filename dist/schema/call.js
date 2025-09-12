@@ -121,6 +121,7 @@ const GuardNodeSchema = z.lazy(() => z.union([
             z.literal(WOWOK.OperatorType.TYPE_LOGIC_OR).describe(D.TYPE_LOGIC_OR_Description),
             z.literal(WOWOK.OperatorType.TYPE_SAFE_U64).describe(`Convert number to u64-number`),
             z.literal(WOWOK.OperatorType.TYPE_SAFE_U8).describe(`Convert number to u8-number`),
+            z.literal(WOWOK.OperatorType.TYPE_SAFE_U16).describe(`Convert number to u16-number`),
         ]).describe(D.GuardLogic_Description),
         parameters: z.array(GuardNodeSchema).describe(D.GuardNodeLogicParams_Description)
     }).describe(D.GuardNodeLogic_Description),

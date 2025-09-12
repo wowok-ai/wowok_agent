@@ -1,7 +1,7 @@
 import { TransactionBlock, IsValidArgType, Service, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
     PermissionIndexType, Demand, PermissionObject, ParseType} from 'wowok';
-import { ObjectDemand, query_objects, queryTableItem_DemandService, TableItem_DemandPresenter } from '../query/objects.js';
-import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, TypeNamedObjectWithPermission } from "./base.js";
+import { ObjectDemand, ObjectGuard, query_objects, queryTableItem_DemandService, TableItem_DemandPresenter } from '../query/objects.js';
+import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayload, PassportPayloadValue, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 
@@ -50,9 +50,11 @@ export class CallDemand extends CallBase {
             this.type_parameter = (n as any)?.type_parameter;
         }  
     }
+
     async call(account?:string) : Promise<CallResult> {
-        var checkOwner = false; const guards : string[] = [];
+        const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
+        let payload : PassportPayload[] | undefined;
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
                 perms.push(index);
@@ -94,15 +96,19 @@ export class CallDemand extends CallBase {
             if (this.object_address) {
                 if ((this.content as ObjectDemand)?.guard?.object) {
                     guards.push((this.content as ObjectDemand).guard?.object!);
+                    if ((this.content as ObjectDemand)?.guard?.service_id_in_guard != null) {
+                        payload = [{guard:(this.content as ObjectDemand).guard?.object!, identifier:(this.content as ObjectDemand).guard?.service_id_in_guard!}]
+                    }
                 }
             } 
         }
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, payload, account)
         }
         return await this.exec(account);
     }
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
+
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Demand | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
 
@@ -131,23 +137,27 @@ export class CallDemand extends CallBase {
         if (!permission)   ERROR(Errors.InvalidParam, 'CallDemand_Data.data.object.permission');
 
         const pst = perm?undefined:passport;
-        if (this.data?.present != null) {
-            if ((this.content as ObjectDemand)?.guard?.service_id_in_guard != null && (this.content as ObjectDemand)?.guard?.service_id_in_guard !== null) {
-                obj?.present((this.content as ObjectDemand)!.guard!.service_id_in_guard!, undefined, this.data.present.recommend_words, pst);
-            } else {
-                const service_address = await LocalMark.Instance().get_address(this.data.present.service);
-                if (!service_address) ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service');
-                const r = await query_objects({objects:[service_address]});
-                if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Service') {
-                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service: ' + service_address);
-                }
-                const service_type = Service.parseObjectType(r.objects[0].type_raw);
-                if (!service_type) {
-                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service: ' + service_address);
-                }
+        let service_address:string | undefined;
 
-                obj?.present(service_address, service_type, this.data.present.recommend_words, pst);
+        if (this.data?.present != null) {
+            if ((this.content as ObjectDemand)?.guard?.object != null && (this.content as ObjectDemand)?.guard?.service_id_in_guard != null) {
+                service_address = payload?.find(v => v.guard === (this.content as ObjectDemand)?.guard?.object &&
+                    v.identifier === (this.content as ObjectDemand)?.guard?.service_id_in_guard)?.value ?? '';
+            } else {
+                service_address = await LocalMark.Instance().get_address(this.data.present.service);
             }
+
+            if (!service_address) ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service');
+            const r = await query_objects({objects:[service_address]});
+            if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Service') {
+                ERROR(Errors.InvalidParam, 'CallDemand_Data.data.present.service is NOT a Service object: ' + service_address);
+            }
+            const service_type = Service.parseObjectType(r.objects[0].type_raw);
+            if (!service_type) {
+                ERROR(Errors.IsValidTokenType, 'CallDemand_Data.data.present.service : ' + service_address);
+            }
+
+            obj?.present(service_address, service_type, this.data.present.recommend_words, pst);
         }
 
         if (this.data?.description != null && this.object_address) {
@@ -183,12 +193,22 @@ export class CallDemand extends CallBase {
                 obj?.set_guard(undefined, undefined, pst);
             } else {
                 const guard = await LocalMark.Instance().get_address(this.data?.guard.guard);
-                if (!guard) { 
-                    ERROR(Errors.InvalidParam, 'CallDemand_Data.data.guard.guard')
+                if (!guard) {
+                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard: ${guard}`)
+                }
+                const r = await query_objects({objects:[guard]});
+                if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Guard') {
+                    ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard is NOT a Guard object:${guard}`)
+                }
+                if (this.data?.guard?.service_id_in_guard != null) {
+                    if (!(r?.objects[0] as ObjectGuard)?.identifier?.find(v => v.id === this.data?.guard?.service_id_in_guard)) {
+                        ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.service_id_in_guard(${this.data?.guard?.service_id_in_guard}) NOT in Guard identifiers`)
+                    }
                 }
                 obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);                
             }
         }
+
         if (perm) {
             const n = GetObjectMain(this.data.object) as TypeNamedObjectWithPermission;
             await this.new_with_mark('Permission', txb, perm.launch(), GetObjectParam(n?.permission), account);

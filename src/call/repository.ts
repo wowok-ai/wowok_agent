@@ -4,7 +4,7 @@ import { TransactionBlock, PassportObject, Errors, ERROR, Permission, Permission
     RepositoryValueType, Bcs,
     IsValidAddress
 } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission} from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayloadValue, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { ObjectRepository } from '../query/objects.js';
 
@@ -137,7 +137,6 @@ export class CallRepository extends CallBase {
     }
 
     async call(account?:string) : Promise<CallResult>   {
-        var checkOwner = false;
         const perms : PermissionIndexType[] = []; 
         const guards: string[] = []; 
         const add_perm = (index:PermissionIndex) => {
@@ -237,13 +236,13 @@ export class CallRepository extends CallBase {
             } 
         }
 
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, [...guards], checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, [...guards], undefined, undefined, undefined, account)
         }
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Repository | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
 

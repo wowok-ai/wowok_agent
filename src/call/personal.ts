@@ -1,5 +1,5 @@
 import { TransactionBlock, PassportObject, Errors, ERROR, Entity, Resource, FAUCET, IsValidDesription, EntityInfo, IsValidName, IsValidStringLength} from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, PassportPayloadValue } from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { query_personal } from '../query/objects.js';
 import { Account } from '../local/account.js';
@@ -29,7 +29,7 @@ export class CallPersonal extends CallBase {
         return await this.exec(account)
     }
 
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, account?: string) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?: string) {
         let obj : Resource | undefined ; let entity: Entity = Entity.From(txb);
         const entity_data = await query_personal({address:{name_or_address:account}});
 

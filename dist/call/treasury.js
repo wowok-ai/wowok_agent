@@ -35,7 +35,6 @@ export class CallTreasury extends CallBase {
         }
     }
     async call(account) {
-        var checkOwner = false;
         const guards = [];
         const perms = [];
         const add_perm = (index) => {
@@ -101,12 +100,12 @@ export class CallTreasury extends CallBase {
                 add_perm(PermissionIndex.treasury_withdraw);
             }
         }
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account);
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, undefined, account);
         }
         return await this.exec(account);
     }
-    async operate(txb, passport, account) {
+    async operate(txb, passport, payload, account) {
         let obj;
         let perm;
         let permission;

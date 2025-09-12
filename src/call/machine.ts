@@ -3,7 +3,7 @@ import { PassportObject, Errors, ERROR, Permission, PermissionIndex, Transaction
     Machine_Node as Wowok_Machine_Node, ParentProgress, Progress, ProgressNext, PermissionObject, OrderWrap, Service, ServiceWrap,
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, 
-    GetObjectParam, Namedbject, ObjectMain, ObjectsOp, TypeNamedObjectWithPermission } from "./base.js";
+    GetObjectParam, Namedbject, ObjectMain, ObjectsOp, PassportPayloadValue, TypeNamedObjectWithPermission } from "./base.js";
 import { ObjectMachine, ObjectProgress, query_objects, queryTableItem_MachineNode, TableItem_MachineNode } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
 
@@ -138,7 +138,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
     }
 
     async call(account?:string) : Promise<CallResult>  {
-        var checkOwner = false; const guards : string[] = [];
+        const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
@@ -227,13 +227,13 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 add_perm(r.permission)
             }
         }
-        if (this.permission_address) {
-            return await this.check_permission_and_call(this.permission_address, perms, guards, checkOwner, undefined, account)
+        if (this.permission_address || guards.length > 0) {
+            return await this.check_permission_and_call(this.permission_address, perms, guards, undefined, undefined, undefined, account)
         }
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
         let obj : Machine | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         
