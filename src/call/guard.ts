@@ -8,6 +8,7 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     IsValidDesription, PassportObject, IsValidGuardIdentifier, GuardQuery, BCS,
     MODULES, WitnessType, IsContextWitness,
     WitnessForModule,
+    WitnessObjectModule,
     } from "wowok";
 import { CallBase, CallResult, Namedbject, PassportPayloadValue } from "./base.js";
 import { LocalMark } from "../local/local.js";
@@ -184,8 +185,8 @@ const buildNode = async (guard_node:GuardNode, type_required:ValueType | 'number
                     }
 
                     if (f?.cmd) {
-                        if (f.cmd !== q.module) {
-                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        if (f.cmd !== WitnessObjectModule(object?.witness!)) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table with witness ${f.cmd}. ${q.module}`);
                         }
                     } else {
                         f.cmd = m;

@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, WitnessForModule, } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, WitnessForModule, WitnessObjectModule, } from "wowok";
 import { CallBase } from "./base.js";
 import { LocalMark } from "../local/local.js";
 export class CallGuard extends CallBase {
@@ -139,8 +139,8 @@ const buildNode = async (guard_node, type_required, table, output) => {
                         ERROR(Errors.InvalidParam, `witness module not consistent with query module. ${q} ${object}`);
                     }
                     if (f?.cmd) {
-                        if (f.cmd !== q.module) {
-                            ERROR(Errors.InvalidParam, `query module not inconsistent in table ${f}. ${q}`);
+                        if (f.cmd !== WitnessObjectModule(object?.witness)) {
+                            ERROR(Errors.InvalidParam, `query module not inconsistent in table with witness ${f.cmd}. ${q.module}`);
                         }
                     }
                     else {

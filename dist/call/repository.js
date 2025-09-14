@@ -148,6 +148,7 @@ export class CallRepository extends CallBase {
                 }
                 else {
                     if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
+                        console.log(policy);
                         ERROR(Errors.Fail, `CallRepository_Data.data.add_by_key ${d.key} policy not match on the POLICY_MODE_STRICT mode.`);
                     }
                     await this.resolve_by_key(d);
