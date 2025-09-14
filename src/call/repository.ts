@@ -230,7 +230,7 @@ export class CallRepository extends CallBase {
                     if (p.permissionIndex != null) {
                         add_perm(p.permissionIndex); // permission check
                     } 
-                    if (p?.guard != null) {
+                    if (p?.guard?.object != null) {
                         if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
                         guards.push(p.guard?.object);
                         if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
@@ -257,7 +257,7 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null) {
                             add_perm(p.permissionIndex); // permission check
                         } 
-                        if (p?.guard) {
+                        if (p?.guard?.object) {
                             if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
                             guards.push(p.guard?.object);
 
@@ -281,7 +281,7 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
                             add_perm(p.permissionIndex); // permission check
                         } 
-                        if (p?.guard) {
+                        if (p?.guard?.object) {
                             if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
                             guards.push(p.guard?.object);
                         }

@@ -495,7 +495,11 @@ export const CallRepositoryDataSchema = z.object({
                 description: z.string(),
                 dataType: RepositoryValueTypeSchema,
                 permissionIndex: GetPermissionIndexSchema('biz').transform(val => Number(val)).optional().nullable(),
-                guard: GetMarkNameSchema('Guard').optional(),
+                //guard: GetMarkNameSchema('Guard').optional(),
+                guard: z.object({
+                    object: GetMarkNameSchema('Guard').nullable(),
+                    id_from_guard: GuardIndentifierSchema.optional()
+                }).optional().describe(D.Repository_Guard_Description)
             }).describe(D.Repository_Policy))
         }).describe(D.Policy_Add),
         z.object({
