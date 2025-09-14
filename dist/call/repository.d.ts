@@ -38,6 +38,7 @@ export interface RepositoryBool {
 export type RepositoryTypeData = RepositoryNumber | RepositoryString | RepositoryNumberVec | RepositoryStringVec | RepositoryAddress | RepositoryAddressVec | RepositoryBool;
 export type AddressID = AccountOrMark_Address | number | bigint;
 export declare const GetAddressID: (key: AddressID) => Promise<string | undefined>;
+export declare const toAddressID: (key: number | string | bigint | undefined | null) => string | undefined;
 export interface AddData_byKey_Data {
     address: AddressID;
     address_string?: string;
@@ -100,6 +101,8 @@ export declare class CallRepository extends CallBase {
     constructor(data: CallRepository_Data);
     protected prepare(): Promise<void>;
     private resolve_by_key;
+    private DataAddress2DataKey;
+    private AddData;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
 }

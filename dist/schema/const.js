@@ -179,10 +179,13 @@ export const Permission_RemoveEntity = `Delete addresses and its permissions fro
 export const Permission_RemovePermission = `Remove some permissions for the address`;
 export const Permission_Transform = `Transfer all permissions from one address to another; the recipient must be the Permission object's new address`;
 export const Permission_Permission_Description = `Personnel address and its permission settings`;
-export const Permission_Admin_Description = `Manage the administrator list. only the builder of the Permission object can operate it`;
+export const Permission_Admin_Description = `Admin who manages the Personnel addresses. Only the builder of the Permission object can manage Admin`;
 export const Admin_Add_Remove = `Add, delete, and set an administrator address list`;
 export const Admin_Removeall = `Delete all Administrators`;
-export const Permission_Builder_Description = `Modify the builder address (Builder is the sole highest owner of the Permission object; default: signer address of the Permission object creation transaction. Important note: Builder can only be changed by the Permission object's original builder. If the user does not explicitly specify this field, the AI should not attempt to set it. Failure of the operation may occur due to insufficient permissions.`;
+export const Permission_Builder_Description = `Address of the Builder.
+    Builder who can directly manages the Admin list is the sole highest owner of the Permission object.
+    The Signer who created this Permission object is naturally its Builder. 
+    And Builder can only be changed by the Permission object's original builder.`;
 export const RepositoryAddressID_Description = `Either an address or a positive integer-converted address (e.g., time number) for querying Repository data`;
 export const Payment_Description = `Payment information: index (business number), remark (payment note), for_object (payment purpose), for_guard (to fulfill verification requirements of a Guard)`;
 export const Repository_Reference_Description = `Declare the list of other objects that use this Repository. `;

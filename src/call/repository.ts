@@ -4,7 +4,7 @@ import { TransactionBlock, PassportObject, Errors, ERROR, Permission, Permission
     RepositoryValueType, Bcs,
     IsValidAddress
 } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayloadValue, TypeNamedObjectWithPermission} from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayload, PassportPayloadValue, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { ObjectRepository } from '../query/objects.js';
 
@@ -56,6 +56,18 @@ export const GetAddressID = async(key:AddressID) : Promise<string | undefined> =
         }
     } else {
         return await GetAccountOrMark_Address(key)
+    }
+}
+
+export const toAddressID = (key: number | string | bigint | undefined | null) : string | undefined => {
+    if (typeof(key) === 'number' || typeof(key) === 'bigint')  {
+        if (IsValidU256(key)) {
+            return uint2address(key);
+        }
+    } else {
+        if (key && IsValidAddress(key)) {
+            return key
+        }
     }
 }
 
@@ -126,19 +138,61 @@ export class CallRepository extends CallBase {
     private resolve_by_key = async (d:AddData_byKey, policy?:Repository_Policy) => {
         for (let i=0; i<d.data.length; ++i) {
             const data = d.data[i];
-            if (policy && data.data.type !== policy.dataType) {
+            if (policy && data.data.type !== policy.dataType) { // check data type
                 ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_key ${d.key} data type not match`)
             }
-            const addr = await GetAddressID(data.address);
-            if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} address not valid`)
-            data.address_string = addr;
+            if (policy && policy?.guard != null && policy?.guard?.id_from_guard != null) {
+                data.address_string = undefined; // id from guard
+            } else {
+                const addr = await GetAddressID(data.address);
+                if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} address not valid`)
+                data.address_string = addr;                
+            }
             await SerRepositoryTypeData(data.data);
+        }
+    }
+
+    private DataAddress2DataKey = (data:AddData_byAddress) : AddData_byKey[] => {
+        const res : AddData_byKey[] = [];
+        data.data.forEach(v => {
+            const f = res.find(i => i.key === v.key) ;
+            if (f) {
+                f.data.push({address: data.address, address_string: data.address_string, data:v.data});
+            } else {
+                res.push({key:v.key, data:[{address: data.address, address_string: data.address_string, data:v.data}]})
+            }
+        })
+        return res;
+    }
+
+    private AddData = (obj : Repository, data: AddData_byKey, payload?:PassportPayloadValue[], passport?:PassportObject) => {
+        let addr : any ;
+        const policy = (this.content as ObjectRepository)?.policy;
+
+        const p = policy?.find((i)=>i.key === data.key);
+        if (p?.guard?.id_from_guard != null) {
+            addr = toAddressID(payload?.find(i => i.guard===p?.guard?.object && i.identifier === p?.guard?.id_from_guard)?.value);
+            if (!addr) {
+                ERROR(Errors.Fail, `ID-from-Guard NOT found in payload: ${p?.guard} ${payload}`)
+            }
+        }
+
+        if (addr) { // add the lastest one
+            if (data.data.length > 0) {
+                obj.add_data({key:data.key, data:[{address:addr, bcsBytes:data.data[data.data.length-1].data.bcsBytes!}]})
+            }
+        } else {
+            obj.add_data({key:data.key, data:data.data.map(v => {
+                return {address:v.address_string!, bcsBytes:v.data.bcsBytes!} 
+            })}, passport);                    
         }
     }
 
     async call(account?:string) : Promise<CallResult>   {
         const perms : PermissionIndexType[] = []; 
         const guards: string[] = []; 
+        let payload: PassportPayload[] = [];
+
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
                 perms.push(index);
@@ -172,13 +226,16 @@ export class CallRepository extends CallBase {
             if ((this.data.data as any)?.op === 'add_by_key') {
                 const d = this.data.data.data as AddData_byKey;
                 const p = policy?.find((v)=>v.key === d.key);
-                if (p) {
+                if (p) { // policy check
                     if (p.permissionIndex != null) {
                         add_perm(p.permissionIndex); // permission check
                     } 
-                    if (p?.guard) {
-                        if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                        guards.push(p.guard);
+                    if (p?.guard != null) {
+                        if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                        guards.push(p.guard?.object);
+                        if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
+                            payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard});
+                        }
                     }
                     await this.resolve_by_key(d, p);
                 } else {
@@ -201,8 +258,12 @@ export class CallRepository extends CallBase {
                             add_perm(p.permissionIndex); // permission check
                         } 
                         if (p?.guard) {
-                            if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                            guards.push(p.guard);
+                            if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                            guards.push(p.guard?.object);
+
+                            if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
+                                payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard});
+                            }
                         }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
@@ -221,8 +282,8 @@ export class CallRepository extends CallBase {
                             add_perm(p.permissionIndex); // permission check
                         } 
                         if (p?.guard) {
-                            if (!IsValidAddress(p?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                            guards.push(p.guard);
+                            if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                            guards.push(p.guard?.object);
                         }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
@@ -237,7 +298,7 @@ export class CallRepository extends CallBase {
         }
 
         if (this.permission_address || guards.length > 0) {
-            return await this.check_permission_and_call(this.permission_address, perms, [...guards], undefined, undefined, undefined, account)
+            return await this.check_permission_and_call(this.permission_address, perms, [...guards], undefined, undefined, payload, account)
         }
         return await this.exec(account);
     }
@@ -267,21 +328,24 @@ export class CallRepository extends CallBase {
         const pst = perm?undefined:passport;
         if (this.data?.data != null) {
             if (this.data.data.op === 'add_by_key') {
-                const d = this.data.data.data as AddData_byKey;
-                obj.add_data({key:d.key, data:d.data.map(v => {
-                    return {address:v.address_string!, bcsBytes:v.data.bcsBytes!}
-                })}, pst);
+                this.AddData(obj, this.data.data.data as AddData_byKey, payload, pst)
             } else if (this.data.data.op === 'add_by_address') {
-                const d = this.data.data.data as AddData_byAddress;
-                obj.add_data2({address:d.address_string!, data:d.data.map(v => {
-                    return {key:v.key, bcsBytes:v.data.bcsBytes!}
-                })}, pst);
+                const d = this.DataAddress2DataKey(this.data.data.data as AddData_byAddress);
+                d.forEach(v => this.AddData(obj, v, payload, pst));
             } else if (this.data.data.op === 'remove') {
                 const d = this.data.data.data as RemoveData[];
-                for (let i=0; i<d.length; ++i) {
-                    const value = d[i];
-                    obj?.remove(value.address_string!, value.key, pst);
-                }
+                const keys = new Map<string, string[]>();
+                d.forEach(v => {
+                    const i = keys.get(v.key);
+                    if (i) {
+                        i.push(v.address_string!);
+                    } else {
+                        keys.set(v.key, [v.address_string!])
+                    }
+                })
+                keys.forEach((v, k) => {
+                    obj?.remove(v, k, pst);
+                })
             }
         }
 

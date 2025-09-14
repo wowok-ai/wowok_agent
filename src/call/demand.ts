@@ -1,5 +1,6 @@
 import { TransactionBlock, IsValidArgType, Service, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Demand, PermissionObject, ParseType} from 'wowok';
+    PermissionIndexType, Demand, PermissionObject, ParseType,
+    ValueType} from 'wowok';
 import { ObjectDemand, ObjectGuard, query_objects, queryTableItem_DemandService, TableItem_DemandPresenter } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayload, PassportPayloadValue, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
@@ -54,7 +55,7 @@ export class CallDemand extends CallBase {
     async call(account?:string) : Promise<CallResult> {
         const guards : string[] = [];
         const perms : PermissionIndexType[] = []; 
-        let payload : PassportPayload[] | undefined;
+        let payload : PassportPayload[]  = [];
         const add_perm = (index:PermissionIndex) => {
             if (this.permission_address && !perms.includes(index)) {
                 perms.push(index);
@@ -97,7 +98,7 @@ export class CallDemand extends CallBase {
                 if ((this.content as ObjectDemand)?.guard?.object) {
                     guards.push((this.content as ObjectDemand).guard?.object!);
                     if ((this.content as ObjectDemand)?.guard?.service_id_in_guard != null) {
-                        payload = [{guard:(this.content as ObjectDemand).guard?.object!, identifier:(this.content as ObjectDemand).guard?.service_id_in_guard!}]
+                        payload.push({guard:(this.content as ObjectDemand).guard?.object!, identifier:(this.content as ObjectDemand).guard?.service_id_in_guard!});
                     }
                 }
             } 
@@ -201,8 +202,8 @@ export class CallDemand extends CallBase {
                     ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard is NOT a Guard object:${guard}`)
                 }
                 if (this.data?.guard?.service_id_in_guard != null) {
-                    if (!(r?.objects[0] as ObjectGuard)?.identifier?.find(v => v.id === this.data?.guard?.service_id_in_guard)) {
-                        ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.service_id_in_guard(${this.data?.guard?.service_id_in_guard}) NOT in Guard identifiers`)
+                    if (!(r?.objects[0] as ObjectGuard)?.identifier?.find(v => v.id === this.data?.guard?.service_id_in_guard && v.value_type === ValueType.TYPE_ADDRESS)) {
+                        ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.service_id_in_guard(${this.data?.guard?.service_id_in_guard}) NOT exist in Guard identifiers or type invalid`)
                     }
                 }
                 obj?.set_guard(guard, this.data.guard?.service_id_in_guard ?? undefined, pst);                

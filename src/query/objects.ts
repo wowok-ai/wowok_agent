@@ -6,7 +6,8 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, Tags, uint2address, DeGuardData, DeGuardConstant,
-    GuardParser,
+    GuardParser, ValueType,
+    Bcs,
 } from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
@@ -251,7 +252,7 @@ export interface GuardGraphData {
 export interface ObjectGuard extends ObjectBase {
     description: string;
     input: Uint8Array;
-    identifier: {id:number; bWitness:boolean; value:Uint8Array}[];
+    identifier: {id:number; bWitness:boolean; raw:Uint8Array, value_type?:ValueType}[];
     graph: GuardGraphData;
 }
 
@@ -708,7 +709,10 @@ export function data2object(data?:any) : ObjectBase {
                 data_count:parseInt(content?.data?.fields?.size), reference:content?.reference, rep_type:content?.type, 
                 policy:content?.policies?.fields?.contents?.map((v:any) => {
                     return {key:v?.fields?.key, description:v?.fields?.value?.fields?.description,
-                        permissionIndex:v?.fields?.value?.fields?.permission_index, dataType:v?.fields?.value?.fields?.value_type}
+                        permissionIndex:v?.fields?.value?.fields?.permission_index, 
+                        dataType:v?.fields?.value?.fields?.value_type,
+                        guard:v?.fields?.value?.fields?.guard,
+                        id_from_guard:v?.fields?.value?.fields?.id_from_guard}
                     })
             } as ObjectRepository;  
         case 'Payment':
@@ -733,7 +737,12 @@ export function data2object(data?:any) : ObjectBase {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 description:content?.description, input:Uint8Array.from(content?.input?.fields?.bytes),
                 identifier:content?.constants?.map((v:any) => {
-                    return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, value:Uint8Array.from(v?.fields?.value)}
+                    const raw = Uint8Array.from(v?.fields?.value); 
+                    let value_type : ValueType | undefined;
+                    if (raw.length === 1) {
+                        value_type = raw[0];
+                    }
+                    return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, raw:raw, value_type:value_type}
                 }), graph: {
                     root: graph.object, constants: graph.constant, description: `Guard Graph is a multi-layer tree structure of logic and data. 
                     Each ordered sub-node is an operation parameter of its parent node. Eventually, the verification result of True or False at the root node is determined through a right-associative post-order traversal. 

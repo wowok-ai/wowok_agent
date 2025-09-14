@@ -104,6 +104,8 @@ export class CallBase {
     ;
     async call_with_witness(info, account) {
         if (info.guards.length > 0) { // prepare passport
+            info?.payload?.forEach(v => {
+            });
             const p = await GuardParser.Create([...info.guards]);
             if (p) {
                 const query = await p.done(info.witness);
@@ -111,7 +113,7 @@ export class CallBase {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query);
                     await this.prepare();
-                    await this.operate(txb, passport?.get_object(), undefined, account);
+                    await this.operate(txb, passport?.get_object(), info?.payload, account);
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
                 }
@@ -157,7 +159,7 @@ export class CallBase {
                     return await this.sign_and_commit(txb, account);
                 }
             }
-            return { guards: [...guards], witness: p.future_fills() };
+            return { guards: [...guards], witness: p.future_fills(), payload: payload };
         }
         else { // no passport needed
             return await this.exec(account);

@@ -115,6 +115,7 @@ export interface ResponseData extends ObjectBase {
 export interface GuardInfo_forCall {
     guards: string[];
     witness: WitnessFill[];
+    payload?: PassportPayload[];
 }
 
 export interface CallResponseError {
@@ -185,6 +186,9 @@ export class CallBase {
     async call(account?:string) : Promise<CallResult>  { return undefined };
     async call_with_witness (info: GuardInfo_forCall, account?:string) : Promise<CallResponse | undefined> {
         if (info.guards.length > 0) {         // prepare passport
+            info?.payload?.forEach(v => {
+
+            })
             const p: GuardParser | undefined = await GuardParser.Create([...info.guards]);
 
             if (p) {
@@ -193,7 +197,7 @@ export class CallBase {
                     const txb = new TransactionBlock();
                     const passport = new Passport(txb, query!);   
                     await this.prepare();
-                    await this.operate(txb, passport?.get_object(), undefined, account)
+                    await this.operate(txb, passport?.get_object(), info?.payload, account)
                     passport.destroy();
                     return await this.sign_and_commit(txb, account);
 
@@ -242,7 +246,7 @@ export class CallBase {
                     return await this.sign_and_commit(txb, account);
                 }
             } 
-            return {guards:[...guards], witness:p!.future_fills()};
+            return {guards:[...guards], witness:p!.future_fills(), payload:payload};
         } else { // no passport needed
             return await this.exec(account)
         }

@@ -53,6 +53,7 @@ export interface ResponseData extends ObjectBase {
 export interface GuardInfo_forCall {
     guards: string[];
     witness: WitnessFill[];
+    payload?: PassportPayload[];
 }
 export interface CallResponseError {
     error: string;
