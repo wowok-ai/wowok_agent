@@ -61,12 +61,12 @@ export declare const ValueTypeSchema: z.ZodObject<{
     type: z.ZodNumber;
     description: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     type: number;
+    name: string;
     description?: string | undefined;
 }, {
-    name: string;
     type: number;
+    name: string;
     description?: string | undefined;
 }>;
 export declare const PermissionItemSchema: z.ZodObject<{
@@ -76,14 +76,14 @@ export declare const PermissionItemSchema: z.ZodObject<{
     module: z.ZodString;
     guard: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     description: string;
+    name: string;
     index: number;
     module: string;
     guard?: string | undefined;
 }, {
-    name: string;
     description: string;
+    name: string;
     index: number;
     module: string;
     guard?: string | undefined;
@@ -96,14 +96,14 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
     }, {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -117,12 +117,12 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
             type: z.ZodNumber;
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }, {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }>, "many">;
         return: z.ZodObject<{
@@ -130,12 +130,12 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
             type: z.ZodNumber;
             description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }, {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }>;
         description: z.ZodString;
@@ -143,37 +143,37 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         description: string;
         module: string;
         parameters: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }[];
         query_name: string;
         query_id: number;
         return: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         };
     }, {
         description: string;
         module: string;
         parameters: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }[];
         query_name: string;
         query_id: number;
         return: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         };
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     built_in_permissions: {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -182,22 +182,22 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         description: string;
         module: string;
         parameters: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }[];
         query_name: string;
         query_id: number;
         return: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         };
     }[];
 }, {
     built_in_permissions: {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -206,15 +206,15 @@ export declare const QueryWowokProtocolResultSchema: z.ZodObject<{
         description: string;
         module: string;
         parameters: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         }[];
         query_name: string;
         query_id: number;
         return: {
-            name: string;
             type: number;
+            name: string;
             description?: string | undefined;
         };
     }[];
@@ -468,14 +468,14 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
         module: z.ZodString;
         guard: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
     }, {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -487,8 +487,8 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
     admin?: boolean | undefined;
     owner?: boolean | undefined;
     items?: {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -499,8 +499,8 @@ export declare const QueryPermissionResultSchema: z.ZodObject<{
     admin?: boolean | undefined;
     owner?: boolean | undefined;
     items?: {
-        name: string;
         description: string;
+        name: string;
         index: number;
         module: string;
         guard?: string | undefined;
@@ -693,8 +693,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
         retentive?: "always" | "session" | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     address: string | number;
+    name: string;
     parent: string;
     session?: {
         retentive: "always" | "session";
@@ -702,8 +702,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     } | undefined;
     no_cache?: boolean | undefined;
 }, {
-    name: string;
     address: string | number;
+    name: string;
     parent: string;
     session?: {
         network: import("wowok").ENTRYPOINT;
@@ -1153,8 +1153,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
                 retentive?: "always" | "session" | undefined;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 retentive: "always" | "session";
@@ -1162,8 +1162,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         }, {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1174,8 +1174,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 retentive: "always" | "session";
@@ -1186,8 +1186,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     }, {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1332,8 +1332,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 retentive: "always" | "session";
@@ -1434,8 +1434,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            name: string;
             address: string | number;
+            name: string;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;

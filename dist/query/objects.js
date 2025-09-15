@@ -443,7 +443,7 @@ export function data2object(data) {
             case 'TableItem_PermissionEntity':
                 return {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
-                    entity: content?.name, permission: content?.value?.map((v) => {
+                    entity: content?.name, permission: content?.value?.fields?.value?.map((v) => {
                         return { id: v?.fields.index, guard: v?.fields.guard };
                     })
                 };

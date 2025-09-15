@@ -790,7 +790,7 @@ export function data2object(data?:any) : ObjectBase {
         case 'TableItem_PermissionEntity':
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
-                entity:content?.name, permission:content?.value?.map((v:any) => {
+                entity:content?.name, permission:content?.value?.fields?.value?.map((v:any) => {
                     return {id:v?.fields.index, guard:v?.fields.guard}
                 })
             } as TableItem_PermissionEntity;
