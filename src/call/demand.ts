@@ -190,7 +190,7 @@ export class CallDemand extends CallBase {
         }
         
         if (this.data?.guard != null) {
-            if (this.data?.guard.guard === null) {
+            if (!this.data?.guard.guard) {
                 obj?.set_guard(null, undefined, pst);
             } else {
                 const guard = await LocalMark.Instance().get_address(this.data?.guard.guard);
