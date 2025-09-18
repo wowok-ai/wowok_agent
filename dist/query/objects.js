@@ -317,10 +317,10 @@ export function data2object(data) {
                     arbitration: content?.arbitrations, bPaused: content?.bPaused, bPublished: content?.bPublished,
                     buy_guard: content?.buy_guard, endpoint: content?.endpoint, payee_treasury: content?.payee, repository: content?.repositories,
                     withdraw_guard: content?.withdraw_guard?.fields?.contents?.map((v) => {
-                        return { guard: v?.fields?.key, percent: v?.fields?.value };
+                        return { guard: v?.fields?.key, rate: v?.fields?.value };
                     }),
                     refund_guard: content?.refund_guard?.fields?.contents?.map((v) => {
-                        return { guard: v?.fields?.key, percent: v?.fields?.value };
+                        return { guard: v?.fields?.key, rate: v?.fields?.value };
                     }),
                     sales_count: parseInt(content?.sales?.fields?.size), extern_withdraw_treasury: content?.extern_withdraw_treasuries,
                     customer_required_info: content?.customer_required ?

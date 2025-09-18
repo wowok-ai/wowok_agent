@@ -100,9 +100,9 @@ export interface ObjectProgress extends ObjectBase {
 export interface TableItem_ProgressHistory extends ObjectBase {
     history: History;
 }
-export interface GuardWithPercent {
+export interface GuardWithRate {
     guard: string;
-    percent: number;
+    rate: number;
 }
 export interface ObjectService extends ObjectBase {
     permission: string;
@@ -118,8 +118,8 @@ export interface ObjectService extends ObjectBase {
     payee_treasury: string;
     repository: string[];
     sales_count: number;
-    withdraw_guard: GuardWithPercent[];
-    refund_guard: GuardWithPercent[];
+    withdraw_guard: GuardWithRate[];
+    refund_guard: GuardWithRate[];
     customer_required_info?: {
         pubkey: string;
         required_info: string[];

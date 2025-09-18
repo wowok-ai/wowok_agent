@@ -1,4 +1,4 @@
-import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Guard_Percent, Service_Sale, Service_Discount } from 'wowok';
+import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Guard_Rate, Service_Sale, Service_Discount } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp, PayParam, PassportPayloadValue } from "./base.js";
 export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;
@@ -72,7 +72,7 @@ export interface CallService_Data {
     };
     withdraw_guard?: {
         op: 'add' | 'set';
-        guards: Service_Guard_Percent[];
+        guards: Service_Guard_Rate[];
     } | {
         op: 'removeall';
     } | {
@@ -81,7 +81,7 @@ export interface CallService_Data {
     };
     refund_guard?: {
         op: 'add' | 'set';
-        guards: Service_Guard_Percent[];
+        guards: Service_Guard_Rate[];
     } | {
         op: 'removeall';
     } | {

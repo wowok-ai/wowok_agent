@@ -1,6 +1,6 @@
 import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject, Errors, ERROR, Permission, 
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, 
-    Service_Guard_Percent, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
+    Service_Guard_Rate, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
     ProgressObject, Arbitration, Service_Discount, PermissionObject, ParseType,
     IsValidAddress
 } from 'wowok';
@@ -63,9 +63,9 @@ export interface CallService_Data {
     arbitration?: ObjectsOp;
     customer_required_info?: {pubkey:string; required_info:(string | BuyRequiredEnum)[]} | null;
     sales?: {op:'add', sales:Service_Sale[]} | {op:'remove'; sales_name:string[]}
-    withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
+    withdraw_guard?: {op:'add' | 'set'; guards:Service_Guard_Rate[]} 
         | {op:'removeall'} | {op:'remove', guards:string[]};
-    refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Percent[]} 
+    refund_guard?: {op:'add' | 'set'; guards:Service_Guard_Rate[]} 
         | {op:'removeall'} | {op:'remove', guards:string[]};
     bPublished?: boolean;
     buy_guard?: string | null;

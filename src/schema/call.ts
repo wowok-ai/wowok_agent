@@ -195,14 +195,14 @@ const ProgressOperationSchema = z.object({
     forward: z.string().nonempty().describe(D.ProgressOperation_Forward_Description),
 }).describe(D.ProgressOperation_Description);
 
-const GuardPercentSchema = z.union([
+const GuardRateSchema = z.union([
     z.object({
         op: z.union([z.literal('add'), z.literal('set')]),
         guards: z.array(z.object({
             guard: GetMarkNameSchema('Guard'),
-            percent: z.number().int().min(0).max(100)
+            rate: z.number().int().min(0).max(10000)
         }))
-    }).describe(D.GuardPercent_Add_Description), 
+    }).describe(D.GuardRate_Add_Description), 
     z.object({
         op: z.literal('remove'), 
         guards: z.array(GetMarkNameSchema('Guard'))
@@ -210,7 +210,7 @@ const GuardPercentSchema = z.union([
     z.object({
         op: z.literal('removeall'), 
     })
-]).describe(D.GuardPercent_Description)
+]).describe(D.GuardRate_Description)
 
 const RepositoryValueTypeSchema = z.union([
     z.literal(WOWOK.RepositoryValueType.Address).describe(D.RepositoryValueType_Address),
@@ -749,8 +749,8 @@ export const CallServiceDataSchema = z.object({
             sales_name: z.array(z.string().nonempty().describe('Goods name'))
         }).describe('Remove goods')
     ]).optional().describe('Manage the sale of goods'),
-    withdraw_guard:GuardPercentSchema.optional().describe('Management withdraw guards.'),
-    refund_guard: GuardPercentSchema.optional().describe('Management refund guards.'),
+    withdraw_guard:GuardRateSchema.optional().describe('Management withdraw guards.'),
+    refund_guard: GuardRateSchema.optional().describe('Management refund guards.'),
     bPublished:z.boolean().optional().describe('Publish the Service object. ' + 
         'If True, The Service object will allow its Order object to be created, and data such as the Machine, Withdraw guards, Refund guards, etc. cannot be changed again. If False, it is ignored.'),
     buy_guard: GetMarkNameSchema('Guard').optional().nullable().describe(D.Buy_Guard),

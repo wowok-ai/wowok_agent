@@ -6,9 +6,7 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, Tags, uint2address, DeGuardData, DeGuardConstant,
-    GuardParser, ValueType,
-    Bcs,
-} from 'wowok';
+    GuardParser, ValueType,} from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
 import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
@@ -107,9 +105,9 @@ export interface ObjectProgress extends ObjectBase {
 export interface TableItem_ProgressHistory extends ObjectBase {
     history: History;
 }
-export interface GuardWithPercent {
+export interface GuardWithRate {
     guard:string, 
-    percent:number
+    rate:number
 }
 export interface ObjectService extends ObjectBase {
     permission: string;
@@ -125,8 +123,8 @@ export interface ObjectService extends ObjectBase {
     payee_treasury: string;
     repository: string[];
     sales_count: number;
-    withdraw_guard: GuardWithPercent[];
-    refund_guard: GuardWithPercent[];
+    withdraw_guard: GuardWithRate[];
+    refund_guard: GuardWithRate[];
     customer_required_info?: {pubkey:string; required_info:string[]};
 }
 
@@ -663,10 +661,10 @@ export function data2object(data?:any) : ObjectBase {
                 arbitration:content?.arbitrations, bPaused:content?.bPaused, bPublished:content?.bPublished,
                 buy_guard:content?.buy_guard, endpoint:content?.endpoint, payee_treasury:content?.payee, repository:content?.repositories, 
                 withdraw_guard:content?.withdraw_guard?.fields?.contents?.map((v:any) => {
-                    return {guard:v?.fields?.key, percent:v?.fields?.value} as GuardWithPercent
+                    return {guard:v?.fields?.key, rate:v?.fields?.value} as GuardWithRate
                 }),
                 refund_guard:content?.refund_guard?.fields?.contents?.map((v:any) => {
-                    return {guard:v?.fields?.key, percent:v?.fields?.value} as GuardWithPercent
+                    return {guard:v?.fields?.key, rate:v?.fields?.value} as GuardWithRate
                 }),
                 sales_count:parseInt(content?.sales?.fields?.size), extern_withdraw_treasury:content?.extern_withdraw_treasuries,
                 customer_required_info:content?.customer_required ? 
