@@ -3,7 +3,7 @@ import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permis
 } from 'wowok';
 import { query_objects, ObjectTreasury, Treasury_ReceivedObject, GuardWithAmount } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, 
-    GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayloadValue, PayParam, TypeNamedObjectWithPermission } from "./base.js";
+    GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayload, PayParam, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { get_object_address } from '../common.js';
@@ -134,7 +134,7 @@ export class CallTreasury extends CallBase {
         }
         return await this.exec(account);
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Treasury | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         

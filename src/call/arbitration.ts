@@ -4,7 +4,7 @@ import { TransactionBlock, IsValidArgType, PassportObject, Errors, ERROR, Permis
 import { ObjectArbitration, query_objects, } from '../query/objects.js';
 import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, 
     ObjectParam, ObjectTypedMain, SetWithdrawFee, TypeNamedObjectWithPermission, PayParam, 
-    PassportPayloadValue} from "./base.js";
+    PassportPayload} from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 
@@ -130,7 +130,7 @@ export class CallArbitration extends CallBase {
         }
         return await this.exec(account);
     }
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Arbitration | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         let withdraw_treasury:Treasury | undefined;

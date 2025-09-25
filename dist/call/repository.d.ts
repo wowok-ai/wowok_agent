@@ -1,5 +1,5 @@
 import { TransactionBlock, PassportObject, Repository_Policy_Mode, Repository_Policy, RepositoryValueType } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, ObjectMain, ObjectsOp, PassportPayloadValue } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, ObjectMain, ObjectsOp, PassportPayload } from "./base.js";
 export interface RepositoryNumber {
     type: RepositoryValueType.PositiveNumber;
     data: string | number | bigint;
@@ -104,6 +104,6 @@ export declare class CallRepository extends CallBase {
     private DataAddress2DataKey;
     private AddData;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=repository.d.ts.map

@@ -6,7 +6,8 @@
 import { Protocol, Machine_Node, Machine, Treasury_WithdrawMode, Treasury_Operation,
     Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale,
     Progress, History, ERROR, Errors, Tags, uint2address, DeGuardData, DeGuardConstant,
-    GuardParser, ValueType,} from 'wowok';
+    GuardParser, ValueType, GuardIdentifer,
+    Guard,} from 'wowok';
 import { CacheExpireType, CacheName, Cache } from '../local/cache.js'
 import { LocalMark } from '../local/local.js';
 import { AccountOrMark_Address, GetAccountOrMark_Address } from '../call/base.js';
@@ -125,7 +126,7 @@ export interface ObjectService extends ObjectBase {
     sales_count: number;
     withdraw_guard: GuardWithRate[];
     refund_guard: GuardWithRate[];
-    customer_required_info?: {pubkey:string; required_info:string[]};
+    customer_required_info?: {pubkey:string; required_info:string[], update_time:number};
 }
 
 export interface TableItem_ServiceSale extends ObjectBase {
@@ -250,7 +251,7 @@ export interface GuardGraphData {
 export interface ObjectGuard extends ObjectBase {
     description: string;
     input: Uint8Array;
-    identifier: {id:number; bWitness:boolean; raw:Uint8Array, value_type?:ValueType}[];
+    identifier: GuardIdentifer[];
     graph: GuardGraphData;
 }
 
@@ -668,7 +669,9 @@ export function data2object(data?:any) : ObjectBase {
                 }),
                 sales_count:parseInt(content?.sales?.fields?.size), extern_withdraw_treasury:content?.extern_withdraw_treasuries,
                 customer_required_info:content?.customer_required ? 
-                    {pubkey:content?.customer_required?.fields?.service_pubkey, required_info:content?.customer_required?.fields?.customer_required_info}
+                    {pubkey:content?.customer_required?.fields?.service_pubkey, 
+                        required_info:content?.customer_required?.fields?.customer_required_info,
+                        update_time:content?.customer_required?.fields?.time}
                     :undefined,
             } as ObjectService;
         case 'Treasury':
@@ -730,18 +733,16 @@ export function data2object(data?:any) : ObjectBase {
                 name:content?.name
             } as ObjectDiscount;   
         case 'Guard':
-            const graph = GuardParser.DeGuardObject_FromData(content?.constants, content?.input?.fields?.bytes);
+            const graph = GuardParser.DeGuardObject_FromData(
+                content?.constants, 
+                content?.input?.fields?.bytes,
+                content?.id_description?.fields?.contents
+                );
+
             return {
                 object:id, type:type, type_raw:type_raw, owner:owner, version:version, 
                 description:content?.description, input:Uint8Array.from(content?.input?.fields?.bytes),
-                identifier:content?.constants?.map((v:any) => {
-                    const raw = Uint8Array.from(v?.fields?.value); 
-                    let value_type : ValueType | undefined;
-                    if (raw.length === 1) {
-                        value_type = raw[0];
-                    }
-                    return {id:v?.fields?.identifier, bWitness:v?.fields?.bWitness, raw:raw, value_type:value_type}
-                }), graph: {
+                identifier:Guard.AddressIdentifiersImp(content), graph: {
                     root: graph.object, constants: graph.constant, description: `Guard Graph is a multi-layer tree structure of logic and data. 
                     Each ordered sub-node is an operation parameter of its parent node. Eventually, the verification result of True or False at the root node is determined through a right-associative post-order traversal. 
                     Its data sources are classified into several types: 

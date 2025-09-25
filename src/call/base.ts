@@ -72,7 +72,7 @@ export const GetAccountOrMark_Address = async (entity?: AccountOrMark_Address) :
         }
         return r
     } else {
-        const r = (await Account.Instance().get(entity.name_or_address))?.address;
+        const r = await Account.Instance().get_address(entity.name_or_address);
         if (!r) {
             return await LocalMark.Instance().get_address(entity.name_or_address);
         }        
@@ -125,28 +125,26 @@ export interface CallResponseError {
 export interface PassportPayload {
     guard:string, 
     identifier:number, 
-}
-
-export interface PassportPayloadValue extends PassportPayload {
     value?:string | null, 
     value_type?:ValueType | null,
     bWitness?:boolean | null, 
 }
-function Passport_PayloadValue(payload:PassportPayload[] | undefined, parser:GuardParser | undefined) : PassportPayloadValue[] | undefined {
-    if (payload && parser) {
-        const res = payload.map((v) => {
-            return {...v} as PassportPayloadValue
-        });
 
-        res.forEach((v) => {
+function Passport_PayloadValue(payload:PassportPayload[] | undefined, parser:GuardParser | undefined) : PassportPayload[] | undefined {
+    if (payload && parser) {
+        payload.forEach((v) => {
             const val = parser.guardlist().find((i) => i.id === v.guard)?.constant?.find((j) => j.identifier === v.identifier);
             if (val !== undefined) {
                 v.value = val.value;
                 v.value_type = val.type;
                 v.bWitness = val.bWitness;
+            } else {
+                v.value = null;
+                v.value_type = undefined;
+                v.bWitness = undefined;
             }
         })   
-        return res   
+        return payload   
     }
 }
 
@@ -177,7 +175,7 @@ export class CallBase {
     private traceMarkNew = new Map<ObjectBaseType, Namedbject>();
     content: ObjectBase | undefined = undefined;
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {};
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {};
     protected async prepare(session?:SessionOption) {};
     constructor () {}
     // return WitnessFill to resolve filling witness, and than 'call_with_witness' to complete the call; 

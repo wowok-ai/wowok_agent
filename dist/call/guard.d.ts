@@ -2,12 +2,13 @@
  *  generate and launch a guard
  */
 import { ContextType, OperatorType, ValueType, TransactionBlock, PassportObject, MODULES, WitnessType } from "wowok";
-import { CallBase, CallResult, Namedbject, PassportPayloadValue } from "./base.js";
+import { CallBase, CallResult, Namedbject, PassportPayload } from "./base.js";
 export interface GuardConst {
     identifier: number;
     bWitness: boolean;
     value_type: ValueType;
     value?: any;
+    description?: string;
 }
 interface FunctiionQuery {
     module: MODULES;
@@ -46,7 +47,7 @@ export declare class CallGuard extends CallBase {
     data: CallGuard_Data;
     constructor(data: CallGuard_Data);
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;
 }
 export {};
 //# sourceMappingURL=guard.d.ts.map

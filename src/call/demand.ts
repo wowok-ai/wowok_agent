@@ -1,8 +1,7 @@
 import { TransactionBlock, IsValidArgType, Service, PassportObject, Errors, ERROR, Permission, PermissionIndex, 
-    PermissionIndexType, Demand, PermissionObject, ParseType,
-    ValueType} from 'wowok';
-import { ObjectDemand, ObjectGuard, query_objects, queryTableItem_DemandService, TableItem_DemandPresenter } from '../query/objects.js';
-import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayload, PassportPayloadValue, TypeNamedObjectWithPermission } from "./base.js";
+    PermissionIndexType, Demand, PermissionObject, ParseType, Guard, ValueType} from 'wowok';
+import { ObjectDemand, ObjectGuard, query_objects, queryTableItem_DemandService } from '../query/objects.js';
+import { CallBase, CallResult, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectTypedMain, PassportPayload, TypeNamedObjectWithPermission } from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 
@@ -98,7 +97,9 @@ export class CallDemand extends CallBase {
                 if ((this.content as ObjectDemand)?.guard?.object) {
                     guards.push((this.content as ObjectDemand).guard?.object!);
                     if ((this.content as ObjectDemand)?.guard?.service_id_in_guard != null) {
-                        payload.push({guard:(this.content as ObjectDemand).guard?.object!, identifier:(this.content as ObjectDemand).guard?.service_id_in_guard!});
+                        payload.push({guard:(this.content as ObjectDemand).guard?.object!, 
+                            identifier:(this.content as ObjectDemand).guard?.service_id_in_guard!,
+                            value:await LocalMark.Instance().get_address(this.data.present.service)});
                     }
                 }
             } 
@@ -109,7 +110,7 @@ export class CallDemand extends CallBase {
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Demand | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
 
@@ -121,7 +122,7 @@ export class CallDemand extends CallBase {
             permission = await LocalMark.Instance().get_address(GetObjectExisted(n?.permission));
             if (!permission) {
                 perm = Permission.New(txb, GetObjectParam(n?.permission)?.description ?? '');
-                permission =  perm.get_object();
+                permission = perm.get_object();
             }
             
             if (this.data.time_expire != null) {
@@ -197,12 +198,13 @@ export class CallDemand extends CallBase {
                 if (!guard) {
                     ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard: ${guard}`)
                 }
-                const r = await query_objects({objects:[guard]});
-                if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Guard') {
+                const r = await Guard.QueryAddressIdentifiers(guard);
+                if (!r) {
                     ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard is NOT a Guard object:${guard}`)
                 }
+
                 if (this.data?.guard?.service_id_in_guard != null) {
-                    if (!(r?.objects[0] as ObjectGuard)?.identifier?.find(v => v.id === this.data?.guard?.service_id_in_guard && v.value_type === ValueType.TYPE_ADDRESS)) {
+                    if (!r?.find(v => v.identifier === this.data?.guard?.service_id_in_guard && v.type === ValueType.TYPE_ADDRESS)) {
                         ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.service_id_in_guard(${this.data?.guard?.service_id_in_guard}) NOT exist in Guard identifiers or type invalid`)
                     }
                 }

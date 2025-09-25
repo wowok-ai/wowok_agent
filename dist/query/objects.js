@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, uint2address, GuardParser, } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, uint2address, GuardParser, Guard, } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
@@ -324,7 +324,9 @@ export function data2object(data) {
                     }),
                     sales_count: parseInt(content?.sales?.fields?.size), extern_withdraw_treasury: content?.extern_withdraw_treasuries,
                     customer_required_info: content?.customer_required ?
-                        { pubkey: content?.customer_required?.fields?.service_pubkey, required_info: content?.customer_required?.fields?.customer_required_info }
+                        { pubkey: content?.customer_required?.fields?.service_pubkey,
+                            required_info: content?.customer_required?.fields?.customer_required_info,
+                            update_time: content?.customer_required?.fields?.time }
                         : undefined,
                 };
             case 'Treasury':
@@ -385,18 +387,11 @@ export function data2object(data) {
                     name: content?.name
                 };
             case 'Guard':
-                const graph = GuardParser.DeGuardObject_FromData(content?.constants, content?.input?.fields?.bytes);
+                const graph = GuardParser.DeGuardObject_FromData(content?.constants, content?.input?.fields?.bytes, content?.id_description?.fields?.contents);
                 return {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version,
                     description: content?.description, input: Uint8Array.from(content?.input?.fields?.bytes),
-                    identifier: content?.constants?.map((v) => {
-                        const raw = Uint8Array.from(v?.fields?.value);
-                        let value_type;
-                        if (raw.length === 1) {
-                            value_type = raw[0];
-                        }
-                        return { id: v?.fields?.identifier, bWitness: v?.fields?.bWitness, raw: raw, value_type: value_type };
-                    }), graph: {
+                    identifier: Guard.AddressIdentifiersImp(content), graph: {
                         root: graph.object, constants: graph.constant, description: `Guard Graph is a multi-layer tree structure of logic and data. 
                     Each ordered sub-node is an operation parameter of its parent node. Eventually, the verification result of True or False at the root node is determined through a right-associative post-order traversal. 
                     Its data sources are classified into several types: 

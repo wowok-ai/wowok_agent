@@ -167,18 +167,17 @@ const GuardNodeSchema: z.ZodType = z.lazy(() => z.union([
     })
 ]).describe(D.GuardNode_Description));
 
-const MachineForwardSupplySchema  = z.object({
-    service: GetMarkNameSchema('Service').describe(D.Forward_Supply_Object_Description),
-    bRequired:z.boolean().optional().describe(D.Forward_Supply_bRequired_Description)
-});
+const SupplierGuardSchema = z.object({
+    guard: GetMarkNameSchema('Guard'),
+    order_ids: z.array(GuardIndentifierSchema).describe(D.SupplierGuard_OrderIds_Description)
+}).describe(D.SupplierGuard_Description);
 
 const MachineNode_ForwardSchema = z.object({
     name:z.string().nonempty().describe(D.Forward_Name_Description),
     namedOperator:z.string().nonempty().optional().describe(D.Forward_NamedOperator_Description),
     permission:GetPermissionIndexSchema('biz').optional().describe(D.Forward_Permission_Description),
     weight: z.number().int().min(1).default(1).optional().describe(D.Forward_Weight_Description),
-    guard: z.string().optional().describe(D.Forward_Guard_Description),
-    suppliers: z.array(MachineForwardSupplySchema).optional().describe(D.Forward_Supplies_Description)
+    guard: SupplierGuardSchema.optional(),
 });
 
 const MachineNodeSchema = z.object({
@@ -269,7 +268,8 @@ export const CallGuardDataSchema = z.object({
         identifier:GuardIndentifierSchema.describe(D.Guard_Table_Id),
         bWitness:z.boolean().describe(D.Guard_Table_bWitenss),
         value_type: ValueTypeSchema.describe(D.Guard_Table_Type),
-        value: z.any().optional().describe(D.Guard_Table_Value)
+        value: z.any().optional().describe(D.Guard_Table_Value),
+        description: z.string().optional().describe(D.Guard_Table_Des)
     })).optional().describe(D.Guard_Table_Description),
 }).describe(D.GetObjectDataDescription('Guard'));
 
@@ -314,10 +314,7 @@ export const CallMachineDataSchema = z.object({
     progress_next: z.object({
         progress: GetMarkNameSchema('Progress'),
         operation:ProgressOperationSchema,
-        deliverable: z.object({
-            msg: z.string().describe(D.Deliverble_Msg),
-            orders: z.array(GetMarkNameSchema('Order')).describe(D.Deliverble_Orders)
-        })
+        deliverable: z.string().describe(D.Deliverble_Msg),
     }).optional().describe(D.Progress_Next_Description),    
     description: z.string().optional().describe(D.ObjectDes_Description),
     endpoint: z.string().nullable().optional().describe(D.Machine_Endpoint_Description),

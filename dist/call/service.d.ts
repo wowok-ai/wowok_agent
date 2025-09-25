@@ -1,5 +1,5 @@
 import { TransactionBlock, PassportObject, BuyRequiredEnum, Service_Guard_Rate, Service_Sale, Service_Discount } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp, PayParam, PassportPayloadValue } from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp, PayParam, PassportPayload } from "./base.js";
 export interface ServiceWithdraw extends PayParam {
     withdraw_guard: string;
 }
@@ -109,7 +109,7 @@ export declare class CallService extends CallBase {
     call(account?: string): Promise<CallResult>;
     private order_allowed;
     private order_progress;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;
     private info_crypto;
 }
 //# sourceMappingURL=service.d.ts.map

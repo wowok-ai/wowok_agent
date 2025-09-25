@@ -172,10 +172,6 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: {
-        guard: string | null;
-        service_id_in_guard?: number | undefined;
-    } | undefined;
     present?: {
         recommend_words: string;
         service?: string | undefined;
@@ -201,6 +197,10 @@ export declare const CallDemandDataSchema: z.ZodObject<{
     } | {
         op: "refund";
     } | undefined;
+    guard?: {
+        guard: string | null;
+        service_id_in_guard?: number | undefined;
+    } | undefined;
 }, {
     object: string | {
         type_parameter: string;
@@ -217,10 +217,6 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: {
-        guard: string | null;
-        service_id_in_guard?: number | undefined;
-    } | undefined;
     present?: {
         service?: string | undefined;
         recommend_words?: string | undefined;
@@ -245,6 +241,10 @@ export declare const CallDemandDataSchema: z.ZodObject<{
         service: string;
     } | {
         op: "refund";
+    } | undefined;
+    guard?: {
+        guard: string | null;
+        service_id_in_guard?: number | undefined;
     } | undefined;
 }>;
 export declare const CallGuardDataSchema: z.ZodObject<{
@@ -271,16 +271,19 @@ export declare const CallGuardDataSchema: z.ZodObject<{
         bWitness: z.ZodBoolean;
         value_type: z.ZodNativeEnum<typeof WOWOK.ValueType>;
         value: z.ZodOptional<z.ZodAny>;
+        description: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
+        description?: string | undefined;
     }, {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
+        description?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     description?: string | undefined;
@@ -293,9 +296,10 @@ export declare const CallGuardDataSchema: z.ZodObject<{
     root?: any;
     table?: {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
+        description?: string | undefined;
     }[] | undefined;
 }, {
     description?: string | undefined;
@@ -308,9 +312,10 @@ export declare const CallGuardDataSchema: z.ZodObject<{
     root?: any;
     table?: {
         identifier: number;
-        value_type: WOWOK.ValueType;
         bWitness: boolean;
+        value_type: WOWOK.ValueType;
         value?: any;
+        description?: string | undefined;
     }[] | undefined;
 }>;
 export declare const CallMachineDataSchema: z.ZodObject<{
@@ -560,36 +565,21 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             next_node_name: string;
             forward: string;
         }>;
-        deliverable: z.ZodObject<{
-            msg: z.ZodString;
-            orders: z.ZodArray<z.ZodString, "many">;
-        }, "strip", z.ZodTypeAny, {
-            msg: string;
-            orders: string[];
-        }, {
-            msg: string;
-            orders: string[];
-        }>;
+        deliverable: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         progress: string;
         operation: {
             next_node_name: string;
             forward: string;
         };
-        deliverable: {
-            msg: string;
-            orders: string[];
-        };
+        deliverable: string;
     }, {
         progress: string;
         operation: {
             next_node_name: string;
             forward: string;
         };
-        deliverable: {
-            msg: string;
-            orders: string[];
-        };
+        deliverable: string;
     }>>;
     description: z.ZodOptional<z.ZodString>;
     endpoint: z.ZodOptional<z.ZodNullable<z.ZodString>>;
@@ -622,37 +612,34 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                     namedOperator: z.ZodOptional<z.ZodString>;
                     permission: z.ZodOptional<z.ZodTypeAny>;
                     weight: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
-                    guard: z.ZodOptional<z.ZodString>;
-                    suppliers: z.ZodOptional<z.ZodArray<z.ZodObject<{
-                        service: z.ZodString;
-                        bRequired: z.ZodOptional<z.ZodBoolean>;
+                    guard: z.ZodOptional<z.ZodObject<{
+                        guard: z.ZodString;
+                        order_ids: z.ZodArray<z.ZodNumber, "many">;
                     }, "strip", z.ZodTypeAny, {
-                        service: string;
-                        bRequired?: boolean | undefined;
+                        guard: string;
+                        order_ids: number[];
                     }, {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }>, "many">>;
+                        guard: string;
+                        order_ids: number[];
+                    }>>;
                 }, "strip", z.ZodTypeAny, {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }, {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }>, "many">;
             }, "strip", z.ZodTypeAny, {
                 prior_node: string;
@@ -660,26 +647,24 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
             }, {
                 threshold: number;
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
                 prior_node?: string | undefined;
             }>, "many">;
@@ -691,13 +676,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
             }[];
         }, {
@@ -707,13 +691,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
                 prior_node?: string | undefined;
             }[];
@@ -727,13 +710,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
             }[];
         }[];
@@ -747,13 +729,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
                 prior_node?: string | undefined;
             }[];
@@ -827,37 +808,34 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 namedOperator: z.ZodOptional<z.ZodString>;
                 permission: z.ZodOptional<z.ZodTypeAny>;
                 weight: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
-                guard: z.ZodOptional<z.ZodString>;
-                suppliers: z.ZodOptional<z.ZodArray<z.ZodObject<{
-                    service: z.ZodString;
-                    bRequired: z.ZodOptional<z.ZodBoolean>;
+                guard: z.ZodOptional<z.ZodObject<{
+                    guard: z.ZodString;
+                    order_ids: z.ZodArray<z.ZodNumber, "many">;
                 }, "strip", z.ZodTypeAny, {
-                    service: string;
-                    bRequired?: boolean | undefined;
+                    guard: string;
+                    order_ids: number[];
                 }, {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }>, "many">>;
+                    guard: string;
+                    order_ids: number[];
+                }>>;
             }, "strip", z.ZodTypeAny, {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             }, {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             }>;
             threshold: z.ZodOptional<z.ZodNumber>;
             remove_old_forward: z.ZodOptional<z.ZodString>;
@@ -865,13 +843,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -881,13 +858,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -899,13 +875,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -918,13 +893,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -1064,10 +1038,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             next_node_name: string;
             forward: string;
         };
-        deliverable: {
-            msg: string;
-            orders: string[];
-        };
+        deliverable: string;
     } | undefined;
     endpoint?: string | null | undefined;
     consensus_repository?: {
@@ -1085,13 +1056,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
             }[];
         }[];
@@ -1117,13 +1087,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -1217,10 +1186,7 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             next_node_name: string;
             forward: string;
         };
-        deliverable: {
-            msg: string;
-            orders: string[];
-        };
+        deliverable: string;
     } | undefined;
     endpoint?: string | null | undefined;
     consensus_repository?: {
@@ -1237,13 +1203,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
                 forwards: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }[];
                 prior_node?: string | undefined;
             }[];
@@ -1270,13 +1235,12 @@ export declare const CallMachineDataSchema: z.ZodObject<{
             forward: {
                 name: string;
                 permission?: any;
+                guard?: {
+                    guard: string;
+                    order_ids: number[];
+                } | undefined;
                 namedOperator?: string | undefined;
                 weight?: number | undefined;
-                guard?: string | undefined;
-                suppliers?: {
-                    service: string;
-                    bRequired?: boolean | undefined;
-                }[] | undefined;
             };
             prior_node_name: string;
             node_name: string;
@@ -3302,8 +3266,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: string | undefined;
     location?: string | undefined;
+    guard?: string | undefined;
     endpoint?: string | null | undefined;
     bPaused?: boolean | undefined;
     arb_new?: {
@@ -3375,8 +3339,8 @@ export declare const CallArbitrationDataSchema: z.ZodObject<{
         } | undefined;
     };
     description?: string | undefined;
-    guard?: string | undefined;
     location?: string | undefined;
+    guard?: string | undefined;
     endpoint?: string | null | undefined;
     bPaused?: boolean | undefined;
     arb_new?: {
@@ -5098,8 +5062,8 @@ export declare const GuardWitness: z.ZodObject<{
         witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
     }, "strip", z.ZodTypeAny, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5109,8 +5073,8 @@ export declare const GuardWitness: z.ZodObject<{
         witness?: any;
     }, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5120,10 +5084,11 @@ export declare const GuardWitness: z.ZodObject<{
         witness?: any;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
+    guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5132,12 +5097,12 @@ export declare const GuardWitness: z.ZodObject<{
         witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
         witness?: any;
     }[];
-    guards: string[];
 }, {
+    guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5146,7 +5111,6 @@ export declare const GuardWitness: z.ZodObject<{
         witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
         witness?: any;
     }[];
-    guards: string[];
 }>;
 export declare const ObjectChangedSchema: z.ZodArray<z.ZodObject<{
     object: z.ZodString;
@@ -5243,8 +5207,8 @@ export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
         witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
     }, "strip", z.ZodTypeAny, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5254,8 +5218,8 @@ export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
         witness?: any;
     }, {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5265,10 +5229,11 @@ export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
         witness?: any;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
+    guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5277,12 +5242,12 @@ export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
         witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
         witness?: any;
     }[];
-    guards: string[];
 }, {
+    guards: string[];
     witness: {
         type: WOWOK.ValueType;
-        identifier: number;
         guard: string;
+        identifier: number;
         cmd: {
             cmd: number;
             witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5291,7 +5256,6 @@ export declare const WitnessSchema: z.ZodOptional<z.ZodObject<{
         witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
         witness?: any;
     }[];
-    guards: string[];
 }>>;
 export declare const CallDemandSchemaDescription = "Operations to create or modify an on-chain Demand object using the 'account' field to sign transactions and the 'data' field to define object details. \n    The Demand object enables its manager to publish service-seeking demands, declare, and grant rewards to satisfactory service referrers. \n    It supports transtation models like C2B or C2C, where managers can dynamically update/refine demands, and referrers can adjust Services and their supply chain commitments to better fulfill personalized requirements. \n    Demand administrators control permissions for different operations through a Permission object. and may set up a Guard object to enforce threshold verification requirements for service referrers.";
 export declare const CallDemandSchema: z.ZodObject<{
@@ -5453,10 +5417,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             recommend_words: string;
             service?: string | undefined;
@@ -5482,6 +5442,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     }, {
         object: string | {
             type_parameter: string;
@@ -5498,10 +5462,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             service?: string | undefined;
             recommend_words?: string | undefined;
@@ -5527,6 +5487,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     }>;
     account: z.ZodOptional<z.ZodString>;
     witness: z.ZodOptional<z.ZodObject<{
@@ -5550,8 +5514,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5561,8 +5525,8 @@ export declare const CallDemandSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5572,10 +5536,11 @@ export declare const CallDemandSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5584,12 +5549,12 @@ export declare const CallDemandSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5598,7 +5563,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -5627,10 +5591,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             recommend_words: string;
             service?: string | undefined;
@@ -5656,6 +5616,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     };
     session?: {
         network: WOWOK.ENTRYPOINT;
@@ -5663,10 +5627,11 @@ export declare const CallDemandSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5675,7 +5640,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -5694,10 +5658,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: {
-            guard: string | null;
-            service_id_in_guard?: number | undefined;
-        } | undefined;
         present?: {
             service?: string | undefined;
             recommend_words?: string | undefined;
@@ -5723,6 +5683,10 @@ export declare const CallDemandSchema: z.ZodObject<{
         } | {
             op: "refund";
         } | undefined;
+        guard?: {
+            guard: string | null;
+            service_id_in_guard?: number | undefined;
+        } | undefined;
     };
     session?: {
         network: WOWOK.ENTRYPOINT;
@@ -5730,10 +5694,11 @@ export declare const CallDemandSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -5742,7 +5707,6 @@ export declare const CallDemandSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallDemandSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -6911,8 +6875,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -6922,8 +6886,8 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -6933,10 +6897,11 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -6945,12 +6910,12 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -6959,7 +6924,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -7114,10 +7078,11 @@ export declare const CallRepositorySchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -7126,7 +7091,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -7271,10 +7235,11 @@ export declare const CallRepositorySchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -7283,7 +7248,6 @@ export declare const CallRepositorySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallRepositorySchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -7541,36 +7505,21 @@ export declare const CallMachineSchema: z.ZodObject<{
                 next_node_name: string;
                 forward: string;
             }>;
-            deliverable: z.ZodObject<{
-                msg: z.ZodString;
-                orders: z.ZodArray<z.ZodString, "many">;
-            }, "strip", z.ZodTypeAny, {
-                msg: string;
-                orders: string[];
-            }, {
-                msg: string;
-                orders: string[];
-            }>;
+            deliverable: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             progress: string;
             operation: {
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         }, {
             progress: string;
             operation: {
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         }>>;
         description: z.ZodOptional<z.ZodString>;
         endpoint: z.ZodOptional<z.ZodNullable<z.ZodString>>;
@@ -7603,37 +7552,34 @@ export declare const CallMachineSchema: z.ZodObject<{
                         namedOperator: z.ZodOptional<z.ZodString>;
                         permission: z.ZodOptional<z.ZodTypeAny>;
                         weight: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
-                        guard: z.ZodOptional<z.ZodString>;
-                        suppliers: z.ZodOptional<z.ZodArray<z.ZodObject<{
-                            service: z.ZodString;
-                            bRequired: z.ZodOptional<z.ZodBoolean>;
+                        guard: z.ZodOptional<z.ZodObject<{
+                            guard: z.ZodString;
+                            order_ids: z.ZodArray<z.ZodNumber, "many">;
                         }, "strip", z.ZodTypeAny, {
-                            service: string;
-                            bRequired?: boolean | undefined;
+                            guard: string;
+                            order_ids: number[];
                         }, {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }>, "many">>;
+                            guard: string;
+                            order_ids: number[];
+                        }>>;
                     }, "strip", z.ZodTypeAny, {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }, {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }>, "many">;
                 }, "strip", z.ZodTypeAny, {
                     prior_node: string;
@@ -7641,26 +7587,24 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                 }, {
                     threshold: number;
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                     prior_node?: string | undefined;
                 }>, "many">;
@@ -7672,13 +7616,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                 }[];
             }, {
@@ -7688,13 +7631,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                     prior_node?: string | undefined;
                 }[];
@@ -7708,13 +7650,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                 }[];
             }[];
@@ -7728,13 +7669,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                     prior_node?: string | undefined;
                 }[];
@@ -7808,37 +7748,34 @@ export declare const CallMachineSchema: z.ZodObject<{
                     namedOperator: z.ZodOptional<z.ZodString>;
                     permission: z.ZodOptional<z.ZodTypeAny>;
                     weight: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
-                    guard: z.ZodOptional<z.ZodString>;
-                    suppliers: z.ZodOptional<z.ZodArray<z.ZodObject<{
-                        service: z.ZodString;
-                        bRequired: z.ZodOptional<z.ZodBoolean>;
+                    guard: z.ZodOptional<z.ZodObject<{
+                        guard: z.ZodString;
+                        order_ids: z.ZodArray<z.ZodNumber, "many">;
                     }, "strip", z.ZodTypeAny, {
-                        service: string;
-                        bRequired?: boolean | undefined;
+                        guard: string;
+                        order_ids: number[];
                     }, {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }>, "many">>;
+                        guard: string;
+                        order_ids: number[];
+                    }>>;
                 }, "strip", z.ZodTypeAny, {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }, {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 }>;
                 threshold: z.ZodOptional<z.ZodNumber>;
                 remove_old_forward: z.ZodOptional<z.ZodString>;
@@ -7846,13 +7783,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -7862,13 +7798,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -7880,13 +7815,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -7899,13 +7833,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -8045,10 +7978,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         } | undefined;
         endpoint?: string | null | undefined;
         consensus_repository?: {
@@ -8066,13 +7996,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                 }[];
             }[];
@@ -8098,13 +8027,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -8198,10 +8126,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         } | undefined;
         endpoint?: string | null | undefined;
         consensus_repository?: {
@@ -8218,13 +8143,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                     prior_node?: string | undefined;
                 }[];
@@ -8251,13 +8175,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -8306,8 +8229,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8317,8 +8240,8 @@ export declare const CallMachineSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8328,10 +8251,11 @@ export declare const CallMachineSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8340,12 +8264,12 @@ export declare const CallMachineSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8354,7 +8278,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -8435,10 +8358,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         } | undefined;
         endpoint?: string | null | undefined;
         consensus_repository?: {
@@ -8456,13 +8376,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                 }[];
             }[];
@@ -8488,13 +8407,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -8527,10 +8445,11 @@ export declare const CallMachineSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8539,7 +8458,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -8610,10 +8528,7 @@ export declare const CallMachineSchema: z.ZodObject<{
                 next_node_name: string;
                 forward: string;
             };
-            deliverable: {
-                msg: string;
-                orders: string[];
-            };
+            deliverable: string;
         } | undefined;
         endpoint?: string | null | undefined;
         consensus_repository?: {
@@ -8630,13 +8545,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                     forwards: {
                         name: string;
                         permission?: any;
+                        guard?: {
+                            guard: string;
+                            order_ids: number[];
+                        } | undefined;
                         namedOperator?: string | undefined;
                         weight?: number | undefined;
-                        guard?: string | undefined;
-                        suppliers?: {
-                            service: string;
-                            bRequired?: boolean | undefined;
-                        }[] | undefined;
                     }[];
                     prior_node?: string | undefined;
                 }[];
@@ -8663,13 +8577,12 @@ export declare const CallMachineSchema: z.ZodObject<{
                 forward: {
                     name: string;
                     permission?: any;
+                    guard?: {
+                        guard: string;
+                        order_ids: number[];
+                    } | undefined;
                     namedOperator?: string | undefined;
                     weight?: number | undefined;
-                    guard?: string | undefined;
-                    suppliers?: {
-                        service: string;
-                        bRequired?: boolean | undefined;
-                    }[] | undefined;
                 };
                 prior_node_name: string;
                 node_name: string;
@@ -8702,10 +8615,11 @@ export declare const CallMachineSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -8714,7 +8628,6 @@ export declare const CallMachineSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallMachineSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -9667,8 +9580,8 @@ export declare const CallServiceSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -9678,8 +9591,8 @@ export declare const CallServiceSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -9689,10 +9602,11 @@ export declare const CallServiceSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -9701,12 +9615,12 @@ export declare const CallServiceSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -9715,7 +9629,6 @@ export declare const CallServiceSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -9905,10 +9818,11 @@ export declare const CallServiceSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -9917,7 +9831,6 @@ export declare const CallServiceSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -10097,10 +10010,11 @@ export declare const CallServiceSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10109,7 +10023,6 @@ export declare const CallServiceSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallServiceSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -10455,8 +10368,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10466,8 +10379,8 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10477,10 +10390,11 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10489,12 +10403,12 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10503,7 +10417,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -10579,10 +10492,11 @@ export declare const CallTreasurySchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10591,7 +10505,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -10657,10 +10570,11 @@ export declare const CallTreasurySchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -10669,7 +10583,6 @@ export declare const CallTreasurySchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallTreasurySchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -11186,8 +11099,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11197,8 +11110,8 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11208,10 +11121,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11220,12 +11134,12 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11234,7 +11148,6 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -11333,10 +11246,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11345,7 +11259,6 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -11434,10 +11347,11 @@ export declare const CallPermissionSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11446,7 +11360,6 @@ export declare const CallPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -11716,8 +11629,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: string | undefined;
         location?: string | undefined;
+        guard?: string | undefined;
         endpoint?: string | null | undefined;
         bPaused?: boolean | undefined;
         arb_new?: {
@@ -11789,8 +11702,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: string | undefined;
         location?: string | undefined;
+        guard?: string | undefined;
         endpoint?: string | null | undefined;
         bPaused?: boolean | undefined;
         arb_new?: {
@@ -11869,8 +11782,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11880,8 +11793,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11891,10 +11804,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11903,12 +11817,12 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -11917,7 +11831,6 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -11946,8 +11859,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: string | undefined;
         location?: string | undefined;
+        guard?: string | undefined;
         endpoint?: string | null | undefined;
         bPaused?: boolean | undefined;
         arb_new?: {
@@ -12010,10 +11923,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12022,7 +11936,6 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -12041,8 +11954,8 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             } | undefined;
         };
         description?: string | undefined;
-        guard?: string | undefined;
         location?: string | undefined;
+        guard?: string | undefined;
         endpoint?: string | null | undefined;
         bPaused?: boolean | undefined;
         arb_new?: {
@@ -12105,10 +12018,11 @@ export declare const CallArbitrationSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12117,7 +12031,6 @@ export declare const CallArbitrationSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallArbitrationSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
@@ -12597,16 +12510,19 @@ export declare const CallGuardSchema: z.ZodObject<{
             bWitness: z.ZodBoolean;
             value_type: z.ZodNativeEnum<typeof WOWOK.ValueType>;
             value: z.ZodOptional<z.ZodAny>;
+            description: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }, {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         description?: string | undefined;
@@ -12619,9 +12535,10 @@ export declare const CallGuardSchema: z.ZodObject<{
         root?: any;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }[] | undefined;
     }, {
         description?: string | undefined;
@@ -12634,9 +12551,10 @@ export declare const CallGuardSchema: z.ZodObject<{
         root?: any;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }[] | undefined;
     }>;
     account: z.ZodOptional<z.ZodString>;
@@ -12662,9 +12580,10 @@ export declare const CallGuardSchema: z.ZodObject<{
         root?: any;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }[] | undefined;
     };
     session?: {
@@ -12684,9 +12603,10 @@ export declare const CallGuardSchema: z.ZodObject<{
         root?: any;
         table?: {
             identifier: number;
-            value_type: WOWOK.ValueType;
             bWitness: boolean;
+            value_type: WOWOK.ValueType;
             value?: any;
+            description?: string | undefined;
         }[] | undefined;
     };
     session?: {
@@ -12735,8 +12655,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witnessTypes: z.ZodArray<z.ZodUnion<[z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ARBITRATION>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_ORDER>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ARB_SERVICE>, z.ZodLiteral<WOWOK.ContextType.TYPE_PROGRESS_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_MACHINE>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_PROGRESS>, z.ZodLiteral<WOWOK.ContextType.TYPE_ORDER_SERVICE>]>, "many">;
         }, "strip", z.ZodTypeAny, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12746,8 +12666,8 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witness?: any;
         }, {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12757,10 +12677,11 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witness?: any;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12769,12 +12690,12 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }, {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12783,7 +12704,6 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     }>>;
     session: z.ZodOptional<z.ZodObject<{
         network: z.ZodNativeEnum<typeof WOWOK.ENTRYPOINT>;
@@ -12806,10 +12726,11 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12818,7 +12739,6 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }, {
     data: {
@@ -12831,10 +12751,11 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
     witness?: {
+        guards: string[];
         witness: {
             type: WOWOK.ValueType;
-            identifier: number;
             guard: string;
+            identifier: number;
             cmd: {
                 cmd: number;
                 witness?: WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE | undefined;
@@ -12843,7 +12764,6 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
             witnessTypes: (WOWOK.ContextType.TYPE_ORDER_PROGRESS | WOWOK.ContextType.TYPE_ORDER_MACHINE | WOWOK.ContextType.TYPE_ORDER_SERVICE | WOWOK.ContextType.TYPE_PROGRESS_MACHINE | WOWOK.ContextType.TYPE_ARB_ORDER | WOWOK.ContextType.TYPE_ARB_ARBITRATION | WOWOK.ContextType.TYPE_ARB_PROGRESS | WOWOK.ContextType.TYPE_ARB_MACHINE | WOWOK.ContextType.TYPE_ARB_SERVICE)[];
             witness?: any;
         }[];
-        guards: string[];
     } | undefined;
 }>;
 export declare const CallObejctPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {

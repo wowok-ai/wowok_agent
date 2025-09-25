@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags, DeGuardData, DeGuardConstant, ValueType } from 'wowok';
+import { Machine_Node, Treasury_WithdrawMode, Treasury_Operation, Repository_Type, Repository_Policy_Mode, Repository_Policy, Service_Discount_Type, Service_Sale, History, Tags, DeGuardData, DeGuardConstant, GuardIdentifer } from 'wowok';
 import { CacheExpireType } from '../local/cache.js';
 import { AccountOrMark_Address } from '../call/base.js';
 import { SessionOption } from '../common.js';
@@ -123,6 +123,7 @@ export interface ObjectService extends ObjectBase {
     customer_required_info?: {
         pubkey: string;
         required_info: string[];
+        update_time: number;
     };
 }
 export interface TableItem_ServiceSale extends ObjectBase {
@@ -248,12 +249,7 @@ export interface GuardGraphData {
 export interface ObjectGuard extends ObjectBase {
     description: string;
     input: Uint8Array;
-    identifier: {
-        id: number;
-        bWitness: boolean;
-        raw: Uint8Array;
-        value_type?: ValueType;
-    }[];
+    identifier: GuardIdentifer[];
     graph: GuardGraphData;
 }
 export interface ObjectPersonal extends ObjectBase {

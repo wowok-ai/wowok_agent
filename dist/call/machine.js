@@ -1,4 +1,4 @@
-import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, Service, } from 'wowok';
+import { Errors, ERROR, Permission, PermissionIndex, Machine, Progress, } from 'wowok';
 import { CallBase, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { query_objects, queryTableItem_MachineNode } from '../query/objects.js';
 import { LocalMark } from '../local/local.js';
@@ -34,28 +34,12 @@ export class CallMachine extends CallBase {
                     const r = node.node.pairs.find(v => v.prior_node === p.objects[0].current)?.forwards.find(v => v.name === forward);
                     if (r) {
                         return { name: r.name, namedOperator: r.namedOperator, permission: r.permission,
-                            weight: r.weight, guard: r.guard, suppliers: r.suppliers?.map(v => {
-                                return { service: v.object, bRequired: v.bRequired };
-                            }) };
+                            weight: r.weight, guard: r.guard };
                     }
                 }
             }
         };
         this.data = data;
-    }
-    async resolveForward(forward) {
-        const res = [];
-        if (forward?.suppliers && forward.suppliers?.length > 0) {
-            const r = await query_objects({ objects: forward.suppliers.map(v => v.service) });
-            for (let i = 0; r.objects && i < r.objects?.length; ++i) {
-                if (r.objects[i]?.type === 'Service') {
-                    res.push({ object: r.objects[i].object, bRequired: forward.suppliers[i].bRequired,
-                        pay_token_type: Service.parseObjectType(r.objects[i].type_raw) });
-                }
-            }
-        }
-        return { name: forward.name, namedOperator: forward.namedOperator, permission: forward.permission,
-            weight: forward.weight, guard: forward.guard, suppliers: res.length > 0 ? res : undefined };
     }
     async prepare() {
         if (!this.object_address) {
@@ -128,12 +112,13 @@ export class CallMachine extends CallBase {
             }
             else {
                 const r = await this.forwardPermission(this.data.progress_hold?.progress, this.data.progress_hold?.operation?.next_node_name, this.data.progress_hold?.operation?.forward, account);
-                if (r?.guard) {
-                    guards.push(r.guard);
-                }
+                /**if (r?.guard?.guard) { // Hold 无需supplier guard验证
+                    guards.push(r.guard.guard as string)
+                }*/
                 if (r?.permission != null) {
                     add_perm(r.permission);
                 }
+                //@ todo check account in namedOperator?
             }
         }
         if (this.data?.bPaused != null) {
@@ -146,7 +131,7 @@ export class CallMachine extends CallBase {
             this.checkPublished(`progress_next`);
             const r = await this.forwardPermission(this.data.progress_next.progress, this.data.progress_next?.operation?.next_node_name, this.data.progress_next?.operation?.forward, account);
             if (r?.guard) {
-                guards.push(r.guard);
+                guards.push(r.guard?.guard);
             }
             if (r?.permission != null) {
                 add_perm(r.permission);
@@ -257,20 +242,7 @@ export class CallMachine extends CallBase {
             const p = await LocalMark.Instance().get_address(this.data?.progress_next.progress);
             if (!p)
                 ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.progress');
-            var t = [];
-            if (this.data.progress_next.deliverable.orders.length > 0) {
-                const o = await query_objects({ objects: this.data.progress_next.deliverable.orders });
-                if (o?.objects?.length !== this.data.progress_next.deliverable.orders.length) {
-                    ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
-                }
-                t = o.objects.map(v => {
-                    if (v.type !== 'Order') {
-                        ERROR(Errors.InvalidParam, 'CallMachine_Data.data.progress_next.deliverable.orders');
-                    }
-                    return { object: v.object, pay_token_type: Service.parseOrderObjectType(v.type_raw) };
-                });
-            }
-            Progress.From(txb, obj?.get_object(), permission, p).next(this.data.progress_next.operation, { msg: this.data.progress_next.deliverable.msg, orders: t }, pst);
+            Progress.From(txb, obj?.get_object(), permission, p).next(this.data.progress_next.operation, this.data.progress_next.deliverable, pst);
         }
         const addr = new_progress?.launch();
         if (addr) {
@@ -313,7 +285,7 @@ export class CallMachine extends CallBase {
                         for (let j = 0; j < v.pairs.length; ++j) {
                             const f = [];
                             for (let k = 0; k < v.pairs[j].forwards.length; ++k) {
-                                f.push(await this.resolveForward(v.pairs[j].forwards[k]));
+                                f.push(v.pairs[j].forwards[k]);
                             }
                             pairs.push({
                                 prior_node: v.pairs[j].prior_node,
@@ -338,7 +310,7 @@ export class CallMachine extends CallBase {
                 case 'add forward':
                     for (let i = 0; i < this.data.nodes.data.length; ++i) {
                         const v = this.data.nodes.data[i];
-                        obj?.add_forward(v.prior_node_name, v.node_name, await this.resolveForward(v.forward), v.threshold, v.remove_forward, pst);
+                        obj?.add_forward(v.prior_node_name, v.node_name, v.forward, v.threshold, v.remove_forward, pst);
                     }
                     break;
                 case 'remove forward':

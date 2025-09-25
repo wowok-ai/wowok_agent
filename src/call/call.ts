@@ -12,7 +12,7 @@ import { CallPersonal, CallPersonal_Data } from "./personal.js";
 import { CallRepository, CallRepository_Data } from "./repository.js";
 import { CallService, CallService_Data } from "./service.js";
 import { CallTreasury, CallTreasury_Data } from "./treasury.js";
-import { CallBase, CallResponseError, CallResult, GuardInfo_forCall, PassportPayload, PassportPayloadValue } from "./base.js";
+import { CallBase, CallResponseError, CallResult, GuardInfo_forCall } from "./base.js";
 import { CallGuard, CallGuard_Data } from "./guard.js";
 import { CallObjectPermission, CallObjectPermission_Data } from "./object_permission.js";
 import { session_resolve, SessionOption } from "../common.js";

@@ -7,8 +7,7 @@ import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject,
 import { ObjectOrder, ObjectService, query_objects } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
     GetObjectExisted, GetObjectMain, GetObjectParam, Namedbject, ObjectParam, ObjectTypedMain, ObjectsOp,
-    TypeNamedObjectWithPermission, PayParam, 
-    PassportPayloadValue} from "./base.js";
+    TypeNamedObjectWithPermission, PayParam, PassportPayload} from "./base.js";
 import { Account } from '../local/account.js';
 import { LocalMark } from '../local/local.js';
 import { crypto_string } from '../common.js';
@@ -251,7 +250,7 @@ export class CallService extends CallBase {
         }
     }
 
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Service | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
         let payee: Treasury | undefined;

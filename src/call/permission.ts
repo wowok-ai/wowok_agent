@@ -1,7 +1,6 @@
 import { LocalMark } from "../local/local.js";
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
-    GetObjectExisted, GetObjectMain, ObjectPermissionMain,
-    PassportPayloadValue} from "./base.js";
+    GetObjectExisted, GetObjectMain, ObjectPermissionMain, PassportPayload} from "./base.js";
 import { PassportObject, Permission,  BizPermission,
     PermissionIndexType, TransactionBlock, Permission_Entity as Wowok_Permission_Entity, ERROR, Errors, 
     Permission_Index as Wowok_Permission_Index, Permission_Index_Entity as Wowok_Permission_Index_Entity,
@@ -68,7 +67,8 @@ export class CallPermission extends CallBase {
         }
         return await this.exec(account)
     }
-    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+
+    protected async operate (txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Permission | undefined ; 
 
         if (!this.object_address) {

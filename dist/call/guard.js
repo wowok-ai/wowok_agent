@@ -1,7 +1,7 @@
 /**
  *  generate and launch a guard
  */
-import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, WitnessForModule, WitnessObjectModule, } from "wowok";
+import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GUARD_QUERIES, IsValidAddress, concatenate, Protocol, hasDuplicates, insertAtHead, IsValidDesription, IsValidGuardIdentifier, BCS, IsContextWitness, WitnessForModule, WitnessObjectModule, IsValidName, } from "wowok";
 import { CallBase } from "./base.js";
 import { LocalMark } from "../local/local.js";
 export class CallGuard extends CallBase {
@@ -14,10 +14,10 @@ export class CallGuard extends CallBase {
     }
     async operate(txb, passport, payload, account) {
         if (!this.data?.root) {
-            ERROR(Errors.InvalidParam, `guard root node invalid. ${this.data}`);
+            ERROR(Errors.InvalidParam, `this.data.root invalid: ${this.data}`);
         }
         if (this.data?.description && !IsValidDesription(this.data?.description)) {
-            ERROR(Errors.IsValidDesription, `build_guard ${this.data.description}`);
+            ERROR(Errors.IsValidDesription, `this.data.description: ${this.data.description}`);
         }
         // check const
         this.data?.table?.forEach(v => {
@@ -40,12 +40,17 @@ export class CallGuard extends CallBase {
         if (this.data.table) {
             for (let i = 0; i < this.data?.table?.length; ++i) {
                 const v = this.data.table[i];
+                if (v?.description && !IsValidName(v?.description)) {
+                    ERROR(Errors.IsValidName, `CallGuard_Data.data.table description too long: ${v.description}`);
+                }
                 if (v.bWitness) {
                     const n = new Uint8Array(1);
                     n.set([v.value_type], 0);
                     txb.moveCall({
                         target: Protocol.Instance().guardFn("constant_add"),
-                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true),
+                            txb.pure.vector('u8', [].slice.call(n)),
+                            txb.pure.option('string', v.description)]
                     });
                 }
                 else {
@@ -60,7 +65,9 @@ export class CallGuard extends CallBase {
                     const n = insertAtHead(tmp, v.value_type);
                     txb.moveCall({
                         target: Protocol.Instance().guardFn("constant_add"),
-                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                        arguments: [txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false),
+                            txb.pure.vector('u8', [].slice.call(n)),
+                            txb.pure.option('string', v.description)]
                     });
                 }
             }

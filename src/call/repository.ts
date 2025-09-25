@@ -4,7 +4,7 @@ import { TransactionBlock, PassportObject, Errors, ERROR, Permission, Permission
     RepositoryValueType, Bcs,
     IsValidAddress
 } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayload, PassportPayloadValue, TypeNamedObjectWithPermission} from "./base.js";
+import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayload, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
 import { ObjectRepository } from '../query/objects.js';
 
@@ -165,7 +165,7 @@ export class CallRepository extends CallBase {
         return res;
     }
 
-    private AddData = (obj : Repository, data: AddData_byKey, payload?:PassportPayloadValue[], passport?:PassportObject) => {
+    private AddData = (obj : Repository, data: AddData_byKey, payload?:PassportPayload[], passport?:PassportObject) => {
         let addr : any ;
         const policy = (this.content as ObjectRepository)?.policy;
 
@@ -234,7 +234,8 @@ export class CallRepository extends CallBase {
                         if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
                         guards.push(p.guard?.object);
                         if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                            payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard});
+                            payload.push({guard:p.guard.object, 
+                                identifier:p?.guard?.id_from_guard}); //@ to check: value 
                         }
                     }
                     await this.resolve_by_key(d, p);
@@ -263,7 +264,7 @@ export class CallRepository extends CallBase {
                             guards.push(p.guard?.object);
 
                             if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                                payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard});
+                                payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard}); //@ to check: value
                             }
                         }
                     } else {
@@ -304,7 +305,7 @@ export class CallRepository extends CallBase {
         return await this.exec(account);
     }
 
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         let obj : Repository | undefined ; let perm: Permission | undefined;
         let permission : PermissionObject | undefined;
 

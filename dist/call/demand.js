@@ -1,4 +1,4 @@
-import { IsValidArgType, Service, Errors, ERROR, Permission, PermissionIndex, Demand, ParseType, ValueType } from 'wowok';
+import { IsValidArgType, Service, Errors, ERROR, Permission, PermissionIndex, Demand, ParseType, Guard, ValueType } from 'wowok';
 import { query_objects, queryTableItem_DemandService } from '../query/objects.js';
 import { CallBase, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
@@ -76,7 +76,9 @@ export class CallDemand extends CallBase {
                 if (this.content?.guard?.object) {
                     guards.push(this.content.guard?.object);
                     if (this.content?.guard?.service_id_in_guard != null) {
-                        payload.push({ guard: this.content.guard?.object, identifier: this.content.guard?.service_id_in_guard });
+                        payload.push({ guard: this.content.guard?.object,
+                            identifier: this.content.guard?.service_id_in_guard,
+                            value: await LocalMark.Instance().get_address(this.data.present.service) });
                     }
                 }
             }
@@ -175,12 +177,12 @@ export class CallDemand extends CallBase {
                 if (!guard) {
                     ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard: ${guard}`);
                 }
-                const r = await query_objects({ objects: [guard] });
-                if (r?.objects?.length !== 1 || r?.objects[0]?.type !== 'Guard') {
+                const r = await Guard.QueryAddressIdentifiers(guard);
+                if (!r) {
                     ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.guard is NOT a Guard object:${guard}`);
                 }
                 if (this.data?.guard?.service_id_in_guard != null) {
-                    if (!r?.objects[0]?.identifier?.find(v => v.id === this.data?.guard?.service_id_in_guard && v.value_type === ValueType.TYPE_ADDRESS)) {
+                    if (!r?.find(v => v.identifier === this.data?.guard?.service_id_in_guard && v.type === ValueType.TYPE_ADDRESS)) {
                         ERROR(Errors.InvalidParam, `CallDemand_Data.data.guard.service_id_in_guard(${this.data?.guard?.service_id_in_guard}) NOT exist in Guard identifiers or type invalid`);
                     }
                 }

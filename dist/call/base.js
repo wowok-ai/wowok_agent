@@ -33,7 +33,7 @@ export const GetAccountOrMark_Address = async (entity) => {
         return r;
     }
     else {
-        const r = (await Account.Instance().get(entity.name_or_address))?.address;
+        const r = await Account.Instance().get_address(entity.name_or_address);
         if (!r) {
             return await LocalMark.Instance().get_address(entity.name_or_address);
         }
@@ -58,18 +58,20 @@ export const SetWithdrawFee = async (param, treasury) => {
 };
 function Passport_PayloadValue(payload, parser) {
     if (payload && parser) {
-        const res = payload.map((v) => {
-            return { ...v };
-        });
-        res.forEach((v) => {
+        payload.forEach((v) => {
             const val = parser.guardlist().find((i) => i.id === v.guard)?.constant?.find((j) => j.identifier === v.identifier);
             if (val !== undefined) {
                 v.value = val.value;
                 v.value_type = val.type;
                 v.bWitness = val.bWitness;
             }
+            else {
+                v.value = null;
+                v.value_type = undefined;
+                v.bWitness = undefined;
+            }
         });
-        return res;
+        return payload;
     }
 }
 export function ResponseData(response) {

@@ -141,7 +141,8 @@ export class CallRepository extends CallBase {
                             ERROR(Errors.IsValidAddress, `guard ${p}`);
                         guards.push(p.guard?.object);
                         if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                            payload.push({ guard: p.guard.object, identifier: p?.guard?.id_from_guard });
+                            payload.push({ guard: p.guard.object,
+                                identifier: p?.guard?.id_from_guard }); //@ to check: value 
                         }
                     }
                     await this.resolve_by_key(d, p);
@@ -172,7 +173,7 @@ export class CallRepository extends CallBase {
                                 ERROR(Errors.IsValidAddress, `guard ${p}`);
                             guards.push(p.guard?.object);
                             if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                                payload.push({ guard: p.guard.object, identifier: p?.guard?.id_from_guard });
+                                payload.push({ guard: p.guard.object, identifier: p?.guard?.id_from_guard }); //@ to check: value
                             }
                         }
                     }

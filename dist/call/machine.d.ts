@@ -1,30 +1,5 @@
-import { PassportObject, TransactionBlock, PermissionIndexType, ParentProgress, ProgressNext } from 'wowok';
-import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp, PassportPayloadValue } from "./base.js";
-export interface Supply {
-    service: string;
-    bRequired?: boolean;
-}
-export interface Machine_Forward {
-    name: string;
-    namedOperator?: string;
-    permission?: PermissionIndexType;
-    weight?: number;
-    guard?: string;
-    suppliers?: Supply[];
-}
-export interface Machine_Node_Pair {
-    prior_node: string;
-    forwards: Machine_Forward[];
-    threshold?: number;
-}
-export interface Machine_Node {
-    name: string;
-    pairs: Machine_Node_Pair[];
-}
-export interface ProgressDeliverable {
-    msg: string;
-    orders: string[];
-}
+import { PassportObject, TransactionBlock, Machine_Forward, Machine_Node, ParentProgress, ProgressNext } from 'wowok';
+import { AccountOrMark_Address, CallBase, CallResult, Namedbject, ObjectMain, ObjectsOp, PassportPayload } from "./base.js";
 export interface CallMachine_Data {
     object?: ObjectMain;
     progress_new?: {
@@ -59,7 +34,7 @@ export interface CallMachine_Data {
     progress_next?: {
         progress: string;
         operation: ProgressNext;
-        deliverable: ProgressDeliverable;
+        deliverable: string;
     };
     description?: string;
     endpoint?: string | null;
@@ -111,13 +86,12 @@ export declare class CallMachine extends CallBase {
     object_address: string | undefined;
     permission_address: string | undefined;
     constructor(data: CallMachine_Data);
-    private resolveForward;
     protected prepare(): Promise<void>;
     private checkPublished;
     private checkNotPublished;
     private checkNotPaused;
     private forwardPermission;
     call(account?: string): Promise<CallResult>;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;
 }
 //# sourceMappingURL=machine.d.ts.map

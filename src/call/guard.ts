@@ -9,8 +9,9 @@ import { Bcs, ContextType, ERROR, Errors, IsValidU8, OperatorType, ValueType, GU
     MODULES, WitnessType, IsContextWitness,
     WitnessForModule,
     WitnessObjectModule,
+    IsValidName,
     } from "wowok";
-import { CallBase, CallResult, Namedbject, PassportPayloadValue } from "./base.js";
+import { CallBase, CallResult, Namedbject, PassportPayload } from "./base.js";
 import { LocalMark } from "../local/local.js";
 
 export interface GuardConst {
@@ -18,6 +19,7 @@ export interface GuardConst {
     bWitness: boolean; // witness(verifiee provides while verifying in the future) or normal(verifier provides now)
     value_type: ValueType; // data value type
     value?: any; // if bWitness true, value ignores; otherwise, data.
+    description?: string; // optional, for human readable
 }
 
 interface GuardConstCheck extends GuardConst {
@@ -64,14 +66,14 @@ export class CallGuard extends CallBase {
         return await this.exec(account)
     }
     
-    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayloadValue[], account?:string) {
+    protected async operate(txb:TransactionBlock, passport?:PassportObject, payload?:PassportPayload[], account?:string) {
         if (!this.data?.root) {
-            ERROR(Errors.InvalidParam, `guard root node invalid. ${this.data}`)
+            ERROR(Errors.InvalidParam, `this.data.root invalid: ${this.data}`)
         }
         if (this.data?.description && !IsValidDesription(this.data?.description)) {
-            ERROR(Errors.IsValidDesription, `build_guard ${this.data.description}`)
+            ERROR(Errors.IsValidDesription, `this.data.description: ${this.data.description}`)
         }
-    
+
         // check const
         this.data?.table?.forEach(v => {
             if (!IsValidU8(v.identifier) || v.identifier < 1) ERROR(Errors.InvalidParam, 'table.identifier invalid');
@@ -94,11 +96,18 @@ export class CallGuard extends CallBase {
         if (this.data.table) {
             for (let i = 0; i < this.data?.table?.length; ++ i) {
                 const v = this.data.table[i];
+
+                if (v?.description && !IsValidName(v?.description)) {
+                    ERROR(Errors.IsValidName, `CallGuard_Data.data.table description too long: ${v.description}`)
+                }
+                
                 if (v.bWitness) {
                     const n = new Uint8Array(1); n.set([v.value_type], 0);
                     txb.moveCall({
                         target:Protocol.Instance().guardFn("constant_add") as FnCallType,
-                        arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                        arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(true), 
+                            txb.pure.vector('u8', [].slice.call(n)), 
+                            txb.pure.option('string', v.description)]
                     }) 
                 } else {
                     if (v.value_type === ValueType.TYPE_ADDRESS) {
@@ -109,7 +118,9 @@ export class CallGuard extends CallBase {
                     const n = insertAtHead(tmp, v.value_type);
                     txb.moveCall({
                         target:Protocol.Instance().guardFn("constant_add") as FnCallType,
-                        arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false),  txb.pure.vector('u8', [].slice.call(n)), txb.pure.bool(false)]
+                        arguments:[txb.object(obj), txb.pure.u8(v.identifier), txb.pure.bool(false),  
+                            txb.pure.vector('u8', [].slice.call(n)), 
+                            txb.pure.option('string', v.description)]
                     }) 
                 }
             }

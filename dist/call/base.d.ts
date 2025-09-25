@@ -61,8 +61,6 @@ export interface CallResponseError {
 export interface PassportPayload {
     guard: string;
     identifier: number;
-}
-export interface PassportPayloadValue extends PassportPayload {
     value?: string | null;
     value_type?: ValueType | null;
     bWitness?: boolean | null;
@@ -73,7 +71,7 @@ export declare class CallBase {
     private resouceObject;
     private traceMarkNew;
     content: ObjectBase | undefined;
-    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayloadValue[], account?: string): Promise<void>;
+    protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;
     protected prepare(session?: SessionOption): Promise<void>;
     constructor();
     call(account?: string): Promise<CallResult>;
