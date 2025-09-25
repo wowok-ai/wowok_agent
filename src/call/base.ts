@@ -184,9 +184,6 @@ export class CallBase {
     async call(account?:string) : Promise<CallResult>  { return undefined };
     async call_with_witness (info: GuardInfo_forCall, account?:string) : Promise<CallResponse | undefined> {
         if (info.guards.length > 0) {         // prepare passport
-            info?.payload?.forEach(v => {
-
-            })
             const p: GuardParser | undefined = await GuardParser.Create([...info.guards]);
 
             if (p) {

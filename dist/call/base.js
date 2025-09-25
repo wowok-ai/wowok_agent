@@ -106,8 +106,6 @@ export class CallBase {
     ;
     async call_with_witness(info, account) {
         if (info.guards.length > 0) { // prepare passport
-            info?.payload?.forEach(v => {
-            });
             const p = await GuardParser.Create([...info.guards]);
             if (p) {
                 const query = await p.done(info.witness);

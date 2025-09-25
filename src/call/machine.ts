@@ -177,7 +177,7 @@ export class CallMachine extends CallBase { //@ todo self-owned node operate
                 this.data.progress_next?.operation?.forward,
                 account
             );
-            if (r?.guard) {
+            if (r?.guard?.guard) {
                 guards.push(r.guard?.guard as string);
             }
             if (r?.permission != null) {

@@ -130,7 +130,7 @@ export class CallMachine extends CallBase {
         if (this.data?.progress_next != null) {
             this.checkPublished(`progress_next`);
             const r = await this.forwardPermission(this.data.progress_next.progress, this.data.progress_next?.operation?.next_node_name, this.data.progress_next?.operation?.forward, account);
-            if (r?.guard) {
+            if (r?.guard?.guard) {
                 guards.push(r.guard?.guard);
             }
             if (r?.permission != null) {
