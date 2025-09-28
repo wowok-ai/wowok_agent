@@ -198,9 +198,9 @@ export const Policy_Removall = `Remove all consensus policies`;
 export const Policy_Rename = `Rename consensus policies`;
 export const Policy_Rename_Old = `The original name of the data name`;
 export const Policy_Rename_New = `The new name of the data name`;
+export const Repository_Guard_Witness = `If it has been set, when writing the policied data to the Repository object, the Address/ID field must specify the identifier in this collection to determine that the Address/ID comes from the address data that has been verified by Guard.`;
 export const Repository_Guard_Description = `Set or unset the Guard (the 'object' field specifies a string or null). 
-    If the operation is successful, any operation on the policy data will be verified by the Guard verification. 
-    If the 'id_from_guard' field is set, The ID of the policy data added will be replaced by the data associated with the Guard identifier.`;
+    If Guard set, any operation on the policy data will be verified by the Guard verification. `;
 export const Data_Key = `Data name`;
 export const Data_bcsBytes = 'Data in bcs Bytes format';
 export const Data_ForAddress = `Add dataset: The same key (data name), but different data under different addresses`;

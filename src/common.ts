@@ -63,7 +63,7 @@ export const session_resolve = async (option?: SessionOption) : Promise<ENTRYPOI
     return option.network;
   } else {
     if (Protocol.Instance().IsNetworkValid()) {
-      return Protocol.Instance().networkUrl().network;
+      return Protocol.Instance().networkUrl()!.network;
     } else {
       const n = await Config.Instance().network();
       if (!n) {

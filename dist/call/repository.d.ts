@@ -39,9 +39,18 @@ export type RepositoryTypeData = RepositoryNumber | RepositoryString | Repositor
 export type AddressID = AccountOrMark_Address | number | bigint;
 export declare const GetAddressID: (key: AddressID) => Promise<string | undefined>;
 export declare const toAddressID: (key: number | string | bigint | undefined | null) => string | undefined;
-export interface AddData_byKey_Data {
+export type Address_with_Witness = {
+    witness: number;
+};
+export type Address_with_ID = {
     address: AddressID;
-    address_string?: string;
+};
+export type AddressOrWitness = Address_with_ID | Address_with_Witness;
+export declare const isAddressWitness: (address_or_witness: AddressOrWitness) => boolean;
+export declare const isAddressID: (address_or_witness: AddressOrWitness) => boolean;
+export interface AddData_byKey_Data {
+    address_or_witness: AddressOrWitness;
+    real_address?: string | number;
     data: RepositoryTypeData;
 }
 export interface AddData_byKey {
@@ -53,8 +62,8 @@ export interface AddData_byAddress_Data {
     data: RepositoryTypeData;
 }
 export interface AddData_byAddress {
-    address: AddressID;
-    address_string?: string;
+    address_or_witness: AddressOrWitness;
+    real_address?: string | number;
     data: AddData_byAddress_Data[];
 }
 export interface RemoveData {
@@ -101,7 +110,6 @@ export declare class CallRepository extends CallBase {
     constructor(data: CallRepository_Data);
     protected prepare(): Promise<void>;
     private resolve_by_key;
-    private DataAddress2DataKey;
     private AddData;
     call(account?: string): Promise<CallResult>;
     protected operate(txb: TransactionBlock, passport?: PassportObject, payload?: PassportPayload[], account?: string): Promise<void>;

@@ -1,4 +1,4 @@
-import { IsValidArgType, TagName, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, Arbitration, ParseType, IsValidAddress } from 'wowok';
+import { IsValidArgType, TagName, Errors, ERROR, Permission, PermissionIndex, Service, Treasury, Arbitration, ParseType, IsValidAddress, IsValidEndpoint } from 'wowok';
 import { query_objects } from '../query/objects.js';
 import { CallBase, GetAccountOrMark_Address, GetManyAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam } from "./base.js";
 import { Account } from '../local/account.js';
@@ -308,6 +308,30 @@ export class CallService extends CallBase {
             await this.new_with_mark('Order', txb, buy.order, this.data?.order_new?.namedNewOrder, account, [TagName.Launch, TagName.Order]);
             if (buy?.progress) {
                 await this.new_with_mark('Progress', txb, buy.progress, this.data?.order_new?.namedNewProgress, account, [TagName.Launch, 'progress']);
+            }
+            // send requires info to HTTPS endpoint
+            if (this?.data?.order_new?.customer_info_required &&
+                IsValidEndpoint(this.content?.endpoint ?? undefined)) {
+                const ep = this.content?.endpoint;
+                const req = [
+                    { name: 'info', value: this?.data?.order_new?.customer_info_required },
+                    { name: 'time', value: new Date().toISOString() },
+                    { name: 'order_id', value: buy.order },
+                    { name: 'service_id', value: this.content?.object }
+                ];
+                try {
+                    const response = await fetch(ep, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(req)
+                    });
+                    /*if (response.ok) {
+                    } */
+                }
+                catch (error) {
+                }
             }
         }
         if (this.data?.description != null && this.object_address) {

@@ -2,7 +2,9 @@ import { TransactionBlock, PassportObject, Errors, ERROR, Permission, Permission
     PermissionIndexType, Repository,  Repository_Policy_Mode, Repository_Value as Wowok_Repository_Value,
     PermissionObject, uint2address, IsValidU256, ValueType, Repository_Policy, Repository_Value2,
     RepositoryValueType, Bcs,
-    IsValidAddress
+    IsValidAddress,
+    Repository_Policy_Data,
+    IsValidGuardIdentifier
 } from 'wowok';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetObjectExisted, GetObjectMain, GetObjectParam, ObjectMain, ObjectsOp, PassportPayload, TypeNamedObjectWithPermission} from "./base.js";
 import { LocalMark } from '../local/local.js';
@@ -71,9 +73,20 @@ export const toAddressID = (key: number | string | bigint | undefined | null) : 
     }
 }
 
+export type Address_with_Witness = {witness:number};
+export type Address_with_ID = {address:AddressID};
+export type AddressOrWitness = Address_with_ID | Address_with_Witness;
+
+export const isAddressWitness = (address_or_witness:AddressOrWitness) : boolean => {
+    return (address_or_witness as any)?.address != null;
+}
+export const isAddressID = (address_or_witness:AddressOrWitness) : boolean => {
+    return (address_or_witness as any)?.witness != null;
+}
+
 export interface AddData_byKey_Data {
-    address: AddressID; // UID: address or objectid
-    address_string?: string;
+    address_or_witness: AddressOrWitness; // UID: address or objectid
+    real_address?: string | number;
     data: RepositoryTypeData;
 }
 
@@ -88,8 +101,8 @@ export interface AddData_byAddress_Data {
 }
 
 export interface AddData_byAddress {
-    address: AddressID;
-    address_string?: string;
+    address_or_witness: AddressOrWitness;
+    real_address?: string | number;
     data: AddData_byAddress_Data[];
 }
 
@@ -102,7 +115,8 @@ export interface RemoveData {
 /// The execution priority is determined by the order in which the object attributes are arranged
 export interface CallRepository_Data {
     object?: ObjectMain;
-    data?: {op:'add_by_key'; data: AddData_byKey} | {op:'add_by_address', data: AddData_byAddress} | {op:'remove', data: RemoveData[]};
+    data?: {op:'add_by_key'; data: AddData_byKey} | {op:'add_by_address', data: AddData_byAddress} | 
+        {op:'remove', data: RemoveData[]};
 
     description?: string;
     reference?: ObjectsOp;
@@ -135,60 +149,49 @@ export class CallRepository extends CallBase {
         }
     }
     
-    private resolve_by_key = async (d:AddData_byKey, policy?:Repository_Policy) => {
+    private resolve_by_key = async (d:AddData_byKey, _:PassportPayload[], policy?:Repository_Policy) => {
         for (let i=0; i<d.data.length; ++i) {
             const data = d.data[i];
             if (policy && data.data.type !== policy.dataType) { // check data type
                 ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_key ${d.key} data type not match`)
             }
-            if (policy && policy?.guard != null && policy?.guard?.id_from_guard != null) {
-                data.address_string = undefined; // id from guard
-            } else {
-                const addr = await GetAddressID(data.address);
+            if (isAddressID(data.address_or_witness)) {
+                if (policy?.guard && policy.guard?.witness_ids.length > 0) {
+                    ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_key ${d.key} policy 'witness_ids' not empty, 'address_or_witness' must be a wintess id`)
+                }
+                const addr = await GetAddressID((data.address_or_witness as Address_with_ID).address);
                 if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} address not valid`)
-                data.address_string = addr;                
+                data.real_address = addr;
+            } else if (isAddressWitness(data.address_or_witness)) {
+                const addr = (data.address_or_witness as Address_with_Witness).witness;
+                if (!IsValidGuardIdentifier(addr)) {
+                    ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} witness not valid`)   
+                }
+                // CHECK guard must be defined.
+                if (policy && policy.guard) {          
+                    if (!policy.guard.witness_ids?.includes((data.address_or_witness as Address_with_Witness).witness)) {
+                        ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} witness not found in policy Guard`)
+                    }
+                    data.real_address = addr;
+                } else {
+                    ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_key ${d.key} policy Guard invalid`)
+                }
             }
+
             await SerRepositoryTypeData(data.data);
         }
     }
 
-    private DataAddress2DataKey = (data:AddData_byAddress) : AddData_byKey[] => {
-        const res : AddData_byKey[] = [];
-        data.data.forEach(v => {
-            const f = res.find(i => i.key === v.key) ;
-            if (f) {
-                f.data.push({address: data.address, address_string: data.address_string, data:v.data});
-            } else {
-                res.push({key:v.key, data:[{address: data.address, address_string: data.address_string, data:v.data}]})
-            }
-        })
-        return res;
-    }
-
     private AddData = (obj : Repository, data: AddData_byKey, payload?:PassportPayload[], passport?:PassportObject) => {
-        let addr : any ;
         const policy = (this.content as ObjectRepository)?.policy;
-
         const p = policy?.find((i)=>i.key === data.key);
-        if (p?.guard?.id_from_guard != null) {
-            addr = toAddressID(payload?.find(i => i.guard===p?.guard?.object && i.identifier === p?.guard?.id_from_guard)?.value);
-            if (!addr) {
-                ERROR(Errors.Fail, `ID-from-Guard NOT found in payload: ${p?.guard} ${payload}`)
-            }
-        }
-
-        if (addr) { // add the lastest one
-            if (data.data.length > 0) {
-                obj.add_data({key:data.key, data:[{address:addr, bcsBytes:data.data[data.data.length-1].data.bcsBytes!}]})
-            }
-        } else {
-            obj.add_data({key:data.key, data:data.data.map(v => {
-                return {address:v.address_string!, bcsBytes:v.data.bcsBytes!} 
-            })}, passport);                    
-        }
+            
+        obj.add_data({key:data.key, data:data.data.map(v => {
+            return {address_or_witness:v.real_address!, bcsBytes:v.data.bcsBytes!}
+        })}, passport);                    
     }
 
-    async call(account?:string) : Promise<CallResult>   {
+    async call(account?:string) : Promise<CallResult> {
         const perms : PermissionIndexType[] = []; 
         const guards: string[] = []; 
         let payload: PassportPayload[] = [];
@@ -226,31 +229,39 @@ export class CallRepository extends CallBase {
             if ((this.data.data as any)?.op === 'add_by_key') {
                 const d = this.data.data.data as AddData_byKey;
                 const p = policy?.find((v)=>v.key === d.key);
+
                 if (p) { // policy check
                     if (p.permissionIndex != null) {
                         add_perm(p.permissionIndex); // permission check
                     } 
-                    if (p?.guard?.object != null) {
-                        if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                        guards.push(p.guard?.object);
-                        if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                            payload.push({guard:p.guard.object, 
-                                identifier:p?.guard?.id_from_guard}); //@ to check: value 
-                        }
+                    if (p?.guard?.guard) {
+                        if (!IsValidAddress(p?.guard?.guard)) ERROR(Errors.IsValidAddress, `policy guard ${p}`)
+                        guards.push(p.guard.guard);
                     }
-                    await this.resolve_by_key(d, p);
+                    await this.resolve_by_key(d, payload, p);
                 } else {
                     if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
-                        console.log(policy)
                         ERROR(Errors.Fail, `CallRepository_Data.data.add_by_key ${d.key} policy not match on the POLICY_MODE_STRICT mode.`)
                     }
-                    await this.resolve_by_key(d);
+                    await this.resolve_by_key(d, payload);
                 }
             } else if (this.data.data.op === 'add_by_address') {
                 const d = this.data.data.data as AddData_byAddress;
-                const addr = await GetAddressID(d.address);
-                if (!addr) ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_address ${d.address} address not valid`);
-                d.address_string = addr;
+                let addr : string | number | undefined;
+
+                if (isAddressID(d.address_or_witness)) {
+                    addr = await GetAddressID((d.address_or_witness as Address_with_ID).address);
+                } else if (isAddressWitness(d.address_or_witness)) {
+                    addr = (d.address_or_witness as Address_with_Witness).witness;
+                    if (!IsValidGuardIdentifier(addr)) {
+                        ERROR(Errors.IsValidIndentifier, `CallRepository_Data.data.add_by_address ${d.address_or_witness}`)
+                    }
+                }
+                if (addr === undefined) {
+                    ERROR(Errors.InvalidParam,  `CallRepository_Data.data.add_by_address ${d.address_or_witness} not valid`)
+                }
+                
+                d.real_address = addr;
 
                 for (let i=0; i<d.data.length; ++i) {
                     const value = d.data[i];
@@ -259,13 +270,14 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null) {
                             add_perm(p.permissionIndex); // permission check
                         } 
-                        if (p?.guard?.object) {
-                            if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                            guards.push(p.guard?.object);
-
-                            if (p?.guard?.id_from_guard != null) { // fetch the identifier value with payloads
-                                payload.push({guard:p.guard.object, identifier:p?.guard?.id_from_guard}); //@ to check: value
+                        if (p?.guard?.guard) {
+                            if (typeof addr === 'string' && p.guard.witness_ids.length !== 0) {
+                                ERROR(Errors.InvalidParam, `CallRepository_Data.data.add_by_address: ${value.key}  data can be submitted using the witness ID ONLY.`)
+                            };
+                            if (typeof addr === 'number' && !p.guard.witness_ids.includes(addr)) {
+                                ERROR(Errors.IsValidGuardIdentifier, `CallRepository_Data.data.add_by_address: ${value.key} guard witness NOT found`)
                             }
+                            guards.push(p.guard?.guard);
                         }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
@@ -283,9 +295,9 @@ export class CallRepository extends CallBase {
                         if (p.permissionIndex != null && !perms.includes(p.permissionIndex)) {
                             add_perm(p.permissionIndex); // permission check
                         } 
-                        if (p?.guard?.object) {
-                            if (!IsValidAddress(p?.guard?.object)) ERROR(Errors.IsValidAddress, `guard ${p}`)
-                            guards.push(p.guard?.object);
+                        if (p?.guard?.guard) {
+                            if (!IsValidAddress(p?.guard?.guard)) ERROR(Errors.IsValidAddress, `guard ${p}`)
+                            guards.push(p.guard?.guard);
                         }
                     } else {
                         if (mode === Repository_Policy_Mode.POLICY_MODE_STRICT) {
@@ -330,10 +342,17 @@ export class CallRepository extends CallBase {
         const pst = perm?undefined:passport;
         if (this.data?.data != null) {
             if (this.data.data.op === 'add_by_key') {
-                this.AddData(obj, this.data.data.data as AddData_byKey, payload, pst)
+                const policy = (this.content as ObjectRepository)?.policy;
+                const key = (this.data.data?.data as AddData_byKey)?.key;
+                const p = policy?.find((i)=>i.key === key);
+                    
+                obj.add_data({key:key, data:this.data.data.data.data.map(v => {
+                    return {address_or_witness:v.real_address!, bcsBytes:v.data.bcsBytes!}
+                })}, passport);    
             } else if (this.data.data.op === 'add_by_address') {
-                const d = this.DataAddress2DataKey(this.data.data.data as AddData_byAddress);
-                d.forEach(v => this.AddData(obj, v, payload, pst));
+                obj.add_data2({address_or_witness:this.data.data.data.real_address!, data:this.data.data.data.data.map(v => {
+                    return {key:v.key, bcsBytes:v.data.bcsBytes!}
+                })}, passport);
             } else if (this.data.data.op === 'remove') {
                 const d = this.data.data.data as RemoveData[];
                 const keys = new Map<string, string[]>();

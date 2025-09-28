@@ -555,11 +555,11 @@ export declare const QueryEventSchema: z.ZodObject<{
     }>>;
 }, "strip", z.ZodTypeAny, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     session?: {
         network: import("wowok").ENTRYPOINT;
         retentive: "always" | "session";
     } | undefined;
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
@@ -567,11 +567,11 @@ export declare const QueryEventSchema: z.ZodObject<{
     limit?: number | null | undefined;
 }, {
     type: "OnNewArb" | "OnPresentService" | "OnNewProgress" | "OnNewOrder";
+    order?: "ascending" | "descending" | null | undefined;
     session?: {
         network: import("wowok").ENTRYPOINT;
         retentive?: "always" | "session" | undefined;
     } | undefined;
-    order?: "ascending" | "descending" | null | undefined;
     cursor?: {
         eventSeq: string;
         txDigest: string;
@@ -693,8 +693,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
         retentive?: "always" | "session" | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     session?: {
         network: import("wowok").ENTRYPOINT;
@@ -702,8 +702,8 @@ export declare const QueryByAddressNameSchema: z.ZodObject<{
     } | undefined;
     no_cache?: boolean | undefined;
 }, {
-    address: string | number;
     name: string;
+    address: string | number;
     parent: string;
     session?: {
         network: import("wowok").ENTRYPOINT;
@@ -1153,8 +1153,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
                 retentive?: "always" | "session" | undefined;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1162,8 +1162,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
             } | undefined;
             no_cache?: boolean | undefined;
         }, {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1174,8 +1174,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1186,8 +1186,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     }, {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1332,8 +1332,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;
@@ -1434,8 +1434,8 @@ export declare const QueryTableItemSchema: z.ZodObject<{
     } | {
         name: "repository";
         data: {
-            address: string | number;
             name: string;
+            address: string | number;
             parent: string;
             session?: {
                 network: import("wowok").ENTRYPOINT;

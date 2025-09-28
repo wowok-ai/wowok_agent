@@ -363,11 +363,12 @@ export function data2object(data) {
                     permission: content?.permission, description: content?.description, policy_mode: content?.policy_mode,
                     data_count: parseInt(content?.data?.fields?.size), reference: content?.reference, rep_type: content?.type,
                     policy: content?.policies?.fields?.contents?.map((v) => {
+                        const guard = v?.fields?.value?.fields?.guard?.fields?.guard;
                         return { key: v?.fields?.key, description: v?.fields?.value?.fields?.description,
                             permissionIndex: v?.fields?.value?.fields?.permission_index,
                             dataType: v?.fields?.value?.fields?.value_type,
-                            guard: v?.fields?.value?.fields?.guard,
-                            id_from_guard: v?.fields?.value?.fields?.id_from_guard };
+                            guard: guard ? { guard: guard, witness_ids: v?.fields?.value?.fields?.guard?.fields?.witness_ids ?? [] } : undefined,
+                        };
                     })
                 };
             case 'Payment':

@@ -402,11 +402,15 @@ export const CallPermissionDataSchema = z.object({
     ]).optional().describe(D.Permission_Admin_Description),
     builder: AccountOrMarkNameSchema.optional().describe(D.Permission_Builder_Description)
 }).describe(D.GetObjectDataDescription('Permission'));
-export const RepositoryAddressID = z.union([
+export const RepositoryAddressIDSchema = z.union([
     z.number().int().min(0),
     z.bigint(),
     AccountOrMarkNameSchema
 ]).describe(D.RepositoryAddressID_Description);
+export const RepositoryAddressSchema = z.union([
+    z.object({ address: RepositoryAddressIDSchema }).describe('address'),
+    z.object({ witness: GuardIndentifierSchema }).describe('address from the Guard witness value'),
+]);
 export const PayParamSchema = z.object({
     index: z.union([
         z.number().int().min(0).default(0),
@@ -436,11 +440,11 @@ export const RepositoryTypedDataSchema = z.union([
     }).describe(`string vector data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.Address),
-        data: RepositoryAddressID
+        data: RepositoryAddressIDSchema
     }).describe(`address data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.Address_Vec),
-        data: z.array(RepositoryAddressID)
+        data: z.array(RepositoryAddressIDSchema)
     }).describe(`address vector data`),
     z.object({
         type: z.literal(WOWOK.RepositoryValueType.Bool),
@@ -455,7 +459,7 @@ export const CallRepositoryDataSchema = z.object({
             data: z.object({
                 key: z.string().nonempty().describe(D.Data_Key),
                 data: z.array(z.object({
-                    address: RepositoryAddressID,
+                    address_or_witness: RepositoryAddressSchema,
                     data: RepositoryTypedDataSchema
                 }))
             })
@@ -463,7 +467,7 @@ export const CallRepositoryDataSchema = z.object({
         z.object({
             op: z.literal('add_by_address'),
             data: z.object({
-                address: RepositoryAddressID,
+                address_or_witness: RepositoryAddressSchema,
                 data: z.array(z.object({
                     key: z.string().nonempty().describe(D.Data_Key),
                     data: RepositoryTypedDataSchema,
@@ -474,7 +478,7 @@ export const CallRepositoryDataSchema = z.object({
             op: z.literal('remove'),
             data: z.array(z.object({
                 key: z.string().nonempty().describe(D.Data_Key),
-                address: RepositoryAddressID
+                address: RepositoryAddressIDSchema
             }))
         }).describe(D.Repository_RemoveData)
     ]).optional().describe(D.Repository_OpData),
@@ -492,10 +496,9 @@ export const CallRepositoryDataSchema = z.object({
                 description: z.string(),
                 dataType: RepositoryValueTypeSchema,
                 permissionIndex: GetPermissionIndexSchema('biz').transform(val => Number(val)).optional().nullable(),
-                //guard: GetMarkNameSchema('Guard').optional(),
                 guard: z.object({
-                    object: GetMarkNameSchema('Guard').nullable(),
-                    id_from_guard: GuardIndentifierSchema.optional()
+                    guard: GetMarkNameSchema('Guard').nullable(),
+                    witness_ids: z.array(GuardIndentifierSchema).describe(D.Repository_Guard_Witness),
                 }).optional().describe(D.Repository_Guard_Description)
             }).describe(D.Repository_Policy))
         }).describe(D.Policy_Add),

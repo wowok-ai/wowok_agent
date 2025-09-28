@@ -22,7 +22,7 @@ export class CoinInfo {
         return CoinInfo._instance;
     }
     default(network) {
-        switch (Protocol.Instance().networkUrl(network).network) {
+        switch (Protocol.Instance().networkUrl(network)?.network) {
             case ENTRYPOINT.suitest:
                 return Protocol.Instance().CoinTypes_Testnet;
             case ENTRYPOINT.suimain:
@@ -44,6 +44,8 @@ export class CoinInfo {
         if (!coinType)
             ERROR(Errors.IsValidTokenType, `${coinType}`);
         const net = Protocol.Instance().networkUrl(network);
+        if (!net)
+            ERROR(Errors.networkInvalid, Object.entries(ENTRYPOINT));
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(net.network);
             if (r) {
@@ -79,6 +81,8 @@ export class CoinInfo {
     // alice - name - symbol - tokenType
     async query(filter, network) {
         const net = Protocol.Instance().networkUrl(network);
+        if (!net)
+            ERROR(Errors.networkInvalid, Object.entries(ENTRYPOINT));
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(net.network);
             if (r) {
@@ -106,6 +110,8 @@ export class CoinInfo {
     }
     async list(network) {
         const net = Protocol.Instance().networkUrl(network);
+        if (!net)
+            ERROR(Errors.networkInvalid, Object.entries(ENTRYPOINT));
         return await retry_db(this.location, async (storage) => {
             const r = await storage.get(net.network);
             if (r) {

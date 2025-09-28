@@ -2,7 +2,8 @@ import { TransactionBlock, IsValidArgType, TxbAddress, TagName,  PassportObject,
     PermissionIndex, PermissionIndexType,  BuyRequiredEnum, Customer_RequiredInfo, Service, 
     Service_Guard_Rate, Service_Sale, Treasury, OrderResult, DicountDispatch as WowokDiscountDispatch,
     ProgressObject, Arbitration, Service_Discount, PermissionObject, ParseType,
-    IsValidAddress
+    IsValidAddress,
+    IsValidEndpoint
 } from 'wowok';
 import { ObjectOrder, ObjectService, query_objects } from '../query/objects.js';
 import { AccountOrMark_Address, CallBase, CallResult, GetAccountOrMark_Address, GetManyAccountOrMark_Address, 
@@ -379,6 +380,32 @@ export class CallService extends CallBase {
             await this.new_with_mark('Order', txb, buy.order, (this.data?.order_new as any)?.namedNewOrder, account, [TagName.Launch, TagName.Order]); 
             if (buy?.progress) { 
                 await this.new_with_mark('Progress', txb, buy.progress, (this.data?.order_new as any)?.namedNewProgress, account, [TagName.Launch, 'progress']);                  
+            }
+
+            // send requires info to HTTPS endpoint
+            if (this?.data?.order_new?.customer_info_required &&
+                IsValidEndpoint((this.content as ObjectService)?.endpoint ?? undefined)) {
+                const ep = (this.content as ObjectService)?.endpoint!;
+                const req = [ 
+                    {name:'info', value:this?.data?.order_new?.customer_info_required},
+                    {name:'time', value:new Date().toISOString()}, 
+                    {name:'order_id', value:buy.order},
+                    {name:'service_id', value:this.content?.object}
+                ];
+
+                try {
+                    const response = await fetch(ep, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(req)
+                    });
+                    
+                    /*if (response.ok) {
+                    } */
+                } catch (error) {
+                }
             }
         }
 
