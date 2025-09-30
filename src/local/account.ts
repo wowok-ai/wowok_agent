@@ -4,8 +4,7 @@
 
 import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, 
     FAUCET, CoinBalance, CoinStruct, TransactionArgument, TransactionResult, 
-    CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName,
-    ENTRYPOINT} from 'wowok';
+    CallResponse, TransactionObjectArgument, Errors, ERROR, IsValidName, } from 'wowok';
 import { retry_db, isBrowser, SessionOption, session_resolve } from '../common.js';
 import path, { resolve } from 'path';
 import os from 'os';
