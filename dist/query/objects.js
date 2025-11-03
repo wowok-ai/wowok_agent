@@ -2,7 +2,7 @@
  * Provide a query interface for AI
  *
  */
-import { Protocol, Machine, Progress, ERROR, Errors, uint2address, GuardParser, Guard, } from 'wowok';
+import { Protocol, Machine, Progress, ERROR, Errors, uint2address, GuardParser, Guard, Repository, } from 'wowok';
 import { CacheName, Cache } from '../local/cache.js';
 import { LocalMark } from '../local/local.js';
 import { GetAccountOrMark_Address } from '../call/base.js';
@@ -362,14 +362,7 @@ export function data2object(data) {
                     object: id, type: type, type_raw: type_raw, owner: owner, version: version, guard: content?.guard,
                     permission: content?.permission, description: content?.description, policy_mode: content?.policy_mode,
                     data_count: parseInt(content?.data?.fields?.size), reference: content?.reference, rep_type: content?.type,
-                    policy: content?.policies?.fields?.contents?.map((v) => {
-                        const guard = v?.fields?.value?.fields?.guard?.fields?.guard;
-                        return { key: v?.fields?.key, description: v?.fields?.value?.fields?.description,
-                            permissionIndex: v?.fields?.value?.fields?.permission_index,
-                            dataType: v?.fields?.value?.fields?.value_type,
-                            guard: guard ? { guard: guard, witness_ids: v?.fields?.value?.fields?.guard?.fields?.witness_ids ?? [] } : undefined,
-                        };
-                    })
+                    policy: Repository.rpc_de_policy(content?.policies)
                 };
             case 'Payment':
                 return {

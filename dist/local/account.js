@@ -1,7 +1,7 @@
 /**
  * account management and use
  */
-import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName } from 'wowok';
+import { Ed25519Keypair, fromHex, toHex, decodeSuiPrivateKey, Protocol, TransactionBlock, FAUCET, Errors, ERROR, IsValidName, } from 'wowok';
 import { retry_db, isBrowser, session_resolve } from '../common.js';
 import path from 'path';
 import os from 'os';

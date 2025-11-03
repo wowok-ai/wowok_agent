@@ -75,6 +75,8 @@ export var ToolName;
     ToolName["QUERY_LOCAL"] = "local_query";
     ToolName["QUERY_TABLE_ITEM"] = "table_item_query";
     ToolName["QUERY_WOWOK_PROTOCOL"] = "wowok_protocol";
+    ToolName["QUERY_BUILT_IN_PERMISSIONS"] = "built_in_permissions";
+    ToolName["QUERY_GUARD_QUERIES"] = "guard_queries";
 })(ToolName || (ToolName = {}));
 export var PromptName;
 (function (PromptName) {

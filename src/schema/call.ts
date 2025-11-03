@@ -1015,9 +1015,15 @@ export const CallGuardSchema = z.object({
     account: AccountSchema,
     session: SessionSchema,
 });
+
 export const CallGuardSchemaInput = () => {
     return zodToJsonSchema(CallGuardSchema);
 }
+
+export const QueryGuardQueriesDescription = `Retrive guard queries within the modules of the Wowok protocol. 
+    Browse, search and match the query id corresponding to the query name or description by using the module names,
+    especially when the query parameter "invalid" is present`;
+
 /*
 export const GuardDataCloneSchema = z.object({
     guard: z.string().nonempty().describe('Guard object id to clone'),
@@ -1036,6 +1042,9 @@ export const CallObejctPermissionSchema = z.object({
     witness: WitnessSchema,
     session: SessionSchema,
 });
+
+export const QueryBuiltinPermissionsDescription = `Retrieves built-in permissions within the modules of the Wowok protocol. 
+Browse, search and match the Permission-Index corresponding to the permission name or description by using the module names.`;
 
 export const CallObejctPermissionSchemaInput = () => {
     return zodToJsonSchema(CallObejctPermissionSchema);

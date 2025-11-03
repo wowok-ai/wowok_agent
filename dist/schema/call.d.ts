@@ -12849,6 +12849,7 @@ export declare const CallGuardSchemaInput: () => import("zod-to-json-schema").Js
         [key: string]: import("zod-to-json-schema").JsonSchema7Type;
     } | undefined;
 };
+export declare const QueryGuardQueriesDescription = "Retrive guard queries within the modules of the Wowok protocol. \n    Browse, search and match the query id corresponding to the query name or description by using the module names,\n    especially when the query parameter \"invalid\" is present";
 export declare const CallObejctPermissionSchemaDescription = "Enables the use of the account field to sign transactions and leverages the data field to batch replace the permission management objects for objects of types including Machine, Service, Repository, Treasury, Arbitration, and Demand on-chain. \nThis operation facilitates centralized access control by managing the assignment of operation permissions (both built-in and custom) for these objects through the Permission object. \nFor the operation to succeed, the transaction signer must be the owner of the original Permission objects associated with these target objects.";
 export declare const CallObejctPermissionSchema: z.ZodObject<{
     data: z.ZodObject<{
@@ -12994,6 +12995,7 @@ export declare const CallObejctPermissionSchema: z.ZodObject<{
     } | undefined;
     account?: string | undefined;
 }>;
+export declare const QueryBuiltinPermissionsDescription = "Retrieves built-in permissions within the modules of the Wowok protocol. \nBrowse, search and match the Permission-Index corresponding to the permission name or description by using the module names.";
 export declare const CallObejctPermissionSchemaInput: () => import("zod-to-json-schema").JsonSchema7Type & {
     $schema?: string | undefined;
     definitions?: {

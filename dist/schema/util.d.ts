@@ -47,7 +47,9 @@ export declare enum ToolName {
     QUERY_RECEIVED = "received_query",
     QUERY_LOCAL = "local_query",
     QUERY_TABLE_ITEM = "table_item_query",
-    QUERY_WOWOK_PROTOCOL = "wowok_protocol"
+    QUERY_WOWOK_PROTOCOL = "wowok_protocol",
+    QUERY_BUILT_IN_PERMISSIONS = "built_in_permissions",
+    QUERY_GUARD_QUERIES = "guard_queries"
 }
 export declare enum PromptName {
     ARBITRATION_NEW = "Create a new Arbitration object",

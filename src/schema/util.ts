@@ -75,6 +75,8 @@ export enum ToolName {
     QUERY_LOCAL = 'local_query',
     QUERY_TABLE_ITEM = 'table_item_query',
     QUERY_WOWOK_PROTOCOL = 'wowok_protocol',
+    QUERY_BUILT_IN_PERMISSIONS = 'built_in_permissions',
+    QUERY_GUARD_QUERIES = 'guard_queries',
 }
 
 export enum PromptName {

@@ -198,7 +198,7 @@ export const Policy_Removall = `Remove all consensus policies`;
 export const Policy_Rename = `Rename consensus policies`;
 export const Policy_Rename_Old = `The original name of the data name`;
 export const Policy_Rename_New = `The new name of the data name`;
-export const Repository_Guard_Witness = `If it has been set, when writing the policied data to the Repository object, the Address/ID field must specify the identifier in this collection to determine that the Address/ID comes from the address data that has been verified by Guard.`;
+export const Repository_Guard_Witness = `If been set, when writing the policied data to the Repository object, the Address/ID field must specify the identifier in this collection to determine that the Address/ID comes from the address data that has been verified by Guard.`;
 export const Repository_Guard_Description = `Set or unset the Guard (the 'object' field specifies a string or null). 
     If Guard set, any operation on the policy data will be verified by the Guard verification. `;
 export const Data_Key = `Data name`;
@@ -260,8 +260,15 @@ export const Order_Refund_Guard = `Refund through the refund Guard object`;
 export const Service_Order_Refund = `Refund order`;
 export const Service_Order_Withdraw = `Withdraw order funds`;
 export const Service_Order_Payer = `Change the order owner`;
-export const Service_Endpoint = `Https endpoint. Provide a view for browsing detailed product information. 
-    Parameters to the Http endpoint: "?&service={service id}&product={product name}"`;
+export const Service_Endpoint = `Https endpoint about service details & Receiving information of customer orders.
+If set, the private required information of the order will be published to this HTTPS endpoint via the Post Method.
+{   
+    method: 'POST', 
+    headers: {
+            'Content-Type': 'application/json'
+        },
+    body: JSON.stringify(requires)
+}`;
 export const Service_Payee = `Change the order owner`;
 export const Service_Discount = `Send discount coupons to the receivers`;
 export const Discount_Name = `The coupon name`;

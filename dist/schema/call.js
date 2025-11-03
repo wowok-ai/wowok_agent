@@ -698,7 +698,7 @@ export const CallServiceDataSchema = z.object({
                 item: z.string().nonempty().describe('Goods name'),
                 price: z.union([z.string(), z.number().int().min(0)]).describe('Goods price'),
                 stock: z.union([z.string(), z.number().int().min(0)]).describe('Goods stock'),
-                endpoint: z.string().nullable().optional().describe('Goods endpoint')
+                endpoint: z.string().nullable().optional().describe('Goods HTTPS endpoint')
             }).describe('Goods infomation'))
         }).describe('Shelf goods to sell'),
         z.object({
@@ -708,8 +708,8 @@ export const CallServiceDataSchema = z.object({
     ]).optional().describe('Manage the sale of goods'),
     withdraw_guard: GuardRateSchema.optional().describe('Management withdraw guards.'),
     refund_guard: GuardRateSchema.optional().describe('Management refund guards.'),
-    bPublished: z.boolean().optional().describe('Publish the Service object. ' +
-        'If True, The Service object will allow its Order object to be created, and data such as the Machine, Withdraw guards, Refund guards, etc. cannot be changed again. If False, it is ignored.'),
+    bPublished: z.boolean().optional().describe(`Publish the Service object. When the Service is published, its 'withdraw_guard' field needs to have been set.' + 
+        'If True, The Service object will allow its Order object to be created, and data such as the Machine, Withdraw guards, Refund guards, etc. cannot be changed again. If False, it is ignored.`),
     buy_guard: GetMarkNameSchema('Guard').optional().nullable().describe(D.Buy_Guard),
     bPaused: z.boolean().optional().describe(D.Service_bPaused),
     clone_new: z.object({
@@ -953,6 +953,9 @@ export const CallGuardSchema = z.object({
 export const CallGuardSchemaInput = () => {
     return zodToJsonSchema(CallGuardSchema);
 };
+export const QueryGuardQueriesDescription = `Retrive guard queries within the modules of the Wowok protocol. 
+    Browse, search and match the query id corresponding to the query name or description by using the module names,
+    especially when the query parameter "invalid" is present`;
 /*
 export const GuardDataCloneSchema = z.object({
     guard: z.string().nonempty().describe('Guard object id to clone'),
@@ -970,6 +973,8 @@ export const CallObejctPermissionSchema = z.object({
     witness: WitnessSchema,
     session: SessionSchema,
 });
+export const QueryBuiltinPermissionsDescription = `Retrieves built-in permissions within the modules of the Wowok protocol. 
+Browse, search and match the Permission-Index corresponding to the permission name or description by using the module names.`;
 export const CallObejctPermissionSchemaInput = () => {
     return zodToJsonSchema(CallObejctPermissionSchema);
 };

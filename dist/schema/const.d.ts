@@ -164,7 +164,7 @@ export declare const Policy_Removall = "Remove all consensus policies";
 export declare const Policy_Rename = "Rename consensus policies";
 export declare const Policy_Rename_Old = "The original name of the data name";
 export declare const Policy_Rename_New = "The new name of the data name";
-export declare const Repository_Guard_Witness = "If it has been set, when writing the policied data to the Repository object, the Address/ID field must specify the identifier in this collection to determine that the Address/ID comes from the address data that has been verified by Guard.";
+export declare const Repository_Guard_Witness = "If been set, when writing the policied data to the Repository object, the Address/ID field must specify the identifier in this collection to determine that the Address/ID comes from the address data that has been verified by Guard.";
 export declare const Repository_Guard_Description = "Set or unset the Guard (the 'object' field specifies a string or null). \n    If Guard set, any operation on the policy data will be verified by the Guard verification. ";
 export declare const Data_Key = "Data name";
 export declare const Data_bcsBytes = "Data in bcs Bytes format";
@@ -219,7 +219,7 @@ export declare const Order_Refund_Guard = "Refund through the refund Guard objec
 export declare const Service_Order_Refund = "Refund order";
 export declare const Service_Order_Withdraw = "Withdraw order funds";
 export declare const Service_Order_Payer = "Change the order owner";
-export declare const Service_Endpoint = "Https endpoint. Provide a view for browsing detailed product information. \n    Parameters to the Http endpoint: \"?&service={service id}&product={product name}\"";
+export declare const Service_Endpoint = "Https endpoint about service details & Receiving information of customer orders.\nIf set, the private required information of the order will be published to this HTTPS endpoint via the Post Method.\n{   \n    method: 'POST', \n    headers: {\n            'Content-Type': 'application/json'\n        },\n    body: JSON.stringify(requires)\n}";
 export declare const Service_Payee = "Change the order owner";
 export declare const Service_Discount = "Send discount coupons to the receivers";
 export declare const Discount_Name = "The coupon name";
